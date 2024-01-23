@@ -1,0 +1,40 @@
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  build:
+    name: build-test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Use Node.js ${{ matrix.node-version }} and Cache
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
+          cache-dependency-path: './yarn.lock'
+     
+
+      - name: Install Dependencies
+        uses: Borales/actions-yarn@v4.2.0
+        with:
+          cmd: install
+
+      - name: Run ESLint 
+        uses: Borales/actions-yarn@v4.2.0
+        with:
+          cmd: lint
+
+      - name: Run tests
+        uses: Borales/actions-yarn@v4.2.0
+        with:
+          cmd: test
