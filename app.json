@@ -1,0 +1,10 @@
+{
+  "expo": {
+    "name": "eventhand-expo",
+    "slug": "eventhand-expo",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
