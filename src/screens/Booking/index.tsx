@@ -4,7 +4,7 @@ import { StyleSheet, Text, View } from "react-native";
 
 export default function Booking() {
   return (
-    <View style={styles.container}>
+    <View testID="booking" style={styles.container}>
       <Text>Booking!</Text>
       <StatusBar style="auto" />
     </View>
