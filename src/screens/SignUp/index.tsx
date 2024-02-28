@@ -8,6 +8,7 @@ import {
 } from "react-hook-form";
 import { View, TextInput, Button, Text, StyleSheet } from "react-native";
 import { object, string, date } from "yup";
+import { useSignUp } from "@clerk/clerk-expo";
 
 interface SignUpInput extends FieldValues {
   email: string;
@@ -30,6 +31,7 @@ const signUpValidationSchema = object().shape({
 });
 
 const SignupForm = () => {
+  const { isLoaded, signUp } = useSignUp();
   const {
     register,
     control,
@@ -39,6 +41,74 @@ const SignupForm = () => {
   } = useForm<SignUpInput, unknown>({
     mode: "onSubmit",
     resolver: yupResolver(signUpValidationSchema),
+  });
+  const [code, setCode] = useState("");
+  const [pendingVerification, setPendingVerification] = useState(false);
+
+  const clerkSignUp= async (input: SignUpInput ) => {
+    const {emailAddress, password} = input
+
+    if (!isLoaded){
+      return;
+    }
+
+    await signUp.create({
+      emailAddress,
+      password,
+    });
+
+    // send the email.
+    await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+ 
+    // change the UI to our pending section.
+    setPendingVerification(true);
+
+ }
+
+ const onSignUpPress = handleSubmit(async (input) => {
+    // setLoading(true);
+    // await signUpFlow(input).catch((err) => {
+    //   setLoading(false);
+    //   switch (err.status) {
+    //     case 400:
+    //       setErrorMessage('Sign up failed, please try again');
+    //       break;
+    //     case 401:
+    //       setErrorMessage('Sign up failed, please try again');
+    //       break;
+    //     case 403:
+    //       setErrorMessage(
+    //         'Server is unable to process your login, please try again later',
+    //       );
+    //       break;
+    //     case 404:
+    //       setErrorMessage('No internet connection');
+    //       break;
+    //     case 409:
+    //       setErrorMessage('Email is already in use');
+    //       break;
+    //     case 422:
+    //       setErrorMessage(
+    //         'The information you have entered is invalid\\missing',
+    //       );
+    //       break;
+    //     case 429:
+    //       setErrorMessage(
+    //         'Server is too busy to process your signup, please try again later',
+    //       );
+    //       break;
+    //     case 500:
+    //       setErrorMessage(
+    //         'Server was not able to process your signup, please try again later',
+    //       );
+    //       break;
+    //     default:
+    //       setErrorMessage('Something went wrong, please try again later');
+    //       break;
+    //   }
+    // });
+    await clerkSignUp(input)
+
   });
 
   return (
@@ -65,11 +135,13 @@ const SignupForm = () => {
               />
             </>
           );
-        }}
+c        }}
       />
+
       {!!errors["email"] && (
         <Text style={styles.errorText}>{errors["email"]?.message}</Text>
       )}
+      
       <Controller
         name="password"
         control={control}
