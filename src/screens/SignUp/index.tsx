@@ -43,6 +43,8 @@ const SignupForm = () => {
     resolver: yupResolver(signUpValidationSchema),
   });
   const [code, setCode] = useState("");
+  const [signUpError, setSignUpError] = useState(false);
+  const [signUpErrMessage, setSignUpErrMessage] = useState("");
   const [pendingVerification, setPendingVerification] = useState(false);
 
   const clerkSignUp= async (input: SignUpInput ) => {
@@ -63,7 +65,7 @@ const SignupForm = () => {
     // change the UI to our pending section.
     setPendingVerification(true);
 
- }
+  }
 
  const onSignUpPress = handleSubmit(async (input) => {
     // setLoading(true);
@@ -107,7 +109,45 @@ const SignupForm = () => {
     //       break;
     //   }
     // });
-    await clerkSignUp(input)
+    await clerkSignUp(input).catch((err) => {
+        switch (err.status) {
+          case 400:
+            setSignUpErrMessage('Sign up failed, please try again');
+            break;
+          case 401:
+            setSignUpErrMessage('Sign up failed, please try again');
+            break;
+          case 403:
+            setSignUpErrMessage(
+              'Server is unable to process your login, please try again later',
+            );
+            break;
+          case 404:
+            setSignUpErrMessage('No internet connection');
+            break;
+          case 409:
+            setSignUpErrMessage('Email is already in use');
+            break;
+          case 422:
+            setSignUpErrMessage(
+              'The information you have entered is invalid\\missing',
+            );
+            break;
+          case 429:
+            setSignUpErrMessage(
+              'Server is too busy to process your signup, please try again later',
+            );
+            break;
+          case 500:
+            setSignUpErrMessage(
+              'Server was not able to process your signup, please try again later',
+            );
+            break;
+          default:
+            setSignUpErrMessage('Something went wrong, please try again later');
+            break;
+        }
+      });
 
   });
 
@@ -135,7 +175,7 @@ const SignupForm = () => {
               />
             </>
           );
-c        }}
+        }}
       />
 
       {!!errors["email"] && (
@@ -170,7 +210,7 @@ c        }}
           );
         }}
       />
-      <Button title="Sign Up" onPress={() => trigger()} />
+      <Button title="Sign Up" onPress={onSignUpPress} />
     </View>
   );
 };
