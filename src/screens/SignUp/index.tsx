@@ -1,3 +1,4 @@
+import { useSignUp } from "@clerk/clerk-expo";
 import { yupResolver } from "@hookform/resolvers/yup";
 import React, { useState } from "react";
 import {
@@ -8,7 +9,6 @@ import {
 } from "react-hook-form";
 import { View, TextInput, Button, Text, StyleSheet } from "react-native";
 import { object, string, date } from "yup";
-import { useSignUp } from "@clerk/clerk-expo";
 
 interface SignUpInput extends FieldValues {
   email: string;
@@ -47,10 +47,10 @@ const SignupForm = () => {
   const [signUpErrMessage, setSignUpErrMessage] = useState("");
   const [pendingVerification, setPendingVerification] = useState(false);
 
-  const clerkSignUp= async (input: SignUpInput ) => {
-    const {emailAddress, password} = input
+  const clerkSignUp = async (input: SignUpInput) => {
+    const { emailAddress, password } = input;
 
-    if (!isLoaded){
+    if (!isLoaded) {
       return;
     }
 
@@ -61,13 +61,12 @@ const SignupForm = () => {
 
     // send the email.
     await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
- 
+
     // change the UI to our pending section.
     setPendingVerification(true);
+  };
 
-  }
-
- const onSignUpPress = handleSubmit(async (input) => {
+  const onSignUpPress = handleSubmit(async (input) => {
     // setLoading(true);
     // await signUpFlow(input).catch((err) => {
     //   setLoading(false);
@@ -110,45 +109,44 @@ const SignupForm = () => {
     //   }
     // });
     await clerkSignUp(input).catch((err) => {
-        switch (err.status) {
-          case 400:
-            setSignUpErrMessage('Sign up failed, please try again');
-            break;
-          case 401:
-            setSignUpErrMessage('Sign up failed, please try again');
-            break;
-          case 403:
-            setSignUpErrMessage(
-              'Server is unable to process your login, please try again later',
-            );
-            break;
-          case 404:
-            setSignUpErrMessage('No internet connection');
-            break;
-          case 409:
-            setSignUpErrMessage('Email is already in use');
-            break;
-          case 422:
-            setSignUpErrMessage(
-              'The information you have entered is invalid\\missing',
-            );
-            break;
-          case 429:
-            setSignUpErrMessage(
-              'Server is too busy to process your signup, please try again later',
-            );
-            break;
-          case 500:
-            setSignUpErrMessage(
-              'Server was not able to process your signup, please try again later',
-            );
-            break;
-          default:
-            setSignUpErrMessage('Something went wrong, please try again later');
-            break;
-        }
-      });
-
+      switch (err.status) {
+        case 400:
+          setSignUpErrMessage("Sign up failed, please try again");
+          break;
+        case 401:
+          setSignUpErrMessage("Sign up failed, please try again");
+          break;
+        case 403:
+          setSignUpErrMessage(
+            "Server is unable to process your login, please try again later",
+          );
+          break;
+        case 404:
+          setSignUpErrMessage("No internet connection");
+          break;
+        case 409:
+          setSignUpErrMessage("Email is already in use");
+          break;
+        case 422:
+          setSignUpErrMessage(
+            "The information you have entered is invalid\\missing",
+          );
+          break;
+        case 429:
+          setSignUpErrMessage(
+            "Server is too busy to process your signup, please try again later",
+          );
+          break;
+        case 500:
+          setSignUpErrMessage(
+            "Server was not able to process your signup, please try again later",
+          );
+          break;
+        default:
+          setSignUpErrMessage("Something went wrong, please try again later");
+          break;
+      }
+    });
   });
 
   return (
@@ -181,7 +179,7 @@ const SignupForm = () => {
       {!!errors["email"] && (
         <Text style={styles.errorText}>{errors["email"]?.message}</Text>
       )}
-      
+
       <Controller
         name="password"
         control={control}
