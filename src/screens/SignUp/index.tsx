@@ -18,10 +18,7 @@ interface SignUpInput extends FieldValues {
 const signUpValidationSchema = object().shape({
   email: string()
     .required("Please enter your email")
-    .matches(
-      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-      "Please enter a valid email",
-    ),
+    .email("Please enter a valid email"),
   password: string()
     .required("Please enter your password")
     .matches(
@@ -159,25 +156,23 @@ const SignupForm = () => {
           const onValueChange = (text: string) => onChange(text);
 
           return (
-            <>
-              <TextInput
-                id="email-text-input"
-                testID="test-email-input"
-                style={styles.input}
-                placeholder="Email"
-                onChangeText={onValueChange}
-                autoCapitalize="none"
-                returnKeyType="next"
-                keyboardType="email-address"
-                textContentType="emailAddress"
-              />
-            </>
+            <TextInput
+              id="email-text-input"
+              testID="test-email-input"
+              style={styles.input}
+              placeholder="Email"
+              onChangeText={onValueChange}
+              autoCapitalize="none"
+              returnKeyType="next"
+              keyboardType="email-address"
+              textContentType="emailAddress"
+            />
           );
         }}
       />
 
       {!!errors["email"] && (
-        <Text style={styles.errorText}>{errors["email"]?.message}</Text>
+        <Text testID="email-err-text" style={styles.errorText}>{errors["email"]?.message}</Text>
       )}
 
       <Controller
@@ -187,28 +182,31 @@ const SignupForm = () => {
           const onValueChange = (text: string) => onChange(text);
 
           return (
-            <>
-              <TextInput
-                id="password-input"
-                testID="test-password-input"
-                style={styles.input}
-                placeholder="Password"
-                onChangeText={onValueChange}
-                autoCapitalize="none"
-                returnKeyType="next"
-                textContentType="password"
-                secureTextEntry
-              />
-              {!!errors["password"] && (
-                <Text style={styles.errorText}>
-                  {errors["password"]?.message}
-                </Text>
-              )}
-            </>
+            <TextInput
+              id="password-input"
+              testID="test-password-input"
+              style={styles.input}
+              placeholder="Password"
+              onChangeText={onValueChange}
+              autoCapitalize="none"
+              returnKeyType="next"
+              textContentType="password"
+              secureTextEntry
+            />
           );
         }}
       />
-      <Button title="Sign Up" onPress={onSignUpPress} />
+      {!!errors["password"] && (
+        <Text testID="password-err-text" style={styles.errorText}>{errors["password"]?.message}</Text>
+      )}
+      <Button
+        title="Sign Up"
+        testID="test-signup-btn"
+        onPress={onSignUpPress}
+      />
+            {signUpError && (
+        <Text testID="signup-err-text" style={styles.errorText}>{signUpErrMessage}</Text>
+      )}
     </View>
   );
 };
