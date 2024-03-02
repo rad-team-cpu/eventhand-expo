@@ -8,6 +8,7 @@ import {
   Controller,
 } from "react-hook-form";
 import { View, TextInput, Button, Text, StyleSheet } from "react-native";
+import { TouchableOpacity } from "react-native-gesture-handler";
 import { object, string, date } from "yup";
 
 interface SignUpInput extends FieldValues {
@@ -28,7 +29,7 @@ const signUpValidationSchema = object().shape({
 });
 
 const SignupForm = () => {
-  const { isLoaded, signUp } = useSignUp();
+  const { isLoaded, signUp, setActive } = useSignUp();
   const {
     register,
     control,
@@ -105,107 +106,151 @@ const SignupForm = () => {
     //       break;
     //   }
     // });
-    await clerkSignUp(input).catch((err) => {
-      switch (err.status) {
-        case 400:
-          setSignUpErrMessage("Sign up failed, please try again");
-          break;
-        case 401:
-          setSignUpErrMessage("Sign up failed, please try again");
-          break;
-        case 403:
-          setSignUpErrMessage(
-            "Server is unable to process your login, please try again later",
-          );
-          break;
-        case 404:
-          setSignUpErrMessage("No internet connection");
-          break;
-        case 409:
-          setSignUpErrMessage("Email is already in use");
-          break;
-        case 422:
-          setSignUpErrMessage(
-            "The information you have entered is invalid\\missing",
-          );
-          break;
-        case 429:
-          setSignUpErrMessage(
-            "Server is too busy to process your signup, please try again later",
-          );
-          break;
-        case 500:
-          setSignUpErrMessage(
-            "Server was not able to process your signup, please try again later",
-          );
-          break;
-        default:
-          setSignUpErrMessage("Something went wrong, please try again later");
-          break;
-      }
+    setSignUpErrMessage("");
+    clerkSignUp(input).catch((err) => {
+      setSignUpError(true);
+      setSignUpErrMessage(err.errors[0].message);
+      // switch (err.status) {
+      //   case 400:
+      //     setSignUpErrMessage("Sign up failed, please try again");
+      //     break;
+      //   case 401:
+      //     setSignUpErrMessage("Sign up failed, please try again");
+      //     break;
+      //   case 403:
+      //     setSignUpErrMessage(
+      //       "Server is unable to process your login, please try again later",
+      //     );
+      //     break;
+      //   case 404:
+      //     setSignUpErrMessage("No internet connection");
+      //     break;
+      //   case 409:
+      //     setSignUpErrMessage("Email is already in use");
+      //     break;
+      //   case 422:
+      //     setSignUpErrMessage(
+      //       "The information you have entered is invalid\\missing",
+      //     );
+      //     break;
+      //   case 429:
+      //     setSignUpErrMessage(
+      //       "Server is too busy to process your signup, please try again later",
+      //     );
+      //     break;
+      //   case 500:
+      //     setSignUpErrMessage(
+      //       "Server was not able to process your signup, please try again later",
+      //     );
+      //     break;
+      //   default:
+      //     setSignUpErrMessage("Something went wrong, please try again later");
+      //     break;
+      // }
     });
   });
 
+  const onPressVerify = async () => {
+    setSignUpErrMessage("");
+    if (!isLoaded) {
+      return;
+    }
+
+    try {
+      const completeSignUp = await signUp.attemptEmailAddressVerification({
+        code,
+      });
+
+      await setActive({ session: completeSignUp.createdSessionId });
+    } catch (err: any) {
+      console.error(JSON.stringify(err, null, 2));
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <Text>SIGNUP</Text>
-      <Controller
-        name="email"
-        control={control}
-        render={({ field: { onChange } }) => {
-          const onValueChange = (text: string) => onChange(text);
+      {!pendingVerification && (
+        <View>
+          <Text>SIGNUP</Text>
+          <Controller
+            name="email"
+            control={control}
+            render={({ field: { onChange } }) => {
+              const onValueChange = (text: string) => onChange(text);
 
-          return (
-            <TextInput
-              id="email-text-input"
-              testID="test-email-input"
-              style={styles.input}
-              placeholder="Email"
-              onChangeText={onValueChange}
-              autoCapitalize="none"
-              returnKeyType="next"
-              keyboardType="email-address"
-              textContentType="emailAddress"
-            />
-          );
-        }}
-      />
+              return (
+                <TextInput
+                  id="email-text-input"
+                  testID="test-email-input"
+                  style={styles.input}
+                  placeholder="Email"
+                  onChangeText={onValueChange}
+                  autoCapitalize="none"
+                  returnKeyType="next"
+                  keyboardType="email-address"
+                  textContentType="emailAddress"
+                />
+              );
+            }}
+          />
 
-      {!!errors["email"] && (
-        <Text testID="email-err-text" style={styles.errorText}>{errors["email"]?.message}</Text>
+          {!!errors["email"] && (
+            <Text testID="email-err-text" style={styles.errorText}>
+              {errors["email"]?.message}
+            </Text>
+          )}
+
+          <Controller
+            name="password"
+            control={control}
+            render={({ field: { onChange } }) => {
+              const onValueChange = (text: string) => onChange(text);
+
+              return (
+                <TextInput
+                  id="password-input"
+                  testID="test-password-input"
+                  style={styles.input}
+                  placeholder="Password"
+                  onChangeText={onValueChange}
+                  autoCapitalize="none"
+                  returnKeyType="next"
+                  textContentType="password"
+                  secureTextEntry
+                />
+              );
+            }}
+          />
+          {!!errors["password"] && (
+            <Text testID="password-err-text" style={styles.errorText}>
+              {errors["password"]?.message}
+            </Text>
+          )}
+          <Button
+            title="Sign Up"
+            testID="test-signup-btn"
+            onPress={onSignUpPress}
+          />
+          {signUpError && (
+            <Text testID="signup-err-text" style={styles.errorText}>
+              {signUpErrMessage}
+            </Text>
+          )}
+        </View>
       )}
-
-      <Controller
-        name="password"
-        control={control}
-        render={({ field: { onChange } }) => {
-          const onValueChange = (text: string) => onChange(text);
-
-          return (
+      {pendingVerification && (
+        <View>
+          <View>
             <TextInput
-              id="password-input"
-              testID="test-password-input"
-              style={styles.input}
-              placeholder="Password"
-              onChangeText={onValueChange}
-              autoCapitalize="none"
-              returnKeyType="next"
-              textContentType="password"
-              secureTextEntry
+              value={code}
+              placeholder="Code..."
+              onChangeText={(code) => setCode(code)}
             />
-          );
-        }}
-      />
-      {!!errors["password"] && (
-        <Text testID="password-err-text" style={styles.errorText}>{errors["password"]?.message}</Text>
-      )}
-      <Button
-        title="Sign Up"
-        testID="test-signup-btn"
-        onPress={onSignUpPress}
-      />
-            {signUpError && (
-        <Text testID="signup-err-text" style={styles.errorText}>{signUpErrMessage}</Text>
+          </View>
+          <TouchableOpacity onPress={onPressVerify}>
+            <Text>Verify Email</Text>
+          </TouchableOpacity>
+        </View>
       )}
     </View>
   );
