@@ -8,8 +8,7 @@ import {
   Controller,
 } from "react-hook-form";
 import { View, TextInput, Button, Text, StyleSheet } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
-import { object, string, date } from "yup";
+import { object, string } from "yup";
 
 interface SignUpInput extends FieldValues {
   emailAddress: string;
@@ -34,12 +33,13 @@ const signUpValidationSchema = object().shape({
 const SignupForm = () => {
   const { isLoaded, signUp, setActive } = useSignUp();
   const {
-    register,
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isValid, isDirty },
   } = useForm<SignUpInput, unknown>({
-    mode: "onSubmit",
+    mode: "onBlur",
+    reValidateMode: "onChange",
+    defaultValues: { emailAddress: "", password: "" },
     resolver: yupResolver(signUpValidationSchema),
   });
   const [code, setCode] = useState("");
@@ -48,15 +48,14 @@ const SignupForm = () => {
   const [pendingVerification, setPendingVerification] = useState(false);
 
   const clerkSignUp = async (input: SignUpInput) => {
-    const { emailAddress, password } = input;
     if (!isLoaded) {
       return;
     }
 
-    await signUp.create(input);
+    // await signUp.create(input);
 
-    // send the email.
-    await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+    // // send the email.
+    // await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
 
     // change the UI to our pending section.
     setPendingVerification(true);
@@ -121,7 +120,7 @@ const SignupForm = () => {
       .attemptEmailAddressVerification({
         code,
       })
-      .then((completeSignUp) => {
+      .then(async (completeSignUp) => {
         await setActive({ session: completeSignUp.createdSessionId });
       })
       .catch((err) => {
@@ -138,7 +137,7 @@ const SignupForm = () => {
           <Controller
             name="emailAddress"
             control={control}
-            render={({ field: { onChange } }) => {
+            render={({ field: { onChange, onBlur } }) => {
               const onValueChange = (text: string) => onChange(text);
 
               return (
@@ -147,6 +146,7 @@ const SignupForm = () => {
                   testID="test-email-input"
                   style={styles.input}
                   placeholder="Email"
+                  onBlur={onBlur}
                   onChangeText={onValueChange}
                   autoCapitalize="none"
                   returnKeyType="next"
@@ -157,7 +157,7 @@ const SignupForm = () => {
             }}
           />
 
-          {!!errors["email"] && (
+          {!!errors["emailAddress"] && (
             <Text testID="email-err-text" style={styles.errorText}>
               {errors["emailAddress"]?.message}
             </Text>
@@ -166,7 +166,7 @@ const SignupForm = () => {
           <Controller
             name="password"
             control={control}
-            render={({ field: { onChange } }) => {
+            render={({ field: { onChange, onBlur } }) => {
               const onValueChange = (text: string) => onChange(text);
 
               return (
@@ -175,6 +175,7 @@ const SignupForm = () => {
                   testID="test-password-input"
                   style={styles.input}
                   placeholder="Password"
+                  onBlur={onBlur}
                   onChangeText={onValueChange}
                   autoCapitalize="none"
                   returnKeyType="next"
@@ -193,6 +194,7 @@ const SignupForm = () => {
             title="Sign Up"
             testID="test-signup-btn"
             onPress={onSignUpPress}
+            disabled={!isValid}
           />
           {signUpError && (
             <Text testID="signup-err-text" style={styles.errorText}>
