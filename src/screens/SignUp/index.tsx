@@ -12,19 +12,22 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import { object, string, date } from "yup";
 
 interface SignUpInput extends FieldValues {
-  email: string;
+  emailAddress: string;
   password: string;
 }
 
 const signUpValidationSchema = object().shape({
-  email: string()
+  emailAddress: string()
     .required("Please enter your email")
-    .email("Please enter a valid email"),
+    .matches(
+      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+      "Please enter a valid email",
+    ),
   password: string()
     .required("Please enter your password")
     .matches(
       /^(?=.*[A-Z])(?=.*\d).{8,}$/,
-      "Your password must have at least one uppercase, a number, and least 8 characters long",
+      "Your password must have at least one uppercase, a number, and at least 8 characters long",
     ),
 });
 
@@ -34,7 +37,6 @@ const SignupForm = () => {
     register,
     control,
     handleSubmit,
-    trigger,
     formState: { errors },
   } = useForm<SignUpInput, unknown>({
     mode: "onSubmit",
@@ -47,15 +49,11 @@ const SignupForm = () => {
 
   const clerkSignUp = async (input: SignUpInput) => {
     const { emailAddress, password } = input;
-
     if (!isLoaded) {
       return;
     }
 
-    await signUp.create({
-      emailAddress,
-      password,
-    });
+    await signUp.create(input);
 
     // send the email.
     await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
@@ -107,46 +105,9 @@ const SignupForm = () => {
     //   }
     // });
     setSignUpErrMessage("");
-    clerkSignUp(input).catch((err) => {
+    await clerkSignUp(input).catch((err) => {
       setSignUpError(true);
       setSignUpErrMessage(err.errors[0].message);
-      // switch (err.status) {
-      //   case 400:
-      //     setSignUpErrMessage("Sign up failed, please try again");
-      //     break;
-      //   case 401:
-      //     setSignUpErrMessage("Sign up failed, please try again");
-      //     break;
-      //   case 403:
-      //     setSignUpErrMessage(
-      //       "Server is unable to process your login, please try again later",
-      //     );
-      //     break;
-      //   case 404:
-      //     setSignUpErrMessage("No internet connection");
-      //     break;
-      //   case 409:
-      //     setSignUpErrMessage("Email is already in use");
-      //     break;
-      //   case 422:
-      //     setSignUpErrMessage(
-      //       "The information you have entered is invalid\\missing",
-      //     );
-      //     break;
-      //   case 429:
-      //     setSignUpErrMessage(
-      //       "Server is too busy to process your signup, please try again later",
-      //     );
-      //     break;
-      //   case 500:
-      //     setSignUpErrMessage(
-      //       "Server was not able to process your signup, please try again later",
-      //     );
-      //     break;
-      //   default:
-      //     setSignUpErrMessage("Something went wrong, please try again later");
-      //     break;
-      // }
     });
   });
 
@@ -156,15 +117,17 @@ const SignupForm = () => {
       return;
     }
 
-    try {
-      const completeSignUp = await signUp.attemptEmailAddressVerification({
+    await signUp
+      .attemptEmailAddressVerification({
         code,
+      })
+      .then((completeSignUp) => {
+        await setActive({ session: completeSignUp.createdSessionId });
+      })
+      .catch((err) => {
+        setSignUpError(true);
+        setSignUpErrMessage(err.errors[0].message);
       });
-
-      await setActive({ session: completeSignUp.createdSessionId });
-    } catch (err: any) {
-      console.error(JSON.stringify(err, null, 2));
-    }
   };
 
   return (
@@ -173,8 +136,9 @@ const SignupForm = () => {
         <View>
           <Text>SIGNUP</Text>
           <Controller
-            name="email"
+            name="emailAddress"
             control={control}
+            register={register}
             render={({ field: { onChange } }) => {
               const onValueChange = (text: string) => onChange(text);
 
@@ -196,7 +160,7 @@ const SignupForm = () => {
 
           {!!errors["email"] && (
             <Text testID="email-err-text" style={styles.errorText}>
-              {errors["email"]?.message}
+              {errors["emailAddress"]?.message}
             </Text>
           )}
 
@@ -242,14 +206,17 @@ const SignupForm = () => {
         <View>
           <View>
             <TextInput
+              style={styles.input}
               value={code}
-              placeholder="Code..."
+              placeholder="Code"
               onChangeText={(code) => setCode(code)}
             />
           </View>
-          <TouchableOpacity onPress={onPressVerify}>
-            <Text>Verify Email</Text>
-          </TouchableOpacity>
+          <Button
+            title="Verify"
+            testID="test-verify-btn"
+            onPress={onPressVerify}
+          />
         </View>
       )}
     </View>
