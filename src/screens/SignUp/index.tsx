@@ -138,7 +138,6 @@ const SignupForm = () => {
           <Controller
             name="emailAddress"
             control={control}
-            register={register}
             render={({ field: { onChange } }) => {
               const onValueChange = (text: string) => onChange(text);
 
