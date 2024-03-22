@@ -3,11 +3,10 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import React, { useState } from "react";
 import {
   useForm,
-  SubmitHandler,
   FieldValues,
   Controller,
 } from "react-hook-form";
-import { View, TextInput, Button, Text, StyleSheet } from "react-native";
+import { View, TextInput, Button, Text, StyleSheet, ActivityIndicator } from "react-native";
 import { object, string } from "yup";
 
 interface SignUpInput extends FieldValues {
@@ -46,23 +45,22 @@ const SignupForm = () => {
   const [signUpError, setSignUpError] = useState(false);
   const [signUpErrMessage, setSignUpErrMessage] = useState("");
   const [pendingVerification, setPendingVerification] = useState(false);
+  const [loading, setLoading] = useState(false)
 
   const clerkSignUp = async (input: SignUpInput) => {
     if (!isLoaded) {
       return;
     }
+    await signUp.create(input);
 
-    // await signUp.create(input);
-
-    // // send the email.
-    // await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+    // send the email.
+    await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
 
     // change the UI to our pending section.
     setPendingVerification(true);
   };
 
   const onSignUpPress = handleSubmit(async (input) => {
-    // setLoading(true);
     // await signUpFlow(input).catch((err) => {
     //   setLoading(false);
     //   switch (err.status) {
@@ -103,15 +101,20 @@ const SignupForm = () => {
     //       break;
     //   }
     // });
+    setLoading(true);
     setSignUpErrMessage("");
     await clerkSignUp(input).catch((err) => {
       setSignUpError(true);
       setSignUpErrMessage(err.errors[0].message);
     });
+
+    setLoading(false)
   });
 
   const onPressVerify = async () => {
+    setLoading(true)
     setSignUpErrMessage("");
+
     if (!isLoaded) {
       return;
     }
@@ -127,11 +130,15 @@ const SignupForm = () => {
         setSignUpError(true);
         setSignUpErrMessage(err.errors[0].message);
       });
+      setLoading(false);
   };
 
   return (
     <View style={styles.container}>
-      {!pendingVerification && (
+      {loading && (
+        <ActivityIndicator  size="large" color="#007AFF" style={styles.loading}/>
+      )}
+      {!pendingVerification && !loading && (
         <View>
           <Text>SIGNUP</Text>
           <Controller
@@ -236,6 +243,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 10,
     padding: 10,
+  },
+  loading:{
+    transform:[{
+      scale: 2.0
+    }]
   },
   errorText: {
     color: "red",
