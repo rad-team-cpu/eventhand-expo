@@ -19,7 +19,7 @@ describe("Home", () => {
 
     fireEvent.press(screen.getByTestId("booking-nav-btn"));
 
-    await waitFor(() => {
+    waitFor(() => {
       expect(screen.getByTestId("booking")).toBeOnTheScreen();
     });
   });
@@ -33,7 +33,7 @@ describe("Home", () => {
 
     fireEvent.press(screen.getByTestId("chat-nav-btn"));
 
-    await waitFor(() => {
+    waitFor(() => {
       expect(screen.getByTestId("chat")).toBeOnTheScreen();
     });
   });
@@ -47,7 +47,7 @@ describe("Home", () => {
 
     fireEvent.press(screen.getByTestId("settings-nav-btn"));
 
-    await waitFor(() => {
+    waitFor(() => {
       expect(screen.getByTestId("settings")).toBeOnTheScreen();
     });
   });
