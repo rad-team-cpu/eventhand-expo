@@ -11,5 +11,5 @@
   "include": [
     "**/*.ts",
     "**/*.tsx",
-    "metro.config.js"]
+    "metro.config.js", "tailwind.config.js"]
 }
