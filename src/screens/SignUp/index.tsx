@@ -5,7 +5,7 @@ import { useForm, FieldValues, Controller } from "react-hook-form";
 import { View, TextInput, Button, Text, StyleSheet } from "react-native";
 import { object, string, ref } from "yup";
 
-import Loading from "../../Loading";
+import Loading from "../Loading";
 
 interface SignUpInput extends FieldValues {
   emailAddress: string;
