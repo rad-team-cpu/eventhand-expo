@@ -1,4 +1,4 @@
-import { AntDesign, Feather, FontAwesome } from "@expo/vector-icons";
+import { AntDesign, FontAwesome } from "@expo/vector-icons";
 import {
   BottomTabNavigationOptions,
   createBottomTabNavigator,
@@ -6,7 +6,7 @@ import {
 
 import Booking from "../Booking";
 import Chat from "../Chat";
-import Settings from "../Settings";
+import Profile from "../Profile";
 
 const Tab = createBottomTabNavigator();
 
@@ -28,11 +28,11 @@ const chatIconOptions: BottomTabNavigationOptions = {
   tabBarActiveBackgroundColor: "EE2AE2",
 };
 
-const settingsIconOptions: BottomTabNavigationOptions = {
-  tabBarTestID: `settings-nav-btn`,
+const profileIconOptions: BottomTabNavigationOptions = {
+  tabBarTestID: `profile-nav-btn`,
   headerShown: false,
   tabBarIcon: ({ color, size }) => (
-    <Feather name="settings" color={color} size={size} />
+    <FontAwesome name="user-circle-o" color={color} size={size} />
   ),
 };
 
@@ -46,9 +46,9 @@ const Home = () => {
       />
       <Tab.Screen name="Chat" component={Chat} options={chatIconOptions} />
       <Tab.Screen
-        name="Settings"
-        component={Settings}
-        options={settingsIconOptions}
+        name="Profile"
+        component={Profile}
+        options={profileIconOptions}
       />
     </Tab.Navigator>
   );

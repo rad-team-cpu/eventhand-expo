@@ -1,11 +1,14 @@
 import { StatusBar } from "expo-status-bar";
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Button, View } from "react-native";
 
-export default function Settings() {
+export default function Profile() {
   return (
-    <View testID="settings" style={styles.container}>
-      <Text>Settings!</Text>
+    <View testID="test-profile" style={styles.container}>
+                <Button
+            title="Sign Out"
+            testID="test-signup-btn"
+          />
       <StatusBar style="auto" />
     </View>
   );
