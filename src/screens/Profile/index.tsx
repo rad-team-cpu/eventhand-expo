@@ -17,10 +17,8 @@ export default function Profile() {
       return null;
     }
 
-    signOut().catch((err) => {
-      setLoading(false);
-      setSignOutErrMessage(err.errors[0].message);
-    });
+    signOut();
+
   };
 
   return (
