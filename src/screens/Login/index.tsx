@@ -64,7 +64,7 @@ const Login = ({ navigation }: LoginScreenProps) => {
       {loading && <Loading />}
       {!loading && (
         <View id="signin-form" testID="test-signin-form">
-          <Text>SIGNUP</Text>
+          <Text>LOGIN</Text>
           <Controller
             name="emailAddress"
             control={control}
@@ -123,11 +123,11 @@ const Login = ({ navigation }: LoginScreenProps) => {
             onPress={onLoginPress}
             disabled={!isValid}
           />
-          <Text testID="sign-err-text" style={styles.errorText}>
+          <Text testID="login-err-text" style={styles.errorText}>
             {signInErrMessage}
           </Text>
           <Text
-            testID="signUp-btn-nav"
+            testID="signup-btn-nav"
             onPress={() => navigation.navigate("SignUp")}
           >
             No Account? Sign up here!

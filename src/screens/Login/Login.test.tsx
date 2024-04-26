@@ -1,4 +1,4 @@
-import { SignedOut, useSignIn } from "@clerk/clerk-expo";
+import { useSignIn, useSignUp } from "@clerk/clerk-expo";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import {
@@ -12,33 +12,39 @@ import { UserEventInstance } from "@testing-library/react-native/build/user-even
 import * as React from "react";
 
 import Login from ".";
+import { ScreenProps } from "../../Navigation/types";
+import SignupForm from "../SignUp";
 
 jest.mock("@clerk/clerk-expo");
 
-const Stack = createNativeStackNavigator;
+const Stack = createNativeStackNavigator<ScreenProps>();
 
-let mockCreate: jest.Mock;
+let mockSignIn: jest.Mock;
 let mockSetActive: jest.Mock;
 let user: UserEventInstance;
 
 beforeEach(() => {
   jest.useFakeTimers();
-  mockCreate = jest.fn();
+  mockSignIn = jest.fn();
   mockSetActive = jest.fn();
 
   (useSignIn as jest.Mock).mockReturnValue({
     isLoaded: true,
     signIn: {
-      create: mockCreate,
+      create: mockSignIn,
     },
     setActive: mockSetActive,
   });
 
   render(
     <NavigationContainer>
-      <SignedOut/>
+      <Stack.Navigator>
+        <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen name="SignUp" component={SignupForm} />
+      </Stack.Navigator>
     </NavigationContainer>,
   );
+  
   user = userEvent.setup();
 });
 
@@ -68,8 +74,14 @@ describe("Login", () => {
   ];
 
   it.each(testData)(
-    "Should allow user to input the email and password of the user",
+    "Should accept a valid email and password from the user",
     async (data) => {
+      const mockCompleteSignIn = {
+        createdSessionId: "mocked-session-id",
+      };
+
+      mockSignIn.mockResolvedValueOnce(mockCompleteSignIn);
+
       const emailInput = screen.getByPlaceholderText("Email");
 
       await user.type(emailInput, data.email);
@@ -90,10 +102,107 @@ describe("Login", () => {
         expect(emailErrText.children[0]).toBeFalsy();
         expect(passwordErrText.children[0]).toBeFalsy();
       });
+
+      const loginButton = screen.getByRole("button", { name: "Login" });
+
+      await user.press(loginButton);
+
+      await waitFor(() => {
+        expect(mockSignIn).toHaveBeenCalledWith({
+          identifier: data.email,
+          password: data.password,
+        });
+        expect(mockSetActive).toHaveBeenCalledWith({
+          session: mockCompleteSignIn.createdSessionId,
+        });
+      });
     },
   );
 
-  it("Should display an error text and disable Login button if the fields are empty", () => {
-    const emailInput = screen.getAllByPlaceholderText("");
+  it("Should display an error text and disable Login button if the fields are empty", async () => {
+    const emailInput = screen.getByPlaceholderText("Email");
+    const loginButton = screen.getByRole("button", { name: "Login" });
+    const emailErrText = screen.getByTestId("email-err-text");
+
+    await user.type(emailInput, "");
+
+    await waitFor(() => {
+      expect(emailErrText.children[0]).toBeTruthy();
+      expect(loginButton).toBeDisabled();
+    });
+
+    const passwordInput = screen.getByPlaceholderText("Password");
+    const passwordErrText = screen.getByTestId("password-err-text");
+
+    await user.type(passwordInput, "");
+
+    await waitFor(() => {
+      expect(passwordErrText.children[0]).toBeTruthy();
+      expect(loginButton).toBeDisabled();
+    });
   });
+
+  it("Should display a loading screen on Login", async () => {
+    const mockCompleteSignIn = {
+      createdSessionId: "mocked-session-id",
+    };
+
+    mockSignIn.mockResolvedValueOnce(
+      new Promise((resolve) => {
+        setTimeout(() => resolve(mockCompleteSignIn), 3000);
+      }),
+    );
+
+    const emailInput = screen.getByPlaceholderText("Email");
+    const passwordInput = screen.getByPlaceholderText("Password");
+    const loginButton = screen.getByRole("button", { name: "Login" });
+
+    await user.type(emailInput, testData[0].email);
+    await user.type(passwordInput, testData[0].password);
+    await user.press(loginButton);
+
+    const loadingIndicator = screen.getByTestId("test-loading");
+
+    await waitFor(() => {
+      expect(loadingIndicator).toBeOnTheScreen();
+    });
+  });
+
+  it("Should display an error text on Login error", async () => {
+    const mockError = {
+      errors: [{ message: "Login Error" }],
+    };
+
+    mockSignIn.mockRejectedValueOnce(mockError);
+
+    const emailInput = screen.getByPlaceholderText("Email");
+    const passwordInput = screen.getByPlaceholderText("Password");
+    const loginButton = screen.getByRole("button", { name: "Login" });
+
+    await user.type(emailInput, testData[0].email);
+    await user.type(passwordInput, testData[0].password);
+    await user.press(loginButton);
+
+    const loginErrText = screen.getByTestId("login-err-text");
+
+    await waitFor(() => {
+      expect(loginErrText.children[0]).toBeTruthy();
+    });
+  });
+
+  it("Should navigate to Sign Up screen on sign up text press", async () => {
+    (useSignUp as jest.Mock).mockReturnValue({
+      isLoaded: true,
+    });
+
+    const signUpNavButton = screen.getByTestId("signup-btn-nav");
+
+    await user.press(signUpNavButton);
+
+    const signUpForm = screen.getByTestId("test-signup-form")
+
+    await waitFor(() => {
+      expect(signUpForm).toBeOnTheScreen();
+    })
+  })
 });

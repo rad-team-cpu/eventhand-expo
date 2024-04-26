@@ -6,13 +6,12 @@ import SignedInNav from "./SignedIn";
 const Navigator = () => {
   return (
     <NavigationContainer>
-      {/* <SignedIn>
+      <SignedIn>
         <SignedInNav/>
       </SignedIn>
       <SignedOut>
         <SignedOutNav/>
-      </SignedOut> */}
-      <SignedInNav/>
+      </SignedOut>
     </NavigationContainer>
   );
 };
