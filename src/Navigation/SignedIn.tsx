@@ -1,7 +1,7 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+
 import { ScreenProps } from "./types";
 import Home from "../screens/Home";
-
 
 const SignedInStack = createNativeStackNavigator<ScreenProps>();
 
