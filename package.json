@@ -9,7 +9,8 @@
     "web": "expo start --web",
     "lint": "eslint .",
     "prepare": "husky install",
-    "test": "jest --watchAll --verbose"
+    "test": "jest --watchAll --verbose",
+    "ci-test": "jest  --verbose"
   },
   "dependencies": {
     "@clerk/clerk-expo": "^0.20.5",
