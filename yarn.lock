@@ -5023,7 +5023,7 @@ expo-auth-session@~5.4.0:
     expo-web-browser "~12.8.0"
     invariant "^2.2.4"
 
-expo-constants@~15.4.0, expo-constants@~15.4.3, expo-constants@~15.4.5:
+expo-constants@~15.4.0, expo-constants@~15.4.3:
   version "15.4.6"
   resolved "https://registry.yarnpkg.com/expo-constants/-/expo-constants-15.4.6.tgz#d4e9b21b70c5602457962700f2e90a75356b487b"
   integrity sha512-vizE69dww2Vl0PTWWvDmK0Jo2/J+WzdcMZlA05YEnEYofQuhKxTVsiuipf79mSOmFavt4UQYC1UnzptzKyfmiQ==

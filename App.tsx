@@ -26,7 +26,7 @@ export default function App() {
   return (
     <ClerkProvider
       tokenCache={tokenCache}
-      publishableKey={Constants.expoConfig?.extra?.clerkPublishableKey}
+      publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!}
     >
       <Navigator />
     </ClerkProvider>

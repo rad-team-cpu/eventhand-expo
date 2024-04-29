@@ -1,0 +1,44 @@
+name: build
+
+on:
+    workflow_run:
+      workflows: ["test"]
+      types: [completed] #requested
+ 
+jobs:
+    on-success:
+        name: test
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                node-version: [18.x]
+        if: ${{ github.event.workflow_run.conclusion == 'success' }}
+   
+        steps:
+        - uses: actions/checkout@v3
+
+        - name: Use Node.js ${{ matrix.node-version }} and Cache
+          uses: actions/setup-node@v3
+          with:
+            node-version: ${{ matrix.node-version }}
+            cache: 'yarn'
+            cache-dependency-path: './yarn.lock'
+
+        - name: Setup Expo and EAS
+          uses: expo/expo-github-action@v8
+          with:
+            eas-version: latest
+            token: ${{ secrets.EXPO_TOKEN }}
+    
+        - name: Install Dependencies
+          uses: Borales/actions-yarn@v4.2.0
+          with:
+            cmd: install
+        - name: Build on EAS
+          run: eas build --profile preview --platform android --non-interactive --no-wait
+ 
+    on-failure:
+      runs-on: ubuntu-latest
+      if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+      steps:
+        - run: echo "First workflow was a failure"
