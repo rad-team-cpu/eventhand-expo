@@ -1,5 +1,6 @@
 module.exports = {
     name: 'eventhand-expo',
+    slug: 'eventhand-expo',
     version: '1.0.0',
     extra: {
       clerkPublishableKey: process.env.CLERK_PUBLISHABLE_KEY,
