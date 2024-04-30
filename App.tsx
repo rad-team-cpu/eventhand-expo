@@ -23,10 +23,11 @@ const tokenCache = {
 };
 
 export default function App() {
+  console.log(process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY)
   return (
     <ClerkProvider
       tokenCache={tokenCache}
-      publishableKey={process.env.CLERK_PUBLISHABLE_KEY!}
+      publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!}
     >
       <Navigator />
     </ClerkProvider>
