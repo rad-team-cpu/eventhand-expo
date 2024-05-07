@@ -23,7 +23,6 @@ const tokenCache = {
 };
 
 export default function App() {
-  console.log(process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY)
   return (
     <ClerkProvider
       tokenCache={tokenCache}
