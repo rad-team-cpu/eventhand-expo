@@ -4,6 +4,7 @@ import * as SecureStore from "expo-secure-store";
 import React from "react";
 
 import Navigator from "./src/Navigation";
+import ProfileForm from "./src/screens/Profile/Create";
 
 const tokenCache = {
   async getToken(key: string) {
@@ -29,7 +30,8 @@ export default function App() {
       tokenCache={tokenCache}
       publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!}
     >
-      <Navigator />
+      <ProfileForm/>
+      {/* <Navigator /> */}
     </ClerkProvider>
   );
 }
