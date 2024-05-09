@@ -61,7 +61,7 @@ const ProfileForm = (props: ProfileFormProps) => {
       lastName: "",
       contactNumber: "",
       gender: "",
-      birthDate: new Date(),
+      birthDate: sub({ years: 19 })(new Date()),
     },
     resolver: yupResolver(signUpValidationSchema),
   });
@@ -70,7 +70,7 @@ const ProfileForm = (props: ProfileFormProps) => {
   const [loading, setLoading] = useState(false);
 
   const minDate = sub({ years: 100 })(new Date());
-  const maxDate = sub({ years: 18 })(new Date());
+  const maxDate = sub({ years: 19 })(new Date());
 
   const createProfile = async (input: ProfileInput) => {
     setLoading(true);

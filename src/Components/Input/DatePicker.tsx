@@ -49,6 +49,7 @@ const DatePicker = (props: DatePickerProps) => {
     color,
   } = props;
   const [selected, setSelected] = useState("");
+  
   return (
     <>
       <Controller
@@ -68,7 +69,7 @@ const DatePicker = (props: DatePickerProps) => {
           };
           const showMode = () => {
             DateTimePickerAndroid.open({
-              value: value ?? new Date(),
+              value,
               onChange: onDateChange,
               mode: "date",
               display,
