@@ -76,25 +76,41 @@ const Home = () => {
       },
     };
 
-    try {
-      const response = await fetch("https://example.com/api/user/id");
-      if (!response.ok) {
-        throw new Error("Failed to fetch user ID.");
-      }
-      const data = await response.json();
-      setUserId(data.userId); // Assuming the server responds with a JSON object containing the user ID
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching user ID:", error);
-      setLoading(false);
-    }
+    fetch(url, request)
+      .then((res) => {
+        if (res.status === 200) {
+          return res.json(); // Parse the JSON data for a successful response
+        } else if (res.status === 400) {
+          throw new Error("Bad request - Invalid data.");
+        } else if (res.status === 401) {
+          throw new Error("Unauthorized - Authentication failed.");
+        } else if (res.status === 404) {
+          throw new Error("Not Found - User not found.");
+        } else {
+          throw new Error("Unexpected error occurred.");
+        }
+      })
+      .then((data) => {
+        setUserId(data.userId); // Assuming the server responds with a JSON object containing the user ID
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching user ID:", error);
+        setLoading(false);
+      });
   };
 
   useEffect(() => {
     fetchUserId();
   }, []);
 
-  return userId == "" ? <ProfileForm /> : <HomeNav />;
+  const setNewUserId = (newId: string) => setUserId(newId);
+
+  return userId === "" ? (
+    <ProfileForm setNewUserId={setNewUserId} />
+  ) : (
+    <HomeNav />
+  );
 };
 
 export default Home;

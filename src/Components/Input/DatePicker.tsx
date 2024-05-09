@@ -2,7 +2,7 @@ import {
   DateTimePickerAndroid,
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
-import React, {useState} from "react";
+import React, { useState } from "react";
 import {
   UseFormRegister,
   Control,
@@ -48,7 +48,7 @@ const DatePicker = (props: DatePickerProps) => {
     errorTextStyle,
     color,
   } = props;
-  const [selected, setSelected] = useState("")
+  const [selected, setSelected] = useState("");
   return (
     <>
       <Controller
@@ -63,7 +63,7 @@ const DatePicker = (props: DatePickerProps) => {
             if (selectedDate) {
               const currentDate = selectedDate;
               onChange(currentDate);
-              setSelected(selectedDate.toLocaleDateString())
+              setSelected(selectedDate.toLocaleDateString());
             }
           };
           const showMode = () => {
@@ -83,7 +83,7 @@ const DatePicker = (props: DatePickerProps) => {
 
           return (
             <Button
-              title={selected != ""? selected : label}
+              title={selected != "" ? selected : label}
               testID="test-signup-btn"
               onPress={showDatepicker}
               color={color}

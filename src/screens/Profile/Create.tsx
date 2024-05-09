@@ -16,6 +16,10 @@ import DatePicker from "../../Components/Input/DatePicker";
 import GenderPicker from "../../Components/Input/GenderPicker";
 import Loading from "../Loading";
 
+interface ProfileFormProps {
+  setNewUserId: (newId: string) => void;
+}
+
 interface ProfileInput extends FieldValues {
   lastName: string;
   firstName: string;
@@ -43,12 +47,11 @@ const signUpValidationSchema = object().shape({
     .required("Enter date of birth."),
 });
 
-const ProfileForm = () => {
+const ProfileForm = (props: ProfileFormProps) => {
   const {
     control,
     register,
     handleSubmit,
-    getValues,
     formState: { errors, isValid },
   } = useForm<ProfileInput, unknown>({
     mode: "onChange",
@@ -70,6 +73,10 @@ const ProfileForm = () => {
   const maxDate = sub({ years: 18 })(new Date());
 
   const createProfile = async (input: ProfileInput) => {
+    setLoading(true);
+
+    const { setNewUserId } = props;
+
     const token = getToken({ template: "event-hand-jwt" });
 
     const url = "";
@@ -107,6 +114,10 @@ const ProfileForm = () => {
             setSubmitErrMessage("Unexpected error occurred.");
             throw new Error("Unexpected error occurred."); // Other status codes
         }
+      })
+      .then((data) => {
+        setNewUserId(data.id);
+        setLoading(false);
       })
       .catch((error) => {
         console.error(error); // Log any errors that occur
