@@ -4,7 +4,7 @@ import * as SecureStore from "expo-secure-store";
 import React from "react";
 
 import Navigator from "./src/Navigation";
-import ProfileForm from "./src/screens/Profile/Create";
+import ProfileForm from "./src/screens/Profile/Form";
 
 const tokenCache = {
   async getToken(key: string) {

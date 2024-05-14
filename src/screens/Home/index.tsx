@@ -9,7 +9,7 @@ import React, { useEffect, useState } from "react";
 import Booking from "../Booking";
 import Chat from "../Chat";
 import Profile from "../Profile";
-import ProfileForm from "../Profile/Create";
+import ProfileForm from "../Profile/Form";
 
 const HomeNav = () => {
   const Tab = createBottomTabNavigator();

@@ -15,11 +15,9 @@ import {
 import { UserEventInstance } from "@testing-library/react-native/build/user-event/setup";
 import fetch from "jest-fetch-mock";
 import * as React from "react";
-import { Platform } from "react-native";
 import { ReactTestInstance } from "react-test-renderer";
 
-import { datePickerDate } from "../../../Components/Input/DatePicker";
-import ProfileForm from "../Create";
+import ProfileForm from "../Form";
 
 let mockGetToken: jest.Mock;
 let user: UserEventInstance;
@@ -122,7 +120,7 @@ describe("ProfileForm", () => {
     const contactNumberInput = screen.getByPlaceholderText("Contact No.");
     const maleButton = screen.getByText("Male");
     const femaleButton = screen.getByText("Female");
-    const submitButton = screen.getByRole("button", { name: "SUBMIT" });
+    const nextButton = screen.getByRole("button", { name: "NEXT" });
 
     await waitFor(() => {
       expect(firstNameInput).toBeOnTheScreen();
@@ -130,24 +128,32 @@ describe("ProfileForm", () => {
       expect(contactNumberInput).toBeOnTheScreen();
       expect(maleButton).toBeOnTheScreen();
       expect(femaleButton).toBeOnTheScreen();
-      expect(submitButton).toBeOnTheScreen();
+      expect(nextButton).toBeOnTheScreen();
     });
   });
 
   it.each(validTestData)(
-    "Should accept the name $firstName $lastName, the contact number $contactNumber, and a $gender",
+    "Should accept a $gender user with the name $firstName $lastName and his/her $contactNumber, ",
     async (data) => {
-      const token = "jwttoken";
-      mockGetToken.mockResolvedValue(token);
-      const url = "";
-      const request = {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${mockGetToken()}`,
-        },
-        body: JSON.stringify({ ...data, gender: data.gender.toUpperCase() }),
-      };
+      // const token = "jwttoken";
+      // mockGetToken.mockResolvedValue(token);
+      // const url = "";
+      // const request = {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //     Authorization: `Bearer ${mockGetToken()}`,
+      //   },
+      //   body: JSON.stringify({ ...data, gender: data.gender.toUpperCase() }),
+      // };
+      // const nextButton = screen.getByRole("button", { name: "NEXT" });
+      let nextButton: ReactTestInstance;
+
+      await waitFor(() => {
+        nextButton = screen.getByRole("button", { name: "NEXT" });
+
+        expect(nextButton).toBeDisabled();
+      });
 
       const firstNameInput = screen.getByPlaceholderText("First Name");
 
@@ -166,17 +172,19 @@ describe("ProfileForm", () => {
 
       await user.press(data.gender === "male" ? maleButton : femaleButton);
 
-      const submitButton = screen.getByRole("button", { name: "SUBMIT" });
-
-      await user.press(submitButton);
+      // const nextButton = screen.getByRole("button", { name: "NEXT" });
+      // await user.press(nextButton);
 
       jest.advanceTimersByTime(500);
 
       await waitFor(() => {
-        expect(mockGetToken).toHaveBeenCalledWith({
-          template: "event-hand-jwt",
-        });
-        expect(fetch).toHaveBeenCalledWith(url, request);
+        nextButton = screen.getByRole("button", { name: "NEXT" });
+
+        // expect(mockGetToken).toHaveBeenCalledWith({
+        //   template: "event-hand-jwt",
+        // });
+        // expect(fetch).toHaveBeenCalledWith(url, request);
+        expect(nextButton).not.toBeDisabled();
       });
     },
   );

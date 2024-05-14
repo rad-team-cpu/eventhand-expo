@@ -19,7 +19,7 @@ import {
 } from "react-native";
 import { object, string, date } from "yup";
 
-import DatePicker from "../../Components/Input/DatePicker";
+// import DatePicker from "../../Components/Input/DatePicker";
 import GenderPicker from "../../Components/Input/GenderPicker";
 import Loading from "../Loading";
 
@@ -38,10 +38,10 @@ interface ProfileInput extends FieldValues {
 const signUpValidationSchema = object().shape({
   lastName: string()
     .required("Enter last name.")
-    .matches(/^[a-zA-Z\-]+$/, "Please put a valid name"),
+    .matches(/^[a-zA-Z\-']+$/, "Please put a valid name"),
   firstName: string()
     .required("Enter first name.")
-    .matches(/^[a-zA-Z\-]+$/, "Please put a valid name"),
+    .matches(/^[a-zA-Z\-']+$/, "Please put a valid name"),
   contactNumber: string()
     .required("Enter contact number.")
     .matches(/^09\d{9}$/, "Please enter a valid contact number.")
@@ -229,9 +229,6 @@ const ProfileForm = (props: ProfileFormProps) => {
           onPress={() => setConfirmDetails(!confirmDetails)}
           disabled={!isValid}
         />
-        <Text testID="submit-err-text" style={styles.errorText}>
-          {submitErrMessage}
-        </Text>
       </View>
     );
   };
@@ -256,19 +253,19 @@ const ProfileForm = (props: ProfileFormProps) => {
         <Text style={styles.title}>CONFIRM DETAILS</Text>
         <Text style={styles.label}>FIRST NAME:</Text>
         <Text id="fist-name" testID="test-first-name" style={styles.details}>
-          {getValues('firstName')}
+          {getValues("firstName")}
         </Text>
         <Text style={styles.label}>LAST NAME:</Text>
         <Text id="last-name" testID="test-last-name" style={styles.details}>
-          {getValues('lastName')}
+          {getValues("lastName")}
         </Text>
         <Text style={styles.label}>CONTACT NO.</Text>
         <Text id="contact-num" testID="test-contact-num" style={styles.details}>
-          {getValues('contactNumber')}
+          {getValues("contactNumber")}
         </Text>
         <Text style={styles.label}>GENDER</Text>
         <Text id="gender" testID="gender" style={styles.details}>
-          {getValues('gender')}
+          {getValues("gender")}
         </Text>
         <Button
           title="SUBMIT"
