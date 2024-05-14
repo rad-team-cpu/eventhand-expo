@@ -11,75 +11,80 @@ type GenderPickerProps = {
   control: Control<FieldValues, unknown>;
   register: UseFormRegister<FieldValues>;
   errors: FieldValues;
+  showLabel?: boolean;
 };
 
 const GenderPicker = (props: GenderPickerProps) => {
+  const { showLabel } = props;
   const [isMale, setIsMale] = useState(false);
   const [isFemale, setIsFemale] = useState(false);
   const { control, errors } = props;
 
   return (
-    <View style={styles.container}>
-      <Controller
-        name="gender"
-        control={control}
-        render={({ field: { onChange, onBlur, value } }) => {
-          const onMalePress = () => {
-            setIsMale(true);
-            setIsFemale(false);
-            onChange("MALE");
-          };
+    <>
+      {showLabel && <Text style={styles.label}>Gender:</Text>}
+      <View style={styles.container}>
+        <Controller
+          name="gender"
+          control={control}
+          render={({ field: { onChange, onBlur, value } }) => {
+            const onMalePress = () => {
+              setIsMale(true);
+              setIsFemale(false);
+              onChange("MALE");
+            };
 
-          const onFemalePress = () => {
-            setIsMale(false);
-            setIsFemale(true);
-            onChange("FEMALE");
-          };
+            const onFemalePress = () => {
+              setIsMale(false);
+              setIsFemale(true);
+              onChange("FEMALE");
+            };
 
-          return (
-            <View style={styles.buttonContainer}>
-              <Pressable
-                style={[
-                  styles.button,
-                  styles.buttonMale,
-                  isMale ? styles.highlightedMaleButton : null,
-                ]}
-                onPress={onMalePress}
-              >
-                <Text
+            return (
+              <View style={styles.buttonContainer}>
+                <Pressable
                   style={[
-                    styles.buttonText,
-                    isMale ? styles.highlightedMaleButtonText : null,
+                    styles.button,
+                    styles.buttonMale,
+                    isMale ? styles.highlightedMaleButton : null,
                   ]}
+                  onPress={onMalePress}
                 >
-                  Male
-                </Text>
-              </Pressable>
-              <Pressable
-                style={[
-                  styles.button,
-                  styles.buttonFemale,
-                  isFemale ? styles.highlightedFemaleButton : null,
-                ]}
-                onPress={onFemalePress}
-              >
-                <Text
+                  <Text
+                    style={[
+                      styles.buttonText,
+                      isMale ? styles.highlightedMaleButtonText : null,
+                    ]}
+                  >
+                    Male
+                  </Text>
+                </Pressable>
+                <Pressable
                   style={[
-                    styles.buttonText,
-                    isFemale ? styles.highlightedFemaleButtonText : null,
+                    styles.button,
+                    styles.buttonFemale,
+                    isFemale ? styles.highlightedFemaleButton : null,
                   ]}
+                  onPress={onFemalePress}
                 >
-                  Female
-                </Text>
-              </Pressable>
-            </View>
-          );
-        }}
-      />
-      <Text testID="gender-err-text" style={styles.errorText}>
-        {errors["gender"]?.message}
-      </Text>
-    </View>
+                  <Text
+                    style={[
+                      styles.buttonText,
+                      isFemale ? styles.highlightedFemaleButtonText : null,
+                    ]}
+                  >
+                    Female
+                  </Text>
+                </Pressable>
+              </View>
+            );
+          }}
+        />
+        <Text testID="gender-err-text" style={styles.errorText}>
+          {errors["gender"]?.message}
+        </Text>
+      </View>
+    </>
   );
 };
 
@@ -88,6 +93,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginVertical: 20,
+  },
+  label: {
+    fontSize: 16, // Font size
+    fontWeight: "500", // Medium weight text
+    marginBottom: 5, // Space between label and input field
   },
   buttonContainer: {
     flexDirection: "row",

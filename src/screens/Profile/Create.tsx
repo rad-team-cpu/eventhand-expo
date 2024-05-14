@@ -1,7 +1,7 @@
 import { useAuth } from "@clerk/clerk-expo";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { sub } from "date-fns/fp";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   useForm,
   FieldValues,
@@ -9,7 +9,14 @@ import {
   Control,
   UseFormRegister,
 } from "react-hook-form";
-import { View, TextInput, Button, Text, StyleSheet } from "react-native";
+import {
+  BackHandler,
+  View,
+  TextInput,
+  Button,
+  Text,
+  StyleSheet,
+} from "react-native";
 import { object, string, date } from "yup";
 
 import DatePicker from "../../Components/Input/DatePicker";
@@ -25,26 +32,26 @@ interface ProfileInput extends FieldValues {
   firstName: string;
   contactNumber: string;
   gender: string;
-  birthDate: Date;
+  // birthDate: Date;
 }
 
 const signUpValidationSchema = object().shape({
   lastName: string()
     .required("Enter last name.")
-    .matches(/^[a-zA-Z]+$/, "Please put a valid name"),
+    .matches(/^[a-zA-Z\-]+$/, "Please put a valid name"),
   firstName: string()
     .required("Enter first name.")
-    .matches(/^[a-zA-Z]+$/, "Please put a valid name"),
+    .matches(/^[a-zA-Z\-]+$/, "Please put a valid name"),
   contactNumber: string()
     .required("Enter contact number.")
     .matches(/^09\d{9}$/, "Please enter a valid contact number.")
     .length(11, "Please enter a valid contact number"),
   gender: string().required("Please select a gender"),
-  birthDate: date()
-    .min(sub({ years: 100 })(new Date()), "Must be at most 100 years old.")
-    .max(sub({ years: 18 })(new Date()), "Must be at least 18 years old.")
-    .typeError("Enter Valid Date")
-    .required("Enter date of birth."),
+  // birthDate: date()
+  //   .min(sub({ years: 100 })(new Date()), "Must be at most 100 years old.")
+  //   .max(sub({ years: 18 })(new Date()), "Must be at least 18 years old.")
+  //   .typeError("Enter Valid Date")
+  //   .required("Enter date of birth."),
 });
 
 const ProfileForm = (props: ProfileFormProps) => {
@@ -52,6 +59,7 @@ const ProfileForm = (props: ProfileFormProps) => {
     control,
     register,
     handleSubmit,
+    getValues,
     formState: { errors, isValid },
   } = useForm<ProfileInput, unknown>({
     mode: "onChange",
@@ -61,16 +69,16 @@ const ProfileForm = (props: ProfileFormProps) => {
       lastName: "",
       contactNumber: "",
       gender: "",
-      birthDate: sub({ years: 19 })(new Date()),
     },
     resolver: yupResolver(signUpValidationSchema),
   });
   const [submitErrMessage, setSubmitErrMessage] = useState("");
   const { getToken } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [confirmDetails, setConfirmDetails] = useState(false);
 
-  const minDate = sub({ years: 100 })(new Date());
-  const maxDate = sub({ years: 19 })(new Date());
+  // const minDate = sub({ years: 100 })(new Date());
+  // const maxDate = sub({ years: 19 })(new Date());
 
   const createProfile = async (input: ProfileInput) => {
     setLoading(true);
@@ -126,116 +134,162 @@ const ProfileForm = (props: ProfileFormProps) => {
 
   const onSubmitPress = handleSubmit(createProfile);
 
+  const FormFields = () => {
+    return (
+      <View id="profile-form-field" testID="test-profile-form-field">
+        <Text style={styles.title}>Personal Information</Text>
+        <Text style={styles.label}>First Name</Text>
+        <Controller
+          name="firstName"
+          control={control}
+          render={({ field: { onChange, onBlur, value } }) => {
+            const onValueChange = (text: string) => onChange(text);
+
+            return (
+              <TextInput
+                id="first-name-text-input"
+                testID="test-first-name-input"
+                style={styles.input}
+                placeholder="First Name"
+                onBlur={onBlur}
+                value={value}
+                onChangeText={onValueChange}
+                autoCapitalize="none"
+                returnKeyType="next"
+              />
+            );
+          }}
+        />
+        <Text testID="first-name-err-text" style={styles.errorText}>
+          {errors["firstName"]?.message}
+        </Text>
+        <Text style={styles.label}>Last Name</Text>
+        <Controller
+          name="lastName"
+          control={control}
+          render={({ field: { onChange, onBlur, value } }) => {
+            const onValueChange = (text: string) => onChange(text);
+
+            return (
+              <TextInput
+                id="last-name-text-input"
+                testID="test-last-name-input"
+                style={styles.input}
+                placeholder="Last Name"
+                value={value}
+                onBlur={onBlur}
+                onChangeText={onValueChange}
+                autoCapitalize="none"
+                returnKeyType="next"
+              />
+            );
+          }}
+        />
+        <Text testID="last-name-err-text" style={styles.errorText}>
+          {errors["lastName"]?.message}
+        </Text>
+        <Text style={styles.label}>Contact No.</Text>
+        <Controller
+          name="contactNumber"
+          control={control}
+          render={({ field: { onChange, onBlur, value } }) => {
+            const onValueChange = (text: string) => onChange(text);
+
+            return (
+              <TextInput
+                id="contact-number-input"
+                testID="test-contact-number-input"
+                style={styles.input}
+                placeholder="Contact No."
+                onBlur={onBlur}
+                onChangeText={onValueChange}
+                value={value}
+                autoCapitalize="none"
+                returnKeyType="next"
+                keyboardType="phone-pad"
+                maxLength={11}
+                textContentType="telephoneNumber"
+                inputMode="tel"
+              />
+            );
+          }}
+        />
+        <Text testID="contact-number-err-text" style={styles.errorText}>
+          {errors["contactNumber"]?.message}
+        </Text>
+        <GenderPicker
+          control={control as unknown as Control<FieldValues, unknown>}
+          register={register as unknown as UseFormRegister<FieldValues>}
+          errors={errors}
+          showLabel
+        />
+        <Button
+          title="NEXT"
+          testID="next-btn"
+          onPress={() => setConfirmDetails(!confirmDetails)}
+          disabled={!isValid}
+        />
+        <Text testID="submit-err-text" style={styles.errorText}>
+          {submitErrMessage}
+        </Text>
+      </View>
+    );
+  };
+
+  const Confirmation = () => {
+    useEffect(() => {
+      const backAction = () => {
+        setConfirmDetails(!confirmDetails);
+        return true;
+      };
+
+      const backHandler = BackHandler.addEventListener(
+        "hardwareBackPress",
+        backAction,
+      );
+
+      return () => backHandler.remove();
+    }, []);
+
+    return (
+      <View id="profile-form-confirm" testID="test-profile-form-confirm">
+        <Text style={styles.title}>CONFIRM DETAILS</Text>
+        <Text style={styles.label}>FIRST NAME:</Text>
+        <Text id="fist-name" testID="test-first-name" style={styles.details}>
+          {getValues('firstName')}
+        </Text>
+        <Text style={styles.label}>LAST NAME:</Text>
+        <Text id="last-name" testID="test-last-name" style={styles.details}>
+          {getValues('lastName')}
+        </Text>
+        <Text style={styles.label}>CONTACT NO.</Text>
+        <Text id="contact-num" testID="test-contact-num" style={styles.details}>
+          {getValues('contactNumber')}
+        </Text>
+        <Text style={styles.label}>GENDER</Text>
+        <Text id="gender" testID="gender" style={styles.details}>
+          {getValues('gender')}
+        </Text>
+        <Button
+          title="SUBMIT"
+          testID="test-submit-btn"
+          onPress={onSubmitPress}
+          disabled={!isValid}
+        />
+        <Text testID="submit-err-text" style={styles.errorText}>
+          {submitErrMessage}
+        </Text>
+      </View>
+    );
+  };
+
+  const Form = () => (confirmDetails ? <Confirmation /> : <FormFields />);
+
   return (
     <View style={styles.container}>
       {loading && <Loading />}
-      {!loading && (
-        <View id="signup-form" testID="test-signup-form">
-          <Text>Personal Information</Text>
-          <Controller
-            name="firstName"
-            control={control}
-            render={({ field: { onChange, onBlur, value } }) => {
-              const onValueChange = (text: string) => onChange(text);
-
-              return (
-                <TextInput
-                  id="first-name-text-input"
-                  testID="test-first-name-input"
-                  style={styles.input}
-                  placeholder="ex. John"
-                  onBlur={onBlur}
-                  value={value}
-                  onChangeText={onValueChange}
-                  autoCapitalize="none"
-                  returnKeyType="next"
-                />
-              );
-            }}
-          />
-          <Text testID="first-name-err-text" style={styles.errorText}>
-            {errors["firstName"]?.message}
-          </Text>
-          <Controller
-            name="lastName"
-            control={control}
-            render={({ field: { onChange, onBlur, value } }) => {
-              const onValueChange = (text: string) => onChange(text);
-
-              return (
-                <TextInput
-                  id="last-name-text-input"
-                  testID="test-last-name-input"
-                  style={styles.input}
-                  placeholder="ex. Doe"
-                  value={value}
-                  onBlur={onBlur}
-                  onChangeText={onValueChange}
-                  autoCapitalize="none"
-                  returnKeyType="next"
-                />
-              );
-            }}
-          />
-          <Text testID="last-name-err-text" style={styles.errorText}>
-            {errors["lastName"]?.message}
-          </Text>
-          <Controller
-            name="contactNumber"
-            control={control}
-            render={({ field: { onChange, onBlur, value } }) => {
-              const onValueChange = (text: string) => onChange(text);
-
-              return (
-                <TextInput
-                  id="contact-number-input"
-                  testID="test-contact-number-input"
-                  style={styles.input}
-                  placeholder="ex. 09541238741"
-                  onBlur={onBlur}
-                  onChangeText={onValueChange}
-                  value={value}
-                  autoCapitalize="none"
-                  returnKeyType="next"
-                  keyboardType="phone-pad"
-                  maxLength={11}
-                  textContentType="telephoneNumber"
-                  inputMode="tel"
-                />
-              );
-            }}
-          />
-          <Text testID="contact-number-err-text" style={styles.errorText}>
-            {errors["contactNumber"]?.message}
-          </Text>
-
-          <GenderPicker
-            control={control as unknown as Control<FieldValues, unknown>}
-            register={register as unknown as UseFormRegister<FieldValues>}
-            errors={errors}
-          />
-          <DatePicker
-            name="birthDate"
-            control={control as unknown as Control<FieldValues, unknown>}
-            register={register as unknown as UseFormRegister<FieldValues>}
-            display="spinner"
-            maximumDate={maxDate}
-            minimumDate={minDate}
-            label="Date of birth"
-            errors={errors}
-          />
-
-          <Button
-            title="Sign Up"
-            testID="test-signup-btn"
-            onPress={onSubmitPress}
-            disabled={!isValid}
-          />
-          <Text testID="submit-err-text" style={styles.errorText}>
-            {submitErrMessage}
-          </Text>
-        </View>
-      )}
+      {/* {!loading && <FormFields />} */}
+      {!loading && <Form />}
     </View>
   );
 };
@@ -245,6 +299,28 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     paddingHorizontal: 20,
+  },
+  title: {
+    fontFamily: "Arial",
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#333",
+    textAlign: "center",
+    marginVertical: 20,
+    textTransform: "uppercase",
+    letterSpacing: 1.5,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: "500",
+    marginBottom: 5,
+  },
+  details: {
+    textAlign: "center",
+    paddingVertical: 10,
+    fontSize: 16,
+    borderBottomWidth: 1,
+    marginBottom: 20,
   },
   input: {
     height: 40,

@@ -34,6 +34,12 @@ type DatePickerProps = {
   color?: ColorValue;
 };
 
+export const datePickerDate = {
+  selectDate: (date: Date | undefined) => { console.log(date); return  date},
+  selectStringDate: (date: Date | undefined) =>
+    date ? date.toLocaleDateString() : "",
+};
+
 const DatePicker = (props: DatePickerProps) => {
   const {
     name,
@@ -48,8 +54,8 @@ const DatePicker = (props: DatePickerProps) => {
     errorTextStyle,
     color,
   } = props;
-  const [selected, setSelected] = useState("");
-  
+  const [selected, setSelected] = useState<string>("");
+
   return (
     <>
       <Controller
@@ -61,11 +67,10 @@ const DatePicker = (props: DatePickerProps) => {
             event: DateTimePickerEvent,
             selectedDate?: Date,
           ) => {
-            if (selectedDate) {
-              const currentDate = selectedDate;
-              onChange(currentDate);
-              setSelected(selectedDate.toLocaleDateString());
-            }
+            console.log(event.type)
+            const currentDate = selectedDate;
+            onChange(datePickerDate.selectDate(currentDate));
+            setSelected(datePickerDate.selectStringDate(currentDate));
           };
           const showMode = () => {
             DateTimePickerAndroid.open({
@@ -75,6 +80,7 @@ const DatePicker = (props: DatePickerProps) => {
               display,
               minimumDate,
               maximumDate,
+              testID: "test-date-picker"
             });
           };
 

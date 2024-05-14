@@ -58,8 +58,8 @@ const HomeNav = () => {
 };
 
 const Home = () => {
-  const { getToken } = useAuth();
-  const [userId, setUserId] = useState("");
+  const { getToken, userId } = useAuth();
+  const [profileId, setUserId] = useState("");
   const [loading, setLoading] = useState(true);
 
   const fetchUserId = async () => {
@@ -68,12 +68,13 @@ const Home = () => {
     const url = "";
 
     const request = {
-      method: "GET",
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
         // Optionally, you can include authentication headers if needed
       },
+      body: JSON.stringify({ clerkId: userId }),
     };
 
     fetch(url, request)
