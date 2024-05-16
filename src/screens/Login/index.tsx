@@ -5,7 +5,7 @@ import { useForm, FieldValues, Controller } from "react-hook-form";
 import { View, TextInput, Button, Text, StyleSheet } from "react-native";
 import { object, string } from "yup";
 
-import { LoginScreenProps } from "../../Navigation/types";
+import { LoginScreenProps } from "../../types/types";
 import Loading from "../Loading";
 
 interface SignInInput extends FieldValues {

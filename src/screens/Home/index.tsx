@@ -4,12 +4,13 @@ import {
   BottomTabNavigationOptions,
   createBottomTabNavigator,
 } from "@react-navigation/bottom-tabs";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import Booking from "../Booking";
 import Chat from "../Chat";
 import Profile from "../Profile";
 import ProfileForm from "../Profile/Form";
+import { UserContext } from "../../Contexts/UserContext";
 
 const HomeNav = () => {
   const Tab = createBottomTabNavigator();
@@ -58,23 +59,30 @@ const HomeNav = () => {
 };
 
 const Home = () => {
-  const { getToken, userId } = useAuth();
-  const [profileId, setUserId] = useState("");
+  const { getToken } = useAuth();
+  const [noUserProfile, setNoUserProfile] = useState(false);
   const [loading, setLoading] = useState(true);
+  const userContext = useContext(UserContext);
+
+
+  if (!userContext) {
+    throw new Error("UserInfo must be used within a UserProvider");
+  }
+
+  const { user } = userContext;
 
   const fetchUserId = async () => {
     const token = getToken({ template: "event-hand-jwt" });
 
-    const url = "";
+    const url = "http://localhost:3000";
 
     const request = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
-        // Optionally, you can include authentication headers if needed
       },
-      body: JSON.stringify({ clerkId: userId }),
+      body: JSON.stringify({ clerkId: user.clerkId }),
     };
 
     fetch(url, request)
@@ -86,13 +94,12 @@ const Home = () => {
         } else if (res.status === 401) {
           throw new Error("Unauthorized - Authentication failed.");
         } else if (res.status === 404) {
-          throw new Error("Not Found - User not found.");
+          setNoUserProfile(true);
         } else {
           throw new Error("Unexpected error occurred.");
         }
       })
       .then((data) => {
-        setUserId(data.userId); // Assuming the server responds with a JSON object containing the user ID
         setLoading(false);
       })
       .catch((error) => {
@@ -105,13 +112,7 @@ const Home = () => {
     fetchUserId();
   }, []);
 
-  const setNewUserId = (newId: string) => setUserId(newId);
-
-  return userId === "" ? (
-    <ProfileForm setNewUserId={setNewUserId} />
-  ) : (
-    <HomeNav />
-  );
+  return noUserProfile ? <ProfileForm /> : <HomeNav />;
 };
 
 export default Home;

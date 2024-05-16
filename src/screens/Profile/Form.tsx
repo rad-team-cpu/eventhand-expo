@@ -1,7 +1,7 @@
 import { useAuth } from "@clerk/clerk-expo";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { sub } from "date-fns/fp";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   useForm,
   FieldValues,
@@ -21,11 +21,8 @@ import { object, string, date } from "yup";
 
 // import DatePicker from "../../Components/Input/DatePicker";
 import GenderPicker from "../../Components/Input/GenderPicker";
+import { UserContext } from "../../Contexts/UserContext";
 import Loading from "../Loading";
-
-interface ProfileFormProps {
-  setNewUserId: (newId: string) => void;
-}
 
 interface ProfileInput extends FieldValues {
   lastName: string;
@@ -54,7 +51,7 @@ const signUpValidationSchema = object().shape({
   //   .required("Enter date of birth."),
 });
 
-const ProfileForm = (props: ProfileFormProps) => {
+const ProfileForm = () => {
   const {
     control,
     register,
@@ -76,14 +73,19 @@ const ProfileForm = (props: ProfileFormProps) => {
   const { getToken } = useAuth();
   const [loading, setLoading] = useState(false);
   const [confirmDetails, setConfirmDetails] = useState(false);
+  const userContext = useContext(UserContext);
+
+  if (!userContext) {
+    throw new Error("Profile must be used within a UserProvider");
+  }
+
+  const { user, setUser } = userContext;
 
   // const minDate = sub({ years: 100 })(new Date());
   // const maxDate = sub({ years: 19 })(new Date());
 
   const createProfile = async (input: ProfileInput) => {
     setLoading(true);
-
-    const { setNewUserId } = props;
 
     const token = getToken({ template: "event-hand-jwt" });
 
@@ -95,7 +97,7 @@ const ProfileForm = (props: ProfileFormProps) => {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(input),
+      body: JSON.stringify({ clerkId: user.clerkId, ...input }),
     };
 
     fetch(url, request)
@@ -124,7 +126,7 @@ const ProfileForm = (props: ProfileFormProps) => {
         }
       })
       .then((data) => {
-        setNewUserId(data.id);
+        setUser({ clerkId: user.clerkId, ...input });
         setLoading(false);
       })
       .catch((error) => {

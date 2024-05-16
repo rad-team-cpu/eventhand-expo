@@ -12,7 +12,7 @@ import { UserEventInstance } from "@testing-library/react-native/build/user-even
 import * as React from "react";
 
 import Login from ".";
-import { ScreenProps } from "../../Navigation/types";
+import { ScreenProps } from "../../types/types";
 import SignupForm from "../SignUp";
 
 jest.mock("@clerk/clerk-expo");

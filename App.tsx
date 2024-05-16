@@ -29,8 +29,8 @@ export default function App() {
       tokenCache={tokenCache}
       publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!}
     >
-      <ProfileForm/>
-      {/* <Navigator /> */}
+      {/* <ProfileForm/> */}
+      <Navigator />
     </ClerkProvider>
   );
 }

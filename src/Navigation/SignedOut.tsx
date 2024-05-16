@@ -1,6 +1,6 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-import { ScreenProps } from "./types";
+import { ScreenProps } from "../types/types";
 import Login from "../screens/Login";
 import SignupForm from "../screens/SignUp";
 
