@@ -9,3 +9,5 @@ jest.mock("react-native-reanimated", () => {
 });
 
 jest.mock("react-native/Libraries/Animated/NativeAnimatedHelper");
+
+jest.mock("@clerk/clerk-expo")

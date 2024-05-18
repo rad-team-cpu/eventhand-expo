@@ -1,18 +1,19 @@
+import { SignedIn, SignedOut } from "@clerk/clerk-expo";
 import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import Home from "../screens/Home";
-
-const Stack = createNativeStackNavigator();
+import SignedOutNav from "./SignedOut";
+import SignedInNav from "./SignedIn";
 
 const Navigator = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="Home" component={Home} />
-      </Stack.Navigator>
+      <SignedIn>
+        <SignedInNav/>
+      </SignedIn>
+      <SignedOut>
+        <SignedOutNav/>
+      </SignedOut>
     </NavigationContainer>
   );
 };
-
 
 export default Navigator;
