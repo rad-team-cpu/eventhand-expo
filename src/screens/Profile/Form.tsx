@@ -21,6 +21,7 @@ import { object, string } from "yup";
 
 // import DatePicker from "../../Components/Input/DatePicker";
 import GenderPicker from "../../Components/Input/GenderPicker";
+import ProfileUpload from "../../Components/Input/ProfileUpload";
 import { UserContext } from "../../Contexts/UserContext";
 import Loading from "../Loading";
 
@@ -157,6 +158,7 @@ const ProfileForm = () => {
     return (
       <View id="profile-form-field" testID="test-profile-form-field">
         <Text style={styles.title}>SET UP YOUR PROFILE</Text>
+        <ProfileUpload name="profilePhoto" />
         <Text style={styles.label}>First Name</Text>
         <Controller
           name="firstName"

@@ -3,6 +3,7 @@ import Constants from "expo-constants";
 import * as SecureStore from "expo-secure-store";
 import React from "react";
 
+import { UserProvider } from "./src/Contexts/UserContext";
 import Navigator from "./src/Navigation";
 import ProfileForm from "./src/screens/Profile/Form";
 
@@ -17,9 +18,7 @@ const tokenCache = {
   async saveToken(key: string, value: string) {
     try {
       return SecureStore.setItemAsync(key, value);
-    } catch (err) {
-      return;
-    }
+    } catch (err) {}
   },
 };
 
@@ -29,8 +28,10 @@ export default function App() {
       tokenCache={tokenCache}
       publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!}
     >
-      {/* <ProfileForm/> */}
-      <Navigator />
+      <UserProvider>
+        <ProfileForm />
+      </UserProvider>
+      {/* <Navigator /> */}
     </ClerkProvider>
   );
 }
