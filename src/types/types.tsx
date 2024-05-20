@@ -24,7 +24,6 @@ interface UserChat {
 }
 
 interface UserProfile {
-  clerkId?: string | null;
   lastName?: string;
   firstName?: string;
   contactNumber?: string;

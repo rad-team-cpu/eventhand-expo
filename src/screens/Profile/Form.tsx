@@ -17,7 +17,7 @@ import {
   Text,
   StyleSheet,
 } from "react-native";
-import { object, string, date } from "yup";
+import { object, string } from "yup";
 
 // import DatePicker from "../../Components/Input/DatePicker";
 import GenderPicker from "../../Components/Input/GenderPicker";
@@ -35,15 +35,32 @@ interface ProfileInput extends FieldValues {
 const signUpValidationSchema = object().shape({
   lastName: string()
     .required("Enter last name.")
-    .matches(/^[a-zA-Z\-']+$/, "Please put a valid name"),
+    // .matches(/^$/, "Please enter your last name")
+    .matches(
+      /^[a-zA-Z-']+$/,
+      "No digits or special characters excluding ('-) are allowed",
+    ),
   firstName: string()
     .required("Enter first name.")
-    .matches(/^[a-zA-Z\-']+$/, "Please put a valid name"),
+    .matches(
+      /^[a-zA-Z-']+$/,
+      "No digits or special characters excluding ('-) are allowed",
+    ),
+
   contactNumber: string()
     .required("Enter contact number.")
-    .matches(/^09\d{9}$/, "Please enter a valid contact number.")
-    .length(11, "Please enter a valid contact number"),
-  gender: string().required("Please select a gender"),
+    .matches(
+      /^09\d{9}$/,
+      "Please enter a valid contact number ex. 09123456789.",
+    )
+    .length(11, "contact number must only have 11 digits"),
+  gender: string()
+    .required("Please select a gender")
+    .test(
+      "has-gender",
+      "Please select a gender",
+      (value, context) => value === "MALE" || value === "FEMALE",
+    ),
   // birthDate: date()
   //   .min(sub({ years: 100 })(new Date()), "Must be at most 100 years old.")
   //   .max(sub({ years: 18 })(new Date()), "Must be at least 18 years old.")
@@ -57,9 +74,10 @@ const ProfileForm = () => {
     register,
     handleSubmit,
     getValues,
+    trigger,
     formState: { errors, isValid },
   } = useForm<ProfileInput, unknown>({
-    mode: "onChange",
+    mode: "onBlur",
     reValidateMode: "onChange",
     defaultValues: {
       firstName: "",
@@ -73,6 +91,7 @@ const ProfileForm = () => {
   const { getToken } = useAuth();
   const [loading, setLoading] = useState(false);
   const [confirmDetails, setConfirmDetails] = useState(false);
+  const { userId } = useAuth();
   const userContext = useContext(UserContext);
 
   if (!userContext) {
@@ -89,7 +108,7 @@ const ProfileForm = () => {
 
     const token = getToken({ template: "event-hand-jwt" });
 
-    const url = "";
+    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/users`;
 
     const request = {
       method: "POST",
@@ -97,11 +116,11 @@ const ProfileForm = () => {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ clerkId: user.clerkId, ...input }),
+      body: JSON.stringify({ clerkId: userId, ...input }),
     };
-
     fetch(url, request)
       .then((response) => {
+        console.log(response.status);
         switch (response.status) {
           case 201:
             return response.json(); // User created successfully
@@ -117,19 +136,17 @@ const ProfileForm = () => {
           case 404:
             setSubmitErrMessage("Server is unreachable.");
             throw new Error("Server is unreachable."); // Not Found
-          case 409:
-            setSubmitErrMessage("User already exists");
-            throw new Error("Conflict - User already exists."); // Conflict
           default:
             setSubmitErrMessage("Unexpected error occurred.");
             throw new Error("Unexpected error occurred."); // Other status codes
         }
       })
       .then((data) => {
-        setUser({ clerkId: user.clerkId, ...input });
+        setUser({ ...input });
         setLoading(false);
       })
       .catch((error) => {
+        setLoading(false);
         console.error(error); // Log any errors that occur
       });
   };
@@ -139,7 +156,7 @@ const ProfileForm = () => {
   const FormFields = () => {
     return (
       <View id="profile-form-field" testID="test-profile-form-field">
-        <Text style={styles.title}>Personal Information</Text>
+        <Text style={styles.title}>SET UP YOUR PROFILE</Text>
         <Text style={styles.label}>First Name</Text>
         <Controller
           name="firstName"
@@ -162,7 +179,7 @@ const ProfileForm = () => {
             );
           }}
         />
-        <Text testID="first-name-err-text" style={styles.errorText}>
+        <Text testID="test-first-name-err-text" style={styles.errorText}>
           {errors["firstName"]?.message}
         </Text>
         <Text style={styles.label}>Last Name</Text>
@@ -187,7 +204,7 @@ const ProfileForm = () => {
             );
           }}
         />
-        <Text testID="last-name-err-text" style={styles.errorText}>
+        <Text testID="test-last-name-err-text" style={styles.errorText}>
           {errors["lastName"]?.message}
         </Text>
         <Text style={styles.label}>Contact No.</Text>
@@ -208,7 +225,7 @@ const ProfileForm = () => {
                 value={value}
                 autoCapitalize="none"
                 returnKeyType="next"
-                keyboardType="phone-pad"
+                keyboardType="number-pad"
                 maxLength={11}
                 textContentType="telephoneNumber"
                 inputMode="tel"
@@ -216,13 +233,14 @@ const ProfileForm = () => {
             );
           }}
         />
-        <Text testID="contact-number-err-text" style={styles.errorText}>
+        <Text testID="test-contact-number-err-text" style={styles.errorText}>
           {errors["contactNumber"]?.message}
         </Text>
         <GenderPicker
           control={control as unknown as Control<FieldValues, unknown>}
           register={register as unknown as UseFormRegister<FieldValues>}
           errors={errors}
+          triggerValidation={trigger}
           showLabel
         />
         <Button

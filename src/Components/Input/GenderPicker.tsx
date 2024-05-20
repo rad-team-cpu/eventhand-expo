@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   UseFormRegister,
   Control,
   FieldValues,
   Controller,
+  UseFormTrigger,
 } from "react-hook-form";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 
@@ -12,13 +13,12 @@ type GenderPickerProps = {
   register: UseFormRegister<FieldValues>;
   errors: FieldValues;
   showLabel?: boolean;
+  triggerValidation?: UseFormTrigger<any>;
 };
 
 const GenderPicker = (props: GenderPickerProps) => {
   const { showLabel } = props;
-  const [isMale, setIsMale] = useState(false);
-  const [isFemale, setIsFemale] = useState(false);
-  const { control, errors } = props;
+  const { control, errors, triggerValidation } = props;
 
   return (
     <>
@@ -29,15 +29,18 @@ const GenderPicker = (props: GenderPickerProps) => {
           control={control}
           render={({ field: { onChange, onBlur, value } }) => {
             const onMalePress = () => {
-              setIsMale(true);
-              setIsFemale(false);
               onChange("MALE");
-            };
 
+              if (triggerValidation) {
+                triggerValidation();
+              }
+            };
             const onFemalePress = () => {
-              setIsMale(false);
-              setIsFemale(true);
               onChange("FEMALE");
+
+              if (triggerValidation) {
+                triggerValidation();
+              }
             };
 
             return (
@@ -46,14 +49,16 @@ const GenderPicker = (props: GenderPickerProps) => {
                   style={[
                     styles.button,
                     styles.buttonMale,
-                    isMale ? styles.highlightedMaleButton : null,
+                    value === "MALE" ? styles.highlightedMaleButton : null,
                   ]}
                   onPress={onMalePress}
                 >
                   <Text
                     style={[
                       styles.buttonText,
-                      isMale ? styles.highlightedMaleButtonText : null,
+                      value === "MALE"
+                        ? styles.highlightedMaleButtonText
+                        : null,
                     ]}
                   >
                     Male
@@ -63,14 +68,16 @@ const GenderPicker = (props: GenderPickerProps) => {
                   style={[
                     styles.button,
                     styles.buttonFemale,
-                    isFemale ? styles.highlightedFemaleButton : null,
+                    value === "FEMALE" ? styles.highlightedFemaleButton : null,
                   ]}
                   onPress={onFemalePress}
                 >
                   <Text
                     style={[
                       styles.buttonText,
-                      isFemale ? styles.highlightedFemaleButtonText : null,
+                      value === "FEMALE"
+                        ? styles.highlightedFemaleButtonText
+                        : null,
                     ]}
                   >
                     Female
@@ -80,7 +87,9 @@ const GenderPicker = (props: GenderPickerProps) => {
             );
           }}
         />
-        <Text testID="gender-err-text" style={styles.errorText}>
+      </View>
+      <View>
+        <Text testID="test-gender-err-text" style={styles.errorText}>
           {errors["gender"]?.message}
         </Text>
       </View>
@@ -140,6 +149,7 @@ const styles = StyleSheet.create({
   errorText: {
     color: "red",
     marginBottom: 10,
+    textAlign: "center",
   },
 });
 

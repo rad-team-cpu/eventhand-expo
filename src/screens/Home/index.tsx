@@ -6,11 +6,12 @@ import {
 } from "@react-navigation/bottom-tabs";
 import React, { useContext, useEffect, useState } from "react";
 
+import { UserContext } from "../../Contexts/UserContext";
 import Booking from "../Booking";
 import Chat from "../Chat";
+import Loading from "../Loading";
 import Profile from "../Profile";
 import ProfileForm from "../Profile/Form";
-import { UserContext } from "../../Contexts/UserContext";
 
 const HomeNav = () => {
   const Tab = createBottomTabNavigator();
@@ -63,32 +64,32 @@ const Home = () => {
   const [noUserProfile, setNoUserProfile] = useState(false);
   const [loading, setLoading] = useState(true);
   const userContext = useContext(UserContext);
-
+  const { userId, isLoaded } = useAuth();
 
   if (!userContext) {
     throw new Error("UserInfo must be used within a UserProvider");
   }
 
-  const { user } = userContext;
+  const { user, setUser } = userContext;
 
-  const fetchUserId = async () => {
+  const fetchUserId = () => {
     const token = getToken({ template: "event-hand-jwt" });
 
-    const url = "http://localhost:3000";
+    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/clerk=${userId}`;
 
     const request = {
-      method: "POST",
+      method: "GET",
       headers: {
+        Accept: "application/json",
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ clerkId: user.clerkId }),
     };
 
     fetch(url, request)
       .then((res) => {
         if (res.status === 200) {
-          return res.json(); // Parse the JSON data for a successful response
+          return res.json();
         } else if (res.status === 400) {
           throw new Error("Bad request - Invalid data.");
         } else if (res.status === 401) {
@@ -100,6 +101,7 @@ const Home = () => {
         }
       })
       .then((data) => {
+        setUser({ ...data });
         setLoading(false);
       })
       .catch((error) => {
@@ -109,10 +111,15 @@ const Home = () => {
   };
 
   useEffect(() => {
+    if (!isLoaded) {
+      throw new Error("Failed to load clerk");
+    }
+
     fetchUserId();
   }, []);
 
-  return noUserProfile ? <ProfileForm /> : <HomeNav />;
+  return <Loading/>;
+  return loading ? <Loading /> : noUserProfile ? <ProfileForm /> : <HomeNav />;
 };
 
 export default Home;

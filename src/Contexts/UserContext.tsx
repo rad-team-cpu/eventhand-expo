@@ -1,4 +1,3 @@
-import { useAuth } from "@clerk/clerk-expo";
 import React, { createContext, useState, ReactNode } from "react";
 
 import { UserProfile } from "../types/types";
@@ -15,9 +14,8 @@ interface UserProviderProps {
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 const UserProvider = (props: UserProviderProps) => {
-  const { userId } = useAuth();
+
   const [user, setUser] = useState<UserProfile>({
-    clerkId: userId,
     lastName: "",
     firstName: "",
     contactNumber: "",
