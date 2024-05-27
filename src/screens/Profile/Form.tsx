@@ -168,8 +168,6 @@ const ProfileForm = () => {
 
       switch (response.status) {
         case 201:
-          const data = response.json();
-
           const user = {
             avatar: uploadRef,
             firstName: input.firstName,
