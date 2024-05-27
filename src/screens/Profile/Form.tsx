@@ -41,7 +41,7 @@ interface ProfileInput extends FieldValues {
 
 const signUpValidationSchema = object().shape({
   profileAvatar: object({
-    fileSize: number().max(5, "File size to large, must be below 5mb"),
+    fileSize: number().max(5242880, "File size to large, must be below 5mb"),
     uri: string(),
     mimeType: string().matches(/image\/(png|jpeg)/, {
       message: "File must be a png or jpeg",
@@ -121,9 +121,9 @@ const ProfileForm = () => {
     throw new Error("Profile must be used within a UserProvider");
   }
 
-  if (!userId) {
-    throw new Error("User does not exist! Please SignUp again");
-  }
+  // if (!userId) {
+  //   throw new Error("User does not exist! Please SignUp again");
+  // }
 
   const { setUser } = userContext;
 
@@ -131,28 +131,26 @@ const ProfileForm = () => {
   // const maxDate = sub({ years: 19 })(new Date());
 
   const onNextBtnPress = (e: GestureResponderEvent) => {
-    trigger()
-    if(isValid){
+    trigger();
+    if (isValid) {
       setConfirmDetails(!confirmDetails);
     }
-  }
-
+  };
 
   const createProfile = async (input: ProfileInput) => {
     setLoading(true);
-
-    const uploadAvatarToFirebase = async (profileAvatar: ImageInfo) => {
+    try {
       const firebaseService = FirebaseService.getInstance();
 
-      const result = await firebaseService.uploadProfileAvatar(
-        userId,
-        profileAvatar,
+      const uploadResult = await firebaseService.uploadProfileAvatar(
+        userId ? userId : "",
+        input.profileAvatar,
       );
 
-      return result;
-    };
+      const uploadRef = uploadResult
+        ? (uploadResult as unknown as UploadResult).ref
+        : undefined;
 
-    const sendProfileToBackend = async (input: ProfileInput) => {
       const token = getToken({ template: "event-hand-jwt" });
 
       const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/users`;
@@ -170,7 +168,18 @@ const ProfileForm = () => {
 
       switch (response.status) {
         case 201:
-          return response.json(); // User created successfully
+          const data = response.json();
+
+          const user = {
+            avatar: uploadRef,
+            firstName: input.firstName,
+            lastName: input.lastName,
+            contactNumber: input.contactNumber,
+            gender: input.gender,
+          };
+
+          setUser(user);
+          setLoading(false); // User created successfully
         case 400:
           setSubmitErrMessage("Data provided is Invalid");
           throw new Error("Bad request - Invalid data provided."); // Bad request
@@ -187,29 +196,10 @@ const ProfileForm = () => {
           setSubmitErrMessage("Unexpected error occurred.");
           throw new Error("Unexpected error occurred."); // Other status codes
       }
-    };
-
-    Promise.all([uploadAvatarToFirebase, sendProfileToBackend])
-      .then(([uploadResult, responseData]) => {
-        const uploadRef = uploadResult
-          ? (uploadResult as unknown as UploadResult).ref
-          : undefined;
-
-        const user = {
-          avatar: uploadRef,
-          firstName: input.firstName,
-          lastName: input.lastName,
-          contactNumber: input.contactNumber,
-          gender: input.gender,
-        };
-
-        setUser(user);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setLoading(false);
-      });
+    } catch (error) {
+      console.error(error);
+      setLoading(false);
+    }
   };
 
   const onSubmitPress = handleSubmit(createProfile);
