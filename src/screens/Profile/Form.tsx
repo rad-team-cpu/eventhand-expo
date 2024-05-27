@@ -1,6 +1,8 @@
 import { useAuth } from "@clerk/clerk-expo";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { sub } from "date-fns/fp";
+import { ImagePickerAsset } from "expo-image-picker";
+import { UploadResult, getStorage, ref } from "firebase/storage";
 import React, { useState, useEffect, useContext } from "react";
 import {
   useForm,
@@ -16,16 +18,20 @@ import {
   Button,
   Text,
   StyleSheet,
+  GestureResponderEvent,
 } from "react-native";
-import { object, string } from "yup";
+import { object, string, number, ObjectSchema } from "yup";
 
 // import DatePicker from "../../Components/Input/DatePicker";
 import GenderPicker from "../../Components/Input/GenderPicker";
 import ProfileUpload from "../../Components/Input/ProfileUpload";
 import { UserContext } from "../../Contexts/UserContext";
+import FirebaseService from "../../firebase";
+import { ImageInfo } from "../../types/types";
 import Loading from "../Loading";
 
 interface ProfileInput extends FieldValues {
+  profileAvatar: ImageInfo;
   lastName: string;
   firstName: string;
   contactNumber: string;
@@ -34,9 +40,20 @@ interface ProfileInput extends FieldValues {
 }
 
 const signUpValidationSchema = object().shape({
+  profileAvatar: object({
+    fileSize: number().max(5, "File size to large, must be below 5mb"),
+    uri: string(),
+    mimeType: string().matches(/image\/(png|jpeg)/, {
+      message: "File must be a png or jpeg",
+      excludeEmptyString: true,
+    }),
+    fileExtension: string().matches(/(png|jpe?g)$/, {
+      message: "File must be a png or jpeg",
+      excludeEmptyString: true,
+    }),
+  }),
   lastName: string()
     .required("Enter last name.")
-    // .matches(/^$/, "Please enter your last name")
     .matches(
       /^[a-zA-Z-']+$/,
       "No digits or special characters excluding ('-) are allowed",
@@ -47,7 +64,6 @@ const signUpValidationSchema = object().shape({
       /^[a-zA-Z-']+$/,
       "No digits or special characters excluding ('-) are allowed",
     ),
-
   contactNumber: string()
     .required("Enter contact number.")
     .matches(
@@ -81,6 +97,12 @@ const ProfileForm = () => {
     mode: "onBlur",
     reValidateMode: "onChange",
     defaultValues: {
+      profileAvatar: {
+        uri: "",
+        fileSize: 0,
+        mimeType: "",
+        fileExtension: "",
+      },
       firstName: "",
       lastName: "",
       contactNumber: "",
@@ -99,56 +121,94 @@ const ProfileForm = () => {
     throw new Error("Profile must be used within a UserProvider");
   }
 
-  const { user, setUser } = userContext;
+  if (!userId) {
+    throw new Error("User does not exist! Please SignUp again");
+  }
+
+  const { setUser } = userContext;
 
   // const minDate = sub({ years: 100 })(new Date());
   // const maxDate = sub({ years: 19 })(new Date());
 
+  const onNextBtnPress = (e: GestureResponderEvent) => {
+    trigger()
+    if(isValid){
+      setConfirmDetails(!confirmDetails);
+    }
+  }
+
+
   const createProfile = async (input: ProfileInput) => {
     setLoading(true);
 
-    const token = getToken({ template: "event-hand-jwt" });
+    const uploadAvatarToFirebase = async (profileAvatar: ImageInfo) => {
+      const firebaseService = FirebaseService.getInstance();
 
-    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/users`;
+      const result = await firebaseService.uploadProfileAvatar(
+        userId,
+        profileAvatar,
+      );
 
-    const request = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ clerkId: userId, ...input }),
+      return result;
     };
-    fetch(url, request)
-      .then((response) => {
-        console.log(response.status);
-        switch (response.status) {
-          case 201:
-            return response.json(); // User created successfully
-          case 400:
-            setSubmitErrMessage("Data provided is Invalid");
-            throw new Error("Bad request - Invalid data provided."); // Bad request
-          case 401:
-            setSubmitErrMessage("Unauthorized user, please login again");
-            throw new Error("Unauthorized - Authentication failed."); // Unauthorized
-          case 403:
-            setSubmitErrMessage("Forbidden - Access denied.");
-            throw new Error("Forbidden - Access denied."); // Forbidden
-          case 404:
-            setSubmitErrMessage("Server is unreachable.");
-            throw new Error("Server is unreachable."); // Not Found
-          default:
-            setSubmitErrMessage("Unexpected error occurred.");
-            throw new Error("Unexpected error occurred."); // Other status codes
-        }
-      })
-      .then((data) => {
-        setUser({ ...input });
+
+    const sendProfileToBackend = async (input: ProfileInput) => {
+      const token = getToken({ template: "event-hand-jwt" });
+
+      const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/users`;
+
+      const request = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ clerkId: userId, ...input }),
+      };
+
+      const response = await fetch(url, request);
+
+      switch (response.status) {
+        case 201:
+          return response.json(); // User created successfully
+        case 400:
+          setSubmitErrMessage("Data provided is Invalid");
+          throw new Error("Bad request - Invalid data provided."); // Bad request
+        case 401:
+          setSubmitErrMessage("Unauthorized user, please login again");
+          throw new Error("Unauthorized - Authentication failed."); // Unauthorized
+        case 403:
+          setSubmitErrMessage("Forbidden - Access denied.");
+          throw new Error("Forbidden - Access denied."); // Forbidden
+        case 404:
+          setSubmitErrMessage("Server is unreachable.");
+          throw new Error("Server is unreachable."); // Not Found
+        default:
+          setSubmitErrMessage("Unexpected error occurred.");
+          throw new Error("Unexpected error occurred."); // Other status codes
+      }
+    };
+
+    Promise.all([uploadAvatarToFirebase, sendProfileToBackend])
+      .then(([uploadResult, responseData]) => {
+        const uploadRef = uploadResult
+          ? (uploadResult as unknown as UploadResult).ref
+          : undefined;
+
+        const user = {
+          avatar: uploadRef,
+          firstName: input.firstName,
+          lastName: input.lastName,
+          contactNumber: input.contactNumber,
+          gender: input.gender,
+        };
+
+        setUser(user);
         setLoading(false);
       })
-      .catch((error) => {
+      .catch((err) => {
+        console.error(err);
         setLoading(false);
-        console.error(error); // Log any errors that occur
       });
   };
 
@@ -158,7 +218,12 @@ const ProfileForm = () => {
     return (
       <View id="profile-form-field" testID="test-profile-form-field">
         <Text style={styles.title}>SET UP YOUR PROFILE</Text>
-        <ProfileUpload name="profilePhoto" />
+        <ProfileUpload
+          label="Upload your photo"
+          control={control as unknown as Control<FieldValues, unknown>}
+          register={register as unknown as UseFormRegister<FieldValues>}
+          errors={errors}
+        />
         <Text style={styles.label}>First Name</Text>
         <Controller
           name="firstName"
@@ -245,12 +310,7 @@ const ProfileForm = () => {
           triggerValidation={trigger}
           showLabel
         />
-        <Button
-          title="NEXT"
-          testID="next-btn"
-          onPress={() => setConfirmDetails(!confirmDetails)}
-          disabled={!isValid}
-        />
+        <Button title="NEXT" testID="next-btn" onPress={onNextBtnPress} />
       </View>
     );
   };

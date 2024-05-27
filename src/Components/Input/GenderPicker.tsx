@@ -27,7 +27,7 @@ const GenderPicker = (props: GenderPickerProps) => {
         <Controller
           name="gender"
           control={control}
-          render={({ field: { onChange, onBlur, value } }) => {
+          render={({ field: { onChange,  value } }) => {
             const onMalePress = () => {
               onChange("MALE");
 

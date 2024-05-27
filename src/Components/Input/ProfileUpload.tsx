@@ -1,47 +1,119 @@
-import Icon from "@expo/vector-icons/Ionicons";
-import { Feather } from '@expo/vector-icons';
-import React from "react";
-import { View, Text, Image, StyleSheet, Pressable } from "react-native";
-import {launchImageLibraryAsync} from 'expo-image-picker';
+import { Feather } from "@expo/vector-icons";
+import * as FileSystem from "expo-file-system";
+import {
+  launchImageLibraryAsync,
+  useMediaLibraryPermissions,
+} from "expo-image-picker";
+import React, { useState } from "react";
+import {
+  UseFormRegister,
+  Control,
+  FieldValues,
+  Controller,
+} from "react-hook-form";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  Pressable,
+  ActivityIndicator,
+} from "react-native";
+
+import { ImageInfo } from "../../types/types";
 interface ProfileAvatarProps {
-  name: string;
-  imageUri?: string;
-  onEdit?: () => void;
+  label: string;
+  control: Control<FieldValues, unknown>;
+  register: UseFormRegister<FieldValues>;
+  errors: FieldValues;
 }
 
-const ProfileUpload: React.FC<ProfileAvatarProps> = ({
-  name,
-  imageUri,
-  onEdit,
-}) => {
+const getFileInfo = async (fileURI: string) =>
+  await FileSystem.getInfoAsync(fileURI, { size: true });
 
-  const pickImageAsync = async () => {
-    let result = await launchImageLibraryAsync({
-      allowsEditing: true,
-      quality: 1,
-    });
+const ProfileUpload = (props: ProfileAvatarProps) => {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [status, requestPermission] = useMediaLibraryPermissions();
 
-    if (!result.canceled) {
-      console.log(result);
-    } else {
-      alert('You did not select any image.');
-    }
-  };
-  onEdit = () => pickImageAsync();
+  const { label, control, errors } = props;
+  const defaultImage = require("../../assets/images/user.png");
 
   return (
     <View style={styles.container}>
-      <View style={styles.avatarContainer}>
-        <Image
-          source={require("../../assets/images/user.png")}
-          style={styles.avatar}
-        />
-        <Pressable style={styles.editButton} onPress={onEdit}>
-          {/* <Icon name="pencil" size={20} color="#fff" /> */}
-          <Feather name="upload" size={20} color="#fff" />
-        </Pressable>
-      </View>
-      <Text style={styles.name}>{name}</Text>
+      <Controller
+        name="profileAvatar"
+        control={control}
+        render={({ field: { onChange, value } }) => {
+          const pickImageAsync = async () => {
+            setLoading(true)
+            const permission = await requestPermission();
+
+            if (!permission.granted) {
+              alert(
+                "You have denied access to media library. Please select allow to upload photo",
+              );
+            }
+
+            const result = await launchImageLibraryAsync({
+              quality: 1,
+            });
+
+            if (!result.canceled) {
+              const image = result.assets[0];
+              const imageFileInfo = await getFileInfo(image.uri);
+              const fileExtension = image.fileName
+                ? image.fileName.split(".").pop()
+                : "";
+              const mimeType = image.mimeType ? image.mimeType : "";
+
+              const selectedImageInfo: ImageInfo = {
+                uri: image.uri,
+                fileSize:  imageFileInfo.size,
+                mimeType,
+                fileExtension,
+              };
+
+              onChange(selectedImageInfo);
+            } else {
+              alert("You did not select any image.");
+            }
+            setLoading(false)
+          };
+
+          const selectImage = () => pickImageAsync();
+          return (
+            <View style={styles.avatarContainer}>
+              <Image
+                testID="test-uploaded-image"
+                source={value.uri != "" ? { uri: value.uri } : defaultImage}
+                style={styles.avatar}
+              />
+              <Pressable
+                testID="test-profile-upload-btn"
+                style={[
+                  styles.editButton,
+                  loading ? styles.loadingEditButton : null,
+                ]}
+                onPress={selectImage}
+              >
+                {!loading && <Feather name="upload" size={20} color="#fff" />}
+                {loading && (
+                  <ActivityIndicator
+                    testID="test-loading-upload-btn"
+                    size="small"
+                    color="#007AFF"
+                  />
+                )}
+              </Pressable>
+            </View>
+          );
+        }}
+      />
+      <Text style={styles.label}>{label}</Text>
+      <Text testID="test-profile-avatar-err-text" style={styles.errorText}>
+        {errors["profileAvatar"]?.fileSize.message}
+        {errors["profileAvatar"]?.uri.message}
+      </Text>
     </View>
   );
 };
@@ -49,7 +121,7 @@ const ProfileUpload: React.FC<ProfileAvatarProps> = ({
 const styles = StyleSheet.create({
   container: {
     alignItems: "center",
-    marginVertical: 20,
+    marginVertical: 5,
   },
   avatarContainer: {
     position: "relative",
@@ -67,10 +139,18 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     padding: 5,
   },
-  name: {
+  loadingEditButton: {
+    backgroundColor: "#FFFFFF",
+  },
+  label: {
     marginTop: 10,
     fontSize: 18,
     fontWeight: "bold",
+  },
+  errorText: {
+    color: "red",
+    marginBottom: 10,
+    textAlign: "center",
   },
 });
 

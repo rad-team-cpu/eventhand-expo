@@ -1,4 +1,5 @@
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { FullMetadata, StorageReference } from "firebase/storage";
 
 interface Event {
   id: string;
@@ -24,13 +25,26 @@ interface UserChat {
 }
 
 interface UserProfile {
-  lastName?: string;
-  firstName?: string;
-  contactNumber?: string;
-  gender?: string;
+  avatar?: string | StorageReference;
+  lastName: string;
+  firstName: string;
+  contactNumber: string;
+  gender: string;
   events?: Event[];
   chats?: UserChat[];
   vendorId?: string;
+}
+
+interface ImageInfo {
+  fileSize?: number;
+  uri?: string;
+  mimeType?: string;
+  fileExtension?: string;
+}
+
+interface ImageUploadResult {
+  metaData: FullMetadata;
+  ref: StorageReference;
 }
 
 type ScreenProps = {
@@ -45,6 +59,8 @@ type HomeScreenProps = NativeStackScreenProps<ScreenProps, "Home">;
 
 export {
   UserProfile,
+  ImageInfo,
+  ImageUploadResult,
   ScreenProps,
   SignUpScreenProps,
   LoginScreenProps,
