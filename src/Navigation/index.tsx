@@ -8,14 +8,14 @@ import { UserProvider } from "../Contexts/UserContext";
 const Navigator = () => {
   return (
     <NavigationContainer>
-      <UserProvider>
-        <SignedIn>
-          <SignedInNav />
-        </SignedIn>
-        <SignedOut>
-          <SignedOutNav />
-        </SignedOut>
-      </UserProvider>
+      <SignedIn>
+        <UserProvider>
+          <SignedInNav />\
+        </UserProvider>
+      </SignedIn>
+      <SignedOut>
+        <SignedOutNav />
+      </SignedOut>
     </NavigationContainer>
   );
 };

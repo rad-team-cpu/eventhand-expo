@@ -60,20 +60,19 @@ const HomeNav = () => {
 };
 
 const Home = () => {
-  const { getToken } = useAuth();
+  const { getToken, userId, isLoaded } = useAuth();
   const [noUserProfile, setNoUserProfile] = useState(false);
   const [loading, setLoading] = useState(true);
   const userContext = useContext(UserContext);
-  const { userId, isLoaded } = useAuth();
 
   if (!userContext) {
     throw new Error("UserInfo must be used within a UserProvider");
   }
 
-  const { user, setUser } = userContext;
+  const { setUser } = userContext;
 
-  const fetchUserId = () => {
-    const token = getToken({ template: "event-hand-jwt" });
+  const fetchUserId = async () => {
+    const token = await getToken({ template: "event-hand-jwt" });
 
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/clerk=${userId}`;
 
@@ -105,7 +104,7 @@ const Home = () => {
         setLoading(false);
       })
       .catch((error) => {
-        console.error("Error fetching user ID:", error);
+        console.error("Error fetching user:", error);
         setLoading(false);
       });
   };
@@ -118,7 +117,6 @@ const Home = () => {
     fetchUserId();
   }, []);
 
-  return <Loading/>;
   return loading ? <Loading /> : noUserProfile ? <ProfileForm /> : <HomeNav />;
 };
 

@@ -84,7 +84,7 @@ const ProfileUpload = (props: ProfileAvatarProps) => {
           return (
             <View style={styles.avatarContainer}>
               <Image
-                testID="test-uploaded-image"
+                testID="test-profile-upload-image"
                 source={value.uri != "" ? { uri: value.uri } : defaultImage}
                 style={styles.avatar}
               />

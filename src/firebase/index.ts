@@ -1,4 +1,4 @@
-import { initializeApp, FirebaseApp } from "firebase/app";
+import { initializeApp } from "firebase/app";
 import {
   FirebaseStorage,
   UploadResult,
@@ -55,7 +55,10 @@ class FirebaseService {
     }
   }
 
-  async uploadProfileAvatar(userId: string, image: ImageInfo): Promise<UploadResult | undefined> {
+  async uploadProfileAvatar(
+    userId: string,
+    image: ImageInfo,
+  ): Promise<UploadResult | undefined> {
     const fileName = `images/${userId}/profile/avatar.${image.fileExtension}`;
 
     if (!image.uri || image.uri == "") {
