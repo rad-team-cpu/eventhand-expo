@@ -45,7 +45,7 @@ const ProfileUpload = (props: ProfileAvatarProps) => {
         control={control}
         render={({ field: { onChange, value } }) => {
           const pickImageAsync = async () => {
-            setLoading(true)
+            setLoading(true);
             const permission = await requestPermission();
 
             if (!permission.granted) {
@@ -68,7 +68,7 @@ const ProfileUpload = (props: ProfileAvatarProps) => {
 
               const selectedImageInfo: ImageInfo = {
                 uri: image.uri,
-                fileSize:  imageFileInfo.size,
+                fileSize: imageFileInfo.size,
                 mimeType,
                 fileExtension,
               };
@@ -77,7 +77,7 @@ const ProfileUpload = (props: ProfileAvatarProps) => {
             } else {
               alert("You did not select any image.");
             }
-            setLoading(false)
+            setLoading(false);
           };
 
           const selectImage = () => pickImageAsync();

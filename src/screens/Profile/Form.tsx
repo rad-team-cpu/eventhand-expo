@@ -19,10 +19,12 @@ import {
   Text,
   StyleSheet,
   GestureResponderEvent,
+  TextStyle,
 } from "react-native";
 import { object, string, number, ObjectSchema } from "yup";
 
 // import DatePicker from "../../Components/Input/DatePicker";
+import Avatar from "../../Components/Avatar";
 import GenderPicker from "../../Components/Input/GenderPicker";
 import ProfileUpload from "../../Components/Input/ProfileUpload";
 import { UserContext } from "../../Contexts/UserContext";
@@ -320,7 +322,12 @@ const ProfileForm = () => {
 
     return (
       <View id="profile-form-confirm" testID="test-profile-form-confirm">
-        <Text style={styles.title}>CONFIRM DETAILS</Text>
+        {/* <Text style={styles.title}>CONFIRM DETAILS</Text> */}
+        <Avatar
+          uri={getValues("profileAvatar").uri}
+          label="CONFIRM DETAILS"
+          labelTextStyle={styles.title as TextStyle}
+        />
         <Text style={styles.label}>FIRST NAME:</Text>
         <Text id="fist-name" testID="test-first-name" style={styles.details}>
           {getValues("firstName")}
@@ -338,12 +345,12 @@ const ProfileForm = () => {
           {getValues("gender")}
         </Text>
         <Button
-          title="SUBMIT"
-          testID="test-submit-btn"
+          title="SAVE"
+          testID="test-save-btn"
           onPress={onSubmitPress}
           disabled={!isValid}
         />
-        <Text testID="submit-err-text" style={styles.errorText}>
+        <Text testID="save-err-text" style={styles.errorText}>
           {submitErrMessage}
         </Text>
       </View>
