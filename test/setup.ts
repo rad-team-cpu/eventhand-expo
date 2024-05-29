@@ -1,6 +1,25 @@
-// @ts-nocheck
-import fetchMock from "jest-fetch-mock";
+import "react-native-gesture-handler/jestSetup";
 
-global.window = {};
-global.window = global;
-fetchMock.enableMocks();
+jest.mock("react-native-reanimated", () => {
+  const Reanimated = require("react-native-reanimated/mock");
+
+  Reanimated.default.call = () => {};
+
+  return Reanimated;
+});
+
+jest.mock("react-native/Libraries/Animated/NativeAnimatedHelper");
+
+jest.mock("@clerk/clerk-expo");
+
+
+// Mock getStorage
+jest.mock("firebase/storage", () => {
+  return {
+    getStorage: jest.fn(() => ({
+      app: {},
+    })),
+    ref: jest.fn(),
+    uploadBytes: jest.fn(),
+  };
+});

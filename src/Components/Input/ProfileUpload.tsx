@@ -1,5 +1,5 @@
 import { Feather } from "@expo/vector-icons";
-import * as FileSystem from "expo-file-system";
+import { getInfoAsync } from "expo-file-system";
 import {
   launchImageLibraryAsync,
   useMediaLibraryPermissions,
@@ -29,7 +29,7 @@ interface ProfileAvatarProps {
 }
 
 const getFileInfo = async (fileURI: string) =>
-  await FileSystem.getInfoAsync(fileURI, { size: true });
+  await getInfoAsync(fileURI, { size: true });
 
 const ProfileUpload = (props: ProfileAvatarProps) => {
   const [loading, setLoading] = useState<boolean>(false);
