@@ -20,4 +20,7 @@ module.exports = {
     android: {
       package: 'com.eventhandexpo',
     },
+    assetBundlePatterns: [
+      "**/*"
+    ],
   };
