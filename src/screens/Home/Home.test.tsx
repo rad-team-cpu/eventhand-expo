@@ -4,7 +4,6 @@ import { NavigationContainer } from "@react-navigation/native";
 import {
   screen,
   render,
-  fireEvent,
   waitFor,
   cleanup,
   userEvent,
@@ -90,7 +89,7 @@ describe("Home", () => {
 
     await waitFor(async () => {
       expect(mockGetToken).toHaveBeenCalledWith({ template: "event-hand-jwt" });
-      expect(fetch).toHaveBeenLastCalledWith(url, request);
+      expect(fetch).toHaveBeenCalledWith(url, request);
       expect(profileScreen).toBeOnTheScreen();
       expect(profileAvatarUploadBtn).toBeOnTheScreen();
       expect(profileAvatarUploadImage).toBeOnTheScreen();
@@ -168,7 +167,6 @@ describe("Home", () => {
       headers,
     });
 
-    
     await waitFor(() => {
       render(
         <NavigationContainer>

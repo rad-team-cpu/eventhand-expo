@@ -39,11 +39,11 @@ const ProfileUpload = (props: ProfileAvatarProps) => {
   const defaultImage = require("../../assets/images/user.png");
 
   return (
-    <View style={styles.container}>
+    <View>
       <Controller
         name="profileAvatar"
         control={control}
-        render={({ field: { onChange, value } }) => {
+        render={({ field: { name, onChange, value } }) => {
           const pickImageAsync = async () => {
             setLoading(true);
             const permission = await requestPermission();
@@ -72,7 +72,6 @@ const ProfileUpload = (props: ProfileAvatarProps) => {
                 mimeType,
                 fileExtension,
               };
-
               onChange(selectedImageInfo);
             } else {
               alert("You did not select any image.");
@@ -81,39 +80,59 @@ const ProfileUpload = (props: ProfileAvatarProps) => {
           };
 
           const selectImage = () => pickImageAsync();
+
+          const errorMessages = [
+            errors[name]?.fileSize,
+            errors[name]?.mimeType,
+            errors[name]?.fileExtension,
+          ];
+
+          const errorMessage = errorMessages[0]
+            ? errorMessages[0].message
+            : errorMessages[1]
+              ? errorMessages[1].message
+              : errorMessages[2]
+                ? errorMessages[2].message
+                : "";
+
+          const uploadedImage =
+            value !== null ? { uri: value.uri } : defaultImage;
           return (
-            <View style={styles.avatarContainer}>
-              <Image
-                testID="test-profile-upload-image"
-                source={value.uri != "" ? { uri: value.uri } : defaultImage}
-                style={styles.avatar}
-              />
-              <Pressable
-                testID="test-profile-upload-btn"
-                style={[
-                  styles.editButton,
-                  loading ? styles.loadingEditButton : null,
-                ]}
-                onPress={selectImage}
+            <View style={styles.container}>
+              <View style={styles.avatarContainer}>
+                <Image
+                  testID="test-profile-upload-image"
+                  source={uploadedImage}
+                  style={styles.avatar}
+                />
+                <Pressable
+                  testID="test-profile-upload-btn"
+                  style={[
+                    styles.editButton,
+                    loading ? styles.loadingEditButton : null,
+                  ]}
+                  onPress={selectImage}
+                >
+                  {!loading && <Feather name="upload" size={20} color="#fff" />}
+                  {loading && (
+                    <ActivityIndicator
+                      testID="test-loading-upload-btn"
+                      size="small"
+                      color="#007AFF"
+                    />
+                  )}
+                </Pressable>
+              </View>
+              <Text
+                testID="test-profile-avatar-err-text"
+                style={styles.errorText}
               >
-                {!loading && <Feather name="upload" size={20} color="#fff" />}
-                {loading && (
-                  <ActivityIndicator
-                    testID="test-loading-upload-btn"
-                    size="small"
-                    color="#007AFF"
-                  />
-                )}
-              </Pressable>
+                {errorMessage}
+              </Text>
             </View>
           );
         }}
       />
-      <Text style={styles.label}>{label}</Text>
-      <Text testID="test-profile-avatar-err-text" style={styles.errorText}>
-        {errors["profileAvatar"]?.fileSize.message}
-        {errors["profileAvatar"]?.uri.message}
-      </Text>
     </View>
   );
 };
@@ -149,7 +168,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: "red",
-    marginBottom: 10,
+    marginTop: 10,
     textAlign: "center",
   },
 });

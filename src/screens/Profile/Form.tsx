@@ -2,7 +2,12 @@ import { useAuth } from "@clerk/clerk-expo";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { sub } from "date-fns/fp";
 import { ImagePickerAsset } from "expo-image-picker";
-import { UploadResult, getStorage, ref } from "firebase/storage";
+import {
+  StorageReference,
+  UploadResult,
+  getStorage,
+  ref,
+} from "firebase/storage";
 import React, { useState, useEffect, useContext } from "react";
 import {
   useForm,
@@ -21,7 +26,7 @@ import {
   GestureResponderEvent,
   TextStyle,
 } from "react-native";
-import { object, string, number, ObjectSchema } from "yup";
+import { object, string, number } from "yup";
 
 // import DatePicker from "../../Components/Input/DatePicker";
 import Avatar from "../../Components/Avatar";
@@ -33,7 +38,7 @@ import { ImageInfo } from "../../types/types";
 import Loading from "../Loading";
 
 interface ProfileInput extends FieldValues {
-  profileAvatar: ImageInfo;
+  profileAvatar: ImageInfo | null;
   lastName: string;
   firstName: string;
   contactNumber: string;
@@ -43,17 +48,17 @@ interface ProfileInput extends FieldValues {
 
 const signUpValidationSchema = object().shape({
   profileAvatar: object({
-    fileSize: number().max(5242880, "File size to large, must be below 5mb"),
+    fileSize: number().max(5242880, "File size too large, must be below 5mb"),
     uri: string(),
-    mimeType: string().matches(/image\/(png|jpeg)/, {
+    mimeType: string().matches(/^image\/(png|jpeg)$/, {
       message: "File must be a png or jpeg",
       excludeEmptyString: true,
     }),
-    fileExtension: string().matches(/(png|jpe?g)$/, {
+    fileExtension: string().matches(/^(png|jpe?g)$/, {
       message: "File must be a png or jpeg",
       excludeEmptyString: true,
     }),
-  }),
+  }).nullable(),
   lastName: string()
     .required("Enter last name.")
     .matches(
@@ -99,12 +104,7 @@ const ProfileForm = () => {
     mode: "onBlur",
     reValidateMode: "onChange",
     defaultValues: {
-      profileAvatar: {
-        uri: "",
-        fileSize: 0,
-        mimeType: "",
-        fileExtension: "",
-      },
+      profileAvatar: null,
       firstName: "",
       lastName: "",
       contactNumber: "",
@@ -113,21 +113,21 @@ const ProfileForm = () => {
     resolver: yupResolver(signUpValidationSchema),
   });
   const [submitErrMessage, setSubmitErrMessage] = useState("");
-  const { getToken } = useAuth();
+  const { getToken, userId } = useAuth();
   const [loading, setLoading] = useState(false);
   const [confirmDetails, setConfirmDetails] = useState(false);
-  const { userId } = useAuth();
   const userContext = useContext(UserContext);
+
 
   if (!userContext) {
     throw new Error("Profile must be used within a UserProvider");
   }
 
-  // if (!userId) {
-  //   throw new Error("User does not exist! Please SignUp again");
-  // }
+  if (!userId) {
+    throw new Error("User does not exist! Please SignUp again");
+  }
 
-  const { setUser } = userContext;
+  const { setUser, user} = userContext;
 
   // const minDate = sub({ years: 100 })(new Date());
   // const maxDate = sub({ years: 19 })(new Date());
@@ -141,21 +141,40 @@ const ProfileForm = () => {
 
   const createProfile = async (input: ProfileInput) => {
     setLoading(true);
+    let uploadPath: string | null = null;
+    const { profileAvatar, firstName, lastName, contactNumber, gender } = input;
+
+    const userInfo = {
+      firstName,
+      lastName,
+      contactNumber,
+      gender,
+    };
+
     try {
-      const firebaseService = FirebaseService.getInstance();
+      if (profileAvatar !== null) {
+        const firebaseService = FirebaseService.getInstance();
 
-      const uploadResult = await firebaseService.uploadProfileAvatar(
-        userId ? userId : "",
-        input.profileAvatar,
-      );
+        const uploadResult = await firebaseService.uploadProfileAvatar(
+          userId,
+          profileAvatar,
+        );
 
-      const uploadRef = uploadResult
-        ? (uploadResult as unknown as UploadResult).ref
-        : undefined;
+        uploadPath = uploadResult
+          ? (uploadResult as unknown as UploadResult).metadata.fullPath
+          : null;
+      }
 
-      const token = getToken({ template: "event-hand-jwt" });
+      const token = await getToken({ template: "event-hand-jwt" });
 
       const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/users`;
+
+      const user = uploadPath
+        ? {
+            avatar: uploadPath,
+            ...userInfo,
+          }
+        : userInfo;
 
       const request = {
         method: "POST",
@@ -163,26 +182,19 @@ const ProfileForm = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ clerkId: userId, ...input }),
+        body: JSON.stringify({
+          clerkId: userId,
+          ...user,
+        }),
       };
 
       const response = await fetch(url, request);
 
       switch (response.status) {
         case 201:
-          const user = {
-            avatar: uploadRef,
-            firstName: input.firstName,
-            lastName: input.lastName,
-            contactNumber: input.contactNumber,
-            gender: input.gender,
-          };
-
           setUser(user);
           setLoading(false); // User created successfully
-        case 400:
-          setSubmitErrMessage("Data provided is Invalid");
-          throw new Error("Bad request - Invalid data provided."); // Bad request
+          break;
         case 401:
           setSubmitErrMessage("Unauthorized user, please login again");
           throw new Error("Unauthorized - Authentication failed."); // Unauthorized
@@ -320,11 +332,16 @@ const ProfileForm = () => {
       return () => backHandler.remove();
     }, []);
 
+    const avatarUri =
+      getValues("profileAvatar") !== null
+        ? getValues("profileAvatar")!.uri
+        : "";
+
     return (
       <View id="profile-form-confirm" testID="test-profile-form-confirm">
         {/* <Text style={styles.title}>CONFIRM DETAILS</Text> */}
         <Avatar
-          uri={getValues("profileAvatar").uri}
+          uri={avatarUri}
           label="CONFIRM DETAILS"
           labelTextStyle={styles.title as TextStyle}
         />

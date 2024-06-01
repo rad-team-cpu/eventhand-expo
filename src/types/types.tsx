@@ -25,13 +25,13 @@ interface UserChat {
 }
 
 interface UserProfile {
-  avatar?: string | StorageReference;
+  avatar?: string | null;
   lastName: string;
   firstName: string;
   contactNumber: string;
   gender: string;
-  events?: Event[];
-  chats?: UserChat[];
+  events?: Event[] | null;
+  chats?: UserChat[] | null;
   vendorId?: string;
 }
 

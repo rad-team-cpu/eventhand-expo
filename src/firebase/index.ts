@@ -62,7 +62,7 @@ class FirebaseService {
     const fileName = `images/${userId}/profile/avatar.${image.fileExtension}`;
 
     if (!image.uri || image.uri == "") {
-      return;
+      throw new Error("Invalid Uri");
     }
 
     const result = await this.uploadFile(fileName, image.uri);

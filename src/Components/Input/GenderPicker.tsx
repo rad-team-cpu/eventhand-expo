@@ -27,7 +27,7 @@ const GenderPicker = (props: GenderPickerProps) => {
         <Controller
           name="gender"
           control={control}
-          render={({ field: { onChange,  value } }) => {
+          render={({ field: { onChange, value } }) => {
             const onMalePress = () => {
               onChange("MALE");
 
@@ -46,6 +46,7 @@ const GenderPicker = (props: GenderPickerProps) => {
             return (
               <View style={styles.buttonContainer}>
                 <Pressable
+                  testID="test-male-btn"
                   style={[
                     styles.button,
                     styles.buttonMale,
@@ -65,6 +66,7 @@ const GenderPicker = (props: GenderPickerProps) => {
                   </Text>
                 </Pressable>
                 <Pressable
+                  testID="test-female-btn"
                   style={[
                     styles.button,
                     styles.buttonFemale,
