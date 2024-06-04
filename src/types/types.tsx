@@ -1,5 +1,6 @@
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { FullMetadata, StorageReference } from "firebase/storage";
+import { GestureResponderEvent } from "react-native";
 
 interface Event {
   id: string;
@@ -47,15 +48,33 @@ interface ImageUploadResult {
   ref: StorageReference;
 }
 
+interface SuccessErrorProps {
+  description: string;
+  buttonText: string;
+  navigateTo?: string;
+  logOut?: keyof ScreenProps;
+  status: "success" | "error";
+}
+
 type ScreenProps = {
   SignUp: undefined;
   Login: undefined;
   Home: undefined;
+  ProfileForm: undefined;
+  SuccessError: SuccessErrorProps;
 };
 
 type SignUpScreenProps = NativeStackScreenProps<ScreenProps, "SignUp">;
 type LoginScreenProps = NativeStackScreenProps<ScreenProps, "Login">;
 type HomeScreenProps = NativeStackScreenProps<ScreenProps, "Home">;
+type ProfileFormScreenProps = NativeStackScreenProps<
+  ScreenProps,
+  "ProfileForm"
+>;
+type SuccessErrorScreenProps = NativeStackScreenProps<
+  ScreenProps,
+  "SuccessError"
+>;
 
 export {
   UserProfile,
@@ -65,4 +84,6 @@ export {
   SignUpScreenProps,
   LoginScreenProps,
   HomeScreenProps,
+  SuccessErrorScreenProps,
+  ProfileFormScreenProps
 };

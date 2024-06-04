@@ -1,6 +1,7 @@
 import { useAuth } from "@clerk/clerk-expo";
 import { faker } from "@faker-js/faker";
 import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import {
   screen,
   render,
@@ -13,7 +14,36 @@ import fetch from "jest-fetch-mock";
 import * as React from "react";
 
 import Home from ".";
-import { UserProvider } from "../../Contexts/UserContext";
+import { UserContext } from "../../Contexts/UserContext";
+import { UserProfile, ScreenProps } from "../../types/types";
+import ProfileForm from "../Profile/Form";
+
+let setUserMock: jest.Mock;
+
+const mockUser: UserProfile = {
+  lastName: "Doe",
+  firstName: "John",
+  contactNumber: "1234567890",
+  gender: "male",
+  events: [],
+  chats: [],
+  vendorId: "vendor123",
+};
+
+const TestHomeComponent = () => {
+  const TestHomeStack = createNativeStackNavigator<ScreenProps>();
+
+  return (
+    <NavigationContainer>
+      <UserContext.Provider value={{ user: mockUser, setUser: setUserMock }}>
+        <TestHomeStack.Navigator>
+          <TestHomeStack.Screen name="Home" component={Home} />
+          <TestHomeStack.Screen name="ProfileForm" component={ProfileForm} />
+        </TestHomeStack.Navigator>
+      </UserContext.Provider>
+    </NavigationContainer>
+  );
+};
 
 let mockGetToken: jest.Mock;
 const mockUserId = "mock-user-id";
@@ -37,7 +67,6 @@ beforeEach(async () => {
   });
 
   user = userEvent.setup();
-
 });
 
 afterEach(() => {
@@ -58,15 +87,8 @@ describe("Home", () => {
     });
 
     await waitFor(() => {
-      render(
-        <NavigationContainer>
-          <UserProvider>
-            <Home />
-          </UserProvider>
-        </NavigationContainer>,
-      );
+      render(<TestHomeComponent />);
     });
-
 
     const request = {
       method: "GET",
@@ -100,12 +122,9 @@ describe("Home", () => {
       expect(femaleButton).toBeOnTheScreen();
       expect(nextButton).toBeOnTheScreen();
     });
-
-
   });
 
   it("should proceed to the home screen, if user profile data is found in the database", async () => {
-
     const gender = faker.person.sexType();
 
     const userProfile = {
@@ -125,15 +144,8 @@ describe("Home", () => {
     });
 
     await waitFor(() => {
-      render(
-        <NavigationContainer>
-          <UserProvider>
-            <Home />
-          </UserProvider>
-        </NavigationContainer>,
-      );
+      render(<TestHomeComponent />);
     });
-
 
     const bookingNavbtn = screen.getByTestId("booking-nav-btn");
     const chatNavbtn = screen.getByTestId("chat-nav-btn");
@@ -143,9 +155,7 @@ describe("Home", () => {
       expect(bookingNavbtn).toBeOnTheScreen();
       expect(chatNavbtn).toBeOnTheScreen();
       expect(profileNavbtn).toBeOnTheScreen();
-    })
-
-
+    });
   });
 
   it("should navigate the user to the booking screen if the booking button is pressed in the bottom navigation bar", async () => {
@@ -168,21 +178,14 @@ describe("Home", () => {
     });
 
     await waitFor(() => {
-      render(
-        <NavigationContainer>
-          <UserProvider>
-            <Home />
-          </UserProvider>
-        </NavigationContainer>,
-      );
+      render(<TestHomeComponent />);
     });
 
     const bookingNavbtn = screen.getByTestId("booking-nav-btn");
 
     await user.press(bookingNavbtn);
 
-    const booking = screen.getByTestId("booking")
-
+    const booking = screen.getByTestId("booking");
 
     waitFor(() => {
       expect(booking).toBeOnTheScreen();
@@ -208,22 +211,15 @@ describe("Home", () => {
       headers,
     });
 
-    
     await waitFor(() => {
-      render(
-        <NavigationContainer>
-          <UserProvider>
-            <Home />
-          </UserProvider>
-        </NavigationContainer>,
-      );
+      render(<TestHomeComponent />);
     });
 
     const chatNavbtn = screen.getByTestId("chat-nav-btn");
 
     await user.press(chatNavbtn);
 
-    const chat = screen.getByTestId("chat")
+    const chat = screen.getByTestId("chat");
 
     waitFor(() => {
       expect(chat).toBeOnTheScreen();
@@ -249,22 +245,15 @@ describe("Home", () => {
       headers,
     });
 
-    
     await waitFor(() => {
-      render(
-        <NavigationContainer>
-          <UserProvider>
-            <Home />
-          </UserProvider>
-        </NavigationContainer>,
-      );
+      render(<TestHomeComponent />);
     });
 
     const profileNavbtn = screen.getByTestId("profile-nav-btn");
 
     await user.press(screen.getByTestId("profile-nav-btn"));
 
-    const profile = screen.getByTestId("test-profile")
+    const profile = screen.getByTestId("test-profile");
 
     waitFor(() => {
       expect(profile).toBeOnTheScreen();

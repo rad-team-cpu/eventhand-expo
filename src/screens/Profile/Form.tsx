@@ -1,5 +1,6 @@
 import { useAuth } from "@clerk/clerk-expo";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { sub } from "date-fns/fp";
 import { ImagePickerAsset } from "expo-image-picker";
 import {
@@ -8,7 +9,7 @@ import {
   getStorage,
   ref,
 } from "firebase/storage";
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import {
   useForm,
   FieldValues,
@@ -34,7 +35,12 @@ import GenderPicker from "../../Components/Input/GenderPicker";
 import ProfileUpload from "../../Components/Input/ProfileUpload";
 import { UserContext } from "../../Contexts/UserContext";
 import FirebaseService from "../../firebase";
-import { ImageInfo } from "../../types/types";
+import {
+  ImageInfo,
+  ProfileFormScreenProps,
+  ScreenProps,
+  SuccessErrorScreenProps,
+} from "../../types/types";
 import Loading from "../Loading";
 
 interface ProfileInput extends FieldValues {
@@ -92,7 +98,7 @@ const signUpValidationSchema = object().shape({
   //   .required("Enter date of birth."),
 });
 
-const ProfileForm = () => {
+const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
   const {
     control,
     register,
@@ -112,12 +118,12 @@ const ProfileForm = () => {
     },
     resolver: yupResolver(signUpValidationSchema),
   });
+
   const [submitErrMessage, setSubmitErrMessage] = useState("");
   const { getToken, userId } = useAuth();
   const [loading, setLoading] = useState(false);
   const [confirmDetails, setConfirmDetails] = useState(false);
   const userContext = useContext(UserContext);
-
 
   if (!userContext) {
     throw new Error("Profile must be used within a UserProvider");
@@ -127,7 +133,7 @@ const ProfileForm = () => {
     throw new Error("User does not exist! Please SignUp again");
   }
 
-  const { setUser, user} = userContext;
+  const { setUser } = userContext;
 
   // const minDate = sub({ years: 100 })(new Date());
   // const maxDate = sub({ years: 19 })(new Date());
@@ -149,6 +155,11 @@ const ProfileForm = () => {
       lastName,
       contactNumber,
       gender,
+    };
+
+
+    const navigateToSuccessError = (props: ScreenProps["SuccessError"]) => {
+      navigation.navigate("SuccessError", { ...props });
     };
 
     try {
@@ -193,11 +204,14 @@ const ProfileForm = () => {
       switch (response.status) {
         case 201:
           setUser(user);
-          setLoading(false); // User created successfully
+          setLoading(false);
+          navigateToSuccessError({
+            description: "Your information was saved successfully.",
+            buttonText: "Continue",
+            navigateTo: "Home",
+            status: "success",
+          });
           break;
-        case 401:
-          setSubmitErrMessage("Unauthorized user, please login again");
-          throw new Error("Unauthorized - Authentication failed."); // Unauthorized
         case 403:
           setSubmitErrMessage("Forbidden - Access denied.");
           throw new Error("Forbidden - Access denied."); // Forbidden
@@ -211,6 +225,11 @@ const ProfileForm = () => {
     } catch (error) {
       console.error(error);
       setLoading(false);
+      navigateToSuccessError({
+        description: submitErrMessage,
+        buttonText: "Continue",
+        status: "error",
+      });
     }
   };
 
@@ -317,8 +336,8 @@ const ProfileForm = () => {
     );
   };
 
-  const Confirmation = () => {
-    useEffect(() => {
+  useFocusEffect(
+    useCallback(() => {
       const backAction = () => {
         setConfirmDetails(!confirmDetails);
         return true;
@@ -330,8 +349,10 @@ const ProfileForm = () => {
       );
 
       return () => backHandler.remove();
-    }, []);
+    }, [confirmDetails]),
+  );
 
+  const Confirmation = () => {
     const avatarUri =
       getValues("profileAvatar") !== null
         ? getValues("profileAvatar")!.uri

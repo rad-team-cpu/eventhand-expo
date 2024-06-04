@@ -18,5 +18,6 @@ const MockedIcon: React.FC<MockedIconProps> = ({ name }) => {
 const AntDesign = MockedIcon;
 const FontAwesome = MockedIcon;
 const Feather = MockedIcon
+const Ionicons = MockedIcon
 
-export {AntDesign, FontAwesome, Feather}
+export {AntDesign, FontAwesome, Feather, Ionicons}

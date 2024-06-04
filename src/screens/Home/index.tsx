@@ -12,6 +12,7 @@ import Chat from "../Chat";
 import Loading from "../Loading";
 import Profile from "../Profile";
 import ProfileForm from "../Profile/Form";
+import { HomeScreenProps } from "../../types/types";
 
 const HomeNav = () => {
   const Tab = createBottomTabNavigator();
@@ -59,9 +60,8 @@ const HomeNav = () => {
   );
 };
 
-const Home = () => {
+const Home = ({navigation}: HomeScreenProps) => {
   const { getToken, userId, isLoaded } = useAuth();
-  const [noUserProfile, setNoUserProfile] = useState(false);
   const [loading, setLoading] = useState(true);
   const userContext = useContext(UserContext);
 
@@ -94,7 +94,7 @@ const Home = () => {
         } else if (res.status === 401) {
           throw new Error("Unauthorized - Authentication failed.");
         } else if (res.status === 404) {
-          setNoUserProfile(true);
+          navigation.navigate("ProfileForm");
         } else {
           throw new Error("Unexpected error occurred.");
         }
@@ -117,7 +117,7 @@ const Home = () => {
     fetchUserId();
   }, []);
 
-  return loading ? <Loading /> : noUserProfile ? <ProfileForm /> : <HomeNav />;
+  return loading ? <Loading /> : <HomeNav />;
 };
 
 export default Home;
