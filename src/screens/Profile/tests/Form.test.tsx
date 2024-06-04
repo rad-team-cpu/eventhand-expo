@@ -71,7 +71,7 @@ beforeEach(() => {
 
   (useAuth as jest.Mock).mockReturnValue({
     userId: mockUserId,
-    getToken: mockGetToken.mockResolvedValue(token),
+    getToken: mockGetToken.mockReturnValue(token),
   });
 
   (useUser as jest.Mock).mockReturnValue({

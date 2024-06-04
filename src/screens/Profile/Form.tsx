@@ -187,7 +187,7 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
           : null;
       }
 
-      const token = await getToken({ template: "event-hand-jwt" });
+      const token = getToken({ template: "event-hand-jwt" });
 
       const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/users`;
 

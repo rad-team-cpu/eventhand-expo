@@ -11,7 +11,6 @@ import Booking from "../Booking";
 import Chat from "../Chat";
 import Loading from "../Loading";
 import Profile from "../Profile";
-import ProfileForm from "../Profile/Form";
 import { HomeScreenProps } from "../../types/types";
 import { StyleSheet } from "react-native";
 
@@ -64,7 +63,7 @@ const HomeNav = () => {
 
 const Home = ({navigation}: HomeScreenProps) => {
   const { getToken, userId, isLoaded } = useAuth();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const userContext = useContext(UserContext);
 
   if (!userContext) {
@@ -74,9 +73,9 @@ const Home = ({navigation}: HomeScreenProps) => {
   const { setUser } = userContext;
 
   const fetchUserId = async () => {
-    const token = await getToken({ template: "event-hand-jwt" });
-
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/clerk=${userId}`;
+
+    const token = getToken({ template: "event-hand-jwt" });
 
     const request = {
       method: "GET",
@@ -87,35 +86,35 @@ const Home = ({navigation}: HomeScreenProps) => {
       },
     };
 
-    fetch(url, request)
-      .then((res) => {
-        if (res.status === 200) {
-          return res.json();
-        } else if (res.status === 400) {
-          throw new Error("Bad request - Invalid data.");
-        } else if (res.status === 401) {
-          throw new Error("Unauthorized - Authentication failed.");
-        } else if (res.status === 404) {
-          navigation.navigate("ProfileForm");
-        } else {
-          throw new Error("Unexpected error occurred.");
-        }
-      })
-      .then((data) => {
+    try {
+      const res = await fetch(url, request);
+      console.log("Response:", res);
+  
+      if (res.status === 200) {
+        const data = await res.json();
         setUser({ ...data });
         setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error fetching user:", error);
+      } else if (res.status === 400) {
+        throw new Error("Bad request - Invalid data.");
+      } else if (res.status === 401) {
+        throw new Error("Unauthorized - Authentication failed.");
+      } else if (res.status === 404) {
         setLoading(false);
-      });
+        navigation.navigate("ProfileForm");
+      } else {
+        throw new Error("Unexpected error occurred.");
+      }
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     if (!isLoaded) {
       throw new Error("Failed to load clerk");
     }
-
+    console.log("run")
     fetchUserId();
   }, []);
 

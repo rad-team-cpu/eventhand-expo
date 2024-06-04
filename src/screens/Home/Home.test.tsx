@@ -64,7 +64,7 @@ beforeEach(async () => {
   (useAuth as jest.Mock).mockReturnValue({
     userId: mockUserId,
     isLoaded: true,
-    getToken: mockGetToken.mockResolvedValue(token),
+    getToken: mockGetToken.mockReturnValue(token),
   });
 
   (useUser as jest.Mock).mockReturnValue({

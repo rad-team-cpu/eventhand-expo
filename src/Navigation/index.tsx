@@ -10,7 +10,7 @@ const Navigator = () => {
     <NavigationContainer>
       <SignedIn>
         <UserProvider>
-          <SignedInNav />\
+          <SignedInNav />
         </UserProvider>
       </SignedIn>
       <SignedOut>
