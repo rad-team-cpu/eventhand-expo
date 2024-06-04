@@ -58,7 +58,6 @@ const SignupForm = () => {
 
     // send the email.
     await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
-
   };
 
   const onSignUpPress = handleSubmit(async (input) => {
@@ -67,7 +66,7 @@ const SignupForm = () => {
     await clerkSignUp(input)
       .then(() => {
         setPendingVerification(true);
-        setLoading(false)
+        setLoading(false);
       })
       .catch((err) => {
         setLoading(false);
@@ -89,8 +88,7 @@ const SignupForm = () => {
       })
       .then(async (completeSignUp) => {
         await setActive({ session: completeSignUp.createdSessionId });
-        setLoading(false)
-
+        setLoading(false);
       })
       .catch((err) => {
         setLoading(false);

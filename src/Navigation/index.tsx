@@ -1,16 +1,20 @@
 import { SignedIn, SignedOut } from "@clerk/clerk-expo";
 import { NavigationContainer } from "@react-navigation/native";
-import SignedOutNav from "./SignedOut";
+
 import SignedInNav from "./SignedIn";
+import SignedOutNav from "./SignedOut";
+import { UserProvider } from "../Contexts/UserContext";
 
 const Navigator = () => {
   return (
     <NavigationContainer>
       <SignedIn>
-        <SignedInNav/>
+        <UserProvider>
+          <SignedInNav />
+        </UserProvider>
       </SignedIn>
       <SignedOut>
-        <SignedOutNav/>
+        <SignedOutNav />
       </SignedOut>
     </NavigationContainer>
   );

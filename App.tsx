@@ -1,8 +1,6 @@
 import { ClerkProvider } from "@clerk/clerk-expo";
-import Constants from "expo-constants";
 import * as SecureStore from "expo-secure-store";
 import React from "react";
-
 import Navigator from "./src/Navigation";
 
 const tokenCache = {
@@ -16,9 +14,7 @@ const tokenCache = {
   async saveToken(key: string, value: string) {
     try {
       return SecureStore.setItemAsync(key, value);
-    } catch (err) {
-      return;
-    }
+    } catch (err) {}
   },
 };
 
