@@ -13,6 +13,7 @@ import Loading from "../Loading";
 import Profile from "../Profile";
 import ProfileForm from "../Profile/Form";
 import { HomeScreenProps } from "../../types/types";
+import { StyleSheet } from "react-native";
 
 const HomeNav = () => {
   const Tab = createBottomTabNavigator();
@@ -37,7 +38,8 @@ const HomeNav = () => {
 
   const profileIconOptions: BottomTabNavigationOptions = {
     tabBarTestID: `profile-nav-btn`,
-    headerShown: false,
+    headerShown: true,
+    headerStyle: styles.headerContainer,
     tabBarIcon: ({ color, size }) => (
       <FontAwesome name="user-circle-o" color={color} size={size} />
     ),
@@ -62,7 +64,7 @@ const HomeNav = () => {
 
 const Home = ({navigation}: HomeScreenProps) => {
   const { getToken, userId, isLoaded } = useAuth();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const userContext = useContext(UserContext);
 
   if (!userContext) {
@@ -119,5 +121,26 @@ const Home = ({navigation}: HomeScreenProps) => {
 
   return loading ? <Loading /> : <HomeNav />;
 };
+
+
+
+const styles = StyleSheet.create({
+  headerContainer: {
+    elevation: 4, // Adds shadow on Android
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+  },
+  backButton: {
+    position: 'absolute',
+    left: 15,
+  },
+  headerTitle: {
+    fontSize: 20,
+    color: 'white',
+    fontWeight: 'bold',
+  },
+});
 
 export default Home;

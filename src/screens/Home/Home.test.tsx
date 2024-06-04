@@ -1,4 +1,4 @@
-import { useAuth } from "@clerk/clerk-expo";
+import { useAuth, useUser } from "@clerk/clerk-expo";
 import { faker } from "@faker-js/faker";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -18,9 +18,10 @@ import { UserContext } from "../../Contexts/UserContext";
 import { UserProfile, ScreenProps } from "../../types/types";
 import ProfileForm from "../Profile/Form";
 
-let setUserMock: jest.Mock;
+const setUserMock = jest.fn();
 
 const mockUser: UserProfile = {
+  email: "",
   lastName: "Doe",
   firstName: "John",
   contactNumber: "1234567890",
@@ -64,6 +65,14 @@ beforeEach(async () => {
     userId: mockUserId,
     isLoaded: true,
     getToken: mockGetToken.mockResolvedValue(token),
+  });
+
+  (useUser as jest.Mock).mockReturnValue({
+    user: {
+      primaryEmailAddress: {
+        emailAddress: "mockEmail@mock.com",
+      },
+    },
   });
 
   user = userEvent.setup();
@@ -129,6 +138,7 @@ describe("Home", () => {
 
     const userProfile = {
       avatar: faker.image.avatar(),
+      email: faker.internet.email(),
       lastName: faker.person.lastName(gender),
       firstName: faker.person.firstName(gender),
       contactNumber: `09${faker.string.numeric(9)}`,

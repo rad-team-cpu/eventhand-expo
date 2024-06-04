@@ -16,7 +16,6 @@ interface ProfileAvatarProps {
 }
 
 const Avatar = (props: ProfileAvatarProps) => {
-  const [loading, setLoading] = useState<boolean>(false);
 
   const { label, uri, labelTextStyle } = props;
   const defaultImage = require("../assets/images/user.png");
@@ -31,7 +30,7 @@ const Avatar = (props: ProfileAvatarProps) => {
         />
       </View>
       {label && (
-        <Text style={labelTextStyle ? labelTextStyle : defaultStyles.label}>
+        <Text testID="test-avatar-label" style={labelTextStyle ? labelTextStyle : defaultStyles.label}>
           {label}
         </Text>
       )}

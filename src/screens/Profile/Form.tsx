@@ -1,4 +1,4 @@
-import { useAuth } from "@clerk/clerk-expo";
+import { useAuth, useUser } from "@clerk/clerk-expo";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { sub } from "date-fns/fp";
@@ -123,6 +123,8 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
   const { getToken, userId } = useAuth();
   const [loading, setLoading] = useState(false);
   const [confirmDetails, setConfirmDetails] = useState(false);
+  const { user } = useUser();
+  const clerkUser = user;
   const userContext = useContext(UserContext);
 
   if (!userContext) {
@@ -130,6 +132,10 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
   }
 
   if (!userId) {
+    throw new Error("User does not exist! Please SignUp again");
+  }
+
+  if (!clerkUser) {
     throw new Error("User does not exist! Please SignUp again");
   }
 
@@ -150,13 +156,18 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
     let uploadPath: string | null = null;
     const { profileAvatar, firstName, lastName, contactNumber, gender } = input;
 
+    const email =
+      clerkUser.primaryEmailAddress != null
+        ? clerkUser.primaryEmailAddress.emailAddress
+        : "";
+
     const userInfo = {
+      email,
       firstName,
       lastName,
       contactNumber,
       gender,
     };
-
 
     const navigateToSuccessError = (props: ScreenProps["SuccessError"]) => {
       navigation.navigate("SuccessError", { ...props });

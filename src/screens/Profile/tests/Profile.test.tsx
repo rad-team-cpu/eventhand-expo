@@ -1,4 +1,6 @@
-import { useAuth } from "@clerk/clerk-expo";
+import { useAuth, useUser } from "@clerk/clerk-expo";
+import { faker } from "@faker-js/faker";
+import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import {
   screen,
@@ -10,9 +12,42 @@ import {
 import { UserEventInstance } from "@testing-library/react-native/build/user-event/setup";
 import * as React from "react";
 
+import { UserContext } from "../../../Contexts/UserContext";
+import { ScreenProps, UserProfile } from "../../../types/types";
+import Home from "../../Home";
+import SuccessError from "../../SuccessError";
+import ProfileForm from "../Form";
 import Profile from "../index";
 
-jest.mock("@clerk/clerk-expo");
+interface TestProfileComponentProps {
+  mockUser: UserProfile;
+}
+
+const setUserMock = jest.fn();
+
+const gender = faker.person.sexType();
+
+const mockUser: UserProfile = {
+  avatar: faker.image.avatar(),
+  email: faker.internet.email(),
+  lastName: faker.person.lastName(gender),
+  firstName: faker.person.firstName(gender),
+  contactNumber: `09${faker.string.numeric(9)}`,
+  gender,
+  events: [],
+  chats: [],
+  vendorId: "",
+};
+
+const TestProfileComponent = (props: TestProfileComponentProps) => {
+  const { mockUser } = props;
+
+  return (
+    <UserContext.Provider value={{ user: mockUser, setUser: setUserMock }}>
+      <Profile />
+    </UserContext.Provider>
+  );
+};
 
 let mockSignOut: jest.Mock;
 let user: UserEventInstance;
@@ -26,7 +61,13 @@ beforeEach(() => {
     signOut: mockSignOut,
   });
 
-  render(<Profile />);
+  (useUser as jest.Mock).mockReturnValue({
+    user: {
+      primaryEmailAddress: {
+        emailAddress: mockUser.email,
+      },
+    },
+  });
 
   user = userEvent.setup();
 });
@@ -38,7 +79,9 @@ afterEach(() => {
 });
 
 describe("Profile", () => {
-  it("Should allow the user to logout hisher session", async () => {
+  it("Should allow the user to logout his/her session", async () => {
+    render(<TestProfileComponent mockUser={mockUser} />);
+
     const signOutButton = screen.getByRole("button", { name: "Sign Out" });
 
     await user.press(signOutButton);
@@ -48,4 +91,43 @@ describe("Profile", () => {
     });
   });
 
+  it("should display the user's name, avatar, contact number, and emailAddress ", async () => {
+    render(<TestProfileComponent mockUser={mockUser} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("test-avatar-label")).toHaveTextContent(
+        `${mockUser.firstName} ${mockUser.lastName}`,
+      );
+      expect(screen.getByTestId("test-profile-contact-num")).toHaveTextContent(
+        mockUser.contactNumber,
+      );
+      expect(screen.getByTestId("test-profile-email")).toHaveTextContent(
+        mockUser.email,
+      );
+      expect(screen.getByTestId("test-avatar-image").props.source.uri).toBe(
+        mockUser.avatar,
+      );
+    });
+  });
+
+  it("should display a default avatar image if user has no saved avatar", async () => {
+    const mockUser: UserProfile = {
+      email: faker.internet.email(),
+      lastName: faker.person.lastName(gender),
+      firstName: faker.person.firstName(gender),
+      contactNumber: `09${faker.string.numeric(9)}`,
+      gender,
+      events: [],
+      chats: [],
+      vendorId: "",
+    };
+
+    const defaultImage = require("../../../assets/images/user.png");
+
+    render(<TestProfileComponent mockUser={mockUser} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("test-avatar-image").props.source).toBe(defaultImage);
+    });
+  });
 });

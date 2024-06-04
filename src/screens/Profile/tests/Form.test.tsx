@@ -1,4 +1,4 @@
-import { useAuth } from "@clerk/clerk-expo";
+import { useAuth, useUser } from "@clerk/clerk-expo";
 import { faker } from "@faker-js/faker";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -28,6 +28,7 @@ import ProfileForm from "../Form";
 
 
 const mockUser: UserProfile = {
+  email: "emailadress@example.com",
   lastName: "Doe",
   firstName: "John",
   contactNumber: "1234567890",
@@ -37,7 +38,7 @@ const mockUser: UserProfile = {
   vendorId: "vendor123",
 };
 
-let setUserMock: jest.Mock;
+const setUserMock = jest.fn();
 
 const TestProfileComponent = () => {
   const TestProfileStack = createNativeStackNavigator<ScreenProps>();
@@ -66,13 +67,20 @@ const token = "jwttoken";
 
 beforeEach(() => {
   jest.useFakeTimers();
-  setUserMock = jest.fn();
   user = userEvent.setup();
 
   (useAuth as jest.Mock).mockReturnValue({
     userId: mockUserId,
     getToken: mockGetToken.mockResolvedValue(token),
   });
+
+  (useUser as jest.Mock).mockReturnValue({
+    user:{
+      primaryEmailAddress:{
+        emailAddress: mockUser.email
+      }
+    }
+  })
 });
 
 afterEach(() => {
@@ -2348,6 +2356,7 @@ describe("ProfileForm", () => {
 
         const expectedUser = {
           avatar: mockRef,
+          email: mockUser.email,
           firstName,
           lastName,
           contactNumber,
@@ -2415,6 +2424,7 @@ describe("ProfileForm", () => {
         });
 
         const expectedUser = {
+          email: mockUser.email,
           firstName,
           lastName,
           contactNumber,
