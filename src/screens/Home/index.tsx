@@ -7,7 +7,7 @@ import {
 import React, { useContext, useEffect, useState } from "react";
 
 import { UserContext } from "../../Contexts/UserContext";
-import Booking from "../Booking";
+import Events from "../Events";
 import Chat from "../Chat";
 import Loading from "../Loading";
 import Profile from "../Profile";
@@ -17,8 +17,8 @@ import { StyleSheet } from "react-native";
 const HomeNav = () => {
   const Tab = createBottomTabNavigator();
 
-  const bookingIconOptions: BottomTabNavigationOptions = {
-    tabBarTestID: `booking-nav-btn`,
+  const eventsIconOptions: BottomTabNavigationOptions = {
+    tabBarTestID: `events-nav-btn`,
     headerShown: false,
     tabBarIcon: ({ color, size }) => (
       <FontAwesome name="search" color={color} size={size} />
@@ -47,8 +47,8 @@ const HomeNav = () => {
     <Tab.Navigator>
       <Tab.Screen
         name="Find Supplier"
-        component={Booking}
-        options={bookingIconOptions}
+        component={Events}
+        options={eventsIconOptions}
       />
       <Tab.Screen name="Chat" component={Chat} options={chatIconOptions} />
       <Tab.Screen
@@ -112,7 +112,7 @@ const Home = ({navigation}: HomeScreenProps) => {
     if (!isLoaded) {
       throw new Error("Failed to load clerk");
     }
-    fetchUserId();
+    // fetchUserId();
   }, []);
 
   return loading ? <Loading /> : <HomeNav />;
