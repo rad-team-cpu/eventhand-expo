@@ -69,6 +69,10 @@ const Home = ({navigation}: HomeScreenProps) => {
     throw new Error("UserInfo must be used within a UserProvider");
   }
 
+  if (!isLoaded) {
+    throw new Error("Failed to load clerk");
+  }
+
   const { setUser } = userContext;
 
   const fetchUserId = async () => {
@@ -109,9 +113,7 @@ const Home = ({navigation}: HomeScreenProps) => {
   };
 
   useEffect(() => {
-    if (!isLoaded) {
-      throw new Error("Failed to load clerk");
-    }
+
     // fetchUserId();
   }, []);
 
