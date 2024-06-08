@@ -19,9 +19,9 @@ export default function Profile() {
   }
 
   const { user } = userContext;
-  const { avatar, firstName, lastName, contactNumber } = user;
+  const { profilePicture, firstName, lastName, contactNumber } = user;
   const name = `${firstName} ${lastName}`;
-  const avatarImage = avatar ? avatar : "";
+  const avatarImage = profilePicture ? profilePicture : "";
 
   const onSignOutPress = () => {
     setLoading(true);

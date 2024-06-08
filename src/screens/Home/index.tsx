@@ -88,7 +88,6 @@ const Home = ({navigation}: HomeScreenProps) => {
 
     try {
       const res = await fetch(url, request);
-      console.log("Response:", res);
   
       if (res.status === 200) {
         const data = await res.json();
@@ -114,7 +113,6 @@ const Home = ({navigation}: HomeScreenProps) => {
     if (!isLoaded) {
       throw new Error("Failed to load clerk");
     }
-    console.log("run")
     fetchUserId();
   }, []);
 
