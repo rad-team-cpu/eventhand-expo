@@ -3,8 +3,8 @@ import { StatusBar } from "expo-status-bar";
 import React, { useContext, useState } from "react";
 import { StyleSheet, Button, View, Text, TextStyle } from "react-native";
 
-import Avatar from "../../components/Avatar";
 import { UserContext } from "../../Contexts/UserContext";
+import Avatar from "../../components/Avatar";
 import Loading from "../Loading";
 
 export default function Profile() {

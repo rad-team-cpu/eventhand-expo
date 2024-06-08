@@ -103,12 +103,11 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
-    marginVertical: 20,
+    marginVertical: 5,
   },
   label: {
     fontSize: 16, // Font size
     fontWeight: "500", // Medium weight text
-    marginBottom: 5, // Space between label and input field
   },
   buttonContainer: {
     flexDirection: "row",
@@ -119,11 +118,10 @@ const styles = StyleSheet.create({
   button: {
     flex: 1,
     padding: 10,
-    marginVertical: 5,
-    marginHorizontal: 30,
     backgroundColor: "white",
     borderWidth: 1,
     borderRadius: 5,
+    marginRight: 20
   },
   buttonMale: {
     borderColor: "#1ecbe1",

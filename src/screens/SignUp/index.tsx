@@ -1,10 +1,17 @@
 import { useSignUp } from "@clerk/clerk-expo";
+import { AntDesign } from "@expo/vector-icons";
 import { yupResolver } from "@hookform/resolvers/yup";
 import React, { useState } from "react";
 import { useForm, FieldValues, Controller } from "react-hook-form";
-import { View, TextInput, Button, Text, StyleSheet } from "react-native";
+import { View, TextInput, StyleSheet } from "react-native";
 import { object, string, ref } from "yup";
 
+import Block from "../../components/Ui/Block";
+import Button from "../../components/Ui/Button";
+import Image from "../../components/Ui/Image";
+import Text from "../../components/Ui/Text";
+import useTheme from "../../core/theme";
+import { SignUpScreenProps } from "../../types/types";
 import Loading from "../Loading";
 
 interface SignUpInput extends FieldValues {
@@ -18,20 +25,20 @@ const signUpValidationSchema = object().shape({
     .required("Please enter your email")
     .matches(
       /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-      "Please enter a valid email",
+      "Please enter a valid email"
     ),
   password: string()
     .required("Please enter your password")
     .matches(
       /^(?=.*[A-Z])(?=.*\d).{8,}$/,
-      "Your password must have at least one uppercase, a number, and at least 8 characters long",
+      "Your password must have at least one uppercase, a number, and at least 8 characters long"
     ),
   confirmPassword: string()
     .required("Please re-enter your passwordd")
     .oneOf([ref("password")], "Password does not match"),
 });
 
-const SignupForm = () => {
+const SignupForm = ({ navigation }: SignUpScreenProps) => {
   const { isLoaded, signUp, setActive } = useSignUp();
   const {
     control,
@@ -48,6 +55,7 @@ const SignupForm = () => {
   const [pendingVerification, setPendingVerification] = useState(false);
   const [verifyErrMessage, setVerifyErrMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const { assets, colors, sizes, gradients } = useTheme();
 
   const clerkSignUp = async (input: SignUpInput) => {
     const { emailAddress, password } = input;
@@ -97,148 +105,306 @@ const SignupForm = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <Block safe>
       {loading && <Loading />}
       {!pendingVerification && !loading && (
-        <View id="signup-form" testID="test-signup-form">
-          <Text>SIGNUP</Text>
-          <Controller
-            name="emailAddress"
-            control={control}
-            render={({ field: { onChange, onBlur, value } }) => {
-              const onValueChange = (text: string) => onChange(text);
+        <Block id="signup-form" testID="test-signup-form">
+          <Block flex={0} style={{ zIndex: 0 }}>
+            <Image
+              background
+              resizeMode="cover"
+              padding={sizes.sm}
+              source={assets.background}
+              height={sizes.height}
+            >
+              <Button
+                row
+                flex={0}
+                justify="flex-start"
+                onPress={() => navigation.goBack()}
+              >
+                <AntDesign name="back" size={24} color="white" />
+                <Text p white marginLeft={sizes.s}>
+                  Go back
+                </Text>
+              </Button>
+              <Text h4 center white marginTop={sizes.md}>
+                EventHand
+              </Text>
+            </Image>
+          </Block>
+          <Block keyboard marginTop={-(sizes.height * 0.8 - sizes.l)}>
+            <Block flex={0} radius={sizes.sm} marginHorizontal="8%">
+              <Block
+                blur
+                flex={0}
+                intensity={100}
+                radius={sizes.sm}
+                overflow="hidden"
+                justify="space-evenly"
+                tint={colors.blurTint}
+                paddingVertical={sizes.sm}
+              >
+                <Block
+                  row
+                  flex={0}
+                  align="center"
+                  justify="center"
+                  marginBottom={sizes.sm}
+                  paddingHorizontal={sizes.xxl}
+                >
+                  <Block
+                    flex={0}
+                    height={1}
+                    width="50%"
+                    end={[1, 0]}
+                    start={[0, 1]}
+                    gradient={gradients.divider}
+                    marginTop={sizes.sm}
+                  />
+                  <Text center marginHorizontal={sizes.sm} marginTop={sizes.sm}>
+                    Sign up
+                  </Text>
+                  <Block
+                    flex={0}
+                    height={1}
+                    width="50%"
+                    end={[0, 1]}
+                    start={[1, 0]}
+                    gradient={gradients.divider}
+                    marginTop={sizes.sm}
+                  />
+                </Block>
+                <Block paddingHorizontal={sizes.sm}>
+                  <Controller
+                    name="emailAddress"
+                    control={control}
+                    render={({ field: { onChange, onBlur, value } }) => {
+                      const onValueChange = (text: string) => onChange(text);
+                      return (
+                        <TextInput
+                          id="email-text-input"
+                          testID="test-email-input"
+                          placeholder="Email"
+                          value={value}
+                          onBlur={onBlur}
+                          onChangeText={onValueChange}
+                          autoCapitalize="none"
+                          returnKeyType="next"
+                          keyboardType="email-address"
+                          textContentType="emailAddress"
+                          className="mt-2 border p-2 rounded-lg border-purple-700"
+                        />
+                      );
+                    }}
+                  />
+                  <Text testID="email-err-text" danger>
+                    {errors["emailAddress"]?.message}
+                  </Text>
+                  <Controller
+                    name="password"
+                    control={control}
+                    render={({ field: { onChange, onBlur, value } }) => {
+                      const onValueChange = (text: string) => onChange(text);
+                      return (
+                        <TextInput
+                          id="password-input"
+                          testID="test-password-input"
+                          placeholder="Password"
+                          onBlur={onBlur}
+                          value={value}
+                          onChangeText={onValueChange}
+                          autoCapitalize="none"
+                          returnKeyType="next"
+                          textContentType="password"
+                          secureTextEntry
+                          className="border p-2 rounded-lg border-purple-700"
+                        />
+                      );
+                    }}
+                  />
+                  <Text testID="password-err-text" danger>
+                    {errors["password"]?.message}
+                  </Text>
+                  <Controller
+                    name="confirmPassword"
+                    control={control}
+                    render={({ field: { onChange, onBlur, value } }) => {
+                      const onValueChange = (text: string) => onChange(text);
 
-              return (
-                <TextInput
-                  id="email-text-input"
-                  testID="test-email-input"
-                  style={styles.input}
-                  placeholder="Email"
-                  value={value}
-                  onBlur={onBlur}
-                  onChangeText={onValueChange}
-                  autoCapitalize="none"
-                  returnKeyType="next"
-                  keyboardType="email-address"
-                  textContentType="emailAddress"
-                />
-              );
-            }}
-          />
-          <Text testID="email-err-text" style={styles.errorText}>
-            {errors["emailAddress"]?.message}
-          </Text>
-          <Controller
-            name="password"
-            control={control}
-            render={({ field: { onChange, onBlur, value } }) => {
-              const onValueChange = (text: string) => onChange(text);
+                      return (
+                        <TextInput
+                          id="confirm-password-input"
+                          testID="test-password-input"
+                          placeholder="Re-type Password"
+                          onBlur={onBlur}
+                          onChangeText={onValueChange}
+                          value={value}
+                          autoCapitalize="none"
+                          returnKeyType="next"
+                          textContentType="password"
+                          secureTextEntry
+                          className="border p-2 rounded-lg border-purple-700"
+                        />
+                      );
+                    }}
+                  />
+                  <Text testID="confirm-password-err-text" danger>
+                    {errors["confirmPassword"]?.message}
+                  </Text>
 
-              return (
-                <TextInput
-                  id="password-input"
-                  testID="test-password-input"
-                  style={styles.input}
-                  placeholder="Password"
-                  onBlur={onBlur}
-                  value={value}
-                  onChangeText={onValueChange}
-                  autoCapitalize="none"
-                  returnKeyType="next"
-                  textContentType="password"
-                  secureTextEntry
-                />
-              );
-            }}
-          />
-          <Text testID="password-err-text" style={styles.errorText}>
-            {errors["password"]?.message}
-          </Text>
-          <Controller
-            name="confirmPassword"
-            control={control}
-            render={({ field: { onChange, onBlur, value } }) => {
-              const onValueChange = (text: string) => onChange(text);
-
-              return (
-                <TextInput
-                  id="confirm-password-input"
-                  testID="test-password-input"
-                  style={styles.input}
-                  placeholder="Re-type Password"
-                  onBlur={onBlur}
-                  onChangeText={onValueChange}
-                  value={value}
-                  autoCapitalize="none"
-                  returnKeyType="next"
-                  textContentType="password"
-                  secureTextEntry
-                />
-              );
-            }}
-          />
-          <Text testID="confirm-password-err-text" style={styles.errorText}>
-            {errors["confirmPassword"]?.message}
-          </Text>
-          <Button
-            title="Sign Up"
-            testID="test-signup-btn"
-            onPress={onSignUpPress}
-            disabled={!isValid}
-          />
-          <Text testID="signup-err-text" style={styles.errorText}>
-            {signUpErrMessage}
-          </Text>
-        </View>
+                  <Button
+                    testID="test-signup-btn"
+                    onPress={onSignUpPress}
+                    primary
+                    outlined
+                    marginVertical={sizes.s}
+                    marginHorizontal={sizes.sm}
+                    shadow={false}
+                    disabled={!isValid}
+                  >
+                    <Text bold primary transform="uppercase">
+                      Sign up
+                    </Text>
+                  </Button>
+                  <Text testID="signup-err-text" danger marginBottom={3}>
+                    {signUpErrMessage}
+                  </Text>
+                </Block>
+              </Block>
+            </Block>
+          </Block>
+        </Block>
       )}
-      {pendingVerification && (
-        <View>
-          <View>
-            <TextInput
-              style={styles.input}
-              value={code}
-              placeholder="Code"
-              onChangeText={(code) => setCode(code)}
-            />
-          </View>
-          <Button
-            title="Verify"
-            testID="test-verify-btn"
-            onPress={onPressVerify}
-          />
-          <Text testID="verify-err-text" style={styles.errorText}>
-            {verifyErrMessage}
-          </Text>
-        </View>
+      {pendingVerification && !loading && (
+        <Block safe>
+          <Block flex={0} style={{ zIndex: 0 }}>
+            <Image
+              background
+              resizeMode="cover"
+              padding={sizes.sm}
+              source={assets.background}
+              height={sizes.height}
+            >
+              <Button
+                row
+                flex={0}
+                justify="flex-start"
+                onPress={() => navigation.goBack()}
+              >
+                <AntDesign name="back" size={24} color="white" />
+                <Text p white marginLeft={sizes.s}>
+                  Go back
+                </Text>
+              </Button>
+              <Text h4 center white marginTop={sizes.md}>
+                EventHand
+              </Text>
+            </Image>
+          </Block>
+          <Block keyboard marginTop={-(sizes.height * 0.8 - sizes.l)}>
+            <Block flex={0} radius={sizes.sm} marginHorizontal="8%">
+              <Block
+                blur
+                flex={0}
+                intensity={100}
+                radius={sizes.sm}
+                overflow="hidden"
+                justify="space-evenly"
+                tint={colors.blurTint}
+                paddingVertical={sizes.sm}
+              >
+                <Block
+                  row
+                  flex={0}
+                  align="center"
+                  justify="center"
+                  marginBottom={sizes.sm}
+                  paddingHorizontal={sizes.xxl}
+                >
+                  <Block
+                    flex={0}
+                    height={1}
+                    width="50%"
+                    end={[1, 0]}
+                    start={[0, 1]}
+                    gradient={gradients.divider}
+                    marginTop={sizes.sm}
+                  />
+                  <Text center marginHorizontal={sizes.sm} marginTop={sizes.sm}>
+                    Verify
+                  </Text>
+                  <Block
+                    flex={0}
+                    height={1}
+                    width="50%"
+                    end={[0, 1]}
+                    start={[1, 0]}
+                    gradient={gradients.divider}
+                    marginTop={sizes.sm}
+                  />
+                </Block>
+                <Block paddingHorizontal={sizes.sm}>
+                  <Text bold primary center>
+                    Verification code sent via email!
+                  </Text>
+                  <TextInput
+                    value={code}
+                    placeholder="Code"
+                    onChangeText={(code) => setCode(code)}
+                    className="m-4 border p-2 rounded-lg border-purple-700"
+                  />
+                  <Button
+                    testID="test-verify-btn"
+                    onPress={onPressVerify}
+                    primary
+                    outlined
+                    marginVertical={sizes.s}
+                    marginHorizontal={sizes.sm}
+                    shadow={false}
+                    disabled={!isValid}
+                  >
+                    <Text bold primary transform="uppercase">
+                      Verify
+                    </Text>
+                  </Button>
+                  <Text testID="verify-err-text" danger>
+                    {verifyErrMessage}
+                  </Text>
+                </Block>
+              </Block>
+            </Block>
+          </Block>
+        </Block>
       )}
-    </View>
+    </Block>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    paddingHorizontal: 20,
-  },
-  input: {
-    height: 40,
-    borderColor: "gray",
-    borderWidth: 1,
-    marginBottom: 10,
-    padding: 10,
-  },
-  loading: {
-    transform: [
-      {
-        scale: 2.0,
-      },
-    ],
-  },
-  errorText: {
-    color: "red",
-    marginBottom: 10,
-  },
-});
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     justifyContent: "center",
+//     paddingHorizontal: 20,
+//   },
+//   input: {
+//     height: 40,
+//     borderColor: "gray",
+//     borderWidth: 1,
+//     marginBottom: 10,
+//     padding: 10,
+//   },
+//   loading: {
+//     transform: [
+//       {
+//         scale: 2.0,
+//       },
+//     ],
+//   },
+//   errorText: {
+//     color: "red",
+//     marginBottom: 10,
+//   },
+// });
 
 export default SignupForm;

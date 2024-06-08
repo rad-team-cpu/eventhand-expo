@@ -1,6 +1,7 @@
 import { useAuth, useUser } from "@clerk/clerk-expo";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { AntDesign } from "@expo/vector-icons";
 import { sub } from "date-fns/fp";
 import { ImagePickerAsset } from "expo-image-picker";
 import {
@@ -21,8 +22,6 @@ import {
   BackHandler,
   View,
   TextInput,
-  Button,
-  Text,
   StyleSheet,
   GestureResponderEvent,
   TextStyle,
@@ -30,11 +29,16 @@ import {
 import { object, string, number } from "yup";
 
 // import DatePicker from "../../Components/Input/DatePicker";
+import { UserContext } from "../../Contexts/UserContext";
 import Avatar from "../../components/Avatar";
 import GenderPicker from "../../components/Input/GenderPicker";
 import ProfileUpload from "../../components/Input/ProfileUpload";
-import { UserContext } from "../../Contexts/UserContext";
 import FirebaseService from "../../firebase";
+import Block from "../../components/Ui/Block";
+import Button from "../../components/Ui/Button";
+import Image from "../../components/Ui/Image";
+import Text from "../../components/Ui/Text";
+import useTheme from "../../core/theme";
 import {
   ImageInfo,
   ProfileFormScreenProps,
@@ -69,19 +73,19 @@ const signUpValidationSchema = object().shape({
     .required("Enter last name.")
     .matches(
       /^[a-zA-Z-']+$/,
-      "No digits or special characters excluding ('-) are allowed",
+      "No digits or special characters excluding ('-) are allowed"
     ),
   firstName: string()
     .required("Enter first name.")
     .matches(
       /^[a-zA-Z-']+$/,
-      "No digits or special characters excluding ('-) are allowed",
+      "No digits or special characters excluding ('-) are allowed"
     ),
   contactNumber: string()
     .required("Enter contact number.")
     .matches(
       /^09\d{9}$/,
-      "Please enter a valid contact number ex. 09123456789.",
+      "Please enter a valid contact number ex. 09123456789."
     )
     .length(11, "contact number must only have 11 digits"),
   gender: string()
@@ -89,7 +93,7 @@ const signUpValidationSchema = object().shape({
     .test(
       "has-gender",
       "Please select a gender",
-      (value, context) => value === "MALE" || value === "FEMALE",
+      (value, context) => value === "MALE" || value === "FEMALE"
     ),
   // birthDate: date()
   //   .min(sub({ years: 100 })(new Date()), "Must be at most 100 years old.")
@@ -123,6 +127,7 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
   const { getToken, userId } = useAuth();
   const [loading, setLoading] = useState(false);
   const [confirmDetails, setConfirmDetails] = useState(false);
+  const { assets, colors, sizes, gradients } = useTheme();
   const { user } = useUser();
   const clerkUser = user;
   const userContext = useContext(UserContext);
@@ -179,7 +184,7 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
 
         const uploadResult = await firebaseService.uploadProfileAvatar(
           userId,
-          profileAvatar,
+          profileAvatar
         );
 
         uploadPath = uploadResult
@@ -248,102 +253,249 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
 
   const FormFields = () => {
     return (
-      <View id="profile-form-field" testID="test-profile-form-field">
-        <Text style={styles.title}>SET UP YOUR PROFILE</Text>
-        <ProfileUpload
-          label="Upload your photo"
-          control={control as unknown as Control<FieldValues, unknown>}
-          register={register as unknown as UseFormRegister<FieldValues>}
-          errors={errors}
-        />
-        <Text style={styles.label}>First Name</Text>
-        <Controller
-          name="firstName"
-          control={control}
-          render={({ field: { onChange, onBlur, value } }) => {
-            const onValueChange = (text: string) => onChange(text);
+      <Block safe marginTop={sizes.md}>
+        <Block
+          id="profile-form-field"
+          testID="test-profile-form-field"
+          scroll
+          paddingHorizontal={sizes.s}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: sizes.padding }}
+        >
+          <Block flex={0} style={{ zIndex: 0 }}>
+            <Image
+              background
+              resizeMode="cover"
+              padding={sizes.sm}
+              paddingBottom={sizes.l}
+              radius={sizes.cardRadius}
+              source={assets.background}
+            >
+              <Text transform="uppercase" white marginLeft={sizes.s}>
+                Set up your Profile
+              </Text>
 
-            return (
-              <TextInput
-                id="first-name-text-input"
-                testID="test-first-name-input"
-                style={styles.input}
-                placeholder="First Name"
-                onBlur={onBlur}
-                value={value}
-                onChangeText={onValueChange}
-                autoCapitalize="none"
-                returnKeyType="next"
-              />
-            );
-          }}
-        />
-        <Text testID="test-first-name-err-text" style={styles.errorText}>
-          {errors["firstName"]?.message}
-        </Text>
-        <Text style={styles.label}>Last Name</Text>
-        <Controller
-          name="lastName"
-          control={control}
-          render={({ field: { onChange, onBlur, value } }) => {
-            const onValueChange = (text: string) => onChange(text);
+              <Block flex={0} align="center" marginTop={sizes.md}>
+                <ProfileUpload
+                  label="Upload your photo"
+                  control={control as unknown as Control<FieldValues, unknown>}
+                  register={register as unknown as UseFormRegister<FieldValues>}
+                  errors={errors}
+                />
+              </Block>
+            </Image>
+          </Block>
+          <Block
+            flex={0}
+            radius={sizes.sm}
+            marginTop={-sizes.l}
+            marginHorizontal="8%"
+            color="rgba(255,255,255,1)"
+          >
+            <Block align="flex-start" className="pl-4 pt-4">
+              <Text p className="capitalize">
+                First Name
+              </Text>
+              <Controller
+                name="firstName"
+                control={control}
+                render={({ field: { onChange, onBlur, value } }) => {
+                  const onValueChange = (text: string) => onChange(text);
 
-            return (
-              <TextInput
-                id="last-name-text-input"
-                testID="test-last-name-input"
-                style={styles.input}
-                placeholder="Last Name"
-                value={value}
-                onBlur={onBlur}
-                onChangeText={onValueChange}
-                autoCapitalize="none"
-                returnKeyType="next"
+                  return (
+                    <TextInput
+                      id="first-name-text-input"
+                      testID="test-first-name-input"
+                      placeholder="First Name"
+                      onBlur={onBlur}
+                      value={value}
+                      onChangeText={onValueChange}
+                      autoCapitalize="none"
+                      returnKeyType="next"
+                      className="border p-1 rounded-lg border-purple-700 w-11/12"
+                    />
+                  );
+                }}
               />
-            );
-          }}
-        />
-        <Text testID="test-last-name-err-text" style={styles.errorText}>
-          {errors["lastName"]?.message}
-        </Text>
-        <Text style={styles.label}>Contact No.</Text>
-        <Controller
-          name="contactNumber"
-          control={control}
-          render={({ field: { onChange, onBlur, value } }) => {
-            const onValueChange = (text: string) => onChange(text);
+              <Text testID="test-first-name-err-text" danger>
+                {errors["firstName"]?.message}
+              </Text>
+            </Block>
 
-            return (
-              <TextInput
-                id="contact-number-input"
-                testID="test-contact-number-input"
-                style={styles.input}
-                placeholder="Contact No."
-                onBlur={onBlur}
-                onChangeText={onValueChange}
-                value={value}
-                autoCapitalize="none"
-                returnKeyType="next"
-                keyboardType="number-pad"
-                maxLength={11}
-                textContentType="telephoneNumber"
-                inputMode="tel"
+            <Block align="flex-start" className="pl-4">
+              <Text p className="capitalize">
+                Last Name
+              </Text>
+              <Controller
+                name="lastName"
+                control={control}
+                render={({ field: { onChange, onBlur, value } }) => {
+                  const onValueChange = (text: string) => onChange(text);
+
+                  return (
+                    <TextInput
+                      id="last-name-text-input"
+                      testID="test-last-name-input"
+                      placeholder="Last Name"
+                      value={value}
+                      onBlur={onBlur}
+                      onChangeText={onValueChange}
+                      autoCapitalize="none"
+                      returnKeyType="next"
+                      className="border p-1 rounded-lg border-purple-700 w-11/12"
+                    />
+                  );
+                }}
               />
-            );
-          }}
-        />
-        <Text testID="test-contact-number-err-text" style={styles.errorText}>
-          {errors["contactNumber"]?.message}
-        </Text>
-        <GenderPicker
-          control={control as unknown as Control<FieldValues, unknown>}
-          register={register as unknown as UseFormRegister<FieldValues>}
-          errors={errors}
-          triggerValidation={trigger}
-          showLabel
-        />
-        <Button title="NEXT" testID="next-btn" onPress={onNextBtnPress} />
-      </View>
+              <Text testID="test-last-name-err-text" danger>
+                {errors["lastName"]?.message}
+              </Text>
+            </Block>
+
+            <Block align="flex-start" className="pl-4">
+              <Text p>Contact Number</Text>
+              <Controller
+                name="contactNumber"
+                control={control}
+                render={({ field: { onChange, onBlur, value } }) => {
+                  const onValueChange = (text: string) => onChange(text);
+
+                  return (
+                    <TextInput
+                      id="contact-number-input"
+                      testID="test-contact-number-input"
+                      placeholder="Contact No."
+                      onBlur={onBlur}
+                      onChangeText={onValueChange}
+                      value={value}
+                      autoCapitalize="none"
+                      returnKeyType="next"
+                      keyboardType="number-pad"
+                      maxLength={11}
+                      textContentType="telephoneNumber"
+                      inputMode="tel"
+                      className="border p-1 rounded-lg border-purple-700 w-11/12"
+                    />
+                  );
+                }}
+              />
+              <Text testID="test-contact-number-err-text" danger>
+                {errors["contactNumber"]?.message}
+              </Text>
+            </Block>
+
+            <Block align="flex-start" className="pl-4">
+              <Text p>Gender</Text>
+              <GenderPicker
+                control={control as unknown as Control<FieldValues, unknown>}
+                register={register as unknown as UseFormRegister<FieldValues>}
+                errors={errors}
+                triggerValidation={trigger}
+              />
+            </Block>
+            <Button
+              testID="next-btn"
+              onPress={onNextBtnPress}
+              primary
+              outlined
+              marginBottom={sizes.s}
+              marginHorizontal={sizes.sm}
+              shadow={false}
+              disabled={!isValid}
+            >
+              <Text bold primary transform="uppercase">
+                Update
+              </Text>
+            </Button>
+          </Block>
+        </Block>
+        {/* <Block>
+            <Text>First Name</Text>
+            <Controller
+              name="firstName"
+              control={control}
+              render={({ field: { onChange, onBlur, value } }) => {
+                const onValueChange = (text: string) => onChange(text);
+
+                return (
+                  <TextInput
+                    id="first-name-text-input"
+                    testID="test-first-name-input"
+                    placeholder="First Name"
+                    onBlur={onBlur}
+                    value={value}
+                    onChangeText={onValueChange}
+                    autoCapitalize="none"
+                    returnKeyType="next"
+                  />
+                );
+              }}
+            />
+            <Text testID="test-first-name-err-text">
+              {errors["firstName"]?.message}
+            </Text>
+            <Text>Last Name</Text>
+            <Controller
+              name="lastName"
+              control={control}
+              render={({ field: { onChange, onBlur, value } }) => {
+                const onValueChange = (text: string) => onChange(text);
+
+                return (
+                  <TextInput
+                    id="last-name-text-input"
+                    testID="test-last-name-input"
+                    placeholder="Last Name"
+                    value={value}
+                    onBlur={onBlur}
+                    onChangeText={onValueChange}
+                    autoCapitalize="none"
+                    returnKeyType="next"
+                  />
+                );
+              }}
+            />
+            <Text testID="test-last-name-err-text">
+              {errors["lastName"]?.message}
+            </Text>
+            <Text>Contact No.</Text>
+            <Controller
+              name="contactNumber"
+              control={control}
+              render={({ field: { onChange, onBlur, value } }) => {
+                const onValueChange = (text: string) => onChange(text);
+
+                return (
+                  <TextInput
+                    id="contact-number-input"
+                    testID="test-contact-number-input"
+                    placeholder="Contact No."
+                    onBlur={onBlur}
+                    onChangeText={onValueChange}
+                    value={value}
+                    autoCapitalize="none"
+                    returnKeyType="next"
+                    keyboardType="number-pad"
+                    maxLength={11}
+                    textContentType="telephoneNumber"
+                    inputMode="tel"
+                  />
+                );
+              }}
+            />
+            <Text testID="test-contact-number-err-text" danger>
+              {errors["contactNumber"]?.message}
+            </Text>
+            <GenderPicker
+              control={control as unknown as Control<FieldValues, unknown>}
+              register={register as unknown as UseFormRegister<FieldValues>}
+              errors={errors}
+              triggerValidation={trigger}
+              showLabel
+            />
+            <Button testID="next-btn" onPress={onNextBtnPress} />
+          </Block> */}
+      </Block>
     );
   };
 
@@ -356,11 +508,11 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
 
       const backHandler = BackHandler.addEventListener(
         "hardwareBackPress",
-        backAction,
+        backAction
       );
 
       return () => backHandler.remove();
-    }, [confirmDetails]),
+    }, [confirmDetails])
   );
 
   const Confirmation = () => {
@@ -370,99 +522,190 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
         : "";
 
     return (
-      <View id="profile-form-confirm" testID="test-profile-form-confirm">
-        {/* <Text style={styles.title}>CONFIRM DETAILS</Text> */}
-        <Avatar
-          uri={avatarUri}
-          label="CONFIRM DETAILS"
-          labelTextStyle={styles.title as TextStyle}
-        />
-        <Text style={styles.label}>FIRST NAME:</Text>
-        <Text id="fist-name" testID="test-first-name" style={styles.details}>
-          {getValues("firstName")}
-        </Text>
-        <Text style={styles.label}>LAST NAME:</Text>
-        <Text id="last-name" testID="test-last-name" style={styles.details}>
-          {getValues("lastName")}
-        </Text>
-        <Text style={styles.label}>CONTACT NO.</Text>
-        <Text id="contact-num" testID="test-contact-num" style={styles.details}>
-          {getValues("contactNumber")}
-        </Text>
-        <Text style={styles.label}>GENDER</Text>
-        <Text id="gender" testID="gender" style={styles.details}>
-          {getValues("gender")}
-        </Text>
-        <Button
-          title="SAVE"
-          testID="test-save-btn"
-          onPress={onSubmitPress}
-          disabled={!isValid}
-        />
-        <Text testID="save-err-text" style={styles.errorText}>
-          {submitErrMessage}
-        </Text>
-      </View>
+      <Block safe marginTop={sizes.md}>
+        <Block
+          id="profile-form-field"
+          testID="test-profile-form-field"
+          scroll
+          paddingHorizontal={sizes.s}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: sizes.padding }}
+        >
+          <Block flex={0} style={{ zIndex: 0 }}>
+            <Image
+              background
+              resizeMode="cover"
+              padding={sizes.sm}
+              paddingBottom={sizes.l}
+              radius={sizes.cardRadius}
+              source={assets.background}
+            >
+              <Button
+                row
+                flex={0}
+                justify="flex-start"
+                onPress={() => navigation.goBack()}
+              >
+                <AntDesign name="back" size={24} color="white" />
+                <Text p white marginLeft={sizes.s}>
+                  Go back
+                </Text>
+              </Button>
+              <Block flex={0} align="center" marginTop={sizes.md}>
+                <Avatar uri={avatarUri} label="CONFIRM DETAILS" />
+              </Block>
+            </Image>
+          </Block>
+          <Block
+            flex={0}
+            radius={sizes.sm}
+            marginTop={-sizes.l}
+            marginHorizontal="8%"
+            color="rgba(255,255,255,1)"
+          >
+            <Block align="flex-start" className="pl-4 pt-4">
+              <Text p>First Name</Text>
+              <Text
+                id="fist-name"
+                testID="test-first-name"
+                className="capitalize font-bold"
+              >
+                {getValues("firstName")}
+              </Text>
+            </Block>
+
+            <Block align="flex-start" className="pl-4 pt-4">
+              <Text p>Last Name</Text>
+              <Text
+                id="last-name"
+                testID="test-last-name"
+                className="capitalize"
+              >
+                {getValues("lastName")}
+              </Text>
+            </Block>
+
+            <Block align="flex-start" className="pl-4 pt-4">
+              <Text p>Contact Number</Text>
+              <Text id="contact-num" testID="test-contact-num">
+                {getValues("contactNumber")}
+              </Text>
+            </Block>
+
+            <Block align="flex-start" className="pl-4 pt-4 pb-4">
+              <Text p>Gender</Text>
+              <Text id="gender" testID="gender">
+                {getValues("gender")}
+              </Text>
+            </Block>
+            <Button
+              testID="test-save-btn"
+              onPress={onSubmitPress}
+              disabled={!isValid}
+              primary
+              outlined
+              marginBottom={sizes.s}
+              marginHorizontal={sizes.sm}
+              shadow={false}
+            >
+              <Text bold primary transform="uppercase">
+                Confirm
+              </Text>
+            </Button>
+            <Text testID="save-err-text" danger>
+              {submitErrMessage}
+            </Text>
+          </Block>
+        </Block>
+      </Block>
+
+      // <Block id="profile-form-confirm" testID="test-profile-form-confirm">
+      //   {/* <Text style={styles.title}>CONFIRM DETAILS</Text> */}
+      //   <Avatar uri={avatarUri} label="CONFIRM DETAILS" />
+      //   <Text>FIRST NAME:</Text>
+      //   <Text id="fist-name" testID="test-first-name">
+      //     {getValues("firstName")}
+      //   </Text>
+      //   <Text>LAST NAME:</Text>
+      // <Text id="last-name" testID="test-last-name">
+      //   {getValues("lastName")}
+      // </Text>
+      //   <Text>CONTACT NO.</Text>
+      // //   <Text id="contact-num" testID="test-contact-num">
+      // //     {getValues("contactNumber")}
+      // //   </Text>
+      //   <Text>GENDER</Text>
+      //   <Text id="gender" testID="gender">
+      //     {getValues("gender")}
+      //   </Text>
+      //   <Button
+      //     testID="test-save-btn"
+      //     onPress={onSubmitPress}
+      //     disabled={!isValid}
+      //   />
+      //   <Text testID="save-err-text" danger>
+      //     {submitErrMessage}
+      //   </Text>
     );
   };
 
   const Form = () => (confirmDetails ? <Confirmation /> : <FormFields />);
 
   return (
-    <View style={styles.container}>
+    <Block>
       {loading && <Loading />}
       {/* {!loading && <FormFields />} */}
       {!loading && <Form />}
-    </View>
+    </Block>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    paddingHorizontal: 20,
-  },
-  title: {
-    fontFamily: "Arial",
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#333",
-    textAlign: "center",
-    marginVertical: 20,
-    textTransform: "uppercase",
-    letterSpacing: 1.5,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: "500",
-    marginBottom: 5,
-  },
-  details: {
-    textAlign: "center",
-    paddingVertical: 10,
-    fontSize: 16,
-    borderBottomWidth: 1,
-    marginBottom: 20,
-  },
-  input: {
-    height: 40,
-    borderColor: "gray",
-    borderWidth: 1,
-    marginBottom: 10,
-    padding: 10,
-  },
-  loading: {
-    transform: [
-      {
-        scale: 2.0,
-      },
-    ],
-  },
-  errorText: {
-    color: "red",
-    marginBottom: 10,
-  },
-});
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     justifyContent: "center",
+//     paddingHorizontal: 20,
+//   },
+//   title: {
+//     fontFamily: "Arial",
+//     fontSize: 24,
+//     fontWeight: "bold",
+//     color: "#333",
+//     textAlign: "center",
+//     marginVertical: 20,
+//     textTransform: "uppercase",
+//     letterSpacing: 1.5,
+//   },
+//   label: {
+//     fontSize: 16,
+//     fontWeight: "500",
+//     marginBottom: 5,
+//   },
+//   details: {
+//     textAlign: "center",
+//     paddingVertical: 10,
+//     fontSize: 16,
+//     borderBottomWidth: 1,
+//     marginBottom: 20,
+//   },
+//   input: {
+//     height: 40,
+//     borderColor: "gray",
+//     borderWidth: 1,
+//     marginBottom: 10,
+//     padding: 10,
+//   },
+//   loading: {
+//     transform: [
+//       {
+//         scale: 2.0,
+//       },
+//     ],
+//   },
+//   errorText: {
+//     color: "red",
+//     marginBottom: 10,
+//   },
+// });
 
 export default ProfileForm;
