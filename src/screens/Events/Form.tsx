@@ -160,31 +160,18 @@ function EventForm() {
   const EventInput = () => {
     switch (step) {
       case 0:
-        setTitle("When is the date of your event?");
-        setDescription("Please select the date of your event");
         return <EventDateInput />;
       case 1:
-        setTitle("How many will attend?");
-        setDescription("Please enter the number of people that will attend.");
         return <EventAttendeesInput />;
       case 2:
-        setTitle("How much is your budget?");
-        setDescription("Please enter your budget for the event.");
         return <EventBudgetInput />;
+      case 3:
     }
   };
 
-  const NextButton = () => {
+  const EventButton = () => {
     if (step == 2) {
-      return (
-        <Pressable
-          style={styles.button}
-          android_ripple={{ radius: 60 }}
-          onPress={onNextBtnPress}
-        >
-          <Feather name="chevrons-right" size={24} color="white" />
-        </Pressable>
-      );
+      return <Button title="SUBMIT" color="#6495ed" onPress={() => {}} />;
     } else {
       return (
         <Pressable
@@ -204,21 +191,30 @@ function EventForm() {
     } else {
       setStep(step + 1);
     }
+
+    switch (step) {
+      case 0:
+        setTitle("When is the date of your event?");
+        setDescription("Please select the date of your event");
+        break;
+      case 1:
+        setTitle("How many will attend?");
+        setDescription("Please enter the number of people that will attend.");
+        break;
+      case 2:
+        setTitle("How much is your budget?");
+        setDescription("Please enter your budget for the event.");
+        break;
+      case 3:
+    }
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.description}>{description}</Text>
-      {/* <TextInput style={styles.input} placeholder="Enter something..." /> */}
       <EventInput />
-      <Pressable
-        style={styles.button}
-        android_ripple={{ radius: 60 }}
-        onPress={onNextBtnPress}
-      >
-        <Feather name="chevrons-right" size={24} color="white" />
-      </Pressable>
+      <EventButton />
     </View>
   );
 }
@@ -262,10 +258,12 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     // borderColor: "#6495ed",
   },
+  disabledButton: {
+    backgroundColor: 'gray',
+  },
   buttonText: {
     color: "white",
     fontSize: 16,
-    marginRight: 20,
   },
 });
 
