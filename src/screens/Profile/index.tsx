@@ -28,9 +28,8 @@ export default function Profile() {
 
     const profilePictureUrl =
       await firebaseService.getProfilePicture(profilePicturePath);
-      
+
     setAvatarImage(profilePictureUrl);
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -41,6 +40,8 @@ export default function Profile() {
     } catch (error) {
       console.error(error);
     }
+    setLoading(false);
+
   }, []);
 
   const onSignOutPress = () => {
