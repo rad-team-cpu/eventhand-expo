@@ -193,7 +193,7 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
 
       const user = uploadPath
         ? {
-            avatar: uploadPath,
+            profilePicture: uploadPath,
             ...userInfo,
           }
         : userInfo;
