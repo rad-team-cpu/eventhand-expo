@@ -9,7 +9,7 @@ import { TextInput, TouchableOpacity } from "react-native";
 import { HelperText } from "react-native-paper";
 import { object, string } from "yup";
 
-import { LoginScreenProps } from "../../Navigation/types";
+import { LoginScreenProps } from "../../types/types";
 import Block from "../../components/Ui/Block";
 import Button from "../../components/Ui/Button";
 import FormTextInput from "../../components/Ui/FormTextInput";

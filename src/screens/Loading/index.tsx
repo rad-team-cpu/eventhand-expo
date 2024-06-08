@@ -3,20 +3,28 @@ import React, { useState } from "react";
 import {
   StyleSheet,
   ActivityIndicator,
+  View
 } from "react-native";
 
 const Loading = () => {
   return (
-    <ActivityIndicator
-      testID="test-loading"
-      size="large"
-      color="#007AFF"
-      style={styles.loading}
-    />
+    <View style={styles.container}>
+      <ActivityIndicator
+        testID="test-loading"
+        size="large"
+        color="#007AFF"
+        style={styles.loading}
+      />
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   loading: {
     transform: [
       {
