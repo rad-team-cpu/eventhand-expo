@@ -18,6 +18,7 @@ import Home from "../../Home";
 import SuccessError from "../../SuccessError";
 import ProfileForm from "../Form";
 import Profile from "../index";
+import { getDownloadURL } from "../../../../test/__mocks__/firebase/storage";
 
 interface TestProfileComponentProps {
   mockUser: UserProfile;
@@ -92,6 +93,9 @@ describe("Profile", () => {
   });
 
   it("should display the user's name, avatar, contact number, and emailAddress ", async () => {
+    const mockAvatar = mockUser.profilePicture;
+    getDownloadURL.mockResolvedValue(mockAvatar);
+
     render(<TestProfileComponent mockUser={mockUser} />);
 
     await waitFor(() => {
