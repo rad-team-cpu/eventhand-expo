@@ -1,5 +1,4 @@
 import { ClerkProvider } from "@clerk/clerk-expo";
-import Constants from "expo-constants";
 import * as SecureStore from "expo-secure-store";
 import React from "react";
 

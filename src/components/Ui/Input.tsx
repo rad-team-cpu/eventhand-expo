@@ -38,7 +38,7 @@ const Input = ({ mode, iprops }: CustomInputProps) => {
     warning,
     success,
     info,
-    search,
+    // search,
     disabled,
     label,
     icon,
@@ -138,12 +138,12 @@ const Input = ({ mode, iprops }: CustomInputProps) => {
         </Text>
       )}
       <Block row align="center" justify="flex-end" style={inputContainerStyles}>
-        {search && assets.search && (
+        {/* {search && assets.search && (
           <Image
             source={assets.search}
             style={{ marginLeft: sizes.inputPadding, tintColor: colors.icon }}
           />
-        )}
+        )} */}
         {icon && (
           <Image
             source={assets?.[icon]}
@@ -160,7 +160,7 @@ const Input = ({ mode, iprops }: CustomInputProps) => {
           onFocus={(event) => handleFocus(event, true)}
           onBlur={(event) => handleFocus(event, false)}
         />
-        {mode == "password" && (
+        {mode === "password" && (
           <MaterialCommunityIcons
             name={secureTextEntry ? "eye-off" : "eye"}
             size={24}
@@ -172,7 +172,7 @@ const Input = ({ mode, iprops }: CustomInputProps) => {
           />
         )}
 
-        {danger && assets.warning && (
+        {/* {danger && assets.warning && (
           <Image
             source={assets.warning}
             style={{
@@ -191,7 +191,7 @@ const Input = ({ mode, iprops }: CustomInputProps) => {
               tintColor: colors.success,
             }}
           />
-        )}
+        )} */}
       </Block>
     </Block>
   );

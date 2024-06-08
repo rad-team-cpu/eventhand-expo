@@ -62,7 +62,7 @@ const Typography = (props: ITextProps) => {
     paddingLeft,
     ...rest
   } = props;
-  const { colors, sizes, lines, weights, fonts } = useTheme();
+  const { colors, sizes, lines, weights } = useTheme();
 
   const colorIndex = primary
     ? "primary"
@@ -98,43 +98,36 @@ const Typography = (props: ITextProps) => {
       fontSize: sizes.text,
       lineHeight: lines.text,
       fontWeight: weights.text,
-      fontFamily: fonts.text,
       ...(textColor && { color: textColor }),
       ...(h1 && {
         fontSize: sizes.h1,
         lineHeight: lines.h1,
         fontWeight: weights.h1,
-        fontFamily: fonts.h1,
       }),
       ...(h2 && {
         fontSize: sizes.h2,
         lineHeight: lines.h2,
         fontWeight: weights.h2,
-        fontFamily: fonts.h2,
       }),
       ...(h3 && {
         fontSize: sizes.h3,
         lineHeight: lines.h3,
         fontWeight: weights.h3,
-        fontFamily: fonts.h3,
       }),
       ...(h4 && {
         fontSize: sizes.h4,
         lineHeight: lines.h4,
         fontWeight: weights.h4,
-        fontFamily: fonts.h4,
       }),
       ...(h5 && {
         fontSize: sizes.h5,
         lineHeight: lines.h5,
         fontWeight: weights.h5,
-        fontFamily: fonts.h5,
       }),
       ...(p && {
         fontSize: sizes.p,
         lineHeight: lines.p,
         fontWeight: weights.p,
-        fontFamily: fonts.p,
       }),
       ...(marginBottom && { marginBottom }),
       ...(marginTop && { marginTop }),
@@ -150,8 +143,6 @@ const Typography = (props: ITextProps) => {
       ...(paddingLeft && { paddingLeft }),
       ...(center && { textAlign: "center" }),
       ...(align && { textAlign: align }),
-      ...(bold && { fontFamily: fonts.bold }),
-      ...(semibold && { fontFamily: fonts.semibold }),
       ...(weight && { fontWeight: weight }),
       ...(transform && { textTransform: transform }),
       ...(font && { fontFamily: font }),

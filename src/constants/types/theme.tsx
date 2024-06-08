@@ -59,7 +59,6 @@ export interface ITheme {
 }
 export interface ICommonTheme {
   assets: ThemeAssets;
-  fonts: ThemeFonts;
   weights: ThemeWeights;
   lines: ThemeLineHeights;
   sizes: {

@@ -9,8 +9,16 @@ const SignedOutStack = createNativeStackNavigator<ScreenProps>();
 const SignedOutNav = () => {
   return (
     <SignedOutStack.Navigator>
-      <SignedOutStack.Screen name="Login" component={Login} />
-      <SignedOutStack.Screen name="SignUp" component={SignupForm} />
+      <SignedOutStack.Screen
+        name="Login"
+        component={Login}
+        options={{ headerShown: false }}
+      />
+      <SignedOutStack.Screen
+        name="SignUp"
+        component={SignupForm}
+        options={{ headerShown: false }}
+      />
     </SignedOutStack.Navigator>
   );
 };

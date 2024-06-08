@@ -8,9 +8,9 @@ import {
 } from "react-hook-form";
 import { HelperText } from "react-native-paper";
 
+import Input from "./Input";
 import { IInputProps } from "../../constants/types/components";
 
-import Input from "@/components/Input";
 
 type FormTextInputProps = {
   mode: "text" | "password";
@@ -60,9 +60,9 @@ const FormTextInput = ({ mode = "text", ...props }: FormTextInputProps) => {
             <Input
               mode={mode}
               iprops={{
-                label: label,
+                label,
                 onChangeText: onValueChange,
-                placeholder: placeholder,
+                placeholder,
                 ...iInputProps,
               }}
               // label={label}
