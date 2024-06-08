@@ -26,7 +26,7 @@ interface UserChat {
 }
 
 interface UserProfile {
-  avatar?: string | null;
+  profilePicture?: string | null;
   email: string
   lastName: string;
   firstName: string;

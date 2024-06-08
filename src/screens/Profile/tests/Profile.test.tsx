@@ -28,7 +28,7 @@ const setUserMock = jest.fn();
 const gender = faker.person.sexType();
 
 const mockUser: UserProfile = {
-  avatar: faker.image.avatar(),
+  profilePicture: faker.image.avatar(),
   email: faker.internet.email(),
   lastName: faker.person.lastName(gender),
   firstName: faker.person.firstName(gender),
@@ -105,7 +105,7 @@ describe("Profile", () => {
         mockUser.email,
       );
       expect(screen.getByTestId("test-avatar-image").props.source.uri).toBe(
-        mockUser.avatar,
+        mockUser.profilePicture,
       );
     });
   });
