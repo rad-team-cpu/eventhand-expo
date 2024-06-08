@@ -11,7 +11,6 @@ export default function Profile() {
   const { isLoaded, signOut } = useAuth();
   const [signOutErrMessage, setSignOutErrMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const { user: clerkUser } = useUser();
   const userContext = useContext(UserContext);
 
   if (!userContext) {
@@ -19,7 +18,7 @@ export default function Profile() {
   }
 
   const { user } = userContext;
-  const { profilePicture, firstName, lastName, contactNumber } = user;
+  const { profilePicture, email, firstName, lastName, contactNumber } = user;
   const name = `${firstName} ${lastName}`;
   const avatarImage = profilePicture ? profilePicture : "";
 
@@ -55,7 +54,7 @@ export default function Profile() {
             testID="test-profile-email"
             style={styles.details}
           >
-            {clerkUser?.primaryEmailAddress?.emailAddress}
+            {email}
           </Text>
           <Button
             title="Sign Out"

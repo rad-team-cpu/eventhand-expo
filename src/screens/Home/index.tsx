@@ -37,8 +37,7 @@ const HomeNav = () => {
 
   const profileIconOptions: BottomTabNavigationOptions = {
     tabBarTestID: `profile-nav-btn`,
-    headerShown: true,
-    headerStyle: styles.headerContainer,
+    headerShown: false,
     tabBarIcon: ({ color, size }) => (
       <FontAwesome name="user-circle-o" color={color} size={size} />
     ),
@@ -63,7 +62,7 @@ const HomeNav = () => {
 
 const Home = ({navigation}: HomeScreenProps) => {
   const { getToken, userId, isLoaded } = useAuth();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const userContext = useContext(UserContext);
 
   if (!userContext) {
