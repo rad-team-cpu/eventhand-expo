@@ -1,6 +1,8 @@
+/* eslint-disable prettier/prettier */
 import { ClerkProvider } from "@clerk/clerk-expo";
 import * as SecureStore from "expo-secure-store";
 import React from "react";
+
 import Navigator from "./src/Navigation";
 
 const tokenCache = {

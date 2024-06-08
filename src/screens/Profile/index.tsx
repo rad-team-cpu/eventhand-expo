@@ -3,7 +3,7 @@ import { StatusBar } from "expo-status-bar";
 import React, { useContext, useState } from "react";
 import { StyleSheet, Button, View, Text, TextStyle } from "react-native";
 
-import Avatar from "../../Components/Avatar";
+import Avatar from "../../components/Avatar";
 import { UserContext } from "../../Contexts/UserContext";
 import Loading from "../Loading";
 

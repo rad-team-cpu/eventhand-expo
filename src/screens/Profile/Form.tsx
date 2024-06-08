@@ -30,9 +30,9 @@ import {
 import { object, string, number } from "yup";
 
 // import DatePicker from "../../Components/Input/DatePicker";
-import Avatar from "../../Components/Avatar";
-import GenderPicker from "../../Components/Input/GenderPicker";
-import ProfileUpload from "../../Components/Input/ProfileUpload";
+import Avatar from "../../components/Avatar";
+import GenderPicker from "../../components/Input/GenderPicker";
+import ProfileUpload from "../../components/Input/ProfileUpload";
 import { UserContext } from "../../Contexts/UserContext";
 import FirebaseService from "../../firebase";
 import {
