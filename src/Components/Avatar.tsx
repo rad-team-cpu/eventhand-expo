@@ -1,13 +1,7 @@
 import { Feather } from "@expo/vector-icons";
 import * as FileSystem from "expo-file-system";
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  Image,
-  TextStyle,
-  StyleSheet
-} from "react-native";
+import { View, Text, Image, TextStyle, StyleSheet } from "react-native";
 
 interface ProfileAvatarProps {
   uri?: string;
@@ -16,7 +10,6 @@ interface ProfileAvatarProps {
 }
 
 const Avatar = (props: ProfileAvatarProps) => {
-
   const { label, uri, labelTextStyle } = props;
   const defaultImage = require("../assets/images/user.png");
 
@@ -30,7 +23,10 @@ const Avatar = (props: ProfileAvatarProps) => {
         />
       </View>
       {label && (
-        <Text testID="test-avatar-label" style={labelTextStyle ? labelTextStyle : defaultStyles.label}>
+        <Text
+          testID="test-avatar-label"
+          style={labelTextStyle ? labelTextStyle : defaultStyles.label}
+        >
           {label}
         </Text>
       )}
