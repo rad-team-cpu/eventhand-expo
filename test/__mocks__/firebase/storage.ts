@@ -6,4 +6,6 @@ const ref = jest.fn();
 
 const uploadBytes = jest.fn();
 
-export { getStorage, ref, uploadBytes };
+const getDownloadURL = jest.fn();
+
+export { getStorage, ref, uploadBytes, getDownloadURL };

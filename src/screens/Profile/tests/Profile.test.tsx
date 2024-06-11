@@ -18,6 +18,7 @@ import Home from "../../Home";
 import SuccessError from "../../SuccessError";
 import ProfileForm from "../Form";
 import Profile from "../index";
+import { getDownloadURL } from "../../../../test/__mocks__/firebase/storage";
 
 interface TestProfileComponentProps {
   mockUser: UserProfile;
@@ -80,7 +81,9 @@ afterEach(() => {
 
 describe("Profile", () => {
   it("Should allow the user to logout his/her session", async () => {
-    render(<TestProfileComponent mockUser={mockUser} />);
+    await waitFor(() => {
+      render(<TestProfileComponent mockUser={mockUser} />);
+    })
 
     const signOutButton = screen.getByRole("button", { name: "Sign Out" });
 
@@ -92,7 +95,12 @@ describe("Profile", () => {
   });
 
   it("should display the user's name, avatar, contact number, and emailAddress ", async () => {
-    render(<TestProfileComponent mockUser={mockUser} />);
+    const mockAvatar = mockUser.profilePicture;
+    getDownloadURL.mockResolvedValue(mockAvatar);
+
+    await waitFor(() => {
+      render(<TestProfileComponent mockUser={mockUser} />);
+    })
 
     await waitFor(() => {
       expect(screen.getByTestId("test-avatar-label")).toHaveTextContent(
@@ -124,7 +132,9 @@ describe("Profile", () => {
 
     const defaultImage = require("../../../assets/images/user.png");
 
-    render(<TestProfileComponent mockUser={mockUser} />);
+    await waitFor(() => {
+      render(<TestProfileComponent mockUser={mockUser} />);
+    })
 
     await waitFor(() => {
       expect(screen.getByTestId("test-avatar-image").props.source).toBe(defaultImage);

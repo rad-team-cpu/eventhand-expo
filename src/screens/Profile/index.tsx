@@ -1,16 +1,18 @@
 import { useAuth, useUser } from "@clerk/clerk-expo";
 import { StatusBar } from "expo-status-bar";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet, Button, View, Text, TextStyle } from "react-native";
 
 import Avatar from "../../Components/Avatar";
 import { UserContext } from "../../Contexts/UserContext";
+import FirebaseService from "../../firebase";
 import Loading from "../Loading";
 
 export default function Profile() {
   const { isLoaded, signOut } = useAuth();
   const [signOutErrMessage, setSignOutErrMessage] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [avatarImage, setAvatarImage] = useState("");
+  const [loading, setLoading] = useState(true);
   const userContext = useContext(UserContext);
 
   if (!userContext) {
@@ -20,7 +22,27 @@ export default function Profile() {
   const { user } = userContext;
   const { profilePicture, email, firstName, lastName, contactNumber } = user;
   const name = `${firstName} ${lastName}`;
-  const avatarImage = profilePicture ? profilePicture : "";
+
+  const downloadAvatarImage = async (profilePicturePath: string) => {
+    const firebaseService = FirebaseService.getInstance();
+
+    const profilePictureUrl =
+      await firebaseService.getProfilePicture(profilePicturePath);
+
+    setAvatarImage(profilePictureUrl);
+  };
+
+  useEffect(() => {
+    try {
+      if (profilePicture) {
+        downloadAvatarImage(profilePicture);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+    setLoading(false);
+
+  }, []);
 
   const onSignOutPress = () => {
     setLoading(true);

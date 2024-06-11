@@ -1,6 +1,6 @@
 import { useAuth } from "@clerk/clerk-expo";
 import { userEvent, cleanup } from "@testing-library/react-native";
-import { UploadResult } from "firebase/storage";
+import { UploadResult, getDownloadURL } from "firebase/storage";
 
 import FirebaseService from ".";
 import { initializeApp } from "../../test/__mocks__/firebase/app";
@@ -108,4 +108,15 @@ describe("FirebaseService", () => {
       firebaseService.uploadProfileAvatar("userId", image),
     ).rejects.toThrow("Invalid Uri");
   });
+
+  it("should get the download url for user avatar",async () => {
+    const path = "firebasestorage\path"
+
+    const downloadUrl = await  firebaseService.getProfilePicture(path);
+
+    const mockRef =  ref(getStorage(), path)
+
+    expect(ref).toHaveBeenCalledWith(getStorage(), path);
+    expect(getDownloadURL).toHaveBeenCalledWith(mockRef);
+  })
 });
