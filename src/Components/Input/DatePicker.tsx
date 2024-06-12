@@ -32,7 +32,7 @@ type DatePickerProps = {
   minimumDate?: Date;
   control: Control<FieldValues, unknown>;
   register: UseFormRegister<FieldValues>;
-  errors: FieldValues;
+  errors?: FieldValues;
   errorMessage?: string;
   errorTextStyle?: StyleProp<TextStyle>;
   buttonTextStyle?: StyleProp<TextStyle>;
@@ -41,7 +41,6 @@ type DatePickerProps = {
 
 export const datePickerDate = {
   selectDate: (date: Date | undefined) => {
-    console.log(date);
     return date;
   },
   selectStringDate: (date: Date | undefined) =>
@@ -74,7 +73,6 @@ const DatePicker = (props: DatePickerProps) => {
             event: DateTimePickerEvent,
             selectedDate?: Date,
           ) => {
-            console.log(event.type);
             const currentDate = selectedDate;
             onChange(datePickerDate.selectDate(currentDate));
             setSelected(datePickerDate.selectStringDate(currentDate));
@@ -119,7 +117,7 @@ const DatePicker = (props: DatePickerProps) => {
         testID="date-err-text"
         style={errorTextStyle ?? defaultStyles.errorText}
       >
-        {errorMessage ?? errors[name]?.message}
+        {errors && (errorMessage ?? errors[name]?.message)}
       </Text>
     </>
   );

@@ -1,19 +1,130 @@
+import { MaterialIcons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 import React from "react";
-import { MaterialIcons } from '@expo/vector-icons';
+import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 
-import { Pressable, StyleSheet, Text, View } from "react-native";
 import EventForm from "./Form";
 
 const FloatingCreateButton = ({ onPress }) => {
   return (
     <View style={styles.floatingBtnContainer}>
-      <Pressable style={styles.floatingbutton} onPress={onPress} android_ripple={{ radius: 60}}>
+      <Pressable
+        style={styles.floatingbutton}
+        onPress={onPress}
+        android_ripple={{ radius: 60 }}
+      >
         <MaterialIcons name="add" size={24} color="white" />
       </Pressable>
     </View>
   );
 };
+
+const data = [
+  { id: "1", date: "2024-06-01", budget: 5000, capacity: 10 },
+  { id: "2", date: "2024-06-02", budget: 10000, capacity: 20 },
+  { id: "3", date: "2024-06-03", budget: 7500, capacity: 15 },
+  { id: "11", date: "2024-06-01", budget: 5000, capacity: 10 },
+  { id: "12", date: "2024-06-02", budget: 10000, capacity: 20 },
+  { id: "13", date: "2024-06-03", budget: 7500, capacity: 15 },
+  { id: "21", date: "2024-06-01", budget: 5000, capacity: 10 },
+  { id: "22", date: "2024-06-02", budget: 10000, capacity: 20 },
+  { id: "23", date: "2024-06-03", budget: 7500, capacity: 15 },
+  { id: "31", date: "2024-06-01", budget: 5000, capacity: 10 },
+  { id: "32", date: "2024-06-02", budget: 10000, capacity: 20 },
+  { id: "33", date: "2024-06-03", budget: 7500, capacity: 15 },
+  { id: "41", date: "2024-06-01", budget: 5000, capacity: 10 },
+  { id: "42", date: "2024-06-02", budget: 10000, capacity: 20 },
+  { id: "43", date: "2024-06-03", budget: 7500, capacity: 15 },
+  { id: "51", date: "2024-06-01", budget: 5000, capacity: 10 },
+  { id: "52", date: "2024-06-02", budget: 10000, capacity: 20 },
+  { id: "53", date: "2024-06-03", budget: 7500, capacity: 15 },
+  // Add more data here
+];
+
+const getRandomColor = () => {
+  const letters = "0123456789ABCDEF";
+  let color = "#";
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+};
+
+const ListItem = ({ date, budget, capacity }) => {
+  const borderColor = React.useMemo(() => getRandomColor(), []);
+
+  return (
+    <Pressable
+      style={[listStyles.itemContainer, { borderLeftColor: borderColor }]}
+    >
+      <Text style={listStyles.dateText}>{date}</Text>
+      <View style={listStyles.separator} />
+      <View style={listStyles.row}>
+        <Text style={listStyles.budgetText}>₱{budget}</Text>
+        <Text style={listStyles.capacityText}>Capacity: {capacity}</Text>
+      </View>
+    </Pressable>
+  );
+};
+
+const BudgetList = () => (
+  <FlatList
+    data={data}
+    renderItem={({ item }) => (
+      <ListItem
+        date={item.date}
+        budget={item.budget}
+        capacity={item.capacity}
+      />
+    )}
+    keyExtractor={(item) => item.id}
+    contentContainerStyle={listStyles.container}
+  />
+);
+
+const listStyles = StyleSheet.create({
+  container: {
+    paddingBottom: 16,
+  },
+  itemContainer: {
+    padding: 16,
+    marginVertical: 1,
+    marginLeft: 1,
+    backgroundColor: "#fff",
+    borderLeftWidth: 10,
+    borderTopLeftRadius: 8,
+    borderBottomLeftRadius: 8,
+    borderRightColor: "#fff",
+    borderRightWidth: 5,
+    borderTopRightRadius: 8,
+    borderBottomRightRadius: 8,
+    elevation: 2, // Add shadow for floating effect
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  dateText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 8,
+  },
+  separator: {
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+    marginBottom: 8,
+  },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  budgetText: {
+    fontSize: 14,
+  },
+  capacityText: {
+    fontSize: 14,
+  },
+});
 
 function Events() {
   // return (
@@ -33,25 +144,41 @@ function Events() {
   //       />
   //       <Text style={styles.buttonText}>Create Event</Text>
   //     </Pressable>
+  //     <FloatingCreateButton onPress={() => {}}/>
   //   </View>
   // );
 
+  return (
+    <>
+      <Pressable
+        style={[listStyles.itemContainer, { borderLeftColor: "#6200EE" }]}
+      >
+        <Text style={listStyles.dateText}>date</Text>
+        <View style={listStyles.separator} />
+        <View style={listStyles.row}>
+          <Text style={listStyles.budgetText}>₱budget</Text>
+          <Text style={listStyles.capacityText}>Capacity: capacity</Text>
+        </View>
+      </Pressable>
+      <BudgetList />
+      <FloatingCreateButton onPress={() => {}} />
+    </>
+  );
+
   // return <FloatingCreateButton onPress={() => {}}/>
-  return <EventForm/>;
-
-};
-
+  // return <EventForm/>;
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#6200EE',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#6200EE",
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
@@ -60,24 +187,23 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   buttonText: {
-    color: 'white',
+    color: "white",
     fontSize: 16,
   },
   floatingBtnContainer: {
-    position: 'absolute',
-    bottom: 30,
-    right: 30,
+    position: "absolute",
+    bottom: 10,
+    right: 10,
   },
   floatingbutton: {
     width: 60,
     height: 60,
     borderRadius: 15,
-    backgroundColor: '#6200EE',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#6200EE",
+    justifyContent: "center",
+    alignItems: "center",
     elevation: 5,
   },
-
 });
 
 export default Events;

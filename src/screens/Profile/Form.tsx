@@ -212,6 +212,9 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
 
       const response = await fetch(url, request);
 
+      console.log(response.status)
+      console.log(userId);
+
       switch (response.status) {
         case 201:
           setUser(user);

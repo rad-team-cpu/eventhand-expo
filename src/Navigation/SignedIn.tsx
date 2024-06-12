@@ -1,6 +1,11 @@
-import { NativeStackHeaderProps, NativeStackNavigationOptions, createNativeStackNavigator } from "@react-navigation/native-stack";
+import {
+  NativeStackHeaderProps,
+  NativeStackNavigationOptions,
+  createNativeStackNavigator,
+} from "@react-navigation/native-stack";
 import { GestureResponderEvent } from "react-native";
 
+import EventForm from "../screens/Events/Form";
 import Home from "../screens/Home";
 import ProfileForm from "../screens/Profile/Form";
 import SuccessError from "../screens/SuccessError";
@@ -8,7 +13,14 @@ import { ScreenProps } from "../types/types";
 
 const SignedInStack = createNativeStackNavigator<ScreenProps>();
 
-const homeHeaderOptions: NativeStackNavigationOptions = { headerTitle: "Event Hand", headerTitleAlign: "center" };
+const homeHeaderOptions: NativeStackNavigationOptions = {
+  headerTitle: "Event Hand",
+  headerTitleAlign: "center",
+};
+
+const eventFormHeaderOptions: NativeStackNavigationOptions = {
+  headerShown: false,
+};
 
 const SignedInNav = () => {
   return (
@@ -17,6 +29,11 @@ const SignedInNav = () => {
         name="Home"
         component={Home}
         options={homeHeaderOptions}
+      />
+      <SignedInStack.Screen
+        name="EventForm"
+        component={EventForm}
+        options={eventFormHeaderOptions}
       />
       <SignedInStack.Screen
         name="ProfileForm"

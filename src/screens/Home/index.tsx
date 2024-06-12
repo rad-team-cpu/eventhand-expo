@@ -5,14 +5,15 @@ import {
   createBottomTabNavigator,
 } from "@react-navigation/bottom-tabs";
 import React, { useContext, useEffect, useState } from "react";
+import { StyleSheet } from "react-native";
 
 import { UserContext } from "../../Contexts/UserContext";
-import Events from "../Events";
+import { HomeScreenProps } from "../../types/types";
 import Chat from "../Chat";
+import Events from "../Events";
 import Loading from "../Loading";
 import Profile from "../Profile";
-import { HomeScreenProps } from "../../types/types";
-import { StyleSheet } from "react-native";
+import EventList from "../Events/List";
 
 const HomeNav = () => {
   const Tab = createBottomTabNavigator();
@@ -46,8 +47,8 @@ const HomeNav = () => {
   return (
     <Tab.Navigator>
       <Tab.Screen
-        name="Find Supplier"
-        component={Events}
+        name="EventList"
+        component={EventList}
         options={eventsIconOptions}
       />
       <Tab.Screen name="Chat" component={Chat} options={chatIconOptions} />
@@ -60,7 +61,7 @@ const HomeNav = () => {
   );
 };
 
-const Home = ({navigation}: HomeScreenProps) => {
+const Home = ({ navigation }: HomeScreenProps) => {
   const { getToken, userId, isLoaded } = useAuth();
   const [loading, setLoading] = useState(false);
   const userContext = useContext(UserContext);
@@ -91,7 +92,7 @@ const Home = ({navigation}: HomeScreenProps) => {
 
     try {
       const res = await fetch(url, request);
-  
+
       if (res.status === 200) {
         const data = await res.json();
         setUser({ ...data });
@@ -113,31 +114,28 @@ const Home = ({navigation}: HomeScreenProps) => {
   };
 
   useEffect(() => {
-
-    // fetchUserId();
+    fetchUserId();
   }, []);
 
   return loading ? <Loading /> : <HomeNav />;
 };
 
-
-
 const styles = StyleSheet.create({
   headerContainer: {
     elevation: 4, // Adds shadow on Android
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.8,
     shadowRadius: 2,
   },
   backButton: {
-    position: 'absolute',
+    position: "absolute",
     left: 15,
   },
   headerTitle: {
     fontSize: 20,
-    color: 'white',
-    fontWeight: 'bold',
+    color: "white",
+    fontWeight: "bold",
   },
 });
 
