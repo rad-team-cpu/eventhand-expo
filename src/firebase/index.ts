@@ -2,6 +2,7 @@ import { initializeApp } from "firebase/app";
 import {
   FirebaseStorage,
   UploadResult,
+  getDownloadURL,
   getStorage,
   ref,
   uploadBytes,
@@ -68,6 +69,16 @@ class FirebaseService {
     const result = await this.uploadFile(fileName, image.uri);
 
     return result;
+  }
+
+  async getProfilePicture(path: string) {
+    const profilePictureRef = ref(this.storage, path);
+    try {
+      const profileAvatarUrl = await getDownloadURL(profilePictureRef);
+      return profileAvatarUrl;
+    } catch (error: any) {
+      throw error;
+    }
   }
 }
 

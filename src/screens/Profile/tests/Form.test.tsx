@@ -2355,7 +2355,7 @@ describe("ProfileForm", () => {
         });
 
         const expectedUser = {
-          avatar: mockRef,
+          profilePicture: mockRef,
           email: mockUser.email,
           firstName,
           lastName,
