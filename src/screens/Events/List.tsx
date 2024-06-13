@@ -169,8 +169,10 @@ const getRandomColor = () => {
 const ListItem = ({ id, date, budget, attendees }: EventInfo) => {
   const borderColor = useMemo(() => getRandomColor(), []);
   const dateString = format(date, "MMMM dd, yyyy");
+  const navigation = useNavigation<HomeScreenNavigationProp>();
 
-  const onPress = () => console.log(id);
+
+  const onPress = () => navigation.navigate("EventView") ;
   return (
     <Pressable
       style={[styles.itemContainer, { borderLeftColor: borderColor }]}
@@ -218,8 +220,8 @@ function EventList() {
   const onCreatePress = () => navigation.navigate("EventForm");
 
   const { user } = userContext;
-    const { events } = user;
-//   const events = data;
+    // const { events } = user;
+  const events = data;
 
   if (events && events.length > 0) {
     return (

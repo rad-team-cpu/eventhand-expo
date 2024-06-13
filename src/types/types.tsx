@@ -74,6 +74,7 @@ type ScreenProps = {
   Home: undefined;
   ProfileForm: undefined;
   EventForm: undefined;
+  EventView: undefined;
   SuccessError: SuccessErrorProps;
 };
 
@@ -91,6 +92,8 @@ type ProfileFormScreenProps = NativeStackScreenProps<
 >;
 
 type EventFormScreenProps = NativeStackScreenProps<ScreenProps, "EventForm">;
+
+type EventScreenProps = NativeStackScreenProps<ScreenProps, "EventView">;
 
 type SuccessErrorScreenProps = NativeStackScreenProps<
   ScreenProps,
@@ -138,6 +141,7 @@ export {
   ProfileFormScreenProps,
   EventListScreenProps,
   EventListNavigationProps,
+  EventScreenProps,
   ChatScreenProps,
   ProfileScreenProps,
   EventFormScreenProps

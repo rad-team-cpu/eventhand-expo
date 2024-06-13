@@ -1,4 +1,4 @@
-import { MaterialIcons } from "@expo/vector-icons";
+import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 import React from "react";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
@@ -105,7 +105,7 @@ const listStyles = StyleSheet.create({
     shadowRadius: 4,
   },
   dateText: {
-    fontSize: 16,
+    fontSize: 24,
     fontWeight: "bold",
     marginBottom: 8,
   },
@@ -119,14 +119,33 @@ const listStyles = StyleSheet.create({
     justifyContent: "space-between",
   },
   budgetText: {
-    fontSize: 14,
+    fontSize: 16,
   },
   capacityText: {
-    fontSize: 14,
+    fontSize: 16,
+  },
+  eventContainer: {
+    padding: 16,
+    marginVertical: 5,
+    marginHorizontal: 5,
+    backgroundColor: "#fff",
+    borderLeftWidth: 8,
+    borderTopLeftRadius: 16,
+    borderBottomLeftRadius: 16,
+    borderLeftColor: "#6200EE",
+    borderRightWidth: 8,
+    borderTopRightRadius: 16,
+    borderBottomRightRadius: 16,
+    borderRightColor: "#6200EE",
+    elevation: 10, // Add shadow for floating effect
+    shadowColor: "black",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
   },
 });
 
-function Events() {
+function EventView() {
   // return (
   //   <View testID="test-events">
   //     <StatusBar />
@@ -134,34 +153,31 @@ function Events() {
   // );
 
   // return (
-  //   <View style={styles.container}>
-  //     <Pressable style={styles.button}>
-  //       <MaterialIcons
-  //         name="create"
-  //         size={24}
-  //         color="white"
-  //         style={styles.icon}
-  //       />
-  //       <Text style={styles.buttonText}>Create Event</Text>
-  //     </Pressable>
-  //     <FloatingCreateButton onPress={() => {}}/>
-  //   </View>
+
   // );
 
   return (
     <>
-      <Pressable
-        style={[listStyles.itemContainer, { borderLeftColor: "#6200EE" }]}
-      >
+      <View style={listStyles.eventContainer}>
         <Text style={listStyles.dateText}>date</Text>
         <View style={listStyles.separator} />
         <View style={listStyles.row}>
           <Text style={listStyles.budgetText}>₱budget</Text>
           <Text style={listStyles.capacityText}>Capacity: capacity</Text>
         </View>
-      </Pressable>
-      <BudgetList />
-      <FloatingCreateButton onPress={() => {}} />
+      </View>
+      <View style={styles.container}>
+        <Pressable style={styles.button}>
+          <FontAwesome
+            name="search"
+            size={24}
+            color="white"
+            style={styles.icon}
+          />
+          <Text style={styles.buttonText}>Find Supplier</Text>
+        </Pressable>
+        {/* <FloatingCreateButton onPress={() => {}} /> */}
+      </View>
     </>
   );
 
@@ -206,4 +222,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Events;
+export default EventView;

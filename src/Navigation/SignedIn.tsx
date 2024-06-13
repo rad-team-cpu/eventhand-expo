@@ -10,6 +10,7 @@ import Home from "../screens/Home";
 import ProfileForm from "../screens/Profile/Form";
 import SuccessError from "../screens/SuccessError";
 import { ScreenProps } from "../types/types";
+import EventView from "../screens/Events";
 
 const SignedInStack = createNativeStackNavigator<ScreenProps>();
 
@@ -21,6 +22,11 @@ const homeHeaderOptions: NativeStackNavigationOptions = {
 const eventFormHeaderOptions: NativeStackNavigationOptions = {
   headerShown: false,
 };
+
+const eventViewHeaderOptions: NativeStackNavigationOptions = {
+  headerShown: false,
+};
+
 
 const SignedInNav = () => {
   return (
@@ -34,6 +40,11 @@ const SignedInNav = () => {
         name="EventForm"
         component={EventForm}
         options={eventFormHeaderOptions}
+      />
+      <SignedInStack.Screen
+        name="EventView"
+        component={EventView}
+        options={eventViewHeaderOptions}
       />
       <SignedInStack.Screen
         name="ProfileForm"
