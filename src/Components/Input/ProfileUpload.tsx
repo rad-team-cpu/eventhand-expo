@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   errorText: {
-    color: "red",
+    color: "white",
     marginTop: 10,
     textAlign: "center",
   },

@@ -53,7 +53,7 @@ export interface ITheme {
   gradients: ThemeGradients;
   sizes: ThemeSizes & ThemeSpacing & ICommonTheme['sizes'];
   assets: ThemeAssets;
-  fonts: ThemeFonts;
+  // fonts: ThemeFonts;
   weights: ThemeWeights;
   lines: ThemeLineHeights;
 }

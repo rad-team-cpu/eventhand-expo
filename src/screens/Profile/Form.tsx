@@ -46,6 +46,7 @@ import {
   SuccessErrorScreenProps,
 } from "../../types/types";
 import Loading from "../Loading";
+import { white } from "react-native-paper/lib/typescript/styles/themes/v2/colors";
 
 interface ProfileInput extends FieldValues {
   profileAvatar: ImageInfo | null;
@@ -551,7 +552,7 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
                   Go back
                 </Text>
               </Button>
-              <Block flex={0} align="center" marginTop={sizes.md}>
+              <Block flex={0} align="center" marginVertical={sizes.sm}>
                 <Avatar uri={avatarUri} label="CONFIRM DETAILS" />
               </Block>
             </Image>

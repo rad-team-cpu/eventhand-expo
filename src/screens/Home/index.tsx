@@ -120,23 +120,23 @@ const Home = ({navigation}: HomeScreenProps) => {
 
 
 
-const styles = StyleSheet.create({
-  headerContainer: {
-    elevation: 4, // Adds shadow on Android
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
-  },
-  backButton: {
-    position: 'absolute',
-    left: 15,
-  },
-  headerTitle: {
-    fontSize: 20,
-    color: 'white',
-    fontWeight: 'bold',
-  },
-});
+// const styles = StyleSheet.create({
+//   headerContainer: {
+//     elevation: 4, // Adds shadow on Android
+//     shadowColor: '#000',
+//     shadowOffset: { width: 0, height: 2 },
+//     shadowOpacity: 0.8,
+//     shadowRadius: 2,
+//   },
+//   backButton: {
+//     position: 'absolute',
+//     left: 15,
+//   },
+//   headerTitle: {
+//     fontSize: 20,
+//     color: 'white',
+//     fontWeight: 'bold',
+//   },
+// });
 
 export default Home;

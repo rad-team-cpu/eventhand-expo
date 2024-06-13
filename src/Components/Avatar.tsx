@@ -62,6 +62,7 @@ const defaultStyles = StyleSheet.create({
     marginTop: 10,
     fontSize: 18,
     fontWeight: "bold",
+    color: "white",
   },
   errorText: {
     color: "red",
