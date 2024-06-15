@@ -62,7 +62,7 @@ const HomeNav = () => {
 
 const Home = ({navigation}: HomeScreenProps) => {
   const { getToken, userId, isLoaded } = useAuth();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const userContext = useContext(UserContext);
 
   if (!userContext) {
