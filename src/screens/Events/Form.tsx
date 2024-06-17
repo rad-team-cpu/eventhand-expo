@@ -21,7 +21,7 @@ import {
   Button,
   Pressable,
 } from "react-native";
-import { date, number, object, string } from "yup";
+import { date, number, object} from "yup";
 
 import DatePicker from "../../Components/Input/DatePicker";
 import { UserContext } from "../../Contexts/UserContext";
@@ -50,7 +50,21 @@ const EventFormInputValidation = object().shape({
   budget: number()
     .required("Please enter number of your guests")
     .moreThan(-1, "Input must be a postive number")
-    .integer("Input must be an integer"),
+    .integer("Input must be an integer")
+    .test(
+      "rangeIsValid",
+      "Budget must not be less than P1000, enter 0 if no limit",
+      (value) => {
+        if (value == 0) {
+          return true;
+        }
+        if (value < 1000) {
+          return false;
+        }
+
+        return true;
+      },
+    ),
 });
 
 function EventForm({ navigation }: EventFormScreenProps) {
@@ -173,7 +187,13 @@ function EventForm({ navigation }: EventFormScreenProps) {
         name="guests"
         control={control}
         render={({ field: { onChange, onBlur, value } }) => {
-          const onValueChange = (input: string) => onChange(Number(input));
+          const onValueChange = (input: string) => {
+            const convertedInput = Number.isNaN(Number(input))
+              ? 0
+              : Number(input);
+
+            onChange(convertedInput);
+          };
 
           return (
             <TextInput
@@ -181,6 +201,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
               testID="test-event-attendee-input"
               style={styles.input}
               onBlur={onBlur}
+              value={String(value)}
               defaultValue={String(value)}
               onChangeText={onValueChange}
               autoCapitalize="none"
@@ -200,14 +221,20 @@ function EventForm({ navigation }: EventFormScreenProps) {
         name="budget"
         control={control}
         render={({ field: { onChange, onBlur, value } }) => {
-          const onValueChange = (input: string) => onChange(Number(input));
+          const onValueChange = (input: string) => {
+            const convertedInput = Number.isNaN(Number(input))
+              ? 0
+              : Number(input);
 
+            onChange(convertedInput);
+          };
           return (
             <TextInput
               id="event-budget-input"
               testID="test-event-budget-input"
               style={styles.input}
               onBlur={onBlur}
+              value={String(value)}
               defaultValue={String(value)}
               onChangeText={onValueChange}
               autoCapitalize="none"
@@ -273,10 +300,12 @@ function EventForm({ navigation }: EventFormScreenProps) {
             attendees: input.guests,
             ...input,
           };
+
           if (user.events) {
             setUser({ ...user, events: [...user.events, event] });
+          } else {
+            setUser({ ...user, events: [event] });
           }
-          setUser({ ...user, events: [event] });
           const dateString = format(event.date, "MMMM dd, yyyy");
 
           setLoading(false);
@@ -362,7 +391,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
       <Text testID="test-first-name-err-text" style={styles.errorText}>
         {step == 0 && errors["date"]?.message}
         {step == 1 && errors["guests"]?.message}
-        {step == 2 && errors["guests"]?.message}
+        {step == 2 && errors["budget"]?.message}
       </Text>
     </View>
   );

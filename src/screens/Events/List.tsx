@@ -22,7 +22,7 @@ interface FloatingCreateButtonProps {
 
 const FloatingCreateButton = ({ onPress }: FloatingCreateButtonProps) => {
   return (
-    <View style={styles.floatingBtnContainer}>
+    <View testID="test-events" style={styles.floatingBtnContainer}>
       <Pressable
         style={styles.floatingbutton}
         onPress={onPress}
@@ -181,6 +181,7 @@ const EventListItem = ({ id, date, budget, attendees }: EventInfo) => {
 
   return (
     <Pressable
+      key={id}
       style={[styles.itemContainer, { borderLeftColor: borderColor }]}
       android_ripple={{ color: "#c0c0c0" }}
       onPress={onPress}
@@ -201,6 +202,8 @@ interface EventsProps {
 
 const Events = ({ events }: EventsProps) => (
   <FlatList
+    keyExtractor={(item) => item.id}
+    contentContainerStyle={styles.listContainer}
     data={events}
     renderItem={({ item }) => (
       <EventListItem
@@ -210,8 +213,6 @@ const Events = ({ events }: EventsProps) => (
         attendees={item.attendees}
       />
     )}
-    keyExtractor={(item) => item.id}
-    contentContainerStyle={styles.listContainer}
   />
 );
 
@@ -225,8 +226,8 @@ function EventList() {
 
   const onCreatePress = () => navigation.navigate("EventForm");
 
-  const { user } = userContext 
-  const { events } = user; 
+  const { user } = userContext;
+  const { events } = user;
   // const events = data; // test data;
 
   if (events && events.length > 0) {
@@ -239,7 +240,7 @@ function EventList() {
   }
 
   return (
-    <View style={styles.container}>
+    <View testID="test-events" style={styles.container}>
       <Pressable
         style={styles.button}
         android_ripple={{ color: "#c0c0c0" }}

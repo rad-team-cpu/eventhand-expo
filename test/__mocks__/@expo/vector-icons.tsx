@@ -19,5 +19,6 @@ const AntDesign = MockedIcon;
 const FontAwesome = MockedIcon;
 const Feather = MockedIcon
 const Ionicons = MockedIcon
+const MaterialIcons = MockedIcon
 
-export {AntDesign, FontAwesome, Feather, Ionicons}
+export {AntDesign, FontAwesome, Feather, Ionicons, MaterialIcons}
