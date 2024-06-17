@@ -170,7 +170,7 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
     };
 
     const navigateToSuccessError = (props: ScreenProps["SuccessError"]) => {
-      navigation.navigate("SuccessError", { ...props });
+      navigation.replace("SuccessError", { ...props });
     };
 
     try {
@@ -211,9 +211,6 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
       };
 
       const response = await fetch(url, request);
-
-      console.log(response.status)
-      console.log(userId);
 
       switch (response.status) {
         case 201:

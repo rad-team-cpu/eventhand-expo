@@ -18,7 +18,7 @@ interface EventInfo {
   id: string;
   attendees: number;
   budget: number;
-  date: Date;
+  date: Date | string;
 }
 
 interface Vendor {
@@ -74,7 +74,7 @@ type ScreenProps = {
   Home: undefined;
   ProfileForm: undefined;
   EventForm: undefined;
-  EventView: undefined;
+  EventView: EventInfo;
   SuccessError: SuccessErrorProps;
 };
 
@@ -93,7 +93,7 @@ type ProfileFormScreenProps = NativeStackScreenProps<
 
 type EventFormScreenProps = NativeStackScreenProps<ScreenProps, "EventForm">;
 
-type EventScreenProps = NativeStackScreenProps<ScreenProps, "EventView">;
+type EventViewScreenProps = NativeStackScreenProps<ScreenProps, "EventView">;
 
 type SuccessErrorScreenProps = NativeStackScreenProps<
   ScreenProps,
@@ -141,7 +141,7 @@ export {
   ProfileFormScreenProps,
   EventListScreenProps,
   EventListNavigationProps,
-  EventScreenProps,
+  EventViewScreenProps,
   ChatScreenProps,
   ProfileScreenProps,
   EventFormScreenProps

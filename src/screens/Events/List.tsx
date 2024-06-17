@@ -34,128 +34,128 @@ const FloatingCreateButton = ({ onPress }: FloatingCreateButtonProps) => {
   );
 };
 
-const data: EventInfo[] = [
-  {
-    id: "event1",
-    attendees: 150,
-    budget: 2000,
-    date: new Date("2024-07-10"),
-  },
-  {
-    id: "event2",
-    attendees: 75,
-    budget: 1500,
-    date: new Date("2024-08-15"),
-  },
-  {
-    id: "event3",
-    attendees: 200,
-    budget: 3000,
-    date: new Date("2024-09-20"),
-  },
-  {
-    id: "event4",
-    attendees: 50,
-    budget: 800,
-    date: new Date("2024-10-05"),
-  },
-  {
-    id: "event5",
-    attendees: 120,
-    budget: 2200,
-    date: new Date("2024-11-12"),
-  },
-  {
-    id: "event6",
-    attendees: 90,
-    budget: 1300,
-    date: new Date("2024-12-01"),
-  },
-  {
-    id: "event7",
-    attendees: 300,
-    budget: 5000,
-    date: new Date("2024-12-25"),
-  },
-  {
-    id: "event8",
-    attendees: 45,
-    budget: 600,
-    date: new Date("2025-01-10"),
-  },
-  {
-    id: "event9",
-    attendees: 180,
-    budget: 2700,
-    date: new Date("2025-02-14"),
-  },
-  {
-    id: "event10",
-    attendees: 60,
-    budget: 1000,
-    date: new Date("2025-03-05"),
-  },
-  {
-    id: "event11",
-    attendees: 130,
-    budget: 2100,
-    date: new Date("2025-04-20"),
-  },
-  {
-    id: "event12",
-    attendees: 85,
-    budget: 1200,
-    date: new Date("2025-05-15"),
-  },
-  {
-    id: "event13",
-    attendees: 95,
-    budget: 1400,
-    date: new Date("2025-06-10"),
-  },
-  {
-    id: "event14",
-    attendees: 250,
-    budget: 4000,
-    date: new Date("2025-07-30"),
-  },
-  {
-    id: "event15",
-    attendees: 110,
-    budget: 1800,
-    date: new Date("2025-08-20"),
-  },
-  {
-    id: "event16",
-    attendees: 70,
-    budget: 900,
-    date: new Date("2025-09-10"),
-  },
-  {
-    id: "event17",
-    attendees: 210,
-    budget: 3200,
-    date: new Date("2025-10-25"),
-  },
-  {
-    id: "event18",
-    attendees: 60,
-    budget: 950,
-    date: new Date("2025-11-10"),
-  },
-  {
-    id: "event19",
-    attendees: 170,
-    budget: 2500,
-    date: new Date("2025-12-05"),
-  },
-  {
-    id: "event20",
-    attendees: 100,
-    budget: 1500,
-    date: new Date("2026-01-01"),
-  },
-];
+// const data: EventInfo[] = [
+//   {
+//     id: "event1",
+//     attendees: 150,
+//     budget: 2000,
+//     date: new Date("2024-07-10"),
+//   },
+//   {
+//     id: "event2",
+//     attendees: 75,
+//     budget: 1500,
+//     date: new Date("2024-08-15"),
+//   },
+//   {
+//     id: "event3",
+//     attendees: 200,
+//     budget: 3000,
+//     date: new Date("2024-09-20"),
+//   },
+//   {
+//     id: "event4",
+//     attendees: 50,
+//     budget: 800,
+//     date: new Date("2024-10-05"),
+//   },
+//   {
+//     id: "event5",
+//     attendees: 120,
+//     budget: 2200,
+//     date: new Date("2024-11-12"),
+//   },
+//   {
+//     id: "event6",
+//     attendees: 90,
+//     budget: 1300,
+//     date: new Date("2024-12-01"),
+//   },
+//   {
+//     id: "event7",
+//     attendees: 300,
+//     budget: 5000,
+//     date: new Date("2024-12-25"),
+//   },
+//   {
+//     id: "event8",
+//     attendees: 45,
+//     budget: 600,
+//     date: new Date("2025-01-10"),
+//   },
+//   {
+//     id: "event9",
+//     attendees: 180,
+//     budget: 2700,
+//     date: new Date("2025-02-14"),
+//   },
+//   {
+//     id: "event10",
+//     attendees: 60,
+//     budget: 1000,
+//     date: new Date("2025-03-05"),
+//   },
+//   {
+//     id: "event11",
+//     attendees: 130,
+//     budget: 2100,
+//     date: new Date("2025-04-20"),
+//   },
+//   {
+//     id: "event12",
+//     attendees: 85,
+//     budget: 1200,
+//     date: new Date("2025-05-15"),
+//   },
+//   {
+//     id: "event13",
+//     attendees: 95,
+//     budget: 1400,
+//     date: new Date("2025-06-10"),
+//   },
+//   {
+//     id: "event14",
+//     attendees: 250,
+//     budget: 4000,
+//     date: new Date("2025-07-30"),
+//   },
+//   {
+//     id: "event15",
+//     attendees: 110,
+//     budget: 1800,
+//     date: new Date("2025-08-20"),
+//   },
+//   {
+//     id: "event16",
+//     attendees: 70,
+//     budget: 900,
+//     date: new Date("2025-09-10"),
+//   },
+//   {
+//     id: "event17",
+//     attendees: 210,
+//     budget: 3200,
+//     date: new Date("2025-10-25"),
+//   },
+//   {
+//     id: "event18",
+//     attendees: 60,
+//     budget: 950,
+//     date: new Date("2025-11-10"),
+//   },
+//   {
+//     id: "event19",
+//     attendees: 170,
+//     budget: 2500,
+//     date: new Date("2025-12-05"),
+//   },
+//   {
+//     id: "event20",
+//     attendees: 100,
+//     budget: 1500,
+//     date: new Date("2026-01-01"),
+//   },
+// ];
 
 const getRandomColor = () => {
   const letters = "0123456789ABCDEF";
@@ -166,13 +166,19 @@ const getRandomColor = () => {
   return color;
 };
 
-const ListItem = ({ id, date, budget, attendees }: EventInfo) => {
+const EventListItem = ({ id, date, budget, attendees }: EventInfo) => {
   const borderColor = useMemo(() => getRandomColor(), []);
   const dateString = format(date, "MMMM dd, yyyy");
   const navigation = useNavigation<HomeScreenNavigationProp>();
 
+  const onPress = () =>
+    navigation.navigate("EventView", {
+      id,
+      date: dateString,
+      budget,
+      attendees,
+    });
 
-  const onPress = () => navigation.navigate("EventView") ;
   return (
     <Pressable
       style={[styles.itemContainer, { borderLeftColor: borderColor }]}
@@ -197,7 +203,7 @@ const Events = ({ events }: EventsProps) => (
   <FlatList
     data={events}
     renderItem={({ item }) => (
-      <ListItem
+      <EventListItem
         id={item.id}
         date={item.date}
         budget={item.budget}
@@ -219,9 +225,9 @@ function EventList() {
 
   const onCreatePress = () => navigation.navigate("EventForm");
 
-  const { user } = userContext;
-    // const { events } = user;
-  const events = data;
+  const { user } = userContext 
+  const { events } = user; 
+  // const events = data; // test data;
 
   if (events && events.length > 0) {
     return (
