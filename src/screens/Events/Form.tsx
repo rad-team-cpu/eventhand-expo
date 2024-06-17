@@ -296,7 +296,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
         case 201:
           const data = await response.json();
           const event: EventInfo = {
-            id: data.id as string,
+            id: data._id as string,
             attendees: input.guests,
             ...input,
           };

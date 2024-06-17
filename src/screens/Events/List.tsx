@@ -179,6 +179,7 @@ const EventListItem = ({ id, date, budget, attendees }: EventInfo) => {
       attendees,
     });
 
+
   return (
     <Pressable
       key={id}
