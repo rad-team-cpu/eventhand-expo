@@ -157,18 +157,18 @@ describe("Home", () => {
       render(<TestHomeComponent />);
     });
 
-    const bookingNavbtn = screen.getByTestId("booking-nav-btn");
+    const eventsNavbtn = screen.getByTestId("events-nav-btn");
     const chatNavbtn = screen.getByTestId("chat-nav-btn");
     const profileNavbtn = screen.getByTestId("profile-nav-btn");
 
     waitFor(() => {
-      expect(bookingNavbtn).toBeOnTheScreen();
+      expect(eventsNavbtn).toBeOnTheScreen();
       expect(chatNavbtn).toBeOnTheScreen();
       expect(profileNavbtn).toBeOnTheScreen();
     });
   });
 
-  it("should navigate the user to the booking screen if the booking button is pressed in the bottom navigation bar", async () => {
+  it("should navigate the user to the events screen if the booking button is pressed in the bottom navigation bar", async () => {
     const gender = faker.person.sexType();
 
     const userProfile = {
@@ -191,14 +191,14 @@ describe("Home", () => {
       render(<TestHomeComponent />);
     });
 
-    const bookingNavbtn = screen.getByTestId("booking-nav-btn");
+    const eventsNavbtn = screen.getByTestId("events-nav-btn");
 
-    await user.press(bookingNavbtn);
+    await user.press(eventsNavbtn);
 
-    const booking = screen.getByTestId("booking");
+    const eventsScreen = screen.getByTestId("test-events");
 
     waitFor(() => {
-      expect(booking).toBeOnTheScreen();
+      expect(eventsScreen).toBeOnTheScreen();
     });
   });
 

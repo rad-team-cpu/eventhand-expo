@@ -16,6 +16,9 @@ const Navigator = () => {
       <SignedOut>
         <SignedOutNav />
       </SignedOut>
+      {/* <UserProvider>
+        <SignedInNav />
+      </UserProvider> */}
     </NavigationContainer>
   );
 };

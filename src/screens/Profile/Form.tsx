@@ -170,7 +170,7 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
     };
 
     const navigateToSuccessError = (props: ScreenProps["SuccessError"]) => {
-      navigation.navigate("SuccessError", { ...props });
+      navigation.replace("SuccessError", { ...props });
     };
 
     try {
