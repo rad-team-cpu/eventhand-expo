@@ -4,13 +4,16 @@ import { NavigationContainer } from "@react-navigation/native";
 import SignedInNav from "./SignedIn";
 import SignedOutNav from "./SignedOut";
 import { UserProvider } from "../Contexts/UserContext";
+import { VendorProvider } from "../Contexts/VendorContext";
 
 const Navigator = () => {
   return (
     <NavigationContainer>
       <SignedIn>
         <UserProvider>
-          <SignedInNav />
+          <VendorProvider>
+            <SignedInNav />
+          </VendorProvider>
         </UserProvider>
       </SignedIn>
       <SignedOut>

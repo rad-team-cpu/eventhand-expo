@@ -3,14 +3,15 @@ import {
   NativeStackNavigationOptions,
   createNativeStackNavigator,
 } from "@react-navigation/native-stack";
-import { GestureResponderEvent } from "react-native";
 
+import { VendorProvider } from "../Contexts/VendorContext";
+import EventView from "../screens/Events";
 import EventForm from "../screens/Events/Form";
 import Home from "../screens/Home";
 import ProfileForm from "../screens/Profile/Form";
 import SuccessError from "../screens/SuccessError";
+import VendorHome from "../screens/Vendor/Home";
 import { ScreenProps } from "../types/types";
-import EventView from "../screens/Events";
 
 const SignedInStack = createNativeStackNavigator<ScreenProps>();
 
@@ -26,7 +27,6 @@ const eventFormHeaderOptions: NativeStackNavigationOptions = {
 const eventViewHeaderOptions: NativeStackNavigationOptions = {
   headerShown: false,
 };
-
 
 const SignedInNav = () => {
   return (
@@ -56,8 +56,15 @@ const SignedInNav = () => {
         component={SuccessError}
         options={{ headerShown: false }}
       />
+      <SignedInStack.Screen
+        name="VendorHome"
+        component={VendorHome}
+        options={{ headerShown: false }}
+      />
     </SignedInStack.Navigator>
   );
 };
 
 export default SignedInNav;
+
+

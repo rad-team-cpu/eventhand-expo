@@ -12,7 +12,6 @@ import type {
   NativeStackScreenProps,
 } from "@react-navigation/native-stack";
 import { FullMetadata, StorageReference } from "firebase/storage";
-import { GestureResponderEvent } from "react-native";
 
 interface EventInfo {
   id: string;
@@ -22,7 +21,9 @@ interface EventInfo {
 }
 
 interface Vendor {
+  id: string;
   name: string;
+  address: string;
 }
 interface ChatMessage {
   id: string;
@@ -76,6 +77,7 @@ type ScreenProps = {
   EventForm: undefined;
   EventView: EventInfo;
   SuccessError: SuccessErrorProps;
+  VendorHome: { id: string };
 };
 
 type SignUpScreenProps = NativeStackScreenProps<ScreenProps, "SignUp">;
@@ -127,9 +129,12 @@ type ProfileScreenProps = CompositeScreenProps<
   NativeStackScreenProps<ScreenProps>
 >;
 
+type VendorHomeScreenProps = NativeStackScreenProps<ScreenProps, "VendorHome">;
+
 export {
   EventInfo,
   UserProfile,
+  Vendor,
   ImageInfo,
   ImageUploadResult,
   ScreenProps,
@@ -144,6 +149,6 @@ export {
   EventViewScreenProps,
   ChatScreenProps,
   ProfileScreenProps,
-  EventFormScreenProps
-
+  EventFormScreenProps,
+  VendorHomeScreenProps,
 };

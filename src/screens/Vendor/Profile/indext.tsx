@@ -1,48 +1,41 @@
 import { useAuth, useUser } from "@clerk/clerk-expo";
+import { useNavigation } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
 import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet, Button, View, Text, TextStyle } from "react-native";
 
-import Avatar from "../../Components/Avatar";
-import { UserContext } from "../../Contexts/UserContext";
-import FirebaseService from "../../firebase";
-import Loading from "../Loading";
-import { useNavigation } from "@react-navigation/native";
-import { HomeScreenNavigationProp } from "../../types/types";
+import Avatar from "../../../Components/Avatar";
+import FirebaseService from "../../../firebase";
+import { HomeScreenNavigationProp } from "../../../types/types";
+import Loading from "../../Loading";
 
-export default function Profile() {
+function VendorProfile() {
   const { isLoaded, signOut } = useAuth();
   const [signOutErrMessage, setSignOutErrMessage] = useState("");
   const [avatarImage, setAvatarImage] = useState("");
   const [loading, setLoading] = useState(true);
-  const userContext = useContext(UserContext);
-  const navigation  = useNavigation<HomeScreenNavigationProp>()
+  const navigation = useNavigation<HomeScreenNavigationProp>();
 
-  if (!userContext) {
-    throw new Error("UserInfo must be used within a UserProvider");
-  }
 
-  const { user } = userContext;
-  const { profilePicture, email, firstName, lastName, contactNumber } = user;
-  const name = `${firstName} ${lastName}`;
 
-  const downloadAvatarImage = async (profilePicturePath: string) => {
-    const firebaseService = FirebaseService.getInstance();
 
-    const profilePictureUrl =
-      await firebaseService.getProfilePicture(profilePicturePath);
+  // const downloadAvatarImage = async (profilePicturePath: string) => {
+  //   const firebaseService = FirebaseService.getInstance();
 
-    setAvatarImage(profilePictureUrl);
-  };
+  //   const profilePictureUrl =
+  //     await firebaseService.getProfilePicture(profilePicturePath);
+
+  //   setAvatarImage(profilePictureUrl);
+  // };
 
   useEffect(() => {
-    try {
-      if (profilePicture) {
-        downloadAvatarImage(profilePicture);
-      }
-    } catch (error) {
-      console.error(error);
-    }
+    // try {
+    //   if (profilePicture) {
+    //     downloadAvatarImage(profilePicture);
+    //   }
+    // } catch (error) {
+    //   console.error(error);
+    // }
     setLoading(false);
   }, []);
 
@@ -54,13 +47,13 @@ export default function Profile() {
     }
     signOut();
   };
-   
-  const onVendorModePress= () => {
+
+  const onClientModePress = () => {
     navigation.reset({
       index: 0,
-      routes: [{name: "VendorHome"}]
-    })
-  }
+      routes: [{ name: "Home" }],
+    });
+  };
 
   return (
     <View testID="test-profile" style={styles.container}>
@@ -69,8 +62,8 @@ export default function Profile() {
       {!loading && (
         <View testID="test-profile-content">
           <Avatar
-            uri={avatarImage}
-            label={name}
+            uri={""}
+            label="Vendor Name"
             labelTextStyle={styles.title as TextStyle}
           />
           <Text
@@ -78,14 +71,14 @@ export default function Profile() {
             testID="test-profile-contact-num"
             style={styles.details}
           >
-            {contactNumber}
+            Vendor Contact Number
           </Text>
           <Text
             id="profile-email"
             testID="test-profile-email"
             style={styles.details}
           >
-            {email}
+            VendorEmail
           </Text>
           <Button
             title="Sign Out"
@@ -94,10 +87,10 @@ export default function Profile() {
           />
           <View style={styles.separator} />
           <Button
-            title="Vendor Mode"
+            title="Client Mode"
             testID="test-vendor-btn"
             color="#FFA500"
-            onPress={onVendorModePress}
+            onPress={onClientModePress}
           />
           <Text testID="signout-err-text" style={styles.errorText}>
             {signOutErrMessage}
@@ -154,3 +147,5 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 });
+
+export default VendorProfile;
