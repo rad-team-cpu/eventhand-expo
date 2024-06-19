@@ -1,14 +1,13 @@
 import { useAuth, useUser } from "@clerk/clerk-expo";
+import { useNavigation } from "@react-navigation/native";
+import Avatar from "Components/Avatar";
+import { UserContext } from "Contexts/UserContext";
 import { StatusBar } from "expo-status-bar";
 import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet, Button, View, Text, TextStyle } from "react-native";
-
-import Avatar from "../../Components/Avatar";
-import { UserContext } from "../../Contexts/UserContext";
-import FirebaseService from "../../firebase";
-import Loading from "../Loading";
-import { useNavigation } from "@react-navigation/native";
-import { HomeScreenNavigationProp } from "../../types/types";
+import Loading from "screens/Loading";
+import FirebaseService from "service/firebase";
+import { HomeScreenNavigationProp } from "types/types";
 
 export default function Profile() {
   const { isLoaded, signOut } = useAuth();
@@ -16,7 +15,7 @@ export default function Profile() {
   const [avatarImage, setAvatarImage] = useState("");
   const [loading, setLoading] = useState(true);
   const userContext = useContext(UserContext);
-  const navigation  = useNavigation<HomeScreenNavigationProp>()
+  const navigation = useNavigation<HomeScreenNavigationProp>();
 
   if (!userContext) {
     throw new Error("UserInfo must be used within a UserProvider");
@@ -54,13 +53,13 @@ export default function Profile() {
     }
     signOut();
   };
-   
-  const onVendorModePress= () => {
+
+  const onVendorModePress = () => {
     navigation.reset({
       index: 0,
-      routes: [{name: "VendorHome"}]
-    })
-  }
+      routes: [{ name: "VendorHome" }],
+    });
+  };
 
   return (
     <View testID="test-profile" style={styles.container}>

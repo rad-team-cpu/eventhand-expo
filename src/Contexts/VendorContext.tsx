@@ -1,6 +1,5 @@
 import React, { createContext, useState, ReactNode } from "react";
-
-import { Vendor } from "../types/types";
+import { Vendor } from "types/types";
 
 interface VendorContextType {
   vendor: Vendor;
@@ -14,11 +13,10 @@ interface VendorProviderProps {
 const VendorContext = createContext<VendorContextType | undefined>(undefined);
 
 const VendorProvider = (props: VendorProviderProps) => {
-
   const [vendor, setVendor] = useState<Vendor>({
     id: "",
     name: "",
-    address: ""
+    address: "",
   });
   const { children } = props;
 

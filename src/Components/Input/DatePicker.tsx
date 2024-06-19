@@ -10,17 +10,14 @@ import {
   Controller,
 } from "react-hook-form";
 import {
-  Button,
   Text,
   StyleSheet,
   TextStyle,
   StyleProp,
-  ColorValue,
   Pressable,
   ViewStyle,
 } from "react-native";
 
-import { Feather } from "../../../test/__mocks__/@expo/vector-icons";
 
 type DatePickerProps = {
   name: string;

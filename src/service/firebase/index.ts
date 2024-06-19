@@ -8,7 +8,7 @@ import {
   uploadBytes,
 } from "firebase/storage";
 
-import { ImageInfo } from "../types/types";
+import { ImageInfo } from "types/types";
 
 // Initialize Firebase
 class FirebaseService {

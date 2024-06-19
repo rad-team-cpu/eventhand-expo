@@ -4,18 +4,20 @@ import {
   BottomTabNavigationOptions,
   createBottomTabNavigator,
 } from "@react-navigation/bottom-tabs";
+import { UserContext } from "Contexts/UserContext";
 import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
+import Loading from "screens/Loading";
+import Chat from "screens/Users/Chat";
+import EventList from "screens/Users/Events/List";
+import Profile from "screens/Users/Profile";
+import { HomeScreenProps } from "types/types";
 
-import { UserContext } from "../../Contexts/UserContext";
-import { HomeScreenProps } from "../../types/types";
-import Chat from "../Chat";
-import Events from "../Events";
-import Loading from "../Loading";
-import Profile from "../Profile";
-import EventList from "../Events/List";
+interface HomeNaveProps {
+  initialRouteName?: string;
+}
 
-const HomeNav = () => {
+const HomeNav = ({ initialRouteName = "EventList" }: HomeNaveProps) => {
   const Tab = createBottomTabNavigator();
 
   const eventsIconOptions: BottomTabNavigationOptions = {
@@ -45,7 +47,7 @@ const HomeNav = () => {
   };
 
   return (
-    <Tab.Navigator>
+    <Tab.Navigator initialRouteName={initialRouteName}>
       <Tab.Screen
         name="EventList"
         component={EventList}
@@ -61,9 +63,10 @@ const HomeNav = () => {
   );
 };
 
-const Home = ({ navigation }: HomeScreenProps) => {
+const Home = ({ navigation, route }: HomeScreenProps) => {
+  const { initialTab, noFetch } = route.params;
   const { getToken, userId, isLoaded } = useAuth();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!noFetch);
   const userContext = useContext(UserContext);
 
   if (!userContext) {
@@ -114,10 +117,12 @@ const Home = ({ navigation }: HomeScreenProps) => {
   };
 
   useEffect(() => {
-    fetchUserId();
+    if (!noFetch) {
+      fetchUserId();
+    }
   }, []);
 
-  return loading ? <Loading /> : <HomeNav />;
+  return loading ? <Loading /> : <HomeNav initialRouteName={initialTab} />;
 };
 
 const styles = StyleSheet.create({

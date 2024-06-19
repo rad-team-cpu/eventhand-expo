@@ -1,8 +1,7 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-
-import Login from "../screens/Login";
-import SignupForm from "../screens/SignUp";
-import { ScreenProps } from "../types/types";
+import Login from "screens/Login";
+import SignupForm from "screens/SignUp";
+import { ScreenProps } from "types/types";
 
 const SignedOutStack = createNativeStackNavigator<ScreenProps>();
 

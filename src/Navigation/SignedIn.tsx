@@ -1,17 +1,14 @@
 import {
-  NativeStackHeaderProps,
   NativeStackNavigationOptions,
   createNativeStackNavigator,
 } from "@react-navigation/native-stack";
-
-import { VendorProvider } from "../Contexts/VendorContext";
-import EventView from "../screens/Events";
-import EventForm from "../screens/Events/Form";
-import Home from "../screens/Home";
-import ProfileForm from "../screens/Profile/Form";
-import SuccessError from "../screens/SuccessError";
-import VendorHome from "../screens/Vendor/Home";
-import { ScreenProps } from "../types/types";
+import SuccessError from "screens/SuccessError";
+import EventView from "screens/Users/Events";
+import EventForm from "screens/Users/Events/Form";
+import Home from "screens/Users/Home";
+import ProfileForm from "screens/Users/Profile/Form";
+import VendorHome from "screens/Vendor/Home";
+import { ScreenProps } from "types/types";
 
 const SignedInStack = createNativeStackNavigator<ScreenProps>();
 
@@ -19,6 +16,10 @@ const homeHeaderOptions: NativeStackNavigationOptions = {
   headerTitle: "Event Hand",
   headerTitleAlign: "center",
 };
+
+const homeInitialParams: ScreenProps["Home"] = {
+  initialTab: "EventList"
+}
 
 const eventFormHeaderOptions: NativeStackNavigationOptions = {
   headerShown: false,
@@ -35,6 +36,7 @@ const SignedInNav = () => {
         name="Home"
         component={Home}
         options={homeHeaderOptions}
+        initialParams={homeInitialParams}
       />
       <SignedInStack.Screen
         name="EventForm"
@@ -66,5 +68,3 @@ const SignedInNav = () => {
 };
 
 export default SignedInNav;
-
-

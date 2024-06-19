@@ -69,15 +69,24 @@ interface SuccessErrorProps {
   status: "success" | "error";
 }
 
+interface UserHomeProps {
+  noFetch?: boolean;
+  initialTab?: string;
+}
+
+interface VendorHomeProps {
+  id: string
+}
+
 type ScreenProps = {
   SignUp: undefined;
   Login: undefined;
-  Home: undefined;
+  Home: UserHomeProps;
   ProfileForm: undefined;
   EventForm: undefined;
   EventView: EventInfo;
   SuccessError: SuccessErrorProps;
-  VendorHome: { id: string };
+  VendorHome: VendorHomeProps;
 };
 
 type SignUpScreenProps = NativeStackScreenProps<ScreenProps, "SignUp">;

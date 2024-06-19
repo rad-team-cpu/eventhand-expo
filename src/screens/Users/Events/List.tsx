@@ -1,20 +1,10 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { UserContext } from "Contexts/UserContext";
 import { format } from "date-fns/format";
-import { StatusBar } from "expo-status-bar";
 import React, { useContext, useMemo } from "react";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
-
-import EventForm from "./Form";
-import { UserContext } from "../../Contexts/UserContext";
-import {
-  EventInfo,
-  EventListNavigationProps,
-  EventListScreenProps,
-  HomeScreenNavigationProp,
-  HomeScreenProps,
-  ScreenProps,
-} from "../../types/types";
+import { EventInfo, HomeScreenNavigationProp } from "types/types";
 
 interface FloatingCreateButtonProps {
   onPress: () => void;
@@ -178,7 +168,6 @@ const EventListItem = ({ id, date, budget, attendees }: EventInfo) => {
       budget,
       attendees,
     });
-
 
   return (
     <Pressable
