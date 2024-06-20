@@ -2,6 +2,7 @@ import {
   NativeStackNavigationOptions,
   createNativeStackNavigator,
 } from "@react-navigation/native-stack";
+import Confirmation from "screens/Confirmation";
 import SuccessError from "screens/SuccessError";
 import EventView from "screens/Users/Events";
 import EventForm from "screens/Users/Events/Form";
@@ -56,6 +57,11 @@ const SignedInNav = () => {
       <SignedInStack.Screen
         name="SuccessError"
         component={SuccessError}
+        options={{ headerShown: false }}
+      />
+      <SignedInStack.Screen
+        name="Confirmation"
+        component={Confirmation}
         options={{ headerShown: false }}
       />
       <SignedInStack.Screen

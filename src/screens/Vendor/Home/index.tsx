@@ -44,7 +44,7 @@ const VendorHomeNav = () => {
   };
 
   return (
-    <Tab.Navigator>
+    <Tab.Navigator initialRouteName="Profile">
       <Tab.Screen
         name="EventList"
         component={VendorBooking}

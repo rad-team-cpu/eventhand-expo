@@ -7,7 +7,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet, Button, View, Text, TextStyle } from "react-native";
 import Loading from "screens/Loading";
 import FirebaseService from "service/firebase";
-import { HomeScreenNavigationProp } from "types/types";
+import { HomeScreenNavigationProp, ScreenProps } from "types/types";
 
 export default function Profile() {
   const { isLoaded, signOut } = useAuth();
@@ -55,10 +55,14 @@ export default function Profile() {
   };
 
   const onVendorModePress = () => {
-    navigation.reset({
-      index: 0,
-      routes: [{ name: "VendorHome" }],
-    });
+    const confirmationProps: ScreenProps["Confirmation"] = {
+      title: "Switch to Vendor mode?",
+      description:
+        "You are trying to switch to vendor mode, if you haven't registered for a vendor account you will be taken to a vendor registration form.",
+      confirmNavigateTo: "VendorHome",
+    };
+
+    navigation.navigate("Confirmation", { ...confirmationProps });
   };
 
   return (

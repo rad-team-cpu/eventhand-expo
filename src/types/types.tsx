@@ -69,6 +69,13 @@ interface SuccessErrorProps {
   status: "success" | "error";
 }
 
+interface ConfirmationProps {
+  title: string;
+  description?: string;
+  confirmNavigateTo: keyof ScreenProps;
+  confrimNavParams?: ScreenProps[keyof ScreenProps];
+}
+
 interface UserHomeProps {
   noFetch?: boolean;
   initialTab?: string;
@@ -86,6 +93,7 @@ type ScreenProps = {
   EventForm: undefined;
   EventView: EventInfo;
   SuccessError: SuccessErrorProps;
+  Confirmation: ConfirmationProps;
   VendorHome: VendorHomeProps;
 };
 
@@ -110,6 +118,8 @@ type SuccessErrorScreenProps = NativeStackScreenProps<
   ScreenProps,
   "SuccessError"
 >;
+
+type ConfirmationScreenProps = NativeStackScreenProps<ScreenProps, "Confirmation">
 
 type HomeScreenBottomTabsProps = {
   Home: NavigatorScreenParams<ScreenProps>;
@@ -152,6 +162,7 @@ export {
   HomeScreenProps,
   HomeScreenNavigationProp,
   SuccessErrorScreenProps,
+  ConfirmationScreenProps,
   ProfileFormScreenProps,
   EventListScreenProps,
   EventListNavigationProps,

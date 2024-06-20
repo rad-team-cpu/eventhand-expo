@@ -5,8 +5,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet, Button, View, Text, TextStyle } from "react-native";
 
 import Avatar from "../../../Components/Avatar";
-import FirebaseService from "../../../firebase";
-import { HomeScreenNavigationProp } from "../../../types/types";
+import { HomeScreenNavigationProp, ScreenProps } from "../../../types/types";
 import Loading from "../../Loading";
 
 function VendorProfile() {
@@ -15,9 +14,6 @@ function VendorProfile() {
   const [avatarImage, setAvatarImage] = useState("");
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation<HomeScreenNavigationProp>();
-
-
-
 
   // const downloadAvatarImage = async (profilePicturePath: string) => {
   //   const firebaseService = FirebaseService.getInstance();
@@ -49,10 +45,14 @@ function VendorProfile() {
   };
 
   const onClientModePress = () => {
-    navigation.reset({
-      index: 0,
-      routes: [{ name: "Home" }],
-    });
+    const confirmationProps: ScreenProps["Confirmation"] = {
+      title: "Switch to Client mode?",
+      description: "You are trying to switch to client mode.",
+      confirmNavigateTo: "Home",
+      confrimNavParams: { initialTab: "Profile" },
+    };
+
+    navigation.navigate("Confirmation", { ...confirmationProps });
   };
 
   return (
@@ -62,7 +62,7 @@ function VendorProfile() {
       {!loading && (
         <View testID="test-profile-content">
           <Avatar
-            uri={""}
+            uri=""
             label="Vendor Name"
             labelTextStyle={styles.title as TextStyle}
           />
