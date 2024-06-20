@@ -290,7 +290,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
         case 201:
           const data = await response.json();
           const event: EventInfo = {
-            id: data._id as string,
+            _id: data._id as string,
             attendees: input.guests,
             ...input,
           };
@@ -304,7 +304,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
 
           setLoading(false);
           navigation.replace("EventView", {
-            id: event.id,
+            _id: event._id,
             date: dateString,
             budget: event.budget,
             attendees: event.attendees,

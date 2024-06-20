@@ -156,14 +156,14 @@ const getRandomColor = () => {
   return color;
 };
 
-const EventListItem = ({ id, date, budget, attendees }: EventInfo) => {
+const EventListItem = ({ _id, date, budget, attendees }: EventInfo) => {
   const borderColor = useMemo(() => getRandomColor(), []);
   const dateString = format(date, "MMMM dd, yyyy");
   const navigation = useNavigation<HomeScreenNavigationProp>();
 
   const onPress = () =>
     navigation.navigate("EventView", {
-      id,
+      _id,
       date: dateString,
       budget,
       attendees,
@@ -171,7 +171,7 @@ const EventListItem = ({ id, date, budget, attendees }: EventInfo) => {
 
   return (
     <Pressable
-      key={id}
+      key={_id}
       style={[styles.itemContainer, { borderLeftColor: borderColor }]}
       android_ripple={{ color: "#c0c0c0" }}
       onPress={onPress}
@@ -192,12 +192,12 @@ interface EventsProps {
 
 const Events = ({ events }: EventsProps) => (
   <FlatList
-    keyExtractor={(item) => item.id}
+    keyExtractor={(item) => item._id}
     contentContainerStyle={styles.listContainer}
     data={events}
     renderItem={({ item }) => (
       <EventListItem
-        id={item.id}
+        _id={item._id}
         date={item.date}
         budget={item.budget}
         attendees={item.attendees}
