@@ -2,6 +2,8 @@ import { useAuth } from "@clerk/clerk-expo";
 import { Feather } from "@expo/vector-icons";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useFocusEffect } from "@react-navigation/native";
+import DatePicker from "Components/Input/DatePicker";
+import { UserContext } from "Contexts/UserContext";
 import { format } from "date-fns/format";
 import { sub } from "date-fns/fp";
 import React, { useCallback, useContext, useEffect, useState } from "react";
@@ -21,17 +23,9 @@ import {
   Button,
   Pressable,
 } from "react-native";
-import { date, number, object} from "yup";
-
-import DatePicker from "../../Components/Input/DatePicker";
-import { UserContext } from "../../Contexts/UserContext";
-import {
-  EventFormScreenProps,
-  EventInfo,
-  ScreenProps,
-} from "../../types/types";
-import Loading from "../Loading";
-1;
+import Loading from "screens/Loading";
+import { EventFormScreenProps, EventInfo, ScreenProps } from "types/types";
+import { date, number, object } from "yup";
 
 interface EventFormInput extends FieldValues {
   date: Date;

@@ -1,12 +1,13 @@
 import { useAuth, useUser } from "@clerk/clerk-expo";
+import { useNavigation } from "@react-navigation/native";
+import Avatar from "Components/Avatar";
+import { UserContext } from "Contexts/UserContext";
 import { StatusBar } from "expo-status-bar";
 import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet, Button, View, Text, TextStyle } from "react-native";
-
-import Avatar from "../../Components/Avatar";
-import { UserContext } from "../../Contexts/UserContext";
-import FirebaseService from "../../firebase";
-import Loading from "../Loading";
+import Loading from "screens/Loading";
+import FirebaseService from "service/firebase";
+import { HomeScreenNavigationProp, ScreenProps } from "types/types";
 
 export default function Profile() {
   const { isLoaded, signOut } = useAuth();
@@ -14,6 +15,7 @@ export default function Profile() {
   const [avatarImage, setAvatarImage] = useState("");
   const [loading, setLoading] = useState(true);
   const userContext = useContext(UserContext);
+  const navigation = useNavigation<HomeScreenNavigationProp>();
 
   if (!userContext) {
     throw new Error("UserInfo must be used within a UserProvider");
@@ -41,7 +43,6 @@ export default function Profile() {
       console.error(error);
     }
     setLoading(false);
-
   }, []);
 
   const onSignOutPress = () => {
@@ -51,6 +52,17 @@ export default function Profile() {
       return null;
     }
     signOut();
+  };
+
+  const onVendorModePress = () => {
+    const confirmationProps: ScreenProps["Confirmation"] = {
+      title: "Switch to Vendor mode?",
+      description:
+        "You are trying to switch to vendor mode, if you haven't registered for a vendor account you will be taken to a vendor registration form.",
+      confirmNavigateTo: "VendorHome",
+    };
+
+    navigation.navigate("Confirmation", { ...confirmationProps });
   };
 
   return (
@@ -83,6 +95,13 @@ export default function Profile() {
             testID="test-signout-btn"
             onPress={onSignOutPress}
           />
+          <View style={styles.separator} />
+          <Button
+            title="Vendor Mode"
+            testID="test-vendor-btn"
+            color="#FFA500"
+            onPress={onVendorModePress}
+          />
           <Text testID="signout-err-text" style={styles.errorText}>
             {signOutErrMessage}
           </Text>
@@ -98,6 +117,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     justifyContent: "center",
     paddingHorizontal: 20,
+  },
+  separator: {
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+    marginBottom: 8,
   },
   title: {
     fontFamily: "Arial",

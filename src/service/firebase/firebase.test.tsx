@@ -1,14 +1,8 @@
-import { useAuth } from "@clerk/clerk-expo";
-import { userEvent, cleanup } from "@testing-library/react-native";
-import { UploadResult, getDownloadURL } from "firebase/storage";
+import { cleanup } from "@testing-library/react-native";
+import { initializeApp } from "../../../test/__mocks__/firebase/app";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "../../../test/__mocks__/firebase/storage";
 
 import FirebaseService from ".";
-import { initializeApp } from "../../test/__mocks__/firebase/app";
-import {
-  getStorage,
-  ref,
-  uploadBytes,
-} from "../../test/__mocks__/firebase/storage";
 
 beforeAll(() => {
   global.fetch = jest.fn();
@@ -109,14 +103,14 @@ describe("FirebaseService", () => {
     ).rejects.toThrow("Invalid Uri");
   });
 
-  it("should get the download url for user avatar",async () => {
-    const path = "firebasestorage\path"
+  it("should get the download url for user avatar", async () => {
+    const path = "firebasestoragepath";
 
-    const downloadUrl = await  firebaseService.getProfilePicture(path);
+    const downloadUrl = await firebaseService.getProfilePicture(path);
 
-    const mockRef =  ref(getStorage(), path)
+    const mockRef = ref(getStorage(), path);
 
     expect(ref).toHaveBeenCalledWith(getStorage(), path);
     expect(getDownloadURL).toHaveBeenCalledWith(mockRef);
-  })
+  });
 });

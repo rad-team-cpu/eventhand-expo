@@ -10,15 +10,14 @@ import {
   cleanup,
 } from "@testing-library/react-native";
 import { UserEventInstance } from "@testing-library/react-native/build/user-event/setup";
+import { UserContext } from "Contexts/UserContext";
+import fetch from "jest-fetch-mock";
 import * as React from "react";
+import Home from "screens/Users/Home";
+import { ScreenProps, UserProfile } from "types/types";
 
-import { UserContext } from "../../../Contexts/UserContext";
-import { ScreenProps, UserProfile } from "../../../types/types";
-import Home from "../../Home";
-import SuccessError from "../../SuccessError";
-import ProfileForm from "../Form";
+import { getDownloadURL } from "../../../../../test/__mocks__/firebase/storage";
 import Profile from "../index";
-import { getDownloadURL } from "../../../../test/__mocks__/firebase/storage";
 
 interface TestProfileComponentProps {
   mockUser: UserProfile;
@@ -42,11 +41,20 @@ const mockUser: UserProfile = {
 
 const TestProfileComponent = (props: TestProfileComponentProps) => {
   const { mockUser } = props;
+  const TestProfileStack = createNativeStackNavigator<ScreenProps>();
 
   return (
-    <UserContext.Provider value={{ user: mockUser, setUser: setUserMock }}>
-      <Profile />
-    </UserContext.Provider>
+    <NavigationContainer>
+      <UserContext.Provider value={{ user: mockUser, setUser: setUserMock }}>
+        <TestProfileStack.Navigator>
+          <TestProfileStack.Screen
+            name="Home"
+            component={Home}
+            initialParams={{ initialTab: "Profile", noFetch: true }}
+          />
+        </TestProfileStack.Navigator>
+      </UserContext.Provider>
+    </NavigationContainer>
   );
 };
 
@@ -71,6 +79,7 @@ beforeEach(() => {
   });
 
   user = userEvent.setup();
+
 });
 
 afterEach(() => {
@@ -81,9 +90,11 @@ afterEach(() => {
 
 describe("Profile", () => {
   it("Should allow the user to logout his/her session", async () => {
+
+
     await waitFor(() => {
       render(<TestProfileComponent mockUser={mockUser} />);
-    })
+    });
 
     const signOutButton = screen.getByRole("button", { name: "Sign Out" });
 
@@ -100,7 +111,7 @@ describe("Profile", () => {
 
     await waitFor(() => {
       render(<TestProfileComponent mockUser={mockUser} />);
-    })
+    });
 
     await waitFor(() => {
       expect(screen.getByTestId("test-avatar-label")).toHaveTextContent(
@@ -130,14 +141,16 @@ describe("Profile", () => {
       vendorId: "",
     };
 
-    const defaultImage = require("../../../assets/images/user.png");
+    const defaultImage = require("../../../../assets/images/user.png");
 
     await waitFor(() => {
       render(<TestProfileComponent mockUser={mockUser} />);
-    })
+    });
 
     await waitFor(() => {
-      expect(screen.getByTestId("test-avatar-image").props.source).toBe(defaultImage);
+      expect(screen.getByTestId("test-avatar-image").props.source).toBe(
+        defaultImage,
+      );
     });
   });
 });

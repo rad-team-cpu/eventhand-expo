@@ -12,7 +12,6 @@ import type {
   NativeStackScreenProps,
 } from "@react-navigation/native-stack";
 import { FullMetadata, StorageReference } from "firebase/storage";
-import { GestureResponderEvent } from "react-native";
 
 interface EventInfo {
   id: string;
@@ -22,7 +21,9 @@ interface EventInfo {
 }
 
 interface Vendor {
+  id: string;
   name: string;
+  address: string;
 }
 interface ChatMessage {
   id: string;
@@ -68,14 +69,32 @@ interface SuccessErrorProps {
   status: "success" | "error";
 }
 
+interface ConfirmationProps {
+  title: string;
+  description?: string;
+  confirmNavigateTo: keyof ScreenProps;
+  confrimNavParams?: ScreenProps[keyof ScreenProps];
+}
+
+interface UserHomeProps {
+  noFetch?: boolean;
+  initialTab?: string;
+}
+
+interface VendorHomeProps {
+  id: string
+}
+
 type ScreenProps = {
   SignUp: undefined;
   Login: undefined;
-  Home: undefined;
+  Home: UserHomeProps;
   ProfileForm: undefined;
   EventForm: undefined;
   EventView: EventInfo;
   SuccessError: SuccessErrorProps;
+  Confirmation: ConfirmationProps;
+  VendorHome: VendorHomeProps;
 };
 
 type SignUpScreenProps = NativeStackScreenProps<ScreenProps, "SignUp">;
@@ -99,6 +118,8 @@ type SuccessErrorScreenProps = NativeStackScreenProps<
   ScreenProps,
   "SuccessError"
 >;
+
+type ConfirmationScreenProps = NativeStackScreenProps<ScreenProps, "Confirmation">
 
 type HomeScreenBottomTabsProps = {
   Home: NavigatorScreenParams<ScreenProps>;
@@ -127,9 +148,12 @@ type ProfileScreenProps = CompositeScreenProps<
   NativeStackScreenProps<ScreenProps>
 >;
 
+type VendorHomeScreenProps = NativeStackScreenProps<ScreenProps, "VendorHome">;
+
 export {
   EventInfo,
   UserProfile,
+  Vendor,
   ImageInfo,
   ImageUploadResult,
   ScreenProps,
@@ -138,12 +162,13 @@ export {
   HomeScreenProps,
   HomeScreenNavigationProp,
   SuccessErrorScreenProps,
+  ConfirmationScreenProps,
   ProfileFormScreenProps,
   EventListScreenProps,
   EventListNavigationProps,
   EventViewScreenProps,
   ChatScreenProps,
   ProfileScreenProps,
-  EventFormScreenProps
-
+  EventFormScreenProps,
+  VendorHomeScreenProps,
 };

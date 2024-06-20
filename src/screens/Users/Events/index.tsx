@@ -2,9 +2,7 @@ import { FontAwesome } from "@expo/vector-icons";
 import { format } from "date-fns/format";
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-
-import { EventViewScreenProps } from "../../types/types";
-
+import { EventViewScreenProps } from "types/types";
 
 function EventView({ navigation, route }: EventViewScreenProps) {
   const { id, attendees, budget, date } = route.params;
@@ -72,7 +70,6 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
 });
-
 
 const listStyles = StyleSheet.create({
   container: {

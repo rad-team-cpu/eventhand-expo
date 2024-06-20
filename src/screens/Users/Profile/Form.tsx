@@ -1,15 +1,12 @@
 import { useAuth, useUser } from "@clerk/clerk-expo";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import { sub } from "date-fns/fp";
-import { ImagePickerAsset } from "expo-image-picker";
-import {
-  StorageReference,
-  UploadResult,
-  getStorage,
-  ref,
-} from "firebase/storage";
-import React, { useState, useEffect, useContext, useCallback } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import Avatar from "Components/Avatar";
+import GenderPicker from "Components/Input/GenderPicker";
+import ProfileUpload from "Components/Input/ProfileUpload";
+import { UserContext } from "Contexts/UserContext";
+import { UploadResult } from "firebase/storage";
+import React, { useState, useContext, useCallback } from "react";
 import {
   useForm,
   FieldValues,
@@ -27,21 +24,12 @@ import {
   GestureResponderEvent,
   TextStyle,
 } from "react-native";
+import Loading from "screens/Loading";
+import FirebaseService from "service/firebase";
+import { ImageInfo, ProfileFormScreenProps, ScreenProps } from "types/types";
 import { object, string, number } from "yup";
 
 // import DatePicker from "../../Components/Input/DatePicker";
-import Avatar from "../../Components/Avatar";
-import GenderPicker from "../../Components/Input/GenderPicker";
-import ProfileUpload from "../../Components/Input/ProfileUpload";
-import { UserContext } from "../../Contexts/UserContext";
-import FirebaseService from "../../firebase";
-import {
-  ImageInfo,
-  ProfileFormScreenProps,
-  ScreenProps,
-  SuccessErrorScreenProps,
-} from "../../types/types";
-import Loading from "../Loading";
 
 interface ProfileInput extends FieldValues {
   profileAvatar: ImageInfo | null;

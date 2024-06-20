@@ -19,8 +19,7 @@ import {
   Pressable,
   ActivityIndicator,
 } from "react-native";
-
-import { ImageInfo } from "../../types/types";
+import { ImageInfo } from "types/types";
 interface ProfileAvatarProps {
   label: string;
   control: Control<FieldValues, unknown>;

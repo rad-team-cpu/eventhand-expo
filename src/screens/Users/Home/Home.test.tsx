@@ -10,13 +10,13 @@ import {
   userEvent,
 } from "@testing-library/react-native";
 import { UserEventInstance } from "@testing-library/react-native/build/user-event/setup";
+import { UserContext } from "Contexts/UserContext";
 import fetch from "jest-fetch-mock";
 import * as React from "react";
+import ProfileForm from "screens/Users/Profile/Form";
+import { UserProfile, ScreenProps } from "types/types";
 
 import Home from ".";
-import { UserContext } from "../../Contexts/UserContext";
-import { UserProfile, ScreenProps } from "../../types/types";
-import ProfileForm from "../Profile/Form";
 
 const setUserMock = jest.fn();
 
@@ -38,7 +38,11 @@ const TestHomeComponent = () => {
     <NavigationContainer>
       <UserContext.Provider value={{ user: mockUser, setUser: setUserMock }}>
         <TestHomeStack.Navigator>
-          <TestHomeStack.Screen name="Home" component={Home} />
+          <TestHomeStack.Screen
+            name="Home"
+            component={Home}
+            initialParams={{ initialTab: "EventList"}}
+          />
           <TestHomeStack.Screen name="ProfileForm" component={ProfileForm} />
         </TestHomeStack.Navigator>
       </UserContext.Provider>
@@ -258,8 +262,6 @@ describe("Home", () => {
     await waitFor(() => {
       render(<TestHomeComponent />);
     });
-
-    const profileNavbtn = screen.getByTestId("profile-nav-btn");
 
     await user.press(screen.getByTestId("profile-nav-btn"));
 

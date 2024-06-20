@@ -5,7 +5,16 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "screens/*": ["src/screens/*"],
+      "Components/*": ["src/Components/*"],
+      "Contexts/*": ["src/Contexts/*"],
+      "types/*": ["src/types/*"],
+      "__mocks__/*": ["test/__mocks__/*"],
+      "service/*": ["src/service/*"]
+    }
   },
   "extends": "expo/tsconfig.base",
   "include": [
