@@ -14,7 +14,7 @@ import type {
 import { FullMetadata, StorageReference } from "firebase/storage";
 
 interface EventInfo {
-  id: string;
+  _id: string;
   attendees: number;
   budget: number;
   date: Date | string;

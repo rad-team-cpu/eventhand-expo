@@ -1,16 +1,18 @@
 import { FontAwesome } from "@expo/vector-icons";
 import { format } from "date-fns/format";
+import ExpoStatusBar from "expo-status-bar/build/ExpoStatusBar";
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { EventViewScreenProps } from "types/types";
 
 function EventView({ navigation, route }: EventViewScreenProps) {
-  const { id, attendees, budget, date } = route.params;
+  const { _id, attendees, budget, date } = route.params;
   const dateString =
     typeof date == "string" ? date : format(date, "MMMM dd, yyyy");
 
   return (
     <>
+      <ExpoStatusBar />
       <View style={listStyles.eventContainer}>
         <Text style={listStyles.dateText}>{dateString}</Text>
         <View style={listStyles.separator} />
@@ -115,7 +117,7 @@ const listStyles = StyleSheet.create({
   },
   eventContainer: {
     padding: 16,
-    marginVertical: 5,
+    marginTop: 30,
     marginHorizontal: 5,
     backgroundColor: "#fff",
     borderLeftWidth: 8,
