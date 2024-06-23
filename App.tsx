@@ -1,6 +1,9 @@
 import { ClerkProvider } from "@clerk/clerk-expo";
+import { UserProvider } from "Contexts/UserContext";
 import * as SecureStore from "expo-secure-store";
 import React from "react";
+import VendorProfileForm from "screens/Vendor/Profile/Form";
+
 import Navigator from "./src/Navigation";
 
 const tokenCache = {
@@ -24,7 +27,10 @@ export default function App() {
       tokenCache={tokenCache}
       publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!}
     >
-      <Navigator />
+      {/* <Navigator /> */}
+      <UserProvider>
+        <VendorProfileForm />
+      </UserProvider>
     </ClerkProvider>
   );
 }
