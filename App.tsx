@@ -5,6 +5,7 @@ import React from "react";
 import VendorProfileForm from "screens/Vendor/Profile/Form";
 
 import Navigator from "./src/Navigation";
+import { VendorProvider } from "Contexts/VendorContext";
 
 const tokenCache = {
   async getToken(key: string) {
@@ -28,9 +29,9 @@ export default function App() {
       publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!}
     >
       {/* <Navigator /> */}
-      <UserProvider>
+      <VendorProvider>
         <VendorProfileForm />
-      </UserProvider>
+      </VendorProvider>
     </ClerkProvider>
   );
 }

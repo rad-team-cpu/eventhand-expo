@@ -1,13 +1,15 @@
 import { useAuth, useUser } from "@clerk/clerk-expo";
-import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useFocusEffect } from "@react-navigation/native";
 import Avatar from "Components/Avatar";
 import GenderPicker from "Components/Input/GenderPicker";
 import ProfileUpload from "Components/Input/ProfileUpload";
+import TagButtons from "Components/Input/TagButtons";
 import { UserContext } from "Contexts/UserContext";
+import { VendorContext } from "Contexts/VendorContext";
 import { UploadResult } from "firebase/storage";
-import React, { useState, useContext, useCallback } from "react";
+import React, { useState, useContext, useCallback, useEffect } from "react";
 import {
   useForm,
   FieldValues,
@@ -28,6 +30,7 @@ import {
   Pressable,
   Modal,
   Alert,
+  Dimensions,
 } from "react-native";
 import Loading from "screens/Loading";
 import FirebaseService from "service/firebase";
@@ -47,8 +50,7 @@ interface VendorProfileInput extends FieldValues {
   email: string;
   address?: string;
   contactNumber: string;
-  tags: VendorTag[];
-  // birthDate: Date;
+  // tags: VendorTag[];
 }
 
 const vendorProfileValidationSchema = object().shape({
@@ -79,12 +81,23 @@ const vendorProfileValidationSchema = object().shape({
       "Please enter a valid contact number ex. 09123456789.",
     )
     .length(11, "contact number must only have 11 digits"),
-  tags: array()
-    .of(object({ id: string().required(), name: string().required() }))
-    .required("Must select a tag"),
+  // tags: array()
+  //   .of(object({ id: string().required(), name: string().required() }))
+  //   .required("Must select a tag"),
 });
 
 const VendorProfileForm = () => {
+  const [submitErrMessage, setSubmitErrMessage] = useState("");
+  const { isLoaded, getToken, userId } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [step, setStep] = useState(0);
+  const [newEmail, setNewEmail] = useState(false);
+  const [confirmDetails, setConfirmDetails] = useState(false);
+  const { user } = useUser();
+  const clerkUser = user;
+  const vendorContext = useContext(VendorContext);
+  const [modalVisible, setModalVisible] = useState(false);
+
   const {
     control,
     register,
@@ -98,142 +111,135 @@ const VendorProfileForm = () => {
     defaultValues: {
       logo: null,
       name: "",
-      email: "",
+      email: clerkUser?.primaryEmailAddress?.emailAddress,
       address: "",
       contactNumber: "",
-      tags: [],
+      // tags: [],
     },
     resolver: yupResolver(vendorProfileValidationSchema),
   });
 
-  const [submitErrMessage, setSubmitErrMessage] = useState("");
-  const { getToken, userId } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [newEmail, setNewEmail] = useState<boolean>(false);
-  const [confirmDetails, setConfirmDetails] = useState(false);
-  const { user } = useUser();
-  const clerkUser = user;
-  const userContext = useContext(UserContext);
-  const [modalVisible, setModalVisible] = useState(false);
-
-  if (!userContext) {
+  
+  if (!vendorContext) {
     throw new Error("Profile must be used within a UserProvider");
   }
 
-  // if (!userId) {
-  //   throw new Error("User does not exist! Please SignUp again");
-  // }
+  if (!userId) {
+    throw new Error("User does not exist! Please SignUp again");
+  }
 
   // if (!clerkUser) {
   //   throw new Error("User does not exist! Please SignUp again");
   // }
 
-  const { setUser } = userContext;
+  const { setVendor } = vendorContext;
+
+  
+
+
+  const windowWidth = Dimensions.get("window").width;
+
 
   // const minDate = sub({ years: 100 })(new Date());
   // const maxDate = sub({ years: 19 })(new Date());
 
   const onNextBtnPress = (e: GestureResponderEvent) => {
     trigger();
-    if (isValid) {
-      setConfirmDetails(!confirmDetails);
+    console.log(step);
+    if (step !== 2) {
+      setStep(step + 1);
     }
   };
 
-  // const createProfile = async (input: ProfileInput) => {
-  //   setLoading(true);
-  //   let uploadPath: string | null = null;
-  //   const { profileAvatar, firstName, lastName, contactNumber, gender } = input;
+  const createProfile = async (input: VendorProfileInput) => {
+    setLoading(true);
+    let uploadPath: string | null = null;
+    const { logo, name, email, contactNumber, address } = input;
 
-  //   const email =
-  //     clerkUser.primaryEmailAddress != null
-  //       ? clerkUser.primaryEmailAddress.emailAddress
-  //       : "";
+    const vendorInfo = {
+      name,
+      email,
+      contactNumber: `+63${contactNumber}`,
+      address,
+    };
 
-  //   const userInfo = {
-  //     email,
-  //     firstName,
-  //     lastName,
-  //     contactNumber,
-  //     gender,
-  //   };
+    // const navigateToSuccessError = (props: ScreenProps["SuccessError"]) => {
+    //   navigation.replace("SuccessError", { ...props });
+    // };
 
-  //   // const navigateToSuccessError = (props: ScreenProps["SuccessError"]) => {
-  //   //   navigation.replace("SuccessError", { ...props });
-  //   // };
+    try {
+      if (logo !== null) {
+        const firebaseService = FirebaseService.getInstance();
 
-  //   try {
-  //     if (profileAvatar !== null) {
-  //       const firebaseService = FirebaseService.getInstance();
+        const uploadResult = await firebaseService.uploadProfileAvatar(
+          userId,
+          logo,
+        );
 
-  //       const uploadResult = await firebaseService.uploadProfileAvatar(
-  //         userId,
-  //         profileAvatar,
-  //       );
+        uploadPath = uploadResult
+          ? (uploadResult as unknown as UploadResult).metadata.fullPath
+          : null;
+      }
 
-  //       uploadPath = uploadResult
-  //         ? (uploadResult as unknown as UploadResult).metadata.fullPath
-  //         : null;
-  //     }
+      // const token = getToken({ template: "event-hand-jwt" });
 
-  //     const token = getToken({ template: "event-hand-jwt" });
+      const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors`;
 
-  //     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/users`;
+      const vendor = uploadPath
+        ? {
+            logo: uploadPath,
+            ...vendorInfo,
+          }
+        : vendorInfo;
 
-  //     const user = uploadPath
-  //       ? {
-  //           profilePicture: uploadPath,
-  //           ...userInfo,
-  //         }
-  //       : userInfo;
+      const request = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          clerkId: userId,
+          ...vendor,
+        }),
+      };
+      console.log(request.body)
+      const response = await fetch(url, request);
+      console.log(response.status)
+      switch (response.status) {
+        case 201:
+          const data = await response.json();
+          setVendor({ id: data._id as string, ...vendor });
+          setLoading(false);
+          //   navigateToSuccessError({
+          //     description: "Your information was saved successfully.",
+          //     buttonText: "Continue",
+          //     navigateTo: "Home",
+          //     status: "success",
+          //   });
+          break;
+        case 403:
+          setSubmitErrMessage("Forbidden - Access denied.");
+          throw new Error("Forbidden - Access denied."); // Forbidden
+        case 404:
+          setSubmitErrMessage("Server is unreachable.");
+          throw new Error("Server is unreachable."); // Not Found
+        default:
+          setSubmitErrMessage("Unexpected error occurred.");
+          throw new Error("Unexpected error occurred."); // Other status codes
+      }
+    } catch (error) {
+      console.error(error);
+      setLoading(false);
+        // navigateToSuccessError({
+        //   description: submitErrMessage,
+        //   buttonText: "Continue",
+        //   status: "error",
+        // });
+    }
+  };
 
-  //     const request = {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //       body: JSON.stringify({
-  //         clerkId: userId,
-  //         ...user,
-  //       }),
-  //     };
-
-  //     const response = await fetch(url, request);
-
-  //     switch (response.status) {
-  //       case 201:
-  //         setUser(user);
-  //         setLoading(false);
-  //       //   navigateToSuccessError({
-  //       //     description: "Your information was saved successfully.",
-  //       //     buttonText: "Continue",
-  //       //     navigateTo: "Home",
-  //       //     status: "success",
-  //       //   });
-  //         break;
-  //       case 403:
-  //         setSubmitErrMessage("Forbidden - Access denied.");
-  //         throw new Error("Forbidden - Access denied."); // Forbidden
-  //       case 404:
-  //         setSubmitErrMessage("Server is unreachable.");
-  //         throw new Error("Server is unreachable."); // Not Found
-  //       default:
-  //         setSubmitErrMessage("Unexpected error occurred.");
-  //         throw new Error("Unexpected error occurred."); // Other status codes
-  //     }
-  //   } catch (error) {
-  //     console.error(error);
-  //     setLoading(false);
-  //   //   navigateToSuccessError({
-  //   //     description: submitErrMessage,
-  //   //     buttonText: "Continue",
-  //   //     status: "error",
-  //   //   });
-  //   }
-  // };
-
-  // const onSubmitPress = handleSubmit(createProfile);
+  const onSubmitPress = handleSubmit(createProfile);
 
   const FormFields = () => {
     return (
@@ -252,7 +258,7 @@ const VendorProfileForm = () => {
         />
         <Text style={styles.label}>Name:</Text>
         <Controller
-          name="Name"
+          name="name"
           control={control}
           render={({ field: { onChange, onBlur, value } }) => {
             const onValueChange = (text: string) => onChange(text);
@@ -284,43 +290,42 @@ const VendorProfileForm = () => {
           render={({ field: { onChange, onBlur, value } }) => {
             const onValueChange = (text: string) => onChange(text);
 
+            const onNewEmailTextBoxPress = () => setNewEmail(true);
+
+            const onDefaultEmailPress = () => {
+              const email = clerkUser?.primaryEmailAddress?.emailAddress;
+              setNewEmail(false);
+              onChange(email!);
+            };
+
             return (
-              // <TextInput
-              //   id="email-text-input"
-              //   testID="test-email-input"
-              //   style={styles.textBox}
-              //   placeholder="Email"
-              //   value={value}
-              //   onBlur={onBlur}
-              //   onChangeText={onValueChange}
-              //   keyboardType="email-address"
-              //   autoCapitalize="none"
-              //   returnKeyType="next"
-              // />
               <>
                 <Pressable
-                  style={styles.textBox}
-                  onPress={() => {
-                    setNewEmail(true);
+                  style={{
+                    ...styles.textBox,
+                    backgroundColor: !newEmail ? "#EBEBE4" : "#FFFF",
+                    borderColor: !newEmail ? "gray" : "#C0C0C0",
                   }}
+                  onPress={onNewEmailTextBoxPress}
                 >
                   <View
                     style={{
                       ...styles.circle,
                       backgroundColor: newEmail ? "green" : "white",
+                      borderColor: newEmail ? "#C0C0C0" : "gray",
                     }}
                   >
                     {newEmail && (
                       <FontAwesome name="check" size={16} color="white" />
                     )}
                   </View>
-                  {/* <Text style={styles.text}>Text Box {item}</Text> */}
                   <TextInput
                     id="email-text-input"
                     testID="test-email-input"
                     style={styles.text}
-                    placeholder="Email"
+                    placeholder="Vendor Email"
                     value={value}
+                    editable={newEmail}
                     onBlur={onBlur}
                     onChangeText={onValueChange}
                     keyboardType="email-address"
@@ -329,22 +334,32 @@ const VendorProfileForm = () => {
                   />
                 </Pressable>
                 <Pressable
-                  style={styles.textBox}
-                  onPress={() => {
-                    setNewEmail(false);
+                  style={{
+                    ...styles.textBox,
+                    backgroundColor: newEmail ? "#EBEBE4" : "#FFFF",
+                    borderColor: !newEmail ? "gray" : "#C0C0C0",
                   }}
+                  onPress={onDefaultEmailPress}
                 >
                   <View
                     style={{
                       ...styles.circle,
                       backgroundColor: !newEmail ? "green" : "white",
+                      borderColor: !newEmail ? "gray" : "#C0C0C0",
                     }}
                   >
                     {!newEmail && (
                       <FontAwesome name="check" size={16} color="white" />
                     )}
                   </View>
-                  <Text style={styles.text}>DefaultEmail@default.com</Text>
+                  <Text
+                    style={{
+                      ...styles.text,
+                      fontWeight: newEmail ? "300" : "400",
+                    }}
+                  >
+                    {clerkUser?.primaryEmailAddress?.emailAddress}
+                  </Text>
                 </Pressable>
               </>
             );
@@ -413,13 +428,6 @@ const VendorProfileForm = () => {
             {errors["address"]?.message}
           </Text>
         )}
-        <View style={styles.button}>
-          <Button
-            title="NEXT"
-            testID="next-btn"
-            onPress={() => setModalVisible(!modalVisible)}
-          />
-        </View>
         <Modal
           animationType="fade"
           transparent
@@ -462,11 +470,58 @@ const VendorProfileForm = () => {
   //     }, [confirmDetails]),
   //   );
 
+  useEffect(() => {
+    const backAction = () => {
+      if (step > 0) {
+        setStep(step - 1);
+      }
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      backAction,
+    );
+
+    return () => backHandler.remove();
+  }, []);
+
+  const EmailCodeInput = () => {
+    return (
+      <View testID="test-email-code-input" style={styles.container}>
+        <Text style={styles.title}>Verify Email</Text>
+        <Ionicons
+          style={{ alignSelf: "center" }}
+          name="mail-open-outline"
+          size={windowWidth * 0.3}
+          color="#6495ed"
+        />
+        <Text id="fist-name" testID="test-first-name" style={styles.details}>
+          Please check your email, we have sent a verification code
+        </Text>
+        <View>
+          <TextInput
+            style={styles.textBox}
+            value=""
+            placeholder="Code"
+            // onChangeText={(code) => setCode(code)}
+          />
+        </View>
+        <Button
+          title="Verify"
+          testID="test-verify-btn"
+          color="#6495ed"
+          // onPress={onPressVerify}
+        />
+        <Text testID="verify-err-text" style={styles.errorText}>
+          {/* {verifyErrMessage} */}
+        </Text>
+      </View>
+    );
+  };
+
   const Confirmation = () => {
-    const avatarUri =
-      getValues("profileAvatar") !== null
-        ? getValues("profileAvatar")!.uri
-        : "";
+    const avatarUri = getValues("logo") !== null ? getValues("logo")!.uri : "";
 
     return (
       <View id="profile-form-confirm" testID="test-profile-form-confirm">
@@ -478,24 +533,24 @@ const VendorProfileForm = () => {
         />
         <Text style={styles.label}>Name:</Text>
         <Text id="fist-name" testID="test-first-name" style={styles.details}>
-          {getValues("firstName")}
+          {getValues("name")}
         </Text>
-        <Text style={styles.label}>LAST NAME:</Text>
+        <Text style={styles.label}>Email:</Text>
         <Text id="last-name" testID="test-last-name" style={styles.details}>
-          {getValues("lastName")}
+          {getValues("email")}
         </Text>
         <Text style={styles.label}>CONTACT NO.</Text>
         <Text id="contact-num" testID="test-contact-num" style={styles.details}>
           {getValues("contactNumber")}
         </Text>
-        <Text style={styles.label}>GENDER</Text>
+        <Text style={styles.label}>ADDRESS:</Text>
         <Text id="gender" testID="gender" style={styles.details}>
-          {getValues("gender")}
+          {getValues("address")}
         </Text>
         <Button
           title="SAVE"
           testID="test-save-btn"
-          // onPress={onSubmitPress}
+          onPress={onSubmitPress}
           disabled={!isValid}
         />
         <Text testID="save-err-text" style={styles.errorText}>
@@ -505,15 +560,26 @@ const VendorProfileForm = () => {
     );
   };
 
-  const Form = () => (confirmDetails ? <Confirmation /> : <FormFields />);
+  const Form = () => {
+    if (loading) {
+      return <Loading />;
+    }
 
-  return (
-    <View style={styles.container}>
-      {loading && <Loading />}
-      {/* {!loading && <FormFields />} */}
-      {!loading && <Form />}
-    </View>
-  );
+    switch (step) {
+      case 0:
+        return <FormFields />;
+      case 1:
+        return <Confirmation />;
+      // case 2:
+      //   return
+      default:
+        return <FormFields />;
+    }
+
+    confirmDetails ? <Confirmation /> : <FormFields />;
+  };
+
+  return <View style={styles.container}>{Form()}</View>;
 };
 
 const styles = StyleSheet.create({

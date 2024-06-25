@@ -22,8 +22,11 @@ interface EventInfo {
 
 interface Vendor {
   id: string;
+  logo?: string | null;
   name: string;
-  address: string;
+  email: string;
+  address?: string;
+  contactNumber: string;
 }
 interface ChatMessage {
   id: string;
