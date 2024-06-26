@@ -12,7 +12,6 @@
       "Components/*": ["src/Components/*"],
       "Contexts/*": ["src/Contexts/*"],
       "types/*": ["src/types/*"],
-      "__mocks__/*": ["test/__mocks__/*"],
       "service/*": ["src/service/*"]
     }
   },
