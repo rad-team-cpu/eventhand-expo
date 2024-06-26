@@ -218,8 +218,8 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
           setSubmitErrMessage("Server is unreachable.");
           throw new Error("Server is unreachable."); // Not Found
         default:
-          setSubmitErrMessage("Unexpected error occurred.");
-          throw new Error("Unexpected error occurred."); // Other status codes
+          setSubmitErrMessage(`${response.status}: Unexpected error occurred.`);
+          throw new Error(`${response.status}: Unexpected error occurred.`); // Other status codes
       }
     } catch (error) {
       console.error(error);
