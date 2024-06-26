@@ -179,8 +179,12 @@ const EventListItem = ({ _id, date, budget, attendees }: EventInfo) => {
       <Text style={styles.dateText}>{dateString}</Text>
       <View style={styles.separator} />
       <View style={styles.row}>
-        <Text style={styles.budgetText}>Budget: ₱{budget}</Text>
-        <Text style={styles.capacityText}>Capacity: {attendees}</Text>
+        <Text style={styles.budgetText}>
+          Budget: {budget !== 0 ? `₱${budget}` : "∞"}
+        </Text>
+        <Text style={styles.capacityText}>
+          Capacity: {attendees !== 0 ? `₱${attendees}` : "∞"}
+        </Text>
       </View>
     </Pressable>
   );
