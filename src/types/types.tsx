@@ -98,6 +98,7 @@ type ScreenProps = {
   SuccessError: SuccessErrorProps;
   Confirmation: ConfirmationProps;
   VendorHome: VendorHomeProps;
+  VendorProfileForm: undefined;
 };
 
 type SignUpScreenProps = NativeStackScreenProps<ScreenProps, "SignUp">;
@@ -153,6 +154,8 @@ type ProfileScreenProps = CompositeScreenProps<
 
 type VendorHomeScreenProps = NativeStackScreenProps<ScreenProps, "VendorHome">;
 
+type VendorProfileFormScreenProps = NativeStackScreenProps<ScreenProps, "VendorProfileForm">;
+
 export {
   EventInfo,
   UserProfile,
@@ -174,4 +177,5 @@ export {
   ProfileScreenProps,
   EventFormScreenProps,
   VendorHomeScreenProps,
+  VendorProfileFormScreenProps
 };

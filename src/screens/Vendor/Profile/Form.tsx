@@ -34,7 +34,7 @@ import {
 } from "react-native";
 import Loading from "screens/Loading";
 import FirebaseService from "service/firebase";
-import { ImageInfo } from "types/types";
+import { ImageInfo, VendorProfileFormScreenProps } from "types/types";
 import { object, string, number, array } from "yup";
 
 // import DatePicker from "../../Components/Input/DatePicker";
@@ -86,7 +86,7 @@ const vendorProfileValidationSchema = object().shape({
   //   .required("Must select a tag"),
 });
 
-const VendorProfileForm = () => {
+const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
   const [submitErrMessage, setSubmitErrMessage] = useState("");
   const { isLoaded, getToken, userId } = useAuth();
   const [loading, setLoading] = useState(false);

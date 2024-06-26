@@ -28,10 +28,7 @@ export default function App() {
       tokenCache={tokenCache}
       publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!}
     >
-      {/* <Navigator /> */}
-      <VendorProvider>
-        <VendorProfileForm />
-      </VendorProvider>
+      <Navigator />
     </ClerkProvider>
   );
 }
