@@ -17,8 +17,12 @@ function EventView({ navigation, route }: EventViewScreenProps) {
         <Text style={listStyles.dateText}>{dateString}</Text>
         <View style={listStyles.separator} />
         <View style={listStyles.row}>
-          <Text style={listStyles.budgetText}>₱{budget}</Text>
-          <Text style={listStyles.capacityText}>Pax: {attendees}</Text>
+          <Text style={listStyles.budgetText}>
+            Budget: {budget !== 0 ? `₱${budget}` : "∞"}
+          </Text>
+          <Text style={listStyles.capacityText}>
+            Capacity: {attendees !== 0 ? `₱${attendees}` : "∞"}
+          </Text>
         </View>
       </View>
       <View style={styles.container}>
