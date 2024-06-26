@@ -116,8 +116,8 @@ const SignupForm = () => {
 
   const onPasswordIconPress = () => setShowPassword(!showPassword);
 
-  const onConfirmPasswordIconPress = () => setShowRetypePassword(!showRetypePassword)
-
+  const onConfirmPasswordIconPress = () =>
+    setShowRetypePassword(!showRetypePassword);
 
   return (
     <View style={styles.container}>
@@ -177,7 +177,10 @@ const SignupForm = () => {
                 );
               }}
             />
-            <Pressable onPress={onPasswordIconPress} style={styles.iconContainer}>
+            <Pressable
+              onPress={onPasswordIconPress}
+              style={styles.iconContainer}
+            >
               {showPasswordIcon(showPassword)}
             </Pressable>
           </View>
@@ -208,7 +211,10 @@ const SignupForm = () => {
                 );
               }}
             />
-            <Pressable onPress={onConfirmPasswordIconPress} style={styles.iconContainer}>
+            <Pressable
+              onPress={onConfirmPasswordIconPress}
+              style={styles.iconContainer}
+            >
               {showPasswordIcon(showRetypePassword)}
             </Pressable>
           </View>
@@ -228,7 +234,7 @@ const SignupForm = () => {
       )}
       {pendingVerification && (
         <View>
-          <View>
+          <View style={styles.textBox}>
             <TextInput
               style={styles.input}
               value={code}
@@ -236,11 +242,14 @@ const SignupForm = () => {
               onChangeText={(code) => setCode(code)}
             />
           </View>
-          <Button
-            title="Verify"
-            testID="test-verify-btn"
-            onPress={onPressVerify}
-          />
+          <View style={{ marginVertical: 10 }}>
+            <Button
+              title="Verify"
+              testID="test-verify-btn"
+              onPress={onPressVerify}
+            />
+          </View>
+
           <Text testID="verify-err-text" style={styles.errorText}>
             {verifyErrMessage}
           </Text>
