@@ -135,7 +135,7 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
   const onNextBtnPress = (e: GestureResponderEvent) => {
     trigger();
     if (isValid) {
-      setConfirmDetails(!confirmDetails);
+      setConfirmDetails(true);
     }
   };
 
@@ -342,7 +342,7 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
   useFocusEffect(
     useCallback(() => {
       const backAction = () => {
-        setConfirmDetails(!confirmDetails);
+        setConfirmDetails(false);
         return true;
       };
 
