@@ -158,7 +158,11 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
     };
 
     const navigateToSuccessError = (props: ScreenProps["SuccessError"]) => {
-      navigation.replace("SuccessError", { ...props });
+      if (props.status == "error") {
+        navigation.navigate("SuccessError", { ...props });
+      } else {
+        navigation.replace("SuccessError", { ...props });
+      }
     };
 
     try {
