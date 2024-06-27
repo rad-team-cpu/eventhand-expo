@@ -1,4 +1,5 @@
 import { useAuth, useUser } from "@clerk/clerk-expo";
+import { EmailAddressResource } from "@clerk/types/dist/emailAddress";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useFocusEffect } from "@react-navigation/native";
@@ -34,7 +35,11 @@ import {
 } from "react-native";
 import Loading from "screens/Loading";
 import FirebaseService from "service/firebase";
-import { ImageInfo, VendorProfileFormScreenProps } from "types/types";
+import {
+  ImageInfo,
+  ScreenProps,
+  VendorProfileFormScreenProps,
+} from "types/types";
 import { object, string, number, array } from "yup";
 
 // import DatePicker from "../../Components/Input/DatePicker";
@@ -111,7 +116,7 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
     defaultValues: {
       logo: null,
       name: "",
-      email: clerkUser?.primaryEmailAddress?.emailAddress,
+      email: "",
       address: "",
       contactNumber: "",
       // tags: [],
@@ -119,37 +124,31 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
     resolver: yupResolver(vendorProfileValidationSchema),
   });
 
-  
   if (!vendorContext) {
-    throw new Error("Profile must be used within a UserProvider");
+    throw new Error("Profile must be used within a VendorProvider");
   }
 
-  if (!userId) {
+  if (!userId || !clerkUser) {
     throw new Error("User does not exist! Please SignUp again");
   }
 
-  // if (!clerkUser) {
-  //   throw new Error("User does not exist! Please SignUp again");
-  // }
-
   const { setVendor } = vendorContext;
-
-  
-
-
-  const windowWidth = Dimensions.get("window").width;
-
 
   // const minDate = sub({ years: 100 })(new Date());
   // const maxDate = sub({ years: 19 })(new Date());
 
-  const onNextBtnPress = (e: GestureResponderEvent) => {
+  const navigateToSuccessError = (props: ScreenProps["SuccessError"]) => {
+    navigation.replace("SuccessError", { ...props });
+  };
+
+  const onNextBtnPress = async (e: GestureResponderEvent) => {
     trigger();
-    console.log(step);
-    if (step !== 2) {
-      setStep(step + 1);
+    if (isValid) {
+      setConfirmDetails(true);
     }
   };
+
+
 
   const createProfile = async (input: VendorProfileInput) => {
     setLoading(true);
@@ -159,13 +158,9 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
     const vendorInfo = {
       name,
       email,
-      contactNumber: `+63${contactNumber}`,
+      contactNumber,
       address,
     };
-
-    // const navigateToSuccessError = (props: ScreenProps["SuccessError"]) => {
-    //   navigation.replace("SuccessError", { ...props });
-    // };
 
     try {
       if (logo !== null) {
@@ -181,7 +176,7 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
           : null;
       }
 
-      // const token = getToken({ template: "event-hand-jwt" });
+      const token = getToken({ template: "event-hand-jwt" });
 
       const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors`;
 
@@ -196,27 +191,25 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           clerkId: userId,
           ...vendor,
         }),
       };
-      console.log(request.body)
       const response = await fetch(url, request);
-      console.log(response.status)
       switch (response.status) {
         case 201:
           const data = await response.json();
           setVendor({ id: data._id as string, ...vendor });
           setLoading(false);
-          //   navigateToSuccessError({
-          //     description: "Your information was saved successfully.",
-          //     buttonText: "Continue",
-          //     navigateTo: "Home",
-          //     status: "success",
-          //   });
+          navigateToSuccessError({
+            description: "Your information was saved successfully.",
+            buttonText: "Continue",
+            navigateTo: "VendorHome",
+            status: "success",
+          });
           break;
         case 403:
           setSubmitErrMessage("Forbidden - Access denied.");
@@ -231,11 +224,11 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
     } catch (error) {
       console.error(error);
       setLoading(false);
-        // navigateToSuccessError({
-        //   description: submitErrMessage,
-        //   buttonText: "Continue",
-        //   status: "error",
-        // });
+      navigateToSuccessError({
+        description: submitErrMessage,
+        buttonText: "Continue",
+        status: "error",
+      });
     }
   };
 
@@ -293,38 +286,39 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
             const onNewEmailTextBoxPress = () => setNewEmail(true);
 
             const onDefaultEmailPress = () => {
-              const email = clerkUser?.primaryEmailAddress?.emailAddress;
+              const email = clerkUser.primaryEmailAddress?.toString();
               setNewEmail(false);
               onChange(email!);
             };
 
             return (
               <>
-                <Pressable
+                <View
                   style={{
                     ...styles.textBox,
                     backgroundColor: !newEmail ? "#EBEBE4" : "#FFFF",
                     borderColor: !newEmail ? "gray" : "#C0C0C0",
                   }}
-                  onPress={onNewEmailTextBoxPress}
                 >
-                  <View
+                  <Pressable
                     style={{
                       ...styles.circle,
                       backgroundColor: newEmail ? "green" : "white",
                       borderColor: newEmail ? "#C0C0C0" : "gray",
                     }}
+                    onPress={onNewEmailTextBoxPress}
                   >
                     {newEmail && (
                       <FontAwesome name="check" size={16} color="white" />
                     )}
-                  </View>
+                  </Pressable>
                   <TextInput
                     id="email-text-input"
                     testID="test-email-input"
                     style={styles.text}
-                    placeholder="Vendor Email"
-                    value={value}
+                    placeholder="New Email"
+                    defaultValue={value}
+                    value={newEmail ? value : ""}
                     editable={newEmail}
                     onBlur={onBlur}
                     onChangeText={onValueChange}
@@ -332,35 +326,37 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
                     autoCapitalize="none"
                     returnKeyType="next"
                   />
-                </Pressable>
-                <Pressable
+                </View>
+                <View
                   style={{
                     ...styles.textBox,
                     backgroundColor: newEmail ? "#EBEBE4" : "#FFFF",
                     borderColor: !newEmail ? "gray" : "#C0C0C0",
                   }}
-                  onPress={onDefaultEmailPress}
                 >
-                  <View
+                  <Pressable
                     style={{
                       ...styles.circle,
                       backgroundColor: !newEmail ? "green" : "white",
                       borderColor: !newEmail ? "gray" : "#C0C0C0",
                     }}
+                    onPress={onDefaultEmailPress}
                   >
                     {!newEmail && (
                       <FontAwesome name="check" size={16} color="white" />
                     )}
-                  </View>
+                  </Pressable>
                   <Text
                     style={{
                       ...styles.text,
                       fontWeight: newEmail ? "300" : "400",
                     }}
                   >
-                    {clerkUser?.primaryEmailAddress?.emailAddress}
+                    {!newEmail
+                      ? clerkUser.primaryEmailAddress!.emailAddress
+                      : "Use Current Email"}
                   </Text>
-                </Pressable>
+                </View>
               </>
             );
           }}
@@ -413,7 +409,7 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
                 id="address-text-input"
                 testID="test-address-text-input"
                 style={styles.textBox}
-                placeholder="Name"
+                placeholder="Address"
                 onBlur={onBlur}
                 value={value}
                 onChangeText={onValueChange}
@@ -450,75 +446,41 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
           </View>
         </Modal>
         <Button title="NEXT" testID="next-btn" onPress={onNextBtnPress} />
+        <Text testID="save-err-text" style={styles.errorText}>
+          {submitErrMessage}
+        </Text>
       </ScrollView>
     );
   };
 
-  //   useFocusEffect(
-  //     useCallback(() => {
-  //       const backAction = () => {
-  //         setConfirmDetails(!confirmDetails);
-  //         return true;
-  //       };
+  const backAction = () => {
+    setConfirmDetails(false);
+    if (!confirmDetails) {
+      const confirmationProps: ScreenProps["Confirmation"] = {
+        title: "Go Back to Client mode?",
+        description:
+          "You are trying to return to client mode. changes will not be saved",
+        confirmNavigateTo: "Home",
+        confrimNavParams: { initialTab: "Profile" },
+      };
 
-  //       const backHandler = BackHandler.addEventListener(
-  //         "hardwareBackPress",
-  //         backAction,
-  //       );
+      navigation.navigate("Confirmation", { ...confirmationProps });
+    }
 
-  //       return () => backHandler.remove();
-  //     }, [confirmDetails]),
-  //   );
-
-  useEffect(() => {
-    const backAction = () => {
-      if (step > 0) {
-        setStep(step - 1);
-      }
-      return true;
-    };
-
-    const backHandler = BackHandler.addEventListener(
-      "hardwareBackPress",
-      backAction,
-    );
-
-    return () => backHandler.remove();
-  }, []);
-
-  const EmailCodeInput = () => {
-    return (
-      <View testID="test-email-code-input" style={styles.container}>
-        <Text style={styles.title}>Verify Email</Text>
-        <Ionicons
-          style={{ alignSelf: "center" }}
-          name="mail-open-outline"
-          size={windowWidth * 0.3}
-          color="#6495ed"
-        />
-        <Text id="fist-name" testID="test-first-name" style={styles.details}>
-          Please check your email, we have sent a verification code
-        </Text>
-        <View>
-          <TextInput
-            style={styles.textBox}
-            value=""
-            placeholder="Code"
-            // onChangeText={(code) => setCode(code)}
-          />
-        </View>
-        <Button
-          title="Verify"
-          testID="test-verify-btn"
-          color="#6495ed"
-          // onPress={onPressVerify}
-        />
-        <Text testID="verify-err-text" style={styles.errorText}>
-          {/* {verifyErrMessage} */}
-        </Text>
-      </View>
-    );
+    return true;
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      const backHandler = BackHandler.addEventListener(
+        "hardwareBackPress",
+        backAction,
+      );
+
+      return () => backHandler.remove();
+    }, [step]),
+  );
+
 
   const Confirmation = () => {
     const avatarUri = getValues("logo") !== null ? getValues("logo")!.uri : "";
@@ -565,18 +527,7 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
       return <Loading />;
     }
 
-    switch (step) {
-      case 0:
-        return <FormFields />;
-      case 1:
-        return <Confirmation />;
-      // case 2:
-      //   return
-      default:
-        return <FormFields />;
-    }
-
-    confirmDetails ? <Confirmation /> : <FormFields />;
+    return confirmDetails ? <Confirmation /> : <FormFields />;
   };
 
   return <View style={styles.container}>{Form()}</View>;
@@ -634,6 +585,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderWidth: 1,
     borderColor: "gray",
+    backgroundColor: "#FFFF",
   },
   button: {
     marginBottom: 10,
@@ -649,6 +601,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   text: {
+    flex: 1,
     fontSize: 16,
   },
   centeredView: {

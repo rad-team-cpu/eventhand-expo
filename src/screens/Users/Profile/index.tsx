@@ -62,7 +62,8 @@ export default function Profile() {
       confirmNavigateTo: "VendorHome",
     };
 
-    navigation.navigate("Confirmation", { ...confirmationProps });
+    // navigation.navigate("Confirmation", { ...confirmationProps });
+    navigation.navigate("VendorProfileForm");
   };
 
   return (
