@@ -116,7 +116,6 @@ describe("VendorHome", () => {
     const emailInput = screen.getByTestId("test-email-text-input");
     const currentEmailButton = screen.getByTestId("test-current-email-button");
     const contactNumberInput = screen.getByPlaceholderText("Contact No.");
-    const addressInput = screen.getByPlaceholderText("Address");
     const nextButton = screen.getByRole("button", { name: "NEXT" });
 
     await waitFor(async () => {
@@ -129,7 +128,6 @@ describe("VendorHome", () => {
       expect(emailInput).toBeOnTheScreen();
       expect(currentEmailButton).toBeOnTheScreen();
       expect(contactNumberInput).toBeOnTheScreen();
-      expect(addressInput).toBeOnTheScreen();
       expect(nextButton).toBeOnTheScreen();
     });
   });

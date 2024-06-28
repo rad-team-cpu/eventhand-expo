@@ -53,7 +53,7 @@ interface VendorProfileInput extends FieldValues {
   logo: ImageInfo | null;
   name: string;
   email: string;
-  address?: string;
+  // address?: string;
   contactNumber: string;
   // tags: VendorTag[];
 }
@@ -78,7 +78,7 @@ const vendorProfileValidationSchema = object().shape({
       "Please enter a valid email",
     )
     .required("Must select an email"),
-  address: string(),
+  // address: string(),
   contactNumber: string()
     .required("Enter contact number.")
     .matches(
@@ -93,9 +93,8 @@ const vendorProfileValidationSchema = object().shape({
 
 const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
   const [submitErrMessage, setSubmitErrMessage] = useState("");
-  const { isLoaded, getToken, userId } = useAuth();
+  const { getToken, userId } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState(0);
   const [newEmail, setNewEmail] = useState(false);
   const [confirmDetails, setConfirmDetails] = useState(false);
   const { user } = useUser();
@@ -117,7 +116,6 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
       logo: null,
       name: "",
       email: "",
-      address: "",
       contactNumber: "",
       // tags: [],
     },
@@ -151,13 +149,12 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
   const createProfile = async (input: VendorProfileInput) => {
     setLoading(true);
     let uploadPath: string | null = null;
-    const { logo, name, email, contactNumber, address } = input;
+    const { logo, name, email, contactNumber,  } = input;
 
     const vendorInfo = {
       name,
       email,
       contactNumber,
-      address,
     };
 
     try {
@@ -247,7 +244,7 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
           register={register as unknown as UseFormRegister<FieldValues>}
           errors={errors}
         />
-        <Text style={styles.label}>Name:</Text>
+        <Text style={styles.label}>Company/Shop Name:</Text>
         <Controller
           name="name"
           control={control}
@@ -274,7 +271,7 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
             {errors["name"]?.message}
           </Text>
         )}
-        <Text style={styles.label}>Email:</Text>
+        <Text style={styles.label}>Company/Shop Email:</Text>
         <Controller
           name="email"
           control={control}
@@ -292,7 +289,7 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
             return (
               <>
                 <View
-                  testID=""
+
                   style={{
                     ...styles.textBox,
                     backgroundColor: !newEmail ? "#EBEBE4" : "#FFFF",
@@ -300,6 +297,7 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
                   }}
                 >
                   <Pressable
+                    testID="test-new-email-btn"
                     style={{
                       ...styles.circle,
                       backgroundColor: newEmail ? "green" : "white",
@@ -367,7 +365,7 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
             {errors["email"]?.message}
           </Text>
         )}
-        <Text style={styles.label}>Contact No.</Text>
+        <Text style={styles.label}>Company/Shop Contact No.</Text>
         <Controller
           name="contactNumber"
           control={control}
@@ -398,7 +396,7 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
             {errors["contactNumber"]?.message}
           </Text>
         )}
-        <Text style={styles.label}>Address:</Text>
+        {/* <Text style={styles.label}>Company/Shop Address:</Text>
         <Controller
           name="address"
           control={control}
@@ -424,7 +422,7 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
           <Text testID="test-address-err-text" style={styles.errorText}>
             {errors["address"]?.message}
           </Text>
-        )}
+        )} */}
         <Modal
           animationType="fade"
           transparent
@@ -479,7 +477,7 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
       );
 
       return () => backHandler.remove();
-    }, [step]),
+    }, [confirmDetails]),
   );
 
   const Confirmation = () => {
@@ -509,9 +507,9 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
           {getValues("contactNumber")}
         </Text>
         <Text style={styles.label}>ADDRESS:</Text>
-        <Text id="address" testID="test-address" style={styles.details}>
+        {/* <Text id="address" testID="test-address" style={styles.details}>
           {getValues("address")}
-        </Text>
+        </Text> */}
         <Button
           title="SAVE"
           testID="test-save-btn"
