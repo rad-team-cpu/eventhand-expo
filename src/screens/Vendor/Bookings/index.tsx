@@ -2,7 +2,7 @@ import { View, Text } from "react-native";
 
 function VendorBooking() {
   return (
-    <View>
+    <View testID="test-booking-screen">
       <Text>Booking</Text>
     </View>
   );

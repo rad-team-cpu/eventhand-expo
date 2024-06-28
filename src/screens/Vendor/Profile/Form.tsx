@@ -148,8 +148,6 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
     }
   };
 
-
-
   const createProfile = async (input: VendorProfileInput) => {
     setLoading(true);
     let uploadPath: string | null = null;
@@ -294,6 +292,7 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
             return (
               <>
                 <View
+                  testID=""
                   style={{
                     ...styles.textBox,
                     backgroundColor: !newEmail ? "#EBEBE4" : "#FFFF",
@@ -314,9 +313,9 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
                   </Pressable>
                   <TextInput
                     id="email-text-input"
-                    testID="test-email-input"
+                    testID="test-email-text-input"
                     style={styles.text}
-                    placeholder="New Email"
+                    placeholder={!newEmail ? "Use Different Email" : "Email"}
                     defaultValue={value}
                     value={newEmail ? value : ""}
                     editable={newEmail}
@@ -335,6 +334,7 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
                   }}
                 >
                   <Pressable
+                    testID="test-current-email-button"
                     style={{
                       ...styles.circle,
                       backgroundColor: !newEmail ? "green" : "white",
@@ -347,6 +347,7 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
                     )}
                   </Pressable>
                   <Text
+                    testID="test-current-email-text"
                     style={{
                       ...styles.text,
                       fontWeight: newEmail ? "300" : "400",
@@ -362,7 +363,7 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
           }}
         />
         {errors["email"]?.message && (
-          <Text testID="test-name-err-text" style={styles.errorText}>
+          <Text testID="test-email-err-text" style={styles.errorText}>
             {errors["email"]?.message}
           </Text>
         )}
@@ -393,7 +394,7 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
           }}
         />
         {errors["contactNumber"]?.message && (
-          <Text testID="test-name-err-text" style={styles.errorText}>
+          <Text testID="test-contact-err-text" style={styles.errorText}>
             {errors["contactNumber"]?.message}
           </Text>
         )}
@@ -420,7 +421,7 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
           }}
         />
         {errors["address"]?.message && (
-          <Text testID="test-name-err-text" style={styles.errorText}>
+          <Text testID="test-address-err-text" style={styles.errorText}>
             {errors["address"]?.message}
           </Text>
         )}
@@ -481,12 +482,14 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
     }, [step]),
   );
 
-
   const Confirmation = () => {
     const avatarUri = getValues("logo") !== null ? getValues("logo")!.uri : "";
 
     return (
-      <View id="profile-form-confirm" testID="test-profile-form-confirm">
+      <View
+        id="vendor-profile-form-confirm"
+        testID="test-vendor-profile-form-confirm"
+      >
         {/* <Text style={styles.title}>CONFIRM DETAILS</Text> */}
         <Avatar
           uri={avatarUri}
@@ -494,11 +497,11 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
           labelTextStyle={styles.title as TextStyle}
         />
         <Text style={styles.label}>Name:</Text>
-        <Text id="fist-name" testID="test-first-name" style={styles.details}>
+        <Text id="name" testID="test-name" style={styles.details}>
           {getValues("name")}
         </Text>
         <Text style={styles.label}>Email:</Text>
-        <Text id="last-name" testID="test-last-name" style={styles.details}>
+        <Text id="email" testID="test-email" style={styles.details}>
           {getValues("email")}
         </Text>
         <Text style={styles.label}>CONTACT NO.</Text>
@@ -506,7 +509,7 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
           {getValues("contactNumber")}
         </Text>
         <Text style={styles.label}>ADDRESS:</Text>
-        <Text id="gender" testID="gender" style={styles.details}>
+        <Text id="address" testID="test-address" style={styles.details}>
           {getValues("address")}
         </Text>
         <Button
