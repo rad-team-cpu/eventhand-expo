@@ -12,18 +12,13 @@ import {
 
 import { ScreenProps, SuccessErrorScreenProps } from "../../types/types";
 
-// {
-//   buttonText,
-//   description,
-//   onPress,
-//   status = "success",
-// }
+const windowWidth = Dimensions.get("window").width;
+const windowHeight = Dimensions.get("window").height;
 
 const SuccessError = ({ navigation, route }: SuccessErrorScreenProps) => {
   const { buttonText, description, status, navigateTo, logOut } = route.params;
   const { signOut } = useAuth();
-  const windowWidth = Dimensions.get("window").width;
-  const windowHeight = Dimensions.get("window").height;
+
 
   const errorMessage = status === "error" ? styles.messageError : null;
   const successMessage = status === "success" ? styles.messageSuccess : null;

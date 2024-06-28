@@ -106,7 +106,7 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
         throw new Error("Unauthorized - Authentication failed.");
       } else if (res.status === 404) {
         setLoading(false);
-        navigation.navigate("ProfileForm");
+        navigation.replace("ProfileForm");
       } else {
         throw new Error("Unexpected error occurred.");
       }

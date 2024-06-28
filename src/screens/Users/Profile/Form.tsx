@@ -135,7 +135,7 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
   const onNextBtnPress = (e: GestureResponderEvent) => {
     trigger();
     if (isValid) {
-      setConfirmDetails(!confirmDetails);
+      setConfirmDetails(true);
     }
   };
 
@@ -158,7 +158,11 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
     };
 
     const navigateToSuccessError = (props: ScreenProps["SuccessError"]) => {
-      navigation.replace("SuccessError", { ...props });
+      if (props.status == "error") {
+        navigation.navigate("SuccessError", { ...props });
+      } else {
+        navigation.replace("SuccessError", { ...props });
+      }
     };
 
     try {
@@ -218,8 +222,8 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
           setSubmitErrMessage("Server is unreachable.");
           throw new Error("Server is unreachable."); // Not Found
         default:
-          setSubmitErrMessage("Unexpected error occurred.");
-          throw new Error("Unexpected error occurred."); // Other status codes
+          setSubmitErrMessage(`${response.status}: Unexpected error occurred.`);
+          throw new Error(`${response.status}: Unexpected error occurred.`); // Other status codes
       }
     } catch (error) {
       console.error(error);
@@ -339,7 +343,7 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
   useFocusEffect(
     useCallback(() => {
       const backAction = () => {
-        setConfirmDetails(!confirmDetails);
+        setConfirmDetails(false);
         return true;
       };
 

@@ -45,20 +45,7 @@ const EventFormInputValidation = object().shape({
     .required("Please enter number of your guests")
     .moreThan(-1, "Input must be a postive number")
     .integer("Input must be an integer")
-    .test(
-      "rangeIsValid",
-      "Budget must not be less than P1000, enter 0 if no limit",
-      (value) => {
-        if (value == 0) {
-          return true;
-        }
-        if (value < 1000) {
-          return false;
-        }
 
-        return true;
-      },
-    ),
 });
 
 function EventForm({ navigation }: EventFormScreenProps) {

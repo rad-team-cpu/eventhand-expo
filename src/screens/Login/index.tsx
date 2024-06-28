@@ -1,8 +1,9 @@
 import { useSignIn } from "@clerk/clerk-expo";
+import { Entypo } from "@expo/vector-icons";
 import { yupResolver } from "@hookform/resolvers/yup";
 import React, { useState } from "react";
 import { useForm, FieldValues, Controller } from "react-hook-form";
-import { View, TextInput, Button, Text, StyleSheet } from "react-native";
+import { View, TextInput, Button, Text, StyleSheet, Pressable } from "react-native";
 import { object, string } from "yup";
 
 import { LoginScreenProps } from "../../types/types";
@@ -31,6 +32,7 @@ const Login = ({ navigation }: LoginScreenProps) => {
     resolver: yupResolver(signInValidationSchema),
   });
   const [signInErrMessage, setSignInErrMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const clerkSignIn = async (input: SignInInput) => {
@@ -59,61 +61,81 @@ const Login = ({ navigation }: LoginScreenProps) => {
       });
   });
 
+  const showPasswordIcon = (condition: boolean) => {
+    if (!condition) {
+      return <Entypo name="eye" size={24} color="black" />;
+    } else {
+      return <Entypo name="eye-with-line" size={24} color="#2196F3" />;
+    }
+  };
+
+  const onPasswordIconPress = () => setShowPassword(!showPassword);
+
   return (
     <View style={styles.container}>
       {loading && <Loading />}
       {!loading && (
         <View id="signin-form" testID="test-signin-form">
           <Text>LOGIN</Text>
-          <Controller
-            name="emailAddress"
-            control={control}
-            render={({ field: { onChange, onBlur, value } }) => {
-              const onValueChange = (text: string) => onChange(text);
+          <View style={styles.textBox}>
+            <Controller
+              name="emailAddress"
+              control={control}
+              render={({ field: { onChange, onBlur, value } }) => {
+                const onValueChange = (text: string) => onChange(text);
 
-              return (
-                <TextInput
-                  id="email-text-input"
-                  testID="test-email-input"
-                  style={styles.input}
-                  placeholder="Email"
-                  value={value}
-                  onBlur={onBlur}
-                  onChangeText={onValueChange}
-                  autoCapitalize="none"
-                  returnKeyType="next"
-                  keyboardType="email-address"
-                  textContentType="emailAddress"
-                />
-              );
-            }}
-          />
+                return (
+                  <TextInput
+                    id="email-text-input"
+                    testID="test-email-input"
+                    style={styles.input}
+                    placeholder="Email"
+                    value={value}
+                    onBlur={onBlur}
+                    onChangeText={onValueChange}
+                    autoCapitalize="none"
+                    returnKeyType="next"
+                    keyboardType="email-address"
+                    textContentType="emailAddress"
+                  />
+                );
+              }}
+            />
+          </View>
           <Text testID="email-err-text" style={styles.errorText}>
             {errors["emailAddress"]?.message}
           </Text>
-          <Controller
-            name="password"
-            control={control}
-            render={({ field: { onChange, onBlur, value } }) => {
-              const onValueChange = (text: string) => onChange(text);
+          <View style={styles.textBox}>
+            <Controller
+              name="password"
+              control={control}
+              render={({ field: { onChange, onBlur, value } }) => {
+                const onValueChange = (text: string) => onChange(text);
 
-              return (
-                <TextInput
-                  id="password-input"
-                  testID="test-password-input"
-                  style={styles.input}
-                  placeholder="Password"
-                  onBlur={onBlur}
-                  value={value}
-                  onChangeText={onValueChange}
-                  autoCapitalize="none"
-                  returnKeyType="next"
-                  textContentType="password"
-                  secureTextEntry
-                />
-              );
-            }}
-          />
+                return (
+                  <TextInput
+                    id="password-input"
+                    testID="test-password-input"
+                    placeholder="Password"
+                    style={styles.input}
+                    onBlur={onBlur}
+                    value={value}
+                    onChangeText={onValueChange}
+                    autoCapitalize="none"
+                    returnKeyType="next"
+                    textContentType="password"
+                    secureTextEntry={!showPassword}
+                  />
+                );
+              }}
+            />
+            <Pressable
+              onPress={onPasswordIconPress}
+              style={styles.iconContainer}
+            >
+              {showPasswordIcon(showPassword)}
+            </Pressable>
+          </View>
           <Text testID="password-err-text" style={styles.errorText}>
             {errors["password"]?.message}
           </Text>
@@ -144,12 +166,20 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 20,
   },
-  input: {
-    height: 40,
-    borderColor: "gray",
+  textBox: {
+    flexDirection: "row",
+    alignItems: "center",
     borderWidth: 1,
-    marginBottom: 10,
-    padding: 10,
+    borderColor: "gray",
+    borderRadius: 8,
+    paddingHorizontal: 8,
+  },
+  input: {
+    flex: 1,
+    paddingVertical: 8,
+  },
+  iconContainer: {
+    padding: 8,
   },
   loading: {
     transform: [
