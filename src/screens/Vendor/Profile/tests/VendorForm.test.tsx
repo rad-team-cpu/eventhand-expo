@@ -558,7 +558,6 @@ describe("VendorForm", () => {
         const vendorEmailErrorTxt = screen.queryByTestId("test-email-err-text");
 
         await waitFor(() => {
-          console.log(vendorNewEmailInput.props.value);
           expect(vendorNewEmailInput.props.value).toBe(email);
           expect(vendorEmailErrorTxt).toBeNull();
         });
@@ -1126,7 +1125,6 @@ describe("VendorForm", () => {
 
         await waitFor(() => {
           expect(fetch).toHaveBeenCalledWith(url, request);
-          console.log(setVendorMock.mock.calls)
           expect(setVendorMock).toHaveBeenCalledWith(expectedVendor);
           expect(screen.getByTestId("test-success-error")).toBeOnTheScreen();
         });
@@ -1218,7 +1216,6 @@ describe("VendorForm", () => {
 
         await waitFor(() => {
           expect(fetch).toHaveBeenCalledWith(url, request);
-          console.log(setVendorMock.mock.calls)
           expect(setVendorMock).toHaveBeenCalledWith(expectedVendor);
           expect(screen.getByTestId("test-success-error")).toBeOnTheScreen();
         });
