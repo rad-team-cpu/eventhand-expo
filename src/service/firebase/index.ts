@@ -67,7 +67,7 @@ class FirebaseService {
     }
 
     if (userType === "Vendor") {
-      fileName = `images/${userId}/profile/Vendor/logo.${image.fileExtension}`;
+      fileName = `images/${userId}/profile/vendor/logo.${image.fileExtension}`;
     }
 
     if (userType === "Client") {
