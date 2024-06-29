@@ -956,9 +956,10 @@ describe("VendorForm", () => {
     it("should send the uploaded image to firebase storage", async () => {
       const mockUri = faker.image.dataUri();
       const size = faker.number.int({ max: 5242879 });
-      const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/users`;
+      const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors`;
+       const mockVendorId = "mock-vendor-id"
 
-      fetch.once(url, { status: 201, headers });
+      fetch.once(JSON.stringify({_id: mockVendorId}), { status: 201, headers, url });
 
       const mockedImagePickerResult = {
         canceled: false,
