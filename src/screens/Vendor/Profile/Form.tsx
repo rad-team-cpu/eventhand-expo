@@ -204,6 +204,7 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
             buttonText: "Continue",
             navigateTo: "VendorHome",
             status: "success",
+            navParams: { initialTab: "Profile", noFetch: true },
           });
           break;
         case 403:
@@ -284,7 +285,7 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
               const email = clerkUser.primaryEmailAddress?.toString();
               setNewEmail(false);
               onChange(email!);
-              trigger()
+              trigger();
             };
 
             return (

@@ -132,6 +132,8 @@ const VendorHome = ({ navigation, route }: VendorHomeScreenProps) => {
   useEffect(() => {
     if (!noFetch) {
       fetchUserId();
+    }else{
+      setLoading(false);
     }
   }, []);
 

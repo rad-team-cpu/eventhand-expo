@@ -70,6 +70,8 @@ interface SuccessErrorProps {
   navigateTo?: string;
   logOut?: keyof ScreenProps;
   status: "success" | "error";
+  navParams?: ScreenProps[keyof ScreenProps];
+
 }
 
 interface ConfirmationProps {

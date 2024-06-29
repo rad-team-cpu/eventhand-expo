@@ -14,7 +14,7 @@ function VendorProfile() {
   const { isLoaded, signOut } = useAuth();
   const [signOutErrMessage, setSignOutErrMessage] = useState("");
   const [avatarImage, setAvatarImage] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const vendorContext = useContext(VendorContext)
 
@@ -24,6 +24,7 @@ function VendorProfile() {
 
   const { vendor } = vendorContext;
   const {logo, name, email, contactNumber } = vendor;
+  console.log(vendor)
 
   const downloadAvatarImage = async (profilePicturePath: string) => {
     const firebaseService = FirebaseService.getInstance();
