@@ -74,7 +74,7 @@ const vendorProfileValidationSchema = object().shape({
   name: string().required("Enter a name for your buisness."),
   email: string()
     .matches(
-      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+      /^[\w!#$%&'*+/=?`{|}~^-]+(?:\.[\w!#$%&'*+/=?`{|}~^-]+)*@(?!(?:[A-Z0-9-]*-){2})[A-Z0-9]+(?:-[A-Z0-9]+)*\.[A-Z]{2,6}$/i,
       "Please enter a valid email",
     )
     .required("Must select an email"),
@@ -102,6 +102,14 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
   const vendorContext = useContext(VendorContext);
   const [modalVisible, setModalVisible] = useState(false);
 
+  if (!vendorContext) {
+    throw new Error("Profile must be used within a VendorProvider");
+  }
+
+  if (!userId || !clerkUser) {
+    throw new Error("User does not exist! Please SignUp again");
+  }
+
   const {
     control,
     register,
@@ -115,20 +123,12 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
     defaultValues: {
       logo: null,
       name: "",
-      email: "",
+      email: clerkUser.primaryEmailAddress?.toString(),
       contactNumber: "",
       // tags: [],
     },
     resolver: yupResolver(vendorProfileValidationSchema),
   });
-
-  if (!vendorContext) {
-    throw new Error("Profile must be used within a VendorProvider");
-  }
-
-  if (!userId || !clerkUser) {
-    throw new Error("User does not exist! Please SignUp again");
-  }
 
   const { setVendor } = vendorContext;
 
@@ -149,7 +149,7 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
   const createProfile = async (input: VendorProfileInput) => {
     setLoading(true);
     let uploadPath: string | null = null;
-    const { logo, name, email, contactNumber,  } = input;
+    const { logo, name, email, contactNumber } = input;
 
     const vendorInfo = {
       name,
@@ -284,12 +284,12 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
               const email = clerkUser.primaryEmailAddress?.toString();
               setNewEmail(false);
               onChange(email!);
+              trigger()
             };
 
             return (
               <>
                 <View
-
                   style={{
                     ...styles.textBox,
                     backgroundColor: !newEmail ? "#EBEBE4" : "#FFFF",
@@ -392,7 +392,7 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
           }}
         />
         {errors["contactNumber"]?.message && (
-          <Text testID="test-contact-err-text" style={styles.errorText}>
+          <Text testID="test-contact-number-err-text" style={styles.errorText}>
             {errors["contactNumber"]?.message}
           </Text>
         )}
@@ -423,7 +423,7 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
             {errors["address"]?.message}
           </Text>
         )} */}
-        <Modal
+        {/* <Modal
           animationType="fade"
           transparent
           visible={modalVisible}
@@ -443,7 +443,7 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
               </Pressable>
             </View>
           </View>
-        </Modal>
+        </Modal> */}
         <Button title="NEXT" testID="next-btn" onPress={onNextBtnPress} />
         <Text testID="save-err-text" style={styles.errorText}>
           {submitErrMessage}

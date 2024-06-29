@@ -66,6 +66,7 @@ const ProfileUpload = (props: ProfileAvatarProps) => {
                 : "";
               const mimeType = image.mimeType ? image.mimeType : "";
 
+
               const selectedImageInfo: ImageInfo = {
                 uri: image.uri,
                 fileSize: imageFileInfo.size,
@@ -94,9 +95,9 @@ const ProfileUpload = (props: ProfileAvatarProps) => {
               : errorMessages[2]
                 ? errorMessages[2].message
                 : "";
-
           const uploadedImage =
             value !== null ? { uri: value.uri } : defaultImage;
+
           return (
             <View style={styles.container}>
               <View style={styles.avatarContainer}>
