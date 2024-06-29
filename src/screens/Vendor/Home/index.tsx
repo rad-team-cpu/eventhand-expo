@@ -70,7 +70,7 @@ const VendorHomeNav = ({ initialTab }: VendorHomeNavProps) => {
 
 const VendorHome = ({ navigation, route }: VendorHomeScreenProps) => {
   const { getToken, userId, isLoaded } = useAuth();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const vendorContext = useContext(VendorContext);
   const { initialTab, noFetch } = route.params;
 
