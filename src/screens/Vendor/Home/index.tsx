@@ -14,7 +14,11 @@ import VendorBooking from "../Bookings";
 import VendorChat from "../Chat";
 import VendorProfile from "../Profile";
 
-const VendorHomeNav = () => {
+interface VendorHomeNavProps {
+  initialTab?: string
+}
+
+const VendorHomeNav = ({initialTab}: VendorHomeNavProps) => {
   const Tab = createBottomTabNavigator();
 
   const bookingIconOptions: BottomTabNavigationOptions = {
@@ -44,7 +48,7 @@ const VendorHomeNav = () => {
   };
 
   return (
-    <Tab.Navigator initialRouteName="Profile">
+    <Tab.Navigator initialRouteName={!initialTab? "Profile" : initialTab}>
       <Tab.Screen
         name="EventList"
         component={VendorBooking}
@@ -64,10 +68,11 @@ const VendorHomeNav = () => {
   );
 };
 
-const VendorHome = ({ navigation }: VendorHomeScreenProps) => {
+const VendorHome = ({ navigation, route }: VendorHomeScreenProps) => {
   const { getToken, userId, isLoaded } = useAuth();
   const [loading, setLoading] = useState(false);
   const vendorContext = useContext(VendorContext);
+  const { initialTab, noFetch } = route.params;
 
   if (!vendorContext) {
     throw new Error("UserInfo must be used within a UserProvider");
@@ -80,7 +85,7 @@ const VendorHome = ({ navigation }: VendorHomeScreenProps) => {
   const { setVendor } = vendorContext;
 
   const fetchUserId = async () => {
-    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors/clerk=${userId}`;
+    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors/?clerk=${userId}`;
 
     const token = getToken({ template: "event-hand-jwt" });
 
@@ -125,10 +130,12 @@ const VendorHome = ({ navigation }: VendorHomeScreenProps) => {
   };
 
   useEffect(() => {
-    fetchUserId();
+    if(!noFetch){
+      fetchUserId();
+    }
   }, []);
 
-  return loading ? <Loading /> : <VendorHomeNav />;
+  return loading ? <Loading /> : <VendorHomeNav initialTab={initialTab} />;
 };
 
 const styles = StyleSheet.create({

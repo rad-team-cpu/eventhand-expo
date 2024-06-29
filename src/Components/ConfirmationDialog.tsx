@@ -12,7 +12,7 @@ interface ConfirmationDialogProps {
 const ConfirmationDialog = (props: ConfirmationDialogProps) => {
   const { title, description, onCancel, onConfirm } = props
   return (
-    <View style={styles.container}>
+    <View testID="test-confirmation-dialog" style={styles.container}>
       <Text style={styles.title}>{title}</Text>
       {description ? (
         <Text style={styles.description}>{description}</Text>

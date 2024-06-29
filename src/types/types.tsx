@@ -79,25 +79,23 @@ interface ConfirmationProps {
   confrimNavParams?: ScreenProps[keyof ScreenProps];
 }
 
-interface UserHomeProps {
+interface HomeProps {
   noFetch?: boolean;
   initialTab?: string;
 }
 
-interface VendorHomeProps {
-  id: string
-}
+
 
 type ScreenProps = {
   SignUp: undefined;
   Login: undefined;
-  Home: UserHomeProps;
+  Home: HomeProps;
   ProfileForm: undefined;
   EventForm: undefined;
   EventView: EventInfo;
   SuccessError: SuccessErrorProps;
   Confirmation: ConfirmationProps;
-  VendorHome: VendorHomeProps;
+  VendorHome: HomeProps;
   VendorProfileForm: undefined;
 };
 
