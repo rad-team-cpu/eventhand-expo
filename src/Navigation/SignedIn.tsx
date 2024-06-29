@@ -23,6 +23,11 @@ const homeInitialParams: ScreenProps["Home"] = {
   initialTab: "EventList"
 }
 
+const vendorHomeInitialParams: ScreenProps["Home"] = {
+  initialTab: "Bookings"
+}
+
+
 const eventFormHeaderOptions: NativeStackNavigationOptions = {
   headerShown: false,
 };
@@ -69,6 +74,7 @@ const SignedInNav = () => {
         name="VendorHome"
         component={VendorHome}
         options={{ headerShown: false }}
+        initialParams={vendorHomeInitialParams}
       />
       <SignedInStack.Screen
         name="VendorProfileForm"

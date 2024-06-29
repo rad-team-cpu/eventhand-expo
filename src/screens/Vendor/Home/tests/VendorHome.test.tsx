@@ -40,6 +40,7 @@ const TestVendorHomeComponent = () => {
           <TestVendorHomeStack.Screen
             name="VendorHome"
             component={VendorHome}
+            initialParams={{ initialTab: "Bookings" }}
           />
           <TestVendorHomeStack.Screen
             name="VendorProfileForm"

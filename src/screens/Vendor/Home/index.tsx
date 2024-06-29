@@ -15,10 +15,10 @@ import VendorChat from "../Chat";
 import VendorProfile from "../Profile";
 
 interface VendorHomeNavProps {
-  initialTab?: string
+  initialTab?: string;
 }
 
-const VendorHomeNav = ({initialTab}: VendorHomeNavProps) => {
+const VendorHomeNav = ({ initialTab }: VendorHomeNavProps) => {
   const Tab = createBottomTabNavigator();
 
   const bookingIconOptions: BottomTabNavigationOptions = {
@@ -48,9 +48,9 @@ const VendorHomeNav = ({initialTab}: VendorHomeNavProps) => {
   };
 
   return (
-    <Tab.Navigator initialRouteName={!initialTab? "Profile" : initialTab}>
+    <Tab.Navigator initialRouteName={!initialTab ? "Profile" : initialTab}>
       <Tab.Screen
-        name="EventList"
+        name="Bookings"
         component={VendorBooking}
         options={bookingIconOptions}
       />
@@ -109,9 +109,9 @@ const VendorHome = ({ navigation, route }: VendorHomeScreenProps) => {
           name: data.name,
           address: data.address,
           email: data.email,
-          contactNumber: data.contactNumber
-        }
-        setVendor({ ...vendor});
+          contactNumber: data.contactNumber,
+        };
+        setVendor({ ...vendor });
         setLoading(false);
       } else if (res.status === 400) {
         throw new Error("Bad request - Invalid data.");
@@ -130,7 +130,7 @@ const VendorHome = ({ navigation, route }: VendorHomeScreenProps) => {
   };
 
   useEffect(() => {
-    if(!noFetch){
+    if (!noFetch) {
       fetchUserId();
     }
   }, []);
