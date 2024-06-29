@@ -94,7 +94,7 @@ afterEach(() => {
 
 describe("VendorHome", () => {
   it("Should navigate to vendor profile form,if no vendor data is found in the backend", async () => {
-    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors/?clerk=${mockUserId}`;
+    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors/${mockUserId}`;
 
     fetch.once(url, {
       status: 404,

@@ -80,7 +80,7 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
   const { setUser } = userContext;
 
   const fetchUserId = async () => {
-    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/clerk=${userId}`;
+    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/${userId}`;
 
     const token = getToken({ template: "event-hand-jwt" });
 

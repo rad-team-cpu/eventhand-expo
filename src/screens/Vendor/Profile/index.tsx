@@ -24,7 +24,6 @@ function VendorProfile() {
 
   const { vendor } = vendorContext;
   const {logo, name, email, contactNumber } = vendor;
-  console.log(vendor)
 
   const downloadAvatarImage = async (profilePicturePath: string) => {
     const firebaseService = FirebaseService.getInstance();

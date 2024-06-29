@@ -92,7 +92,7 @@ afterEach(() => {
 
 describe("Home", () => {
   it("should navigate the user to the Profile Form screen if no profile data is found in the backend.", async () => {
-    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/clerk=${mockUserId}`;
+    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/${mockUserId}`;
 
     fetch.once(url, {
       status: 404,
