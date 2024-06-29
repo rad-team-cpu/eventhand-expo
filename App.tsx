@@ -1,7 +1,11 @@
 import { ClerkProvider } from "@clerk/clerk-expo";
+import { UserProvider } from "Contexts/UserContext";
 import * as SecureStore from "expo-secure-store";
 import React from "react";
+import VendorProfileForm from "screens/Vendor/Profile/Form";
+
 import Navigator from "./src/Navigation";
+import { VendorProvider } from "Contexts/VendorContext";
 
 const tokenCache = {
   async getToken(key: string) {

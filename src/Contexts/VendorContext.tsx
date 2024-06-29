@@ -17,6 +17,8 @@ const VendorProvider = (props: VendorProviderProps) => {
     id: "",
     name: "",
     address: "",
+    email: "",
+    contactNumber: "",
   });
   const { children } = props;
 

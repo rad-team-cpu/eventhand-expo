@@ -16,16 +16,22 @@ const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
 const SuccessError = ({ navigation, route }: SuccessErrorScreenProps) => {
-  const { buttonText, description, status, navigateTo, logOut } = route.params;
+  const { buttonText, description, status, navigateTo, logOut, navParams } =
+    route.params;
   const { signOut } = useAuth();
-
 
   const errorMessage = status === "error" ? styles.messageError : null;
   const successMessage = status === "success" ? styles.messageSuccess : null;
 
   const onSuccessPress = (e: GestureResponderEvent) => {
-    if (navigateTo) {
-      navigation.replace(navigateTo as keyof ScreenProps);
+    if (navParams) {
+      if (navigateTo) {
+        navigation.replace(navigateTo as keyof ScreenProps, { ...navParams });
+      }
+    } else {
+      if (navigateTo) {
+        navigation.replace(navigateTo as keyof ScreenProps);
+      }
     }
 
     if (logOut) {

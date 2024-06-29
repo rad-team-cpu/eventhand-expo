@@ -22,8 +22,11 @@ interface EventInfo {
 
 interface Vendor {
   id: string;
+  logo?: string | null;
   name: string;
-  address: string;
+  email: string;
+  address?: string;
+  contactNumber: string;
 }
 interface ChatMessage {
   id: string;
@@ -67,6 +70,8 @@ interface SuccessErrorProps {
   navigateTo?: string;
   logOut?: keyof ScreenProps;
   status: "success" | "error";
+  navParams?: ScreenProps[keyof ScreenProps];
+
 }
 
 interface ConfirmationProps {
@@ -76,25 +81,24 @@ interface ConfirmationProps {
   confrimNavParams?: ScreenProps[keyof ScreenProps];
 }
 
-interface UserHomeProps {
+interface HomeProps {
   noFetch?: boolean;
   initialTab?: string;
 }
 
-interface VendorHomeProps {
-  id: string
-}
+
 
 type ScreenProps = {
   SignUp: undefined;
   Login: undefined;
-  Home: UserHomeProps;
+  Home: HomeProps;
   ProfileForm: undefined;
   EventForm: undefined;
   EventView: EventInfo;
   SuccessError: SuccessErrorProps;
   Confirmation: ConfirmationProps;
-  VendorHome: VendorHomeProps;
+  VendorHome: HomeProps;
+  VendorProfileForm: undefined;
 };
 
 type SignUpScreenProps = NativeStackScreenProps<ScreenProps, "SignUp">;
@@ -150,6 +154,8 @@ type ProfileScreenProps = CompositeScreenProps<
 
 type VendorHomeScreenProps = NativeStackScreenProps<ScreenProps, "VendorHome">;
 
+type VendorProfileFormScreenProps = NativeStackScreenProps<ScreenProps, "VendorProfileForm">;
+
 export {
   EventInfo,
   UserProfile,
@@ -171,4 +177,5 @@ export {
   ProfileScreenProps,
   EventFormScreenProps,
   VendorHomeScreenProps,
+  VendorProfileFormScreenProps
 };

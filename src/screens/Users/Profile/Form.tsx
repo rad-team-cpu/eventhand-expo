@@ -243,6 +243,7 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
       <View id="profile-form-field" testID="test-profile-form-field">
         <Text style={styles.title}>SET UP YOUR PROFILE</Text>
         <ProfileUpload
+          name="profileAvatar"
           label="Upload your photo"
           control={control as unknown as Control<FieldValues, unknown>}
           register={register as unknown as UseFormRegister<FieldValues>}

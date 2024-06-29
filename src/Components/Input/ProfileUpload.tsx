@@ -21,6 +21,7 @@ import {
 } from "react-native";
 import { ImageInfo } from "types/types";
 interface ProfileAvatarProps {
+  name: string;
   label: string;
   control: Control<FieldValues, unknown>;
   register: UseFormRegister<FieldValues>;
@@ -34,13 +35,13 @@ const ProfileUpload = (props: ProfileAvatarProps) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [status, requestPermission] = useMediaLibraryPermissions();
 
-  const { label, control, errors } = props;
+  const { name, label, control, errors } = props;
   const defaultImage = require("../../assets/images/user.png");
 
   return (
     <View>
       <Controller
-        name="profileAvatar"
+        name={name}
         control={control}
         render={({ field: { name, onChange, value } }) => {
           const pickImageAsync = async () => {
@@ -64,6 +65,7 @@ const ProfileUpload = (props: ProfileAvatarProps) => {
                 ? image.fileName.split(".").pop()
                 : "";
               const mimeType = image.mimeType ? image.mimeType : "";
+
 
               const selectedImageInfo: ImageInfo = {
                 uri: image.uri,
@@ -93,9 +95,9 @@ const ProfileUpload = (props: ProfileAvatarProps) => {
               : errorMessages[2]
                 ? errorMessages[2].message
                 : "";
-
           const uploadedImage =
             value !== null ? { uri: value.uri } : defaultImage;
+
           return (
             <View style={styles.container}>
               <View style={styles.avatarContainer}>

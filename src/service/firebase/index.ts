@@ -7,7 +7,6 @@ import {
   ref,
   uploadBytes,
 } from "firebase/storage";
-
 import { ImageInfo } from "types/types";
 
 // Initialize Firebase
@@ -59,11 +58,20 @@ class FirebaseService {
   async uploadProfileAvatar(
     userId: string,
     image: ImageInfo,
+    userType: "Client" | "Vendor" | undefined = "Client",
   ): Promise<UploadResult | undefined> {
-    const fileName = `images/${userId}/profile/avatar.${image.fileExtension}`;
+    let fileName: string = "";
 
     if (!image.uri || image.uri == "") {
       throw new Error("Invalid Uri");
+    }
+
+    if (userType === "Vendor") {
+      fileName = `images/${userId}/profile/vendor/logo.${image.fileExtension}`;
+    }
+
+    if (userType === "Client") {
+      fileName = `images/${userId}/profile/avatar.${image.fileExtension}`;
     }
 
     const result = await this.uploadFile(fileName, image.uri);

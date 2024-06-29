@@ -7,31 +7,41 @@ import { StyleSheet, Button, View, Text, TextStyle } from "react-native";
 import Avatar from "../../../Components/Avatar";
 import { HomeScreenNavigationProp, ScreenProps } from "../../../types/types";
 import Loading from "../../Loading";
+import FirebaseService from "service/firebase";
+import { VendorContext } from "Contexts/VendorContext";
 
 function VendorProfile() {
   const { isLoaded, signOut } = useAuth();
   const [signOutErrMessage, setSignOutErrMessage] = useState("");
   const [avatarImage, setAvatarImage] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const navigation = useNavigation<HomeScreenNavigationProp>();
+  const vendorContext = useContext(VendorContext)
 
-  // const downloadAvatarImage = async (profilePicturePath: string) => {
-  //   const firebaseService = FirebaseService.getInstance();
+  if (!vendorContext) {
+    throw new Error("Component must be used within a VendorProvider");
+  }
 
-  //   const profilePictureUrl =
-  //     await firebaseService.getProfilePicture(profilePicturePath);
+  const { vendor } = vendorContext;
+  const {logo, name, email, contactNumber } = vendor;
 
-  //   setAvatarImage(profilePictureUrl);
-  // };
+  const downloadAvatarImage = async (profilePicturePath: string) => {
+    const firebaseService = FirebaseService.getInstance();
+
+    const profilePictureUrl =
+      await firebaseService.getProfilePicture(profilePicturePath);
+
+    setAvatarImage(profilePictureUrl);
+  };
 
   useEffect(() => {
-    // try {
-    //   if (profilePicture) {
-    //     downloadAvatarImage(profilePicture);
-    //   }
-    // } catch (error) {
-    //   console.error(error);
-    // }
+    try {
+      if (logo) {
+        downloadAvatarImage(logo);
+      }
+    } catch (error) {
+      console.error(error);
+    }
     setLoading(false);
   }, []);
 
@@ -62,8 +72,8 @@ function VendorProfile() {
       {!loading && (
         <View testID="test-profile-content">
           <Avatar
-            uri=""
-            label="Vendor Name"
+            uri={avatarImage}
+            label={name}
             labelTextStyle={styles.title as TextStyle}
           />
           <Text
@@ -71,14 +81,14 @@ function VendorProfile() {
             testID="test-profile-contact-num"
             style={styles.details}
           >
-            Vendor Contact Number
+            {contactNumber}
           </Text>
           <Text
             id="profile-email"
             testID="test-profile-email"
             style={styles.details}
           >
-            VendorEmail
+            {email}
           </Text>
           <Button
             title="Sign Out"
@@ -88,7 +98,7 @@ function VendorProfile() {
           <View style={styles.separator} />
           <Button
             title="Client Mode"
-            testID="test-vendor-btn"
+            testID="test-client-btn"
             color="#FFA500"
             onPress={onClientModePress}
           />

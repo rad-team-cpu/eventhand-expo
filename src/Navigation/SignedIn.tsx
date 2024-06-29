@@ -9,6 +9,7 @@ import EventForm from "screens/Users/Events/Form";
 import Home from "screens/Users/Home";
 import ProfileForm from "screens/Users/Profile/Form";
 import VendorHome from "screens/Vendor/Home";
+import VendorProfileForm from "screens/Vendor/Profile/Form";
 import { ScreenProps } from "types/types";
 
 const SignedInStack = createNativeStackNavigator<ScreenProps>();
@@ -21,6 +22,11 @@ const homeHeaderOptions: NativeStackNavigationOptions = {
 const homeInitialParams: ScreenProps["Home"] = {
   initialTab: "EventList"
 }
+
+const vendorHomeInitialParams: ScreenProps["Home"] = {
+  initialTab: "Bookings"
+}
+
 
 const eventFormHeaderOptions: NativeStackNavigationOptions = {
   headerShown: false,
@@ -67,6 +73,12 @@ const SignedInNav = () => {
       <SignedInStack.Screen
         name="VendorHome"
         component={VendorHome}
+        options={{ headerShown: false }}
+        initialParams={vendorHomeInitialParams}
+      />
+      <SignedInStack.Screen
+        name="VendorProfileForm"
+        component={VendorProfileForm}
         options={{ headerShown: false }}
       />
     </SignedInStack.Navigator>
