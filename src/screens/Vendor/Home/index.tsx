@@ -12,7 +12,7 @@ import { Vendor, VendorHomeScreenProps } from "../../../types/types";
 import Loading from "../../Loading";
 import VendorBooking from "../Bookings";
 import VendorChat from "../Chat";
-import VendorProfile from "../Profile/indext";
+import VendorProfile from "../Profile";
 
 const VendorHomeNav = () => {
   const Tab = createBottomTabNavigator();
