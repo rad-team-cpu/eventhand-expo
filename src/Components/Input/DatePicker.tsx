@@ -10,13 +10,14 @@ import {
   Controller,
 } from "react-hook-form";
 import {
-  Button,
   Text,
   StyleSheet,
   TextStyle,
   StyleProp,
-  ColorValue,
+  Pressable,
+  ViewStyle,
 } from "react-native";
+
 
 type DatePickerProps = {
   name: string;
@@ -28,14 +29,17 @@ type DatePickerProps = {
   minimumDate?: Date;
   control: Control<FieldValues, unknown>;
   register: UseFormRegister<FieldValues>;
-  errors: FieldValues;
+  errors?: FieldValues;
   errorMessage?: string;
   errorTextStyle?: StyleProp<TextStyle>;
-  color?: ColorValue;
+  buttonTextStyle?: StyleProp<TextStyle>;
+  buttonStyle?: StyleProp<ViewStyle>;
 };
 
 export const datePickerDate = {
-  selectDate: (date: Date | undefined) => { console.log(date); return  date},
+  selectDate: (date: Date | undefined) => {
+    return date;
+  },
   selectStringDate: (date: Date | undefined) =>
     date ? date.toLocaleDateString() : "",
 };
@@ -52,7 +56,6 @@ const DatePicker = (props: DatePickerProps) => {
     errors,
     errorMessage,
     errorTextStyle,
-    color,
   } = props;
   const [selected, setSelected] = useState<string>("");
 
@@ -67,7 +70,6 @@ const DatePicker = (props: DatePickerProps) => {
             event: DateTimePickerEvent,
             selectedDate?: Date,
           ) => {
-            console.log(event.type)
             const currentDate = selectedDate;
             onChange(datePickerDate.selectDate(currentDate));
             setSelected(datePickerDate.selectStringDate(currentDate));
@@ -80,7 +82,7 @@ const DatePicker = (props: DatePickerProps) => {
               display,
               minimumDate,
               maximumDate,
-              testID: "test-date-picker"
+              testID: "test-date-picker",
             });
           };
 
@@ -89,12 +91,22 @@ const DatePicker = (props: DatePickerProps) => {
           };
 
           return (
-            <Button
-              title={selected != "" ? selected : label}
-              testID="test-signup-btn"
+            // <Button
+            //   title={selected != "" ? selected : label}
+            //   testID="test-signup-btn"
+            //   onPress={showDatepicker}
+            //   color={color}
+            // />
+
+            <Pressable
+              style={defaultStyles.button}
+              android_ripple={{ radius: 100, color: "#f8f8ff" }}
               onPress={showDatepicker}
-              color={color}
-            />
+            >
+              <Text style={defaultStyles.buttonText}>
+                {selected !== "" ? selected : label}
+              </Text>
+            </Pressable>
           );
         }}
       />
@@ -102,13 +114,28 @@ const DatePicker = (props: DatePickerProps) => {
         testID="date-err-text"
         style={errorTextStyle ?? defaultStyles.errorText}
       >
-        {errorMessage ?? errors[name]?.message}
+        {errors && (errorMessage ?? errors[name]?.message)}
       </Text>
     </>
   );
 };
 
 const defaultStyles = StyleSheet.create({
+  button: {
+    flexDirection: "row",
+    alignItems: "center",
+    // backgroundColor: "#6495ed",
+    paddingVertical: 5,
+    paddingHorizontal: 30,
+    borderWidth: 2.5,
+    borderRadius: 5,
+    borderColor: "#6495ed",
+  },
+  buttonText: {
+    color: "#6495ed",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
   errorText: {
     color: "red",
     marginBottom: 10,

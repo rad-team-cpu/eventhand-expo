@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useSignUp } from "@clerk/clerk-expo";
-import { AntDesign } from "@expo/vector-icons";
+import { AntDesign, Entypo } from "@expo/vector-icons";
 import { yupResolver } from "@hookform/resolvers/yup";
 import React, { useState } from "react";
 import { useForm, FieldValues, Controller } from "react-hook-form";
-import { View, TextInput, StyleSheet } from "react-native";
+import { View, TextInput, Pressable } from "react-native";
 import { object, string, ref } from "yup";
 
 import Block from "../../components/Ui/Block";
@@ -25,13 +26,13 @@ const signUpValidationSchema = object().shape({
     .required("Please enter your email")
     .matches(
       /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-      "Please enter a valid email"
+      "Please enter a valid email",
     ),
   password: string()
     .required("Please enter your password")
     .matches(
       /^(?=.*[A-Z])(?=.*\d).{8,}$/,
-      "Your password must have at least one uppercase, a number, and at least 8 characters long"
+      "Your password must have at least one uppercase, a number, and at least 8 characters long",
     ),
   confirmPassword: string()
     .required("Please re-enter your passwordd")
@@ -54,6 +55,8 @@ const SignupForm = ({ navigation }: SignUpScreenProps) => {
   const [signUpErrMessage, setSignUpErrMessage] = useState("");
   const [pendingVerification, setPendingVerification] = useState(false);
   const [verifyErrMessage, setVerifyErrMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showRetypePassword, setShowRetypePassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { assets, colors, sizes, gradients } = useTheme();
 
@@ -103,6 +106,19 @@ const SignupForm = ({ navigation }: SignUpScreenProps) => {
         setVerifyErrMessage(err.errors[0].message);
       });
   };
+
+  const showPasswordIcon = (condition: boolean) => {
+    if (!condition) {
+      return <Entypo name="eye" size={24} color="black" />;
+    } else {
+      return <Entypo name="eye-with-line" size={24} color="#2196F3" />;
+    }
+  };
+
+  const onPasswordIconPress = () => setShowPassword(!showPassword);
+
+  const onConfirmPasswordIconPress = () =>
+    setShowRetypePassword(!showRetypePassword);
 
   return (
     <Block safe>
@@ -223,6 +239,9 @@ const SignupForm = ({ navigation }: SignUpScreenProps) => {
                       );
                     }}
                   />
+                  <Pressable onPress={onPasswordIconPress}>
+                    {showPasswordIcon(showPassword)}
+                  </Pressable>
                   <Text testID="password-err-text" danger>
                     {errors["password"]?.message}
                   </Text>
@@ -243,8 +262,7 @@ const SignupForm = ({ navigation }: SignUpScreenProps) => {
                           autoCapitalize="none"
                           returnKeyType="next"
                           textContentType="password"
-                          secureTextEntry
-                          className="border p-2 rounded-lg border-purple-700"
+                          secureTextEntry={!showRetypePassword}
                         />
                       );
                     }}
@@ -252,7 +270,6 @@ const SignupForm = ({ navigation }: SignUpScreenProps) => {
                   <Text testID="confirm-password-err-text" danger>
                     {errors["confirmPassword"]?.message}
                   </Text>
-
                   <Button
                     testID="test-signup-btn"
                     onPress={onSignUpPress}

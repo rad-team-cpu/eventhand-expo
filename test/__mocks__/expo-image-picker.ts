@@ -5,7 +5,7 @@ import { faker } from "@faker-js/faker";
 // const randomExtension =
 //   fileExtensions[faker.number.int({ max: fileExtensions.length - 1 })];
 
-const launchImageLibraryAsync = jest.fn()
+const launchImageLibraryAsync = jest.fn();
 
 // .mockResolvedValue({
 //   canceled: false,
@@ -22,7 +22,7 @@ const useMediaLibraryPermissions = jest.fn().mockReturnValue([
   {
     granted: true,
   },
-  jest.fn().mockResolvedValue({granted: true}),
+  jest.fn().mockResolvedValue({ granted: true }),
 ]);
 
 export { launchImageLibraryAsync, useMediaLibraryPermissions };

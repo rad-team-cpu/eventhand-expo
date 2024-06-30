@@ -12,42 +12,38 @@ import {
 
 import { ScreenProps, SuccessErrorScreenProps } from "../../types/types";
 
-// {
-//   buttonText,
-//   description,
-//   onPress,
-//   status = "success",
-// }
+const windowWidth = Dimensions.get("window").width;
+const windowHeight = Dimensions.get("window").height;
 
 const SuccessError = ({ navigation, route }: SuccessErrorScreenProps) => {
-  const { buttonText, description, status, navigateTo, logOut } = route.params;
+  const { buttonText, description, status, navigateTo, logOut, navParams } =
+    route.params;
   const { signOut } = useAuth();
-  const windowWidth = Dimensions.get("window").width;
-  const windowHeight = Dimensions.get("window").height;
 
   const errorMessage = status === "error" ? styles.messageError : null;
   const successMessage = status === "success" ? styles.messageSuccess : null;
 
-  const logOutUser = () => {
+  const onSuccessPress = (e: GestureResponderEvent) => {
+    if (navParams) {
+      if (navigateTo) {
+        navigation.replace(navigateTo as keyof ScreenProps, { ...navParams });
+      }
+    } else {
+      if (navigateTo) {
+        navigation.replace(navigateTo as keyof ScreenProps);
+      }
+    }
+
     if (logOut) {
       signOut();
     }
   };
 
-  const onSuccessPress = (e: GestureResponderEvent) => {
-    if (navigateTo) {
-      navigation.reset({
-        index: 0,
-        routes: [{ name: navigateTo as keyof ScreenProps }],
-      });
-    }
-
-    logOutUser();
-  };
-
   const onErrorPress = (e: GestureResponderEvent) => {
     navigation.goBack();
-    logOutUser();
+    if (logOut) {
+      signOut();
+    }
   };
 
   const onPress = status === "success" ? onSuccessPress : onErrorPress;

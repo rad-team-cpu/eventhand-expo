@@ -2,10 +2,11 @@
 /* eslint-disable prettier/prettier */
 import { useSignIn } from "@clerk/clerk-expo";
 import { AntDesign } from "@expo/vector-icons";
+import { Entypo } from "@expo/vector-icons";
 import { yupResolver } from "@hookform/resolvers/yup";
 import React, { useState } from "react";
 import { useForm, FieldValues, Controller } from "react-hook-form";
-import { TextInput, TouchableOpacity } from "react-native";
+import { TextInput, TouchableOpacity, Pressable } from "react-native";
 import { HelperText } from "react-native-paper";
 import { object, string } from "yup";
 
@@ -41,6 +42,7 @@ const Login = ({ navigation }: LoginScreenProps) => {
     resolver: yupResolver(signInValidationSchema),
   });
   const [signInErrMessage, setSignInErrMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { assets, colors, sizes, gradients } = useTheme();
   const [errorMessage, setErrorMessage] = useState<string>("");
@@ -70,6 +72,16 @@ const Login = ({ navigation }: LoginScreenProps) => {
         setSignInErrMessage(err.errors[0].message);
       });
   });
+
+  const showPasswordIcon = (condition: boolean) => {
+    if (!condition) {
+      return <Entypo name="eye" size={24} color="black" />;
+    } else {
+      return <Entypo name="eye-with-line" size={24} color="#2196F3" />;
+    }
+  };
+
+  const onPasswordIconPress = () => setShowPassword(!showPassword);
 
   return (
     <Block safe>

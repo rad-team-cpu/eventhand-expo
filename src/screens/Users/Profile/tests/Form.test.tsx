@@ -10,22 +10,20 @@ import {
   cleanup,
 } from "@testing-library/react-native";
 import { UserEventInstance } from "@testing-library/react-native/build/user-event/setup";
+import { UserContext } from "Contexts/UserContext";
 import { UploadResult } from "firebase/storage";
 import fetch from "jest-fetch-mock";
-import { BackHandler, GestureResponderEvent } from "react-native";
+import SuccessError from "screens/SuccessError";
+import Home from "screens/Users/Home";
+import FirebaseService from "service/firebase";
+import { ImageInfo, ScreenProps, UserProfile } from "types/types";
 
-import { getInfoAsync } from "../../../../test/__mocks__/expo-file-system";
+import { getInfoAsync } from "../../../../../test/__mocks__/expo-file-system";
 import {
   launchImageLibraryAsync,
   useMediaLibraryPermissions,
-} from "../../../../test/__mocks__/expo-image-picker";
-import { UserContext } from "../../../Contexts/UserContext";
-import FirebaseService from "../../../firebase";
-import { ImageInfo, ScreenProps, UserProfile } from "../../../types/types";
-import Home from "../../Home";
-import SuccessError from "../../SuccessError";
+} from "../../../../../test/__mocks__/expo-image-picker";
 import ProfileForm from "../Form";
-
 
 const mockUser: UserProfile = {
   email: "emailadress@example.com",
@@ -48,7 +46,11 @@ const TestProfileComponent = () => {
       <UserContext.Provider value={{ user: mockUser, setUser: setUserMock }}>
         <TestProfileStack.Navigator>
           <TestProfileStack.Screen name="ProfileForm" component={ProfileForm} />
-          <TestProfileStack.Screen name="Home" component={Home} />
+          <TestProfileStack.Screen
+            name="Home"
+            component={Home}
+            initialParams={{ initialTab: "EventList" }}
+          />
           <TestProfileStack.Screen
             name="SuccessError"
             component={SuccessError}
@@ -64,7 +66,6 @@ const mockGetToken = jest.fn();
 const mockUserId = "mock-user-id";
 const token = "jwttoken";
 
-
 beforeEach(() => {
   jest.useFakeTimers();
   user = userEvent.setup();
@@ -75,12 +76,12 @@ beforeEach(() => {
   });
 
   (useUser as jest.Mock).mockReturnValue({
-    user:{
-      primaryEmailAddress:{
-        emailAddress: mockUser.email
-      }
-    }
-  })
+    user: {
+      primaryEmailAddress: {
+        emailAddress: mockUser.email,
+      },
+    },
+  });
 });
 
 afterEach(() => {
@@ -282,7 +283,7 @@ describe("ProfileForm", () => {
     });
 
     it("should display a default image in the avatar field if user did not upload an image", async () => {
-      const defaultImage = require("../../../assets/images/user.png");
+      const defaultImage = require("../../../../assets/images/user.png");
       await waitFor(() => {
         render(<TestProfileComponent />);
       });
@@ -1588,9 +1589,7 @@ describe("ProfileForm", () => {
 
     it("should display an error if the user did not provide his/her phone number when shifting focus away to the first name field", async () => {
       await waitFor(() => {
-        render(
-          <TestProfileComponent/>
-        );
+        render(<TestProfileComponent />);
       });
 
       const contactNumberInput = screen.getByPlaceholderText("Contact No.");
@@ -2212,7 +2211,6 @@ describe("ProfileForm", () => {
       const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/users`;
 
       fetch.once(url, { status: 201, headers });
-
 
       const mockedImagePickerResult = {
         canceled: false,

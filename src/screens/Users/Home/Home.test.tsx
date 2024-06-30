@@ -10,13 +10,13 @@ import {
   userEvent,
 } from "@testing-library/react-native";
 import { UserEventInstance } from "@testing-library/react-native/build/user-event/setup";
+import { UserContext } from "Contexts/UserContext";
 import fetch from "jest-fetch-mock";
 import * as React from "react";
+import ProfileForm from "screens/Users/Profile/Form";
+import { UserProfile, ScreenProps } from "types/types";
 
 import Home from ".";
-import { UserContext } from "../../Contexts/UserContext";
-import { UserProfile, ScreenProps } from "../../types/types";
-import ProfileForm from "../Profile/Form";
 
 const setUserMock = jest.fn();
 
@@ -38,7 +38,11 @@ const TestHomeComponent = () => {
     <NavigationContainer>
       <UserContext.Provider value={{ user: mockUser, setUser: setUserMock }}>
         <TestHomeStack.Navigator>
-          <TestHomeStack.Screen name="Home" component={Home} />
+          <TestHomeStack.Screen
+            name="Home"
+            component={Home}
+            initialParams={{ initialTab: "EventList"}}
+          />
           <TestHomeStack.Screen name="ProfileForm" component={ProfileForm} />
         </TestHomeStack.Navigator>
       </UserContext.Provider>
@@ -88,7 +92,7 @@ afterEach(() => {
 
 describe("Home", () => {
   it("should navigate the user to the Profile Form screen if no profile data is found in the backend.", async () => {
-    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/clerk=${mockUserId}`;
+    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/${mockUserId}`;
 
     fetch.once(url, {
       status: 404,
@@ -157,18 +161,18 @@ describe("Home", () => {
       render(<TestHomeComponent />);
     });
 
-    const bookingNavbtn = screen.getByTestId("booking-nav-btn");
+    const eventsNavbtn = screen.getByTestId("events-nav-btn");
     const chatNavbtn = screen.getByTestId("chat-nav-btn");
     const profileNavbtn = screen.getByTestId("profile-nav-btn");
 
     waitFor(() => {
-      expect(bookingNavbtn).toBeOnTheScreen();
+      expect(eventsNavbtn).toBeOnTheScreen();
       expect(chatNavbtn).toBeOnTheScreen();
       expect(profileNavbtn).toBeOnTheScreen();
     });
   });
 
-  it("should navigate the user to the booking screen if the booking button is pressed in the bottom navigation bar", async () => {
+  it("should navigate the user to the events screen if the booking button is pressed in the bottom navigation bar", async () => {
     const gender = faker.person.sexType();
 
     const userProfile = {
@@ -191,14 +195,14 @@ describe("Home", () => {
       render(<TestHomeComponent />);
     });
 
-    const bookingNavbtn = screen.getByTestId("booking-nav-btn");
+    const eventsNavbtn = screen.getByTestId("events-nav-btn");
 
-    await user.press(bookingNavbtn);
+    await user.press(eventsNavbtn);
 
-    const booking = screen.getByTestId("booking");
+    const eventsScreen = screen.getByTestId("test-events");
 
     waitFor(() => {
-      expect(booking).toBeOnTheScreen();
+      expect(eventsScreen).toBeOnTheScreen();
     });
   });
 
@@ -258,8 +262,6 @@ describe("Home", () => {
     await waitFor(() => {
       render(<TestHomeComponent />);
     });
-
-    const profileNavbtn = screen.getByTestId("profile-nav-btn");
 
     await user.press(screen.getByTestId("profile-nav-btn"));
 

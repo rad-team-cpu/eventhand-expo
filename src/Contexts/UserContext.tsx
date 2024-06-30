@@ -1,6 +1,5 @@
 import React, { createContext, useState, ReactNode } from "react";
-
-import { UserProfile } from "../types/types";
+import { UserProfile } from "types/types";
 
 interface UserContextType {
   user: UserProfile;
@@ -14,7 +13,6 @@ interface UserProviderProps {
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 const UserProvider = (props: UserProviderProps) => {
-
   const [user, setUser] = useState<UserProfile>({
     email: "",
     lastName: "",
@@ -23,7 +21,7 @@ const UserProvider = (props: UserProviderProps) => {
     gender: "",
     events: [],
     chats: [],
-    vendorId: ""
+    vendorId: "",
   });
   const { children } = props;
 

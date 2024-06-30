@@ -1,14 +1,13 @@
-import { useAuth } from "@clerk/clerk-expo";
-import { userEvent, cleanup } from "@testing-library/react-native";
-import { UploadResult, getDownloadURL } from "firebase/storage";
+import { cleanup } from "@testing-library/react-native";
 
 import FirebaseService from ".";
-import { initializeApp } from "../../test/__mocks__/firebase/app";
+import { initializeApp } from "../../../test/__mocks__/firebase/app";
 import {
+  getDownloadURL,
   getStorage,
   ref,
   uploadBytes,
-} from "../../test/__mocks__/firebase/storage";
+} from "../../../test/__mocks__/firebase/storage";
 
 beforeAll(() => {
   global.fetch = jest.fn();
@@ -65,7 +64,7 @@ describe("FirebaseService", () => {
     expect(result).toEqual(mockResult);
   });
 
-  it("should upload a profile avatar", async () => {
+  it('should upload a to a client path if userType is "Client" profile avatar', async () => {
     const mockBlob = new Blob(["test"], { type: "text/plain" });
     const mockFileRef = { fullPath: "mockPath" };
     const mockResult = {
@@ -90,12 +89,58 @@ describe("FirebaseService", () => {
     uploadBytes.mockResolvedValue(mockResult);
 
     const image = { uri: "testUri", fileExtension: "jpg" };
-    const result = await firebaseService.uploadProfileAvatar("userId", image);
+    const userId = "mock-user-id";
+    const result = await firebaseService.uploadProfileAvatar(
+      userId,
+      image,
+      "Client",
+    );
 
     expect(fetch).toHaveBeenCalledWith("testUri");
     expect(ref).toHaveBeenCalledWith(
       getStorage(),
-      "images/userId/profile/avatar.jpg",
+      `images/${userId}/profile/avatar.jpg`,
+    );
+    expect(uploadBytes).toHaveBeenCalledWith(mockFileRef, mockBlob);
+    expect(result).toEqual(mockResult);
+  });
+
+  it('should upload a to a client path if userType is "Vendor" profile avatar', async () => {
+    const mockBlob = new Blob(["test"], { type: "text/plain" });
+    const mockFileRef = { fullPath: "mockPath" };
+    const mockResult = {
+      ref: "",
+      metadata: {
+        bucket: "",
+        fullPath: "",
+        generation: "",
+        metageneration: "",
+        name: "",
+        size: 0,
+        timeCreated: "",
+        updated: "",
+        downloadTokens: undefined,
+      },
+    };
+
+    (fetch as jest.Mock).mockResolvedValue({
+      blob: jest.fn().mockResolvedValue(mockBlob),
+    });
+    ref.mockReturnValue(mockFileRef);
+    uploadBytes.mockResolvedValue(mockResult);
+
+    const image = { uri: "testUri", fileExtension: "jpg" };
+    const userId = "mock-user-id";
+    const result = await firebaseService.uploadProfileAvatar(
+      userId,
+      image,
+      "Vendor",
+    );
+
+    expect(fetch).toHaveBeenCalledWith("testUri");
+    expect(ref).toHaveBeenCalledWith(
+      getStorage(),
+      `images/${userId}/profile/vendor/logo.jpg`,
     );
     expect(uploadBytes).toHaveBeenCalledWith(mockFileRef, mockBlob);
     expect(result).toEqual(mockResult);
@@ -109,14 +154,14 @@ describe("FirebaseService", () => {
     ).rejects.toThrow("Invalid Uri");
   });
 
-  it("should get the download url for user avatar",async () => {
-    const path = "firebasestorage\path"
+  it("should get the download url for user avatar", async () => {
+    const path = "firebasestoragepath";
 
-    const downloadUrl = await  firebaseService.getProfilePicture(path);
+    const downloadUrl = await firebaseService.getProfilePicture(path);
 
-    const mockRef =  ref(getStorage(), path)
+    const mockRef = ref(getStorage(), path);
 
     expect(ref).toHaveBeenCalledWith(getStorage(), path);
     expect(getDownloadURL).toHaveBeenCalledWith(mockRef);
-  })
+  });
 });
