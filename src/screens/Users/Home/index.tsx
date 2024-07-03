@@ -12,6 +12,7 @@ import Chat from "screens/Users/Chat";
 import EventList from "screens/Users/Events/List";
 import Profile from "screens/Users/Profile";
 import { HomeScreenProps } from "types/types";
+import VendorList from "../VendorList";
 
 interface HomeNaveProps {
   initialRouteName?: string;
@@ -24,7 +25,16 @@ const HomeNav = ({ initialRouteName = "EventList" }: HomeNaveProps) => {
     tabBarTestID: `events-nav-btn`,
     headerShown: false,
     tabBarIcon: ({ color, size }) => (
-      <FontAwesome name="search" color={color} size={size} />
+      <AntDesign name="calendar" color={color} size={size} />
+    ),
+    tabBarActiveBackgroundColor: "EE2AE2",
+  };
+
+  const vendorIconOptions: BottomTabNavigationOptions = {
+    tabBarTestID: `vendor-nav-btn`,
+    headerShown: false,
+    tabBarIcon: ({ color, size }) => (
+      <AntDesign name="search1" color={color} size={size} />
     ),
     tabBarActiveBackgroundColor: "EE2AE2",
   };
@@ -49,9 +59,14 @@ const HomeNav = ({ initialRouteName = "EventList" }: HomeNaveProps) => {
   return (
     <Tab.Navigator initialRouteName={initialRouteName}>
       <Tab.Screen
-        name="EventList"
+        name="Events"
         component={EventList}
         options={eventsIconOptions}
+      />
+      <Tab.Screen
+        name="Vendors"
+        component={VendorList}
+        options={vendorIconOptions}
       />
       <Tab.Screen name="Chat" component={Chat} options={chatIconOptions} />
       <Tab.Screen

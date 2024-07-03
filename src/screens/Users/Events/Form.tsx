@@ -2,7 +2,7 @@ import { useAuth } from "@clerk/clerk-expo";
 import { Feather } from "@expo/vector-icons";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useFocusEffect } from "@react-navigation/native";
-import DatePicker from "Components/Input/DatePicker";
+import DatePicker from "../../../components/Input/DatePicker";
 import { UserContext } from "Contexts/UserContext";
 import { format } from "date-fns/format";
 import { sub } from "date-fns/fp";

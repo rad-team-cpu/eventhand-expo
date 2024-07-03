@@ -223,6 +223,7 @@ const SignupForm = ({ navigation }: SignUpScreenProps) => {
                     render={({ field: { onChange, onBlur, value } }) => {
                       const onValueChange = (text: string) => onChange(text);
                       return (
+                        <>
                         <TextInput
                           id="password-input"
                           testID="test-password-input"
@@ -235,13 +236,17 @@ const SignupForm = ({ navigation }: SignUpScreenProps) => {
                           textContentType="password"
                           secureTextEntry
                           className="border p-2 rounded-lg border-purple-700"
-                        />
+                        >
+
+                        </TextInput>
+                        <Pressable onPress={onPasswordIconPress}>
+                          {showPasswordIcon(showPassword)}
+                        </Pressable>
+                        </>
                       );
                     }}
                   />
-                  <Pressable onPress={onPasswordIconPress}>
-                    {showPasswordIcon(showPassword)}
-                  </Pressable>
+
                   <Text testID="password-err-text" danger>
                     {errors["password"]?.message}
                   </Text>
@@ -263,10 +268,12 @@ const SignupForm = ({ navigation }: SignUpScreenProps) => {
                           returnKeyType="next"
                           textContentType="password"
                           secureTextEntry={!showRetypePassword}
+                          className="border p-2 rounded-lg border-purple-700"
                         />
                       );
                     }}
                   />
+                  
                   <Text testID="confirm-password-err-text" danger>
                     {errors["confirmPassword"]?.message}
                   </Text>
@@ -280,6 +287,7 @@ const SignupForm = ({ navigation }: SignUpScreenProps) => {
                     shadow={false}
                     disabled={!isValid}
                   >
+                    
                     <Text bold primary transform="uppercase">
                       Sign up
                     </Text>

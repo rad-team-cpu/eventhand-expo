@@ -4,7 +4,7 @@ import { StatusBar } from "expo-status-bar";
 import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet, Button, View, Text, TextStyle } from "react-native";
 
-import Avatar from "../../../Components/Avatar";
+import Avatar from "../../../components/Avatar";
 import { HomeScreenNavigationProp, ScreenProps } from "../../../types/types";
 import Loading from "../../Loading";
 import FirebaseService from "service/firebase";

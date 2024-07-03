@@ -19,6 +19,7 @@ const homeHeaderOptions: NativeStackNavigationOptions = {
   headerTitleAlign: "center",
   headerShadowVisible: false,
   headerTintColor: "white",
+  headerShown: false
 };
 
 const homeInitialParams: ScreenProps["Home"] = {
