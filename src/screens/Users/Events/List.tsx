@@ -1,10 +1,14 @@
-import { MaterialIcons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
-import { UserContext } from "Contexts/UserContext";
-import { format } from "date-fns/format";
-import React, { useContext, useMemo } from "react";
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
-import { EventInfo, HomeScreenNavigationProp } from "types/types";
+import { MaterialIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { UserContext } from 'Contexts/UserContext';
+import { format } from 'date-fns/format';
+import React, { useContext, useMemo } from 'react';
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import Block from 'src/components/Ui/Block';
+import Image from 'src/components/Ui/Image';
+import useTheme from 'src/core/theme';
+
+import { EventInfo, HomeScreenNavigationProp } from 'types/types';
 
 interface FloatingCreateButtonProps {
   onPress: () => void;
@@ -12,13 +16,13 @@ interface FloatingCreateButtonProps {
 
 const FloatingCreateButton = ({ onPress }: FloatingCreateButtonProps) => {
   return (
-    <View testID="test-events" style={styles.floatingBtnContainer}>
+    <View testID='test-events' style={styles.floatingBtnContainer}>
       <Pressable
         style={styles.floatingbutton}
         onPress={onPress}
         android_ripple={{ radius: 60 }}
       >
-        <MaterialIcons name="add" size={24} color="white" />
+        <MaterialIcons name='add' size={24} color='white' />
       </Pressable>
     </View>
   );
@@ -148,8 +152,8 @@ const FloatingCreateButton = ({ onPress }: FloatingCreateButtonProps) => {
 // ];
 
 const getRandomColor = () => {
-  const letters = "0123456789ABCDEF";
-  let color = "#";
+  const letters = '0123456789ABCDEF';
+  let color = '#';
   for (let i = 0; i < 6; i++) {
     color += letters[Math.floor(Math.random() * 16)];
   }
@@ -158,11 +162,11 @@ const getRandomColor = () => {
 
 const EventListItem = ({ _id, date, budget, attendees }: EventInfo) => {
   const borderColor = useMemo(() => getRandomColor(), []);
-  const dateString = format(date, "MMMM dd, yyyy");
+  const dateString = format(date, 'MMMM dd, yyyy');
   const navigation = useNavigation<HomeScreenNavigationProp>();
 
   const onPress = () =>
-    navigation.navigate("EventView", {
+    navigation.navigate('EventView', {
       _id,
       date: dateString,
       budget,
@@ -173,17 +177,17 @@ const EventListItem = ({ _id, date, budget, attendees }: EventInfo) => {
     <Pressable
       key={_id}
       style={[styles.itemContainer, { borderLeftColor: borderColor }]}
-      android_ripple={{ color: "#c0c0c0" }}
+      android_ripple={{ color: '#c0c0c0' }}
       onPress={onPress}
     >
       <Text style={styles.dateText}>{dateString}</Text>
       <View style={styles.separator} />
       <View style={styles.row}>
         <Text style={styles.budgetText}>
-          Budget: {budget !== 0 ? `₱${budget}` : "∞"}
+          Budget: {budget !== 0 ? `₱${budget}` : '∞'}
         </Text>
         <Text style={styles.capacityText}>
-          Capacity: {attendees !== 0 ? `₱${attendees}` : "∞"}
+          Capacity: {attendees !== 0 ? `₱${attendees}` : '∞'}
         </Text>
       </View>
     </Pressable>
@@ -212,13 +216,15 @@ const Events = ({ events }: EventsProps) => (
 
 function EventList() {
   const userContext = useContext(UserContext);
+  const { assets, colors, sizes, gradients } = useTheme();
+
   const navigation = useNavigation<HomeScreenNavigationProp>();
 
   if (!userContext) {
-    throw new Error("UserInfo must be used within a UserProvider");
+    throw new Error('UserInfo must be used within a UserProvider');
   }
 
-  const onCreatePress = () => navigation.navigate("EventForm");
+  const onCreatePress = () => navigation.navigate('EventForm');
 
   const { user } = userContext;
   const { events } = user;
@@ -234,8 +240,9 @@ function EventList() {
   }
 
   return (
-    <View testID="test-events" style={styles.container}>
-      <Pressable
+    <Block safe>
+      <View testID='test-events' style={styles.container}>
+        {/* <Pressable
         style={styles.button}
         android_ripple={{ color: "#c0c0c0" }}
         onPress={onCreatePress}
@@ -247,8 +254,21 @@ function EventList() {
           style={styles.icon}
         />
         <Text style={styles.buttonText}>Create Event</Text>
-      </Pressable>
-    </View>
+      </Pressable> */}
+        <Image
+          background
+          resizeMode='cover'
+          padding={sizes.md}
+          source={assets.noEvents}
+          rounded
+          className='rounded-xl h-72 w-72'
+        ></Image>
+        <Text className='font-bold'>
+          You have no events!
+        </Text>
+      </View>
+      <FloatingCreateButton onPress={onCreatePress} />
+    </Block>
   );
 
   // return <FloatingCreateButton onPress={() => {}}/>
@@ -258,13 +278,13 @@ function EventList() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   button: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#6200EE",
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#6200EE',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
@@ -273,11 +293,11 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   buttonText: {
-    color: "white",
+    color: 'white',
     fontSize: 16,
   },
   floatingBtnContainer: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 10,
     right: 10,
   },
@@ -285,9 +305,9 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 15,
-    backgroundColor: "#6200EE",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: '#6200EE',
+    justifyContent: 'center',
+    alignItems: 'center',
     elevation: 5,
   },
   listContainer: {
@@ -297,33 +317,33 @@ const styles = StyleSheet.create({
     padding: 16,
     marginVertical: 1,
     marginLeft: 1,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     borderLeftWidth: 10,
     borderTopLeftRadius: 8,
     borderBottomLeftRadius: 8,
-    borderRightColor: "#fff",
+    borderRightColor: '#fff',
     borderRightWidth: 5,
     borderTopRightRadius: 8,
     borderBottomRightRadius: 8,
     elevation: 2, // Add shadow for floating effect
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
   dateText: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginBottom: 8,
   },
   separator: {
     borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
+    borderBottomColor: '#ccc',
     marginBottom: 8,
   },
   row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   budgetText: {
     fontSize: 14,

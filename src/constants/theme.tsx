@@ -40,6 +40,8 @@ export const ASSETS: ThemeAssets = {
   card2: require("../assets/images/card2.png"),
   card3: require("../assets/images/card3.png"),
   card4: require("../assets/images/card4.png"),
+  noEvents: require("../assets/images/noEvents.png"),
+
 };
 
 export const LINE_HEIGHTS: ThemeLineHeights = {

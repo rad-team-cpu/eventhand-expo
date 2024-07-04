@@ -210,6 +210,7 @@ export interface ThemeAssets {
   card2: ImageSourcePropType;
   card3: ImageSourcePropType;
   card4: ImageSourcePropType;
+  noEvents: ImageSourcePropType;
 }
 
 export interface ThemeFonts {

@@ -21,12 +21,12 @@ const merchants = [
   { id: 4, category: 'Musicians' },
   { id: 5, category: 'Caterers' },
   { id: 6, category: 'Bakers' },
-  { id: 1, category: 'Photographers' },
-  { id: 2, category: 'Artists' },
-  { id: 3, category: 'Designers' },
-  { id: 4, category: 'Musicians' },
-  { id: 5, category: 'Caterers' },
-  { id: 6, category: 'Bakers' },
+  { id: 7, category: 'Videographers' },
+  { id: 8, category: 'DJ' },
+  { id: 9, category: 'Host' },
+  { id: 10, category: 'Gowns' },
+  { id: 11, category: 'Caterers' },
+  { id: 12, category: 'Bakers' },
 ];
 
 export default function VendorList() {
@@ -81,7 +81,7 @@ export default function VendorList() {
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {merchants.map((merchant) => (
               <TouchableOpacity
-                // key={merchant.id}
+                key={merchant.id}
                 className=' h-32 w-24 flex flex-row rounded-xl mr-3 '
                 // onPress={() => {}}
               >
@@ -111,7 +111,7 @@ export default function VendorList() {
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {merchants.map((merchant) => (
               <TouchableOpacity
-                // key={merchant.id}
+                key={merchant.id}
                 className=' h-32 w-24 flex flex-row rounded-xl mr-3 '
                 // onPress={() => {}}
               >
@@ -127,7 +127,7 @@ export default function VendorList() {
                   <Text className='text-6 text-center'>Hello</Text>
 
                   <View className=' items-center'>
-                    <StarRating rating={4} starStyle='width' />;;;;;;;;;2cfffffffxzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzcc5nfffffffffyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy /n4[[4199999999999999]]
+                    <StarRating rating={4} starStyle='width' />
                   </View>
 
                   {/* <StarRating rating={merchant.rating} starStyle='width' /> */}
