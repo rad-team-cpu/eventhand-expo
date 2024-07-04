@@ -28,6 +28,14 @@ interface Vendor {
   address?: string;
   contactNumber: string;
 }
+
+interface Chat {
+  _id: string;
+  senderImage?: string;
+  senderName: string;
+  partialMessage: string;
+  lastDateSent: Date;
+}
 interface ChatMessage {
   id: string;
   senderId: string;
@@ -71,7 +79,6 @@ interface SuccessErrorProps {
   logOut?: keyof ScreenProps;
   status: "success" | "error";
   navParams?: ScreenProps[keyof ScreenProps];
-
 }
 
 interface ConfirmationProps {
@@ -86,8 +93,6 @@ interface HomeProps {
   initialTab?: string;
 }
 
-
-
 type ScreenProps = {
   SignUp: undefined;
   Login: undefined;
@@ -97,6 +102,7 @@ type ScreenProps = {
   EventView: EventInfo;
   SuccessError: SuccessErrorProps;
   Confirmation: ConfirmationProps;
+  Chat: undefined
   VendorHome: HomeProps;
   VendorProfileForm: undefined;
 };
@@ -118,17 +124,22 @@ type EventFormScreenProps = NativeStackScreenProps<ScreenProps, "EventForm">;
 
 type EventViewScreenProps = NativeStackScreenProps<ScreenProps, "EventView">;
 
+type ChatScreenProps = NativeStackScreenProps<ScreenProps, "Chat">;
+
 type SuccessErrorScreenProps = NativeStackScreenProps<
   ScreenProps,
   "SuccessError"
 >;
 
-type ConfirmationScreenProps = NativeStackScreenProps<ScreenProps, "Confirmation">
+type ConfirmationScreenProps = NativeStackScreenProps<
+  ScreenProps,
+  "Confirmation"
+>;
 
 type HomeScreenBottomTabsProps = {
   Home: NavigatorScreenParams<ScreenProps>;
   EventList: undefined;
-  Chat: undefined;
+  ChatList: undefined;
   Profile: undefined;
 };
 
@@ -142,8 +153,8 @@ type EventListNavigationProps = CompositeNavigationProp<
   NativeStackNavigationProp<ScreenProps>
 >;
 
-type ChatScreenProps = CompositeScreenProps<
-  BottomTabScreenProps<HomeScreenBottomTabsProps, "Chat">,
+type ChatScreenPropsList = CompositeScreenProps<
+  BottomTabScreenProps<HomeScreenBottomTabsProps, "ChatList">,
   NativeStackScreenProps<ScreenProps>
 >;
 
@@ -154,11 +165,17 @@ type ProfileScreenProps = CompositeScreenProps<
 
 type VendorHomeScreenProps = NativeStackScreenProps<ScreenProps, "VendorHome">;
 
-type VendorProfileFormScreenProps = NativeStackScreenProps<ScreenProps, "VendorProfileForm">;
+type VendorProfileFormScreenProps = NativeStackScreenProps<
+  ScreenProps,
+  "VendorProfileForm"
+>;
+
+
 
 export {
   EventInfo,
   UserProfile,
+  Chat,
   Vendor,
   ImageInfo,
   ImageUploadResult,
@@ -177,5 +194,5 @@ export {
   ProfileScreenProps,
   EventFormScreenProps,
   VendorHomeScreenProps,
-  VendorProfileFormScreenProps
+  VendorProfileFormScreenProps,
 };

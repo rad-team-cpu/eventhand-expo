@@ -8,7 +8,7 @@ import { UserContext } from "Contexts/UserContext";
 import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
 import Loading from "screens/Loading";
-import Chat from "screens/Users/Chat";
+import ChatList from "screens/Users/Chat/List";
 import EventList from "screens/Users/Events/List";
 import Profile from "screens/Users/Profile";
 import { HomeScreenProps } from "types/types";
@@ -53,7 +53,7 @@ const HomeNav = ({ initialRouteName = "EventList" }: HomeNaveProps) => {
         component={EventList}
         options={eventsIconOptions}
       />
-      <Tab.Screen name="Chat" component={Chat} options={chatIconOptions} />
+      <Tab.Screen name="ChatList" component={ChatList} options={chatIconOptions} />
       <Tab.Screen
         name="Profile"
         component={Profile}
@@ -110,8 +110,8 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
       } else {
         throw new Error("Unexpected error occurred.");
       }
-    } catch (error) {
-      console.error("Error fetching user:", error);
+    } catch (error: any) {
+      console.error(`Error fetching user (${error.code}): ${error} `);
       setLoading(false);
     }
   };
