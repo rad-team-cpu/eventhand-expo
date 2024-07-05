@@ -4,9 +4,9 @@ import { UserContext } from 'Contexts/UserContext';
 import { format } from 'date-fns/format';
 import React, { useContext, useMemo } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
-import Block from 'src/components/Ui/Block';
-import Image from 'src/components/Ui/Image';
-import useTheme from 'src/core/theme';
+import Block from 'Components/Ui/Block';
+import Image from 'Components/Ui/Image';
+import useTheme from '../../../core/theme';
 
 import { EventInfo, HomeScreenNavigationProp } from 'types/types';
 

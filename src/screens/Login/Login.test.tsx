@@ -103,7 +103,7 @@ describe("Login", () => {
         expect(passwordErrText.children[0]).toBeFalsy();
       });
 
-      const loginButton = screen.getByRole("button", { name: "Login" });
+      const loginButton = screen.getByTestId("test-sign-in-btn");
 
       await user.press(loginButton);
 
@@ -121,7 +121,7 @@ describe("Login", () => {
 
   it("Should display an error text and disable Login button if the fields are empty", async () => {
     const emailInput = screen.getByPlaceholderText("Email");
-    const loginButton = screen.getByRole("button", { name: "Login" });
+    const loginButton = screen.getByTestId("test-sign-in-btn");
     const emailErrText = screen.getByTestId("email-err-text");
 
     await user.type(emailInput, "");
@@ -155,7 +155,7 @@ describe("Login", () => {
 
     const emailInput = screen.getByPlaceholderText("Email");
     const passwordInput = screen.getByPlaceholderText("Password");
-    const loginButton = screen.getByRole("button", { name: "Login" });
+    const loginButton = screen.getByTestId("test-sign-in-btn");
 
     await user.type(emailInput, testData[0].email);
     await user.type(passwordInput, testData[0].password);
@@ -177,7 +177,7 @@ describe("Login", () => {
 
     const emailInput = screen.getByPlaceholderText("Email");
     const passwordInput = screen.getByPlaceholderText("Password");
-    const loginButton = screen.getByRole("button", { name: "Login" });
+    const loginButton = screen.getByTestId("test-sign-in-btn");
 
     await user.type(emailInput, testData[0].email);
     await user.type(passwordInput, testData[0].password);

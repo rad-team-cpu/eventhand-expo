@@ -4,11 +4,11 @@ import { StatusBar } from "expo-status-bar";
 import React, { useContext, useEffect, useState } from "react";
 
 import { UserContext } from "../..//../Contexts/UserContext";
-import Avatar from "../../../components/Avatar";
-import Block from "../../../components/Ui/Block";
-import Button from "../../../components/Ui/Button";
-import Image from "../../../components/Ui/Image";
-import Text from "../../../components/Ui/Text";
+import Avatar from "Components/Avatar";
+import Block from "Components/Ui/Block";
+import Button from "Components/Ui/Button";
+import Image from "Components/Ui/Image";
+import Text from "Components/Ui/Text";
 import useTheme from "../../../core/theme";
 import Loading from "../../Loading";
 import FirebaseService from "service/firebase";

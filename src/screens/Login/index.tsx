@@ -9,11 +9,10 @@ import { TextInput, TouchableOpacity, Pressable } from "react-native";
 import { HelperText } from "react-native-paper";
 import { object, string } from "yup";
 
-import Block from "../../components/Ui/Block";
-import Button from "../../components/Ui/Button";
-import FormTextInput from "../../components/Ui/FormTextInput";
-import Image from "../../components/Ui/Image";
-import Text from "../../components/Ui/Text";
+import Block from "Components/Ui/Block";
+import Button from "Components/Ui/Button";
+import Image from "Components/Ui/Image";
+import Text from "Components/Ui/Text";
 import useTheme from "../../core/theme";
 import { LoginScreenProps } from "../../types/types";
 import Loading from "../Loading";
@@ -111,7 +110,7 @@ const Login = ({ navigation }: LoginScreenProps) => {
               </Text>
             </Image>
           </Block>
-          <Block keyboard marginTop={-(sizes.height * 0.8 - sizes.l)}>
+          <Block scroll marginTop={-(sizes.height * 0.8 - sizes.l)}>
             <Block flex={0} radius={sizes.sm} marginHorizontal="8%">
               <Block
                 blur
@@ -211,6 +210,7 @@ const Login = ({ navigation }: LoginScreenProps) => {
                 <Button
                   primary
                   outlined
+                  testID="test-sign-in-btn"
                   marginVertical={sizes.s}
                   marginHorizontal={sizes.sm}
                   onPress={onLoginPress}
@@ -227,6 +227,7 @@ const Login = ({ navigation }: LoginScreenProps) => {
                 <Block>
                   <Text center>Don’t have an account? </Text>
                   <TouchableOpacity
+                    testID="signup-btn-nav"
                     onPress={() => navigation.navigate("SignUp")}
                   >
                     <Text center primary marginBottom={sizes.md}>

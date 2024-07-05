@@ -10,7 +10,6 @@ import {
   View,
   ViewStyle,
 } from "react-native";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 import { IBlockProps } from "../../constants/types/components";
 import useTheme from "../../core/theme";
@@ -153,13 +152,13 @@ const Block = (props: IBlockProps) => {
     );
   }
 
-  if (keyboard) {
-    return (
-      <KeyboardAwareScrollView {...blockID} {...rest} style={blockStyles}>
-        {children}
-      </KeyboardAwareScrollView>
-    );
-  }
+  // if (keyboard) {
+  //   return (
+  //     <KeyboardAwareScrollView {...blockID} {...rest} style={blockStyles}>
+  //       {children}
+  //     </KeyboardAwareScrollView>
+  //   );
+  // }
 
   if (scroll) {
     return (

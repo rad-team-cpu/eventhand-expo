@@ -7,10 +7,10 @@ import { useForm, FieldValues, Controller } from "react-hook-form";
 import { View, TextInput, Pressable } from "react-native";
 import { object, string, ref } from "yup";
 
-import Block from "../../components/Ui/Block";
-import Button from "../../components/Ui/Button";
-import Image from "../../components/Ui/Image";
-import Text from "../../components/Ui/Text";
+import Block from "Components/Ui/Block";
+import Button from "Components/Ui/Button";
+import Image from "Components/Ui/Image";
+import Text from "Components/Ui/Text";
 import useTheme from "../../core/theme";
 import { SignUpScreenProps } from "../../types/types";
 import Loading from "../Loading";
@@ -149,7 +149,7 @@ const SignupForm = ({ navigation }: SignUpScreenProps) => {
               </Text>
             </Image>
           </Block>
-          <Block keyboard marginTop={-(sizes.height * 0.8 - sizes.l)}>
+          <Block scroll marginTop={-(sizes.height * 0.8 - sizes.l)}>
             <Block flex={0} radius={sizes.sm} marginHorizontal="8%">
               <Block
                 blur

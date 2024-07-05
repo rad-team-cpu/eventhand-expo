@@ -5,15 +5,15 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import Block from '../../../components/Ui/Block';
-import Button from '../../../components/Ui/Button';
-import Image from '../../../components/Ui/Image';
+import Block from 'Components/Ui/Block';
+import Button from 'Components/Ui/Button';
+import Image from 'Components/Ui/Image';
 import useTheme from '../../../core/theme';
 import { Text } from 'react-native';
 import React, { useState } from 'react';
 import Loading from 'screens/Loading';
 import { StatusBar } from 'expo-status-bar';
-import StarRating from 'src/components/Ui/StarRating';
+import StarRating from 'Components/Ui/StarRating';
 const merchants = [
   { id: 1, category: 'Photographers' },
   { id: 2, category: 'Artists' },

@@ -1,4 +1,4 @@
-import ConfirmationDialog from "../../components/ConfirmationDialog";
+import ConfirmationDialog from "Components/ConfirmationDialog";
 import { ConfirmationScreenProps } from "types/types";
 
 function Confirmation({ navigation, route }: ConfirmationScreenProps) {

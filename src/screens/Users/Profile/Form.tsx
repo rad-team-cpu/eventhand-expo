@@ -4,7 +4,7 @@ import { useAuth, useUser } from '@clerk/clerk-expo';
 import { AntDesign } from '@expo/vector-icons';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import Avatar from '../../../components/Avatar';
+import Avatar from 'Components/Avatar';
 import { sub } from 'date-fns/fp';
 import { ImagePickerAsset } from 'expo-image-picker';
 import {
@@ -32,12 +32,12 @@ import { object, string, number } from 'yup';
 
 // import DatePicker from "../../Components/Input/DatePicker";
 import { UserContext } from '../../../Contexts/UserContext';
-import GenderPicker from '../../../components/Input/GenderPicker';
-import ProfileUpload from '../../../components/Input/ProfileUpload';
-import Block from '../../../components/Ui/Block';
-import Button from '../../../components/Ui/Button';
-import Image from '../../../components/Ui/Image';
-import Text from '../../../components/Ui/Text';
+import GenderPicker from 'Components/Input/GenderPicker';
+import ProfileUpload from 'Components/Input/ProfileUpload';
+import Block from 'Components/Ui/Block';
+import Button from 'Components/Ui/Button';
+import Image from 'Components/Ui/Image';
+import Text from 'Components/Ui/Text';
 import useTheme from '../../../core/theme';
 import {
   ImageInfo,
