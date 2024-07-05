@@ -3,7 +3,7 @@ import { useAuth } from "@clerk/clerk-expo";
 import { StatusBar } from "expo-status-bar";
 import React, { useContext, useEffect, useState } from "react";
 
-import { UserContext } from "../..//../Contexts/UserContext";
+import { UserContext } from "Contexts/UserContext";
 import Avatar from "Components/Avatar";
 import Block from "Components/Ui/Block";
 import Button from "Components/Ui/Button";
@@ -23,7 +23,6 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const userContext = useContext(UserContext);
   const navigation = useNavigation<HomeScreenNavigationProp>();
-
 
   if (!userContext) {
     throw new Error("UserInfo must be used within a UserProvider");
