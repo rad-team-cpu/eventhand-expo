@@ -19,10 +19,6 @@ const CustomMessageBubble = (props: BubbleProps<IMessage>) => {
         left: styles.senderBubble,
         right: styles.userBubble,
       }}
-      containerStyle={{
-        left: styles.container,
-        right: styles.container,
-      }}
       textStyle={{ left: styles.messageText, right: styles.messageText }}
     />
   );
@@ -97,14 +93,13 @@ export function Chat() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    borderRadius: 15,
-  },
   senderBubble: {
-    maxWidth: "70%",
+    borderRadius:15,
     backgroundColor: "#e5a435",
   },
   userBubble: {
+    borderRadius:15,
+
     backgroundColor: "#CB0C9F",
   },
   messageText: {
