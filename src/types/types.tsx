@@ -33,8 +33,8 @@ interface Chat {
   _id: string;
   senderImage?: string;
   senderName: string;
-  partialMessage: string;
-  lastDateSent: Date;
+  partialMessage?: string;
+  lastDateSent?: Date;
 }
 interface ChatMessage {
   id: string;
@@ -102,7 +102,7 @@ type ScreenProps = {
   EventView: EventInfo;
   SuccessError: SuccessErrorProps;
   Confirmation: ConfirmationProps;
-  Chat: undefined
+  Chat: Chat
   VendorHome: HomeProps;
   VendorProfileForm: undefined;
 };
@@ -125,6 +125,8 @@ type EventFormScreenProps = NativeStackScreenProps<ScreenProps, "EventForm">;
 type EventViewScreenProps = NativeStackScreenProps<ScreenProps, "EventView">;
 
 type ChatScreenProps = NativeStackScreenProps<ScreenProps, "Chat">;
+
+type ChatNavigationProps = NativeStackNavigationProp<ScreenProps, "Chat">;
 
 type SuccessErrorScreenProps = NativeStackScreenProps<
   ScreenProps,
@@ -191,6 +193,7 @@ export {
   EventListNavigationProps,
   EventViewScreenProps,
   ChatScreenProps,
+  ChatNavigationProps,
   ProfileScreenProps,
   EventFormScreenProps,
   VendorHomeScreenProps,

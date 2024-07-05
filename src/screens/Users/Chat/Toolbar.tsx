@@ -1,36 +1,33 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import { Ionicons } from '@expo/vector-icons'; // Ensure you have @expo/vector-icons installed
+import { Entypo } from "@expo/vector-icons";
+import { faker } from "@faker-js/faker";
+import { NativeStackHeaderProps } from "@react-navigation/native-stack";
+import React from "react";
+import { View, Text, StyleSheet, Image, Pressable } from "react-native";
 
-interface ToolbarProps {
-  title: string;
-  onInfoPress: () => void;
-}
-
-const ChatToolbar: React.FC<ToolbarProps> = ({ title, onInfoPress }) => {
+const ChatToolbar: React.FC<NativeStackHeaderProps> = (props) => {
   return (
     <View style={styles.container}>
-      <Image source={require('./path/to/icon.png')} style={styles.icon} />
-      <Text style={styles.title}>{title}</Text>
-      <TouchableOpacity onPress={onInfoPress} style={styles.infoButton}>
-        <Ionicons name="information-circle-outline" size={24} color="black" />
-      </TouchableOpacity>
+      <Image source={{ uri: faker.image.avatar() }} style={styles.icon} />
+      <Text style={styles.title}>Name</Text>
+      <Pressable onPress={() => {}} style={styles.infoButton}>
+        <Entypo name="info-with-circle" size={24} color="#CB0C9F" />
+      </Pressable>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     padding: 10,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: "#f8f8f8",
   },
   icon: {
     width: 30,
     height: 30,
-    marginRight: 10,
+    borderRadius: 15,
   },
   title: {
     flex: 1,
@@ -38,7 +35,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   infoButton: {
-    marginLeft: 'auto',
+    marginLeft: "auto",
   },
 });
 

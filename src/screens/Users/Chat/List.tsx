@@ -70,13 +70,13 @@ const ChatItem: React.FC<Chat> = ({
   lastDateSent,
 }) => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
-  const formattedDate = format(lastDateSent, "PPpp");
+  const formattedDate = format(lastDateSent!, "PPpp");
   const image: ImageSourcePropType = senderImage
     ? { uri: senderImage }
     : require("../../../assets/images/user.png");
 
   const onPress = () => {
-    navigation.navigate("Chat");
+    navigation.navigate("Chat", { _id, senderImage, senderName });
   };
 
   return (

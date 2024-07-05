@@ -21,13 +21,12 @@ const homeHeaderOptions: NativeStackNavigationOptions = {
 };
 
 const homeInitialParams: ScreenProps["Home"] = {
-  initialTab: "EventList"
-}
+  initialTab: "EventList",
+};
 
 const vendorHomeInitialParams: ScreenProps["Home"] = {
-  initialTab: "Bookings"
-}
-
+  initialTab: "Bookings",
+};
 
 const eventFormHeaderOptions: NativeStackNavigationOptions = {
   headerShown: false,
@@ -35,6 +34,10 @@ const eventFormHeaderOptions: NativeStackNavigationOptions = {
 
 const eventViewHeaderOptions: NativeStackNavigationOptions = {
   headerShown: false,
+};
+
+const chatOptions: NativeStackNavigationOptions = {
+  headerBackVisible: false,
 };
 
 const SignedInNav = () => {
@@ -64,7 +67,7 @@ const SignedInNav = () => {
       <SignedInStack.Screen
         name="Chat"
         component={Chat}
-        options={{ headerShown: false }}
+        options={chatOptions}
       />
       <SignedInStack.Screen
         name="SuccessError"
@@ -90,5 +93,6 @@ const SignedInNav = () => {
     </SignedInStack.Navigator>
   );
 };
+
 
 export default SignedInNav;

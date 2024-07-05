@@ -1,15 +1,16 @@
+import { Entypo } from "@expo/vector-icons";
 import { faker } from "@faker-js/faker";
 import React, { useState, useCallback, useEffect } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Image, StyleSheet } from "react-native";
 import {
   GiftedChat,
   BubbleProps,
   IMessage,
   Bubble,
-  LeftRightStyle,
   TimeProps,
-  Time
+  Time,
 } from "react-native-gifted-chat";
+import { ChatScreenProps } from "types/types";
 
 const CustomMessageBubble = (props: BubbleProps<IMessage>) => {
   return (
@@ -26,19 +27,41 @@ const CustomMessageBubble = (props: BubbleProps<IMessage>) => {
 
 const CustomTimeStamp = (props: TimeProps<IMessage>) => {
   return (
-    <Time {...props} timeTextStyle={{
-      right: styles.timeStampText,
-      left: styles.timeStampText
-    }}/>
-  )
+    <Time
+      {...props}
+      timeTextStyle={{
+        right: styles.timeStampText,
+        left: styles.timeStampText,
+      }}
+    />
+  );
 };
 
+const headerIcon = (image?: string) => {
+  let source = { uri: image };
 
+  if (!image) {
+    source = require("../../../assets/images/user.png");
+  }
 
-export function Chat() {
+  return (
+    <View style={styles.iconContainer}>
+      <Image source={source} style={styles.icon} />
+    </View>
+  );
+};
+
+function Chat({ navigation, route }: ChatScreenProps) {
   const [messages, setMessages] = useState([]);
+  const { senderName, senderImage } = route.params;
+  const { setOptions } = navigation;
 
   useEffect(() => {
+    setOptions({
+      headerTitle: senderName,
+      headerLeft: () => headerIcon(senderImage),
+    });
+
     setMessages([
       {
         _id: 1,
@@ -47,7 +70,8 @@ export function Chat() {
         user: {
           _id: 2,
           name: "React Native",
-          avatar: faker.image.avatar(),        },
+          avatar: faker.image.avatar(),
+        },
       },
       {
         _id: 2,
@@ -94,11 +118,11 @@ export function Chat() {
 
 const styles = StyleSheet.create({
   senderBubble: {
-    borderRadius:15,
+    borderRadius: 15,
     backgroundColor: "#e5a435",
   },
   userBubble: {
-    borderRadius:15,
+    borderRadius: 15,
 
     backgroundColor: "#CB0C9F",
   },
@@ -107,8 +131,27 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   timeStampText: {
-    color: "#ffff"
-  }
+    color: "#ffff",
+  },
+  iconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#ccc",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 10,
+  },
+  icon: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+  },
+  title: {
+    flex: 1,
+    fontSize: 18,
+    fontWeight: "bold",
+  },
 });
 
 export default Chat;
