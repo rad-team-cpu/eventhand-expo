@@ -21,6 +21,7 @@ import Home from ".";
 const setUserMock = jest.fn();
 
 const mockUser: UserProfile = {
+  _id: "",
   email: "",
   lastName: "Doe",
   firstName: "John",

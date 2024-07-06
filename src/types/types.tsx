@@ -49,6 +49,7 @@ interface UserChat {
 }
 
 interface UserProfile {
+  _id: string;
   profilePicture?: string | null;
   email: string;
   lastName: string;

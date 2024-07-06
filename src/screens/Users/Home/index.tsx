@@ -95,9 +95,9 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
 
     try {
       const res = await fetch(url, request);
-
+      const data = await res.json();
+      
       if (res.status === 200) {
-        const data = await res.json();
         setUser({ ...data });
         setLoading(false);
       } else if (res.status === 400) {

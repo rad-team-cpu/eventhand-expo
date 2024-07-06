@@ -14,6 +14,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 const UserProvider = (props: UserProviderProps) => {
   const [user, setUser] = useState<UserProfile>({
+    _id: "",
     email: "",
     lastName: "",
     firstName: "",

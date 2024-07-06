@@ -26,6 +26,7 @@ import {
 import ProfileForm from "../Form";
 
 const mockUser: UserProfile = {
+  _id: "mock-id",
   email: "emailadress@example.com",
   lastName: "Doe",
   firstName: "John",
@@ -2293,9 +2294,10 @@ describe("ProfileForm", () => {
       async (data) => {
         const { firstName, lastName, contactNumber, gender } = data;
         const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/users`;
+        const mock_id = faker.string.uuid();
 
-        fetch.once(url, { status: 201, headers });
-
+        fetch.once(JSON.stringify({_id: mock_id}), { status: 201, headers, url });
+        
         const mockUri = faker.image.dataUri();
         const size = faker.number.int({ max: 5242879 });
 
@@ -2353,6 +2355,7 @@ describe("ProfileForm", () => {
         });
 
         const expectedUser = {
+          _id: mock_id,
           profilePicture: mockRef,
           email: mockUser.email,
           firstName,
@@ -2369,7 +2372,12 @@ describe("ProfileForm", () => {
           },
           body: JSON.stringify({
             clerkId: mockUserId,
-            ...expectedUser,
+            profilePicture: mockRef,
+            email: mockUser.email,
+            firstName,
+            lastName,
+            contactNumber,
+            gender: gender.toLocaleUpperCase()
           }),
         };
 
@@ -2388,8 +2396,9 @@ describe("ProfileForm", () => {
       async (data) => {
         const { firstName, lastName, contactNumber, gender } = data;
         const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/users`;
+        const mock_id = faker.string.uuid()
 
-        fetch.once(url, { status: 201, headers });
+        fetch.once(JSON.stringify({_id: mock_id}), { status: 201, headers, url });
 
         await waitFor(() => {
           render(<TestProfileComponent />);
@@ -2422,6 +2431,7 @@ describe("ProfileForm", () => {
         });
 
         const expectedUser = {
+          _id: mock_id,
           email: mockUser.email,
           firstName,
           lastName,
@@ -2437,7 +2447,11 @@ describe("ProfileForm", () => {
           },
           body: JSON.stringify({
             clerkId: mockUserId,
-            ...expectedUser,
+            email: mockUser.email,
+            firstName,
+            lastName,
+            contactNumber,
+            gender: gender.toLocaleUpperCase(),
           }),
         };
 

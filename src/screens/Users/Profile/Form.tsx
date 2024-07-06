@@ -203,10 +203,11 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
       };
 
       const response = await fetch(url, request);
+      const data = await response.json();
 
       switch (response.status) {
         case 201:
-          setUser(user);
+          setUser({ _id: data._id as string, ...user });
           setLoading(false);
           navigateToSuccessError({
             description: "Your information was saved successfully.",
