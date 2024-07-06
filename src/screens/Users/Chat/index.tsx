@@ -1,6 +1,12 @@
-import { Entypo } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { faker } from "@faker-js/faker";
-import React, { useState, useCallback, useEffect } from "react";
+import { UserContext } from "Contexts/UserContext";
+import { getInfoAsync } from "expo-file-system";
+import {
+  launchImageLibraryAsync,
+  useMediaLibraryPermissions,
+} from "expo-image-picker";
+import React, { useState, useCallback, useEffect, useContext } from "react";
 import { View, Image, StyleSheet } from "react-native";
 import {
   GiftedChat,
@@ -9,8 +15,19 @@ import {
   Bubble,
   TimeProps,
   Time,
+  Actions,
 } from "react-native-gifted-chat";
-import { ChatScreenProps } from "types/types";
+import FirebaseService from "service/firebase";
+import { ChatScreenProps, ImageInfo } from "types/types";
+import { v4 as uuidv4 } from "uuid";
+import { object, string, number, ValidationError } from "yup";
+
+const isYupValidationError = (error: any) => {
+  return (
+    Array.isArray(error.errors) &&
+    error.errors.every((perm: any) => typeof perm === "string")
+  );
+};
 
 const CustomMessageBubble = (props: BubbleProps<IMessage>) => {
   return (
@@ -51,10 +68,25 @@ const headerIcon = (image?: string) => {
   );
 };
 
+const getFileInfo = async (fileURI: string) =>
+  await getInfoAsync(fileURI, { size: true });
+
+type MessageState = "OK" | "ERROR";
+
 function Chat({ navigation, route }: ChatScreenProps) {
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState<IMessage[]>([]);
+  const [messageState, setMessageState] = useState<MessageState>("OK");
+  const userContext = useContext(UserContext);
   const { senderName, senderImage } = route.params;
   const { setOptions } = navigation;
+  const [status, requestPermission] = useMediaLibraryPermissions();
+
+  if (!userContext) {
+    throw new Error("UserInfo must be used within a UserProvider");
+  }
+
+  const { user } = userContext;
+  const { _id } = user;
 
   useEffect(() => {
     setOptions({
@@ -94,7 +126,7 @@ function Chat({ navigation, route }: ChatScreenProps) {
     ]);
   }, []);
 
-  const onSend = useCallback((messages = []) => {
+  const onSend = useCallback((messages: IMessage[] = []) => {
     setMessages((previousMessages) =>
       GiftedChat.append(previousMessages, messages),
     );
@@ -112,6 +144,106 @@ function Chat({ navigation, route }: ChatScreenProps) {
       }}
       loadEarlier
       infiniteScroll
+      renderActions={(props) => {
+        const firebaseService = FirebaseService.getInstance();
+
+        const imageValidationSchema = object({
+          fileSize: number().max(
+            5242880,
+            "File size too large, must be below 5mb",
+          ),
+          uri: string(),
+          mimeType: string().matches(/^image\/(png|jpeg)$/, {
+            message: "File must be a png or jpeg",
+            excludeEmptyString: true,
+          }),
+          fileExtension: string().matches(/^(png|jpe?g)$/, {
+            message: "File must be a png or jpeg",
+            excludeEmptyString: true,
+          }),
+        });
+
+        const pickImageAsync = async () => {
+          // setLoading(true);
+          const permission = await requestPermission();
+
+          if (!permission.granted) {
+            alert(
+              "You have denied access to media library. Please select allow to upload photo",
+            );
+          }
+
+          const result = await launchImageLibraryAsync({
+            quality: 1,
+          });
+
+          if (!result.canceled) {
+            const image = result.assets[0];
+            const imageFileInfo = await getFileInfo(image.uri);
+            const fileExtension = image.fileName
+              ? image.fileName.split(".").pop()
+              : "";
+            const mimeType = image.mimeType ? image.mimeType : "";
+
+            const selectedImageInfo: ImageInfo = {
+              uri: image.uri,
+              fileSize: imageFileInfo.size,
+              mimeType,
+              fileExtension,
+            };
+
+            try {
+              const validImage =
+                await imageValidationSchema.validate(selectImage);
+
+
+
+            } catch (error: any) {
+              let sysMessage: IMessage;
+              if (isYupValidationError(error)) {
+                sysMessage = {
+                  _id: uuidv4(),
+                  text: error.errors[0],
+                  createdAt: new Date(Date.UTC(2016, 5, 11, 17, 20, 0)),
+                  system: true,
+                  user: {
+                    _id,
+                  },
+                };
+              } else {
+                sysMessage = {
+                  _id: uuidv4(),
+                  text: "A Error has occured",
+                  createdAt: new Date(Date.UTC(2016, 5, 11, 17, 20, 0)),
+                  system: true,
+                  user: {
+                    _id,
+                  },
+                };
+              }
+
+              setMessageState("ERROR");
+              setMessages((previousMessage) =>
+                GiftedChat.append(previousMessage, [sysMessage]),
+              );
+            }
+            // onChange(selectedImageInfo);
+          } else {
+            alert("You did not select any image.");
+          }
+          // setLoading(false);
+        };
+
+        const selectImage = () => pickImageAsync();
+
+        return (
+          <Actions
+            {...props}
+            icon={() => <Feather name="upload" size={20} color="#CB0C9F" />}
+            onPressActionButton={() => selectImage()}
+          />
+        );
+      }}
     />
   );
 }
@@ -123,7 +255,6 @@ const styles = StyleSheet.create({
   },
   userBubble: {
     borderRadius: 15,
-
     backgroundColor: "#CB0C9F",
   },
   messageText: {
