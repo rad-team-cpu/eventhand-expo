@@ -17,6 +17,9 @@ const SignedInStack = createNativeStackNavigator<ScreenProps>();
 const homeHeaderOptions: NativeStackNavigationOptions = {
   headerTitle: "Event Hand",
   headerTitleAlign: "center",
+  headerShadowVisible: false,
+  headerTintColor: "white",
+  headerShown: false
 };
 
 const homeInitialParams: ScreenProps["Home"] = {

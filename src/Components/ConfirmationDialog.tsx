@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   cancelButton: {
-    backgroundColor: "red",
+    backgroundColor: "#FF667C",
     padding: 15,
     borderRadius: 50,
     justifyContent: "center",
@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
     height: 60,
   },
   confirmButton: {
-    backgroundColor: "green",
+    backgroundColor: "#98EC2D",
     padding: 15,
     borderRadius: 50,
     justifyContent: "center",

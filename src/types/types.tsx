@@ -127,6 +127,7 @@ type ConfirmationScreenProps = NativeStackScreenProps<ScreenProps, "Confirmation
 
 type HomeScreenBottomTabsProps = {
   Home: NavigatorScreenParams<ScreenProps>;
+  VendorList: undefined;
   EventList: undefined;
   Chat: undefined;
   Profile: undefined;
@@ -144,6 +145,10 @@ type EventListNavigationProps = CompositeNavigationProp<
 
 type ChatScreenProps = CompositeScreenProps<
   BottomTabScreenProps<HomeScreenBottomTabsProps, "Chat">,
+  NativeStackScreenProps<ScreenProps>
+>;
+type VendorListScreenProps = CompositeScreenProps<
+  BottomTabScreenProps<HomeScreenBottomTabsProps, "VendorList">,
   NativeStackScreenProps<ScreenProps>
 >;
 
@@ -174,6 +179,7 @@ export {
   EventListNavigationProps,
   EventViewScreenProps,
   ChatScreenProps,
+  VendorListScreenProps,
   ProfileScreenProps,
   EventFormScreenProps,
   VendorHomeScreenProps,
