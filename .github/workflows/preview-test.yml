@@ -1,7 +1,7 @@
 name: preview-test
 
 on:
-  push:
+  pull_request:
     branches: [main]
 jobs:
   build:
@@ -31,6 +31,11 @@ jobs:
         uses: Borales/actions-yarn@v4.2.0
         with:
           cmd: install
+        
+      - name: Run ESLint 
+        uses: Borales/actions-yarn@v4.2.0
+        with:
+          cmd: lint
 
       - name: Run tests
         uses: Borales/actions-yarn@v4.2.0
