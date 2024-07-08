@@ -6,7 +6,6 @@ import {
   FieldValues,
   Controller,
 } from "react-hook-form";
-import { HelperText } from "react-native-paper";
 
 import Input from "./Input";
 import { IInputProps } from "../../constants/types/components";
@@ -73,9 +72,9 @@ const FormTextInput = ({ mode = "text", ...props }: FormTextInputProps) => {
               // danger={Boolean(registration.name && !isValid.name)}
               // onChangeText={(value) => handleChange({name: value})}:
             />
-            <HelperText type="error" visible={errorState ?? !!errors[name]}>
+            {/* <Text type="error" visible={errorState ?? !!errors[name]}>
               {errorMessage ?? errors[name]?.message}
-            </HelperText>
+            </Text> */}
           </>
         );
       }}

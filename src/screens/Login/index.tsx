@@ -6,9 +6,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import React, { useState } from "react";
 import { useForm, FieldValues, Controller } from "react-hook-form";
 import { TextInput, TouchableOpacity, Pressable } from "react-native";
-import { HelperText } from "react-native-paper";
 import { object, string } from "yup";
-
 import Block from "Components/Ui/Block";
 import Button from "Components/Ui/Button";
 import Image from "Components/Ui/Image";
@@ -221,9 +219,9 @@ const Login = ({ navigation }: LoginScreenProps) => {
                     Sign in
                   </Text>
                 </Button>
-                <HelperText type="error" visible>
+                <Text danger>
                   {errorMessage}
-                </HelperText>
+                </Text>
                 <Block>
                   <Text center>Don’t have an account? </Text>
                   <TouchableOpacity
