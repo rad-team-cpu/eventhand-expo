@@ -1,17 +1,17 @@
 import {
   BottomTabNavigationProp,
   BottomTabScreenProps,
-} from '@react-navigation/bottom-tabs';
+} from "@react-navigation/bottom-tabs";
 import {
   CompositeNavigationProp,
   CompositeScreenProps,
   NavigatorScreenParams,
-} from '@react-navigation/native';
+} from "@react-navigation/native";
 import type {
   NativeStackNavigationProp,
   NativeStackScreenProps,
-} from '@react-navigation/native-stack';
-import { FullMetadata, StorageReference } from 'firebase/storage';
+} from "@react-navigation/native-stack";
+import { FullMetadata, StorageReference } from "firebase/storage";
 
 interface EventInfo {
   _id: string;
@@ -69,8 +69,9 @@ interface SuccessErrorProps {
   buttonText: string;
   navigateTo?: string;
   logOut?: keyof ScreenProps;
-  status: 'success' | 'error';
+  status: "success" | "error";
   navParams?: ScreenProps[keyof ScreenProps];
+
 }
 
 interface ConfirmationProps {
@@ -85,9 +86,7 @@ interface HomeProps {
   initialTab?: string;
 }
 
-interface VendorMenuProps {
-  merchantId?: number
-}
+
 
 type ScreenProps = {
   SignUp: undefined;
@@ -96,39 +95,35 @@ type ScreenProps = {
   ProfileForm: undefined;
   EventForm: undefined;
   EventView: EventInfo;
-  VendorMenu: VendorMenuProps;
   SuccessError: SuccessErrorProps;
   Confirmation: ConfirmationProps;
   VendorHome: HomeProps;
   VendorProfileForm: undefined;
 };
 
-type SignUpScreenProps = NativeStackScreenProps<ScreenProps, 'SignUp'>;
+type SignUpScreenProps = NativeStackScreenProps<ScreenProps, "SignUp">;
 
-type LoginScreenProps = NativeStackScreenProps<ScreenProps, 'Login'>;
+type LoginScreenProps = NativeStackScreenProps<ScreenProps, "Login">;
 
-type HomeScreenProps = NativeStackScreenProps<ScreenProps, 'Home'>;
+type HomeScreenProps = NativeStackScreenProps<ScreenProps, "Home">;
 
-type HomeScreenNavigationProp = NativeStackNavigationProp<ScreenProps, 'Home'>;
+type HomeScreenNavigationProp = NativeStackNavigationProp<ScreenProps, "Home">;
 
 type ProfileFormScreenProps = NativeStackScreenProps<
   ScreenProps,
-  'ProfileForm'
+  "ProfileForm"
 >;
 
-type EventFormScreenProps = NativeStackScreenProps<ScreenProps, 'EventForm'>;
+type EventFormScreenProps = NativeStackScreenProps<ScreenProps, "EventForm">;
 
-type EventViewScreenProps = NativeStackScreenProps<ScreenProps, 'EventView'>;
+type EventViewScreenProps = NativeStackScreenProps<ScreenProps, "EventView">;
 
 type SuccessErrorScreenProps = NativeStackScreenProps<
   ScreenProps,
-  'SuccessError'
+  "SuccessError"
 >;
 
-type ConfirmationScreenProps = NativeStackScreenProps<
-  ScreenProps,
-  'Confirmation'
->;
+type ConfirmationScreenProps = NativeStackScreenProps<ScreenProps, "Confirmation">
 
 type HomeScreenBottomTabsProps = {
   Home: NavigatorScreenParams<ScreenProps>;
@@ -139,37 +134,32 @@ type HomeScreenBottomTabsProps = {
 };
 
 type EventListScreenProps = CompositeScreenProps<
-  BottomTabScreenProps<HomeScreenBottomTabsProps, 'EventList'>,
+  BottomTabScreenProps<HomeScreenBottomTabsProps, "EventList">,
   NativeStackScreenProps<ScreenProps>
 >;
 
 type EventListNavigationProps = CompositeNavigationProp<
-  BottomTabNavigationProp<HomeScreenBottomTabsProps, 'EventList'>,
+  BottomTabNavigationProp<HomeScreenBottomTabsProps, "EventList">,
   NativeStackNavigationProp<ScreenProps>
 >;
 
 type ChatScreenProps = CompositeScreenProps<
-  BottomTabScreenProps<HomeScreenBottomTabsProps, 'Chat'>,
+  BottomTabScreenProps<HomeScreenBottomTabsProps, "Chat">,
   NativeStackScreenProps<ScreenProps>
 >;
 type VendorListScreenProps = CompositeScreenProps<
-  BottomTabScreenProps<HomeScreenBottomTabsProps, 'VendorList'>,
+  BottomTabScreenProps<HomeScreenBottomTabsProps, "VendorList">,
   NativeStackScreenProps<ScreenProps>
 >;
-
-type VendorMenuScreenProps = NativeStackScreenProps<ScreenProps, 'VendorMenu'>;
 
 type ProfileScreenProps = CompositeScreenProps<
-  BottomTabScreenProps<HomeScreenBottomTabsProps, 'Profile'>,
+  BottomTabScreenProps<HomeScreenBottomTabsProps, "Profile">,
   NativeStackScreenProps<ScreenProps>
 >;
 
-type VendorHomeScreenProps = NativeStackScreenProps<ScreenProps, 'VendorHome'>;
+type VendorHomeScreenProps = NativeStackScreenProps<ScreenProps, "VendorHome">;
 
-type VendorProfileFormScreenProps = NativeStackScreenProps<
-  ScreenProps,
-  'VendorProfileForm'
->;
+type VendorProfileFormScreenProps = NativeStackScreenProps<ScreenProps, "VendorProfileForm">;
 
 export {
   EventInfo,
@@ -190,9 +180,8 @@ export {
   EventViewScreenProps,
   ChatScreenProps,
   VendorListScreenProps,
-  VendorMenuScreenProps,
   ProfileScreenProps,
   EventFormScreenProps,
   VendorHomeScreenProps,
-  VendorProfileFormScreenProps,
+  VendorProfileFormScreenProps
 };

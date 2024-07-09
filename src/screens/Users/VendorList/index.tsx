@@ -14,35 +14,24 @@ import React, { useState } from 'react';
 import Loading from 'screens/Loading';
 import { StatusBar } from 'expo-status-bar';
 import StarRating from 'Components/Ui/StarRating';
-import { useNavigation } from '@react-navigation/native';
-import { HomeScreenNavigationProp, ScreenProps } from "types/types";
-
-
 const merchants = [
-  { id: 1, name: 'JJ Photography', category: 'Photographers' },
-  { id: 2, name: 'JJ Artist', category: 'Artists' },
-  { id: 3, name: 'Rabino Styles', category: 'Designers' },
-  { id: 4, name: 'Mortodg', category: 'Musicians' },
-  { id: 5, name: 'Eme',  category: 'Caterers' },
-  { id: 6, name: 'Thingy',  category: 'Bakers' },
-  { id: 7, name: 'Videototgraphy',  category: 'Videographers' },
-  { id: 8, name: 'JJ Phototgraphy',  category: 'DJ' },
-  { id: 9, name: 'JJ Phototgraphy',  category: 'Host' },
-  { id: 10, name: 'JJ Phototgraphy',  category: 'Gowns' },
-  { id: 11, name: 'JJ Phototgraphy',  category: 'Caterers' },
-  { id: 12, name: 'JJ Phototgraphy',  category: 'Bakers' },
+  { id: 1, category: 'Photographers' },
+  { id: 2, category: 'Artists' },
+  { id: 3, category: 'Designers' },
+  { id: 4, category: 'Musicians' },
+  { id: 5, category: 'Caterers' },
+  { id: 6, category: 'Bakers' },
+  { id: 7, category: 'Videographers' },
+  { id: 8, category: 'DJ' },
+  { id: 9, category: 'Host' },
+  { id: 10, category: 'Gowns' },
+  { id: 11, category: 'Caterers' },
+  { id: 12, category: 'Bakers' },
 ];
 
 export default function VendorList() {
   const [loading, setLoading] = useState(false);
   const { assets, colors, sizes, gradients } = useTheme();
-  const navigation = useNavigation<HomeScreenNavigationProp>();
-  
-  const onPressMerchant = () => {
-    const vendorMenuProps: ScreenProps["VendorMenu"] = {
-    };
-    navigation.navigate("VendorMenu", { ...vendorMenuProps });
-  };
 
   return (
     <Block testID='vendor-list' safe>
@@ -77,75 +66,74 @@ export default function VendorList() {
           </Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {merchants.map((merchant) => (
-              <TouchableOpacity
-              // key={product.id}
-              >
-                <View className='bg-slate-500/30 h-24 w-40 flex items-center justify-center rounded-xl mr-3'>
-                  <Text className=' text-sm text-center'>{merchant.name}</Text>
-                </View>
-              </TouchableOpacity>
-            ))}
+            <TouchableOpacity
+            // key={product.id}
+            >
+              <View className='bg-slate-500/30 h-24 w-40 flex items-center justify-center rounded-xl mr-3'>
+                <Text className='text-6 text-center'>Name</Text>
+                <Text className='text-4 text-center'> 🤩</Text>
+              </View>
+            </TouchableOpacity>
+             ))}
           </ScrollView>
           <View className='h-auto flex items-left justify-left gap-y-2'>
             <Text className='text-xl text-black font-bold'>Trendy Venues</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {merchants.map((merchant) => (
-                <TouchableOpacity
-                  key={merchant.id}
-                  className=' h-32 w-24 flex flex-row rounded-xl mr-3 '
-                  onPress={() => onPressMerchant()}
-                >
-                  <View className='bg-slate-500/30 w-24 h-24 rounded-xl align-middle '>
-                    <Image
-                      background
-                      resizeMode='cover'
-                      padding={sizes.md}
-                      source={assets.card1}
-                      rounded
-                      className='h-24 w-24 rounded-xl'
-                    ></Image>
-                    <Text className='text-xs text-center'>{merchant.name}</Text>
+              <TouchableOpacity
+                key={merchant.id}
+                className=' h-32 w-24 flex flex-row rounded-xl mr-3 '
+                // onPress={() => {}}
+              >
+                <View className='bg-slate-500/30 w-24 h-24 rounded-xl align-middle '>
+                  <Image
+                    background
+                    resizeMode='cover'
+                    padding={sizes.md}
+                    source={assets.card1}
+                    rounded
+                    className='h-24 w-24 rounded-xl'
+                  ></Image>
+                  <Text className='text-6 text-center'>Hello</Text>
 
-                    <View className=' items-center'>
-                      <StarRating rating={4} starStyle='width' />
-                    </View>
-
-                    {/* <StarRating rating={merchant.rating} starStyle='width' /> */}
+                  <View className=' items-center'>
+                    <StarRating rating={4} starStyle='width' />
                   </View>
-                </TouchableOpacity>
-              ))}
+
+                  {/* <StarRating rating={merchant.rating} starStyle='width' /> */}
+                </View>
+              </TouchableOpacity>
+               ))} 
             </ScrollView>
           </View>
           <View className='h-auto flex items-left justify-left gap-y-2'>
-            <Text className='text-xl text-black font-bold capitalize1 qDE%$'>
-              Top-Rated caterers
-            </Text>
+            <Text className='text-xl text-black font-bold capitalize1 qDE%$'>Top-Rated caterers</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {merchants.map((merchant) => (
-                <TouchableOpacity
-                  key={merchant.id}
-                  className=' h-32 w-24 flex flex-row rounded-xl mr-3 '
-                  // onPress={() => {}}
-                >
-                  <View className='bg-slate-500/30 w-24 h-24 rounded-xl align-middle '>
-                    <Image
-                      background
-                      resizeMode='cover'
-                      padding={sizes.md}
-                      source={assets.card1}
-                      rounded
-                      className='h-24 w-24 rounded-xl'
-                    ></Image>
-                    <Text className='text-xs text-center'>Hello</Text>
+              <TouchableOpacity
+                key={merchant.id}
+                className=' h-32 w-24 flex flex-row rounded-xl mr-3 '
+                // onPress={() => {}}
+              >
+                <View className='bg-slate-500/30 w-24 h-24 rounded-xl align-middle '>
+                  <Image
+                    background
+                    resizeMode='cover'
+                    padding={sizes.md}
+                    source={assets.card1}
+                    rounded
+                    className='h-24 w-24 rounded-xl'
+                  ></Image>
+                  <Text className='text-6 text-center'>Hello</Text>
 
-                    <View className=' items-center'>
-                      <StarRating rating={4} starStyle='width' />
-                    </View>
-
-                    {/* <StarRating rating={merchant.rating} starStyle='width' /> */}
+                  <View className=' items-center'>
+                    <StarRating rating={4} starStyle='width' />
                   </View>
-                </TouchableOpacity>
-              ))}
+
+                  {/* <StarRating rating={merchant.rating} starStyle='width' /> */}
+                </View>
+              </TouchableOpacity>
+               ))} 
             </ScrollView>
           </View>
           <View className='w-full h-auto flex items-left justify-left gap-y-2'>
@@ -158,22 +146,20 @@ export default function VendorList() {
               className=' flex flex-row'
             >
               {merchants.slice(0, 7).map((merchant) => (
-                <TouchableOpacity
-                  // key={merchant.id}
-                  className='w-12 h-12 rounded-xl border mr-2'
-                  // onPress={() => {}}
-                >
-                  <View className='bg-slate-500/30 w-12 h-12 rounded-xl align-middle '>
-                    {/* <Image
+              <TouchableOpacity
+                // key={merchant.id}
+                className='w-12 h-12 rounded-xl border mr-2'
+                // onPress={() => {}}
+              >
+                <View className='bg-slate-500/30 w-12 h-12 rounded-xl align-middle '>
+                  {/* <Image
                       source={require('@/assets/images/Customer/mobilehotdog.webp')}
                       className='bg-contain w-24 h-24 z-0'
                     /> */}
-                    <Text className='text-xs text-center'>
-                      {merchant.category}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              ))}
+                  <Text className='text-xs text-center'>{merchant.category}</Text>
+                </View>
+              </TouchableOpacity>
+               ))}  
             </ScrollView>
           </View>
           <View className='w-full h-auto flex items-left justify-left gap-y-2'>
@@ -183,22 +169,20 @@ export default function VendorList() {
               className=' flex flex-row'
             >
               {merchants.slice(5, 12).map((merchant) => (
-                <TouchableOpacity
-                  // key={merchant.id}
-                  className='w-12 h-12 rounded-xl border mr-2'
-                  // onPress={() => {}}
-                >
-                  <View className='bg-slate-500/30 w-12 h-12 rounded-xl align-middle '>
-                    {/* <Image
+              <TouchableOpacity
+                // key={merchant.id}
+                className='w-12 h-12 rounded-xl border mr-2'
+                // onPress={() => {}}
+              >
+                <View className='bg-slate-500/30 w-12 h-12 rounded-xl align-middle '>
+                  {/* <Image
                       source={require('@/assets/images/Customer/mobilehotdog.webp')}
                       className='bg-contain w-24 h-24 z-0'
                     /> */}
-                    <Text className='text-xs text-center'>
-                      {merchant.category}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              ))}
+                  <Text className='text-xs text-center'>{merchant.category}</Text>
+                </View>
+              </TouchableOpacity>
+               ))}  
             </ScrollView>
           </View>
         </View>
