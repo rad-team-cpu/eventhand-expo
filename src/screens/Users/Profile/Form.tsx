@@ -278,7 +278,7 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
 
               <Block flex={0} align='center' marginTop={sizes.md}>
                 <ProfileUpload
-                  name='profile-upload'
+                  name='profileAvatar'
                   label='Upload your photo'
                   control={control as unknown as Control<FieldValues, unknown>}
                   register={register as unknown as UseFormRegister<FieldValues>}
