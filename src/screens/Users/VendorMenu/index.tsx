@@ -1,18 +1,22 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/core';
 import Block from 'Components/Ui/Block';
 import Image from 'Components/Ui/Image';
 import useTheme from 'src/core/theme';
 import Button from 'Components/Ui/Button';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, Text } from 'react-native';
 import { AntDesign, Entypo } from '@expo/vector-icons';
+import axios from 'axios';
+import { Vendor, PackageType } from 'types/types';
 
 const VendorMenu = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { assets, colors, sizes } = useTheme();
+  const [vendor, setVendor] = useState<Vendor>();
 
-  const { merchantId } = route.params as { merchantId: number };
+  const { vendorId } = route.params as { vendorId: number };
+  // console.log(vendorId)
 
   const IMAGE_SIZE = (sizes.width - (sizes.padding + sizes.sm) * 2) / 3;
   const IMAGE_VERTICAL_SIZE =
@@ -21,46 +25,75 @@ const VendorMenu = () => {
   const IMAGE_VERTICAL_MARGIN =
     (sizes.width - (IMAGE_VERTICAL_SIZE + sizes.sm) * 2) / 2;
 
-  const vendor = {
-    id: merchantId,
-    name: 'JJ Photography',
-    category: 'Photography',
-    about:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum',
-    packages: [
-      {
-        id: 1,
-        name: 'Gold Package',
-        inclusions: [
-          { name: 'Same Day Edit', quantity: '30 mins' },
-          { name: 'Same Day Edit', quantity: '30 mins' },
-          { name: 'Same Day Edit', quantity: '30 mins' },
-        ],
-      },
-      {
-        id: 2,
-        name: 'Silver Package',
-        inclusions: [
-          { name: 'Same Day Edit', quantity: '30 mins' },
-          { name: 'Same Day Edit', quantity: '30 mins' },
-          { name: 'Same Day Edit', quantity: '30 mins' },
-        ],
-      },
-      {
-        id: 3,
-        name: 'Bronze Package',
-        inclusions: [
-          { name: 'Same Day Edit', quantity: '30 mins' },
-          { name: 'Same Day Edit', quantity: '30 mins' },
-          { name: 'Same Day Edit', quantity: '30 mins' },
-        ],
-      },
-    ],
-    stats: { bookings: 341, ratings: 4.5, reviews: 560 },
-    portfolio: [assets?.card1, assets?.card2, assets?.card3], // Replace with actual images
-  };
+    const fetchVendor = useCallback(async () => {
+      try {
+        const response = await axios.get(`http://192.168.254.100:3000/vendors/${vendorId}`, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        setVendor(response.data);
+      } catch (error: any) {
+        if (error instanceof TypeError) {
+          console.error('Network request failed. Possible causes: CORS issues, network issues, or incorrect URL.');
+        } else {
+          console.error('Error fetching vendors:', error.message);
+        }
+      }
+    }, [vendorId]);
+
+  useEffect(() => {
+    fetchVendor();
+  }, []);
+
+  // const vendor = {
+  //   id: merchantId,
+  //   name: 'JJ Photography',
+  //   category: 'Photography',
+  //   about:
+  //     'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum',
+  //   packages: [
+  //     {
+  //       id: 1,
+  //       name: 'Gold Package',
+  //       inclusions: [
+  //         { name: 'Same Day Edit', quantity: '30 mins' },
+  //         { name: 'Same Day Edit', quantity: '30 mins' },
+  //         { name: 'Same Day Edit', quantity: '30 mins' },
+  //       ],
+  //     },
+  //     {
+  //       id: 2,
+  //       name: 'Silver Package',
+  //       inclusions: [
+  //         { name: 'Same Day Edit', quantity: '30 mins' },
+  //         { name: 'Same Day Edit', quantity: '30 mins' },
+  //         { name: 'Same Day Edit', quantity: '30 mins' },
+  //       ],
+  //     },
+  //     {
+  //       id: 3,
+  //       name: 'Bronze Package',
+  //       inclusions: [
+  //         { name: 'Same Day Edit', quantity: '30 mins' },
+  //         { name: 'Same Day Edit', quantity: '30 mins' },
+  //         { name: 'Same Day Edit', quantity: '30 mins' },
+  //       ],
+  //     },
+  //   ],
+  //   stats: { bookings: 341, ratings: 4.5, reviews: 560 },
+  //   portfolio: [assets?.card1, assets?.card2, assets?.card3], // Replace with actual images
+  // };
 
   const onPressPackage = () => {};
+
+  if (!vendor) {
+    return (
+      <Block safe marginTop={sizes.md}>
+        <Text>Loading...</Text>
+      </Block>
+    );
+  }
 
   return (
     <Block safe marginTop={sizes.md}>
@@ -90,16 +123,22 @@ const VendorMenu = () => {
             </Button>
             <Block flex={0} align='center'>
               <Image
-                width={32}
-                height={32}
-                marginBottom={sizes.sm}
-                // source={{uri: user?.avatar}}
+                width={72}
+                height={72}
+                src={vendor?.logo}
+                borderRadius={50}
               />
               <Text className='items-center text-white font-bold text-3xl'>
                 {vendor.name}
               </Text>
-              <Text className='items-center text-white'>{vendor.category}</Text>
-              <Block row marginVertical={sizes.m}>
+              {/* <Block row align='center'>
+                {vendor.tags.map((tag, index) => (
+                  <Text key={index} className='items-center text-white mx-1'>
+                    {tag}
+                  </Text>
+                ))}
+              </Block> */}
+              <Block row marginVertical={sizes.xs}>
                 <Button
                   white
                   outlined
@@ -146,17 +185,18 @@ const VendorMenu = () => {
           {/* profile: stats */}
           <Block
             flex={0}
-            radius={sizes.sm}
-            marginTop={-sizes.xl}
+            radius={sizes.xs}
+            marginTop={-sizes.md}
             marginHorizontal='8%'
-            color='rgba(255,255,255,0.2)'
+            padding={sizes.sm}
+            color='rgba(255,255,255,0.9)'
+            
           >
             <Block
               row
               blur
               flex={0}
-              intensity={100}
-              radius={sizes.sm}
+              radius={sizes.xs}
               overflow='hidden'
               tint={colors.blurTint}
               justify='space-evenly'
@@ -164,19 +204,19 @@ const VendorMenu = () => {
             >
               <Block align='center'>
                 <Text className='text-sm font-bold'>
-                  {vendor?.stats?.bookings || 0}
+                  {vendor?.credibilityFactors?.bookings || 0}
                 </Text>
                 <Text>Bookings</Text>
               </Block>
               <Block align='center'>
                 <Text className='text-sm font-bold'>
-                  {vendor?.stats?.reviews || 0}
+                  {vendor?.credibilityFactors?.reviews || 0}
                 </Text>
                 <Text>Reviews</Text>
               </Block>
               <Block align='center'>
                 <Text className='text-sm font-bold'>
-                  {vendor?.stats?.ratings || 0}
+                  {vendor?.credibilityFactors?.ratingsScore.toFixed(1) || 0}
                 </Text>
                 <Text>Ratings</Text>
               </Block>
@@ -186,13 +226,13 @@ const VendorMenu = () => {
           <Block paddingHorizontal={sizes.sm} marginTop={sizes.m} className=''>
             <Text className='text-xl text-black font-bold mb-1'>About</Text>
             <Text className='font-normal text-justify leading-5'>
-              {vendor.about}
+              {vendor.bio}
             </Text>
           </Block>
           <Block paddingHorizontal={sizes.sm}>
             <Text className='text-xl font-bold pb-2'>Packages</Text>
             <ScrollView showsHorizontalScrollIndicator={false}>
-              {vendor.packages.map((vendorPackage) => (
+              {/* {vendor.packages.map((vendorPackage: PackageType ) => (
                 <TouchableOpacity
                   key={vendorPackage.id}
                   className=' h-24 w-full rounded-xl border flex flex-row mt-2'
@@ -217,7 +257,7 @@ const VendorMenu = () => {
                     ))}
                   </View>
                 </TouchableOpacity>
-              ))}
+              ))} */}
             </ScrollView>
           </Block>
 
@@ -242,7 +282,7 @@ const VendorMenu = () => {
                 <Image
                   resizeMode='cover'
                   source={assets?.card2}
-                  marginBottom={IMAGE_VERTICAL_MARGIN}
+                  // marginBottom={IMAGE_VERTICAL_MARGIN}
                   style={{
                     height: IMAGE_VERTICAL_SIZE,
                     width: IMAGE_VERTICAL_SIZE,

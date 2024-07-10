@@ -12,6 +12,7 @@ import type {
   NativeStackScreenProps,
 } from '@react-navigation/native-stack';
 import { FullMetadata, StorageReference } from 'firebase/storage';
+import { ImageSourcePropType } from 'react-native';
 
 interface EventInfo {
   _id: string;
@@ -21,12 +22,37 @@ interface EventInfo {
 }
 
 interface Vendor {
-  id: string;
-  logo?: string | null;
+  _id: string;
+  logo?: string | undefined;
+  banner?: string | undefined;
   name: string;
+  bio: string;
   email: string;
   address?: string;
   contactNumber: string;
+  tags: [];
+  about: string;
+  credibilityFactors: CredibilityFactorsType
+  packages: PackageType[];
+}
+
+interface PackageType {
+  id: string;
+  name: string;
+  inclusions: Product[]
+}
+
+interface Product {
+  id: string;
+  name: string;
+  description: string;
+  quantity: number;
+}
+
+interface CredibilityFactorsType {
+  ratingsScore: number;
+  bookings: number;
+  reviews: number;
 }
 interface ChatMessage {
   id: string;
@@ -86,7 +112,7 @@ interface HomeProps {
 }
 
 interface VendorMenuProps {
-  merchantId?: number
+  vendorId: string;
 }
 
 type ScreenProps = {
@@ -177,6 +203,9 @@ export {
   Vendor,
   ImageInfo,
   ImageUploadResult,
+  PackageType,
+  Product,
+  CredibilityFactorsType,
   ScreenProps,
   SignUpScreenProps,
   LoginScreenProps,
