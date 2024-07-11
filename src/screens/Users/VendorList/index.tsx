@@ -5,44 +5,55 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import axios from 'axios';
 import Block from 'Components/Ui/Block';
 import Button from 'Components/Ui/Button';
 import Image from 'Components/Ui/Image';
 import useTheme from '../../../core/theme';
 import { Text } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Loading from 'screens/Loading';
 import { StatusBar } from 'expo-status-bar';
 import StarRating from 'Components/Ui/StarRating';
 import { useNavigation } from '@react-navigation/native';
-import { HomeScreenNavigationProp, ScreenProps } from "types/types";
-
-
-const merchants = [
-  { id: 1, name: 'JJ Photography', category: 'Photographers' },
-  { id: 2, name: 'JJ Artist', category: 'Artists' },
-  { id: 3, name: 'Rabino Styles', category: 'Designers' },
-  { id: 4, name: 'Mortodg', category: 'Musicians' },
-  { id: 5, name: 'Eme',  category: 'Caterers' },
-  { id: 6, name: 'Thingy',  category: 'Bakers' },
-  { id: 7, name: 'Videototgraphy',  category: 'Videographers' },
-  { id: 8, name: 'JJ Phototgraphy',  category: 'DJ' },
-  { id: 9, name: 'JJ Phototgraphy',  category: 'Host' },
-  { id: 10, name: 'JJ Phototgraphy',  category: 'Gowns' },
-  { id: 11, name: 'JJ Phototgraphy',  category: 'Caterers' },
-  { id: 12, name: 'JJ Phototgraphy',  category: 'Bakers' },
-];
+import { HomeScreenNavigationProp, ScreenProps, Vendor } from 'types/types';
 
 export default function VendorList() {
   const [loading, setLoading] = useState(false);
   const { assets, colors, sizes, gradients } = useTheme();
   const navigation = useNavigation<HomeScreenNavigationProp>();
-  
-  const onPressMerchant = () => {
-    const vendorMenuProps: ScreenProps["VendorMenu"] = {
+  const [vendors, setVendors] = useState<Vendor[]>([]);
+
+  const onPressVendor = (vendorId: string) => {
+    const vendorMenuProps: ScreenProps['VendorMenu'] = {
+      vendorId,
     };
-    navigation.navigate("VendorMenu", { ...vendorMenuProps });
+
+    navigation.navigate('VendorMenu', vendorMenuProps);
   };
+
+  const fetchVendors = async () => {
+    try {
+      const response = await axios.get(`http://192.168.254.100:3000/vendors`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      setVendors(response.data);
+    } catch (error: any) {
+      if (error instanceof TypeError) {
+        console.error(
+          'Network request failed. Possible causes: CORS issues, network issues, or incorrect URL.'
+        );
+      } else {
+        console.error('Error fetching vendors:', error.message);
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchVendors();
+  }, []);
 
   return (
     <Block testID='vendor-list' safe>
@@ -76,12 +87,10 @@ export default function VendorList() {
             Discover Amazing Offers
           </Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {merchants.map((merchant) => (
-              <TouchableOpacity
-              // key={product.id}
-              >
+            {vendors.slice(0, 11).map((vendor) => (
+              <TouchableOpacity key={vendor._id}>
                 <View className='bg-slate-500/30 h-24 w-40 flex items-center justify-center rounded-xl mr-3'>
-                  <Text className=' text-sm text-center'>{merchant.name}</Text>
+                  <Text className=' text-sm text-center'>{vendor.name}</Text>
                 </View>
               </TouchableOpacity>
             ))}
@@ -89,28 +98,31 @@ export default function VendorList() {
           <View className='h-auto flex items-left justify-left gap-y-2'>
             <Text className='text-xl text-black font-bold'>Trendy Venues</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {merchants.map((merchant) => (
+              {vendors.slice(0, 11).map((vendor) => (
                 <TouchableOpacity
-                  key={merchant.id}
+                  key={vendor._id}
                   className=' h-32 w-24 flex flex-row rounded-xl mr-3 '
-                  onPress={() => onPressMerchant()}
+                  onPress={() => onPressVendor(vendor._id)}
                 >
                   <View className='bg-slate-500/30 w-24 h-24 rounded-xl align-middle '>
                     <Image
                       background
                       resizeMode='cover'
                       padding={sizes.md}
-                      source={assets.card1}
+                      src={vendor.banner}
                       rounded
                       className='h-24 w-24 rounded-xl'
                     ></Image>
-                    <Text className='text-xs text-center'>{merchant.name}</Text>
+                    <Text className='text-xs text-center'>{vendor.name}</Text>
 
                     <View className=' items-center'>
-                      <StarRating rating={4} starStyle='width' />
+                      <StarRating
+                        rating={vendor.credibilityFactors.ratingsScore}
+                        starStyle='width'
+                      />
                     </View>
 
-                    {/* <StarRating rating={merchant.rating} starStyle='width' /> */}
+                    {/* <StarRating rating={vendor.rating} starStyle='width' /> */}
                   </View>
                 </TouchableOpacity>
               ))}
@@ -121,9 +133,9 @@ export default function VendorList() {
               Top-Rated caterers
             </Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {merchants.map((merchant) => (
+              {vendors.slice(0, 11).map((vendor) => (
                 <TouchableOpacity
-                  key={merchant.id}
+                  key={vendor._id}
                   className=' h-32 w-24 flex flex-row rounded-xl mr-3 '
                   // onPress={() => {}}
                 >
@@ -139,10 +151,13 @@ export default function VendorList() {
                     <Text className='text-xs text-center'>Hello</Text>
 
                     <View className=' items-center'>
-                      <StarRating rating={4} starStyle='width' />
+                      <StarRating
+                        rating={vendor.credibilityFactors.ratingsScore}
+                        starStyle='width'
+                      />
                     </View>
 
-                    {/* <StarRating rating={merchant.rating} starStyle='width' /> */}
+                    {/* <StarRating rating={vendor.rating} starStyle='width' /> */}
                   </View>
                 </TouchableOpacity>
               ))}
@@ -157,9 +172,9 @@ export default function VendorList() {
               showsHorizontalScrollIndicator={false}
               className=' flex flex-row'
             >
-              {merchants.slice(0, 7).map((merchant) => (
+              {vendors.slice(0, 7).map((vendor) => (
                 <TouchableOpacity
-                  // key={merchant.id}
+                  // key={vendor.id}
                   className='w-12 h-12 rounded-xl border mr-2'
                   // onPress={() => {}}
                 >
@@ -168,9 +183,7 @@ export default function VendorList() {
                       source={require('@/assets/images/Customer/mobilehotdog.webp')}
                       className='bg-contain w-24 h-24 z-0'
                     /> */}
-                    <Text className='text-xs text-center'>
-                      {merchant.category}
-                    </Text>
+                    <Text className='text-xs text-center'>{vendor.name}</Text>
                   </View>
                 </TouchableOpacity>
               ))}
@@ -182,9 +195,9 @@ export default function VendorList() {
               showsHorizontalScrollIndicator={false}
               className=' flex flex-row'
             >
-              {merchants.slice(5, 12).map((merchant) => (
+              {vendors.slice(5, 12).map((vendor) => (
                 <TouchableOpacity
-                  // key={merchant.id}
+                  // key={vendor.id}
                   className='w-12 h-12 rounded-xl border mr-2'
                   // onPress={() => {}}
                 >
@@ -193,9 +206,7 @@ export default function VendorList() {
                       source={require('@/assets/images/Customer/mobilehotdog.webp')}
                       className='bg-contain w-24 h-24 z-0'
                     /> */}
-                    <Text className='text-xs text-center'>
-                      {merchant.category}
-                    </Text>
+                    <Text className='text-xs text-center'>{vendor.name}</Text>
                   </View>
                 </TouchableOpacity>
               ))}
