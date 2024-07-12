@@ -39,6 +39,11 @@ interface Vendor {
 interface PackageType {
   id: string;
   name: string;
+  vendor: Vendor;
+  vendorId: string;
+  price: number;
+  image: string;
+  capacity: number;
   inclusions: Product[]
 }
 
@@ -115,6 +120,10 @@ interface VendorMenuProps {
   vendorId: string;
 }
 
+interface BookingConfirmationProps {
+  packageId: string;
+}
+
 type ScreenProps = {
   SignUp: undefined;
   Login: undefined;
@@ -123,6 +132,7 @@ type ScreenProps = {
   EventForm: undefined;
   EventView: EventInfo;
   VendorMenu: VendorMenuProps;
+  BookingConfirmation: BookingConfirmationProps;
   SuccessError: SuccessErrorProps;
   Confirmation: ConfirmationProps;
   VendorHome: HomeProps;
@@ -185,6 +195,8 @@ type VendorListScreenProps = CompositeScreenProps<
 
 type VendorMenuScreenProps = NativeStackScreenProps<ScreenProps, 'VendorMenu'>;
 
+type BookingConfirmationScreenProps = NativeStackScreenProps<ScreenProps, 'BookingConfirmation'>;
+
 type ProfileScreenProps = CompositeScreenProps<
   BottomTabScreenProps<HomeScreenBottomTabsProps, 'Profile'>,
   NativeStackScreenProps<ScreenProps>
@@ -220,6 +232,7 @@ export {
   ChatScreenProps,
   VendorListScreenProps,
   VendorMenuScreenProps,
+  BookingConfirmationScreenProps,
   ProfileScreenProps,
   EventFormScreenProps,
   VendorHomeScreenProps,
