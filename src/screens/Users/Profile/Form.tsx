@@ -1,35 +1,52 @@
-import { useAuth, useUser } from "@clerk/clerk-expo";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { useFocusEffect } from "@react-navigation/native";
-import Avatar from "Components/Avatar";
-import GenderPicker from "Components/Input/GenderPicker";
-import ProfileUpload from "Components/Input/ProfileUpload";
-import { UserContext } from "Contexts/UserContext";
-import { UploadResult } from "firebase/storage";
-import React, { useState, useContext, useCallback } from "react";
+/* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { useAuth, useUser } from '@clerk/clerk-expo';
+import { AntDesign } from '@expo/vector-icons';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import Avatar from 'Components/Avatar';
+import { sub } from 'date-fns/fp';
+import { ImagePickerAsset } from 'expo-image-picker';
+import {
+  StorageReference,
+  UploadResult,
+  getStorage,
+  ref,
+} from 'firebase/storage';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import {
   useForm,
   FieldValues,
   Controller,
   Control,
   UseFormRegister,
-} from "react-hook-form";
+} from 'react-hook-form';
 import {
   BackHandler,
-  View,
   TextInput,
-  Button,
-  Text,
-  StyleSheet,
   GestureResponderEvent,
   TextStyle,
-} from "react-native";
-import Loading from "screens/Loading";
-import FirebaseService from "service/firebase";
-import { ImageInfo, ProfileFormScreenProps, ScreenProps } from "types/types";
-import { object, string, number } from "yup";
+} from 'react-native';
+import FirebaseService from 'service/firebase';
+import { object, string, number } from 'yup';
 
 // import DatePicker from "../../Components/Input/DatePicker";
+import { UserContext } from '../../../Contexts/UserContext';
+import GenderPicker from 'Components/Input/GenderPicker';
+import ProfileUpload from 'Components/Input/ProfileUpload';
+import Block from 'Components/Ui/Block';
+import Button from 'Components/Ui/Button';
+import Image from 'Components/Ui/Image';
+import Text from 'Components/Ui/Text';
+import useTheme from '../../../core/theme';
+import {
+  ImageInfo,
+  ProfileFormScreenProps,
+  ScreenProps,
+  SuccessErrorScreenProps,
+} from '../../../types/types';
+import Loading from '../../Loading';
+
 
 interface ProfileInput extends FieldValues {
   profileAvatar: ImageInfo | null;
@@ -42,42 +59,42 @@ interface ProfileInput extends FieldValues {
 
 const signUpValidationSchema = object().shape({
   profileAvatar: object({
-    fileSize: number().max(5242880, "File size too large, must be below 5mb"),
+    fileSize: number().max(5242880, 'File size too large, must be below 5mb'),
     uri: string(),
     mimeType: string().matches(/^image\/(png|jpeg)$/, {
-      message: "File must be a png or jpeg",
+      message: 'File must be a png or jpeg',
       excludeEmptyString: true,
     }),
     fileExtension: string().matches(/^(png|jpe?g)$/, {
-      message: "File must be a png or jpeg",
+      message: 'File must be a png or jpeg',
       excludeEmptyString: true,
     }),
   }).nullable(),
   lastName: string()
-    .required("Enter last name.")
+    .required('Enter last name.')
     .matches(
       /^[a-zA-Z-']+$/,
-      "No digits or special characters excluding ('-) are allowed",
+      "No digits or special characters excluding ('-) are allowed"
     ),
   firstName: string()
-    .required("Enter first name.")
+    .required('Enter first name.')
     .matches(
       /^[a-zA-Z-']+$/,
-      "No digits or special characters excluding ('-) are allowed",
+      "No digits or special characters excluding ('-) are allowed"
     ),
   contactNumber: string()
-    .required("Enter contact number.")
+    .required('Enter contact number.')
     .matches(
       /^09\d{9}$/,
-      "Please enter a valid contact number ex. 09123456789.",
+      'Please enter a valid contact number ex. 09123456789.'
     )
-    .length(11, "contact number must only have 11 digits"),
+    .length(11, 'contact number must only have 11 digits'),
   gender: string()
-    .required("Please select a gender")
+    .required('Please select a gender')
     .test(
-      "has-gender",
-      "Please select a gender",
-      (value, context) => value === "MALE" || value === "FEMALE",
+      'has-gender',
+      'Please select a gender',
+      (value, context) => value === 'MALE' || value === 'FEMALE'
     ),
   // birthDate: date()
   //   .min(sub({ years: 100 })(new Date()), "Must be at most 100 years old.")
@@ -95,36 +112,37 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
     trigger,
     formState: { errors, isValid },
   } = useForm<ProfileInput, unknown>({
-    mode: "onBlur",
-    reValidateMode: "onChange",
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
     defaultValues: {
       profileAvatar: null,
-      firstName: "",
-      lastName: "",
-      contactNumber: "",
-      gender: "",
+      firstName: '',
+      lastName: '',
+      contactNumber: '',
+      gender: '',
     },
     resolver: yupResolver(signUpValidationSchema),
   });
 
-  const [submitErrMessage, setSubmitErrMessage] = useState("");
+  const [submitErrMessage, setSubmitErrMessage] = useState('');
   const { getToken, userId } = useAuth();
   const [loading, setLoading] = useState(false);
   const [confirmDetails, setConfirmDetails] = useState(false);
+  const { assets, colors, sizes, gradients } = useTheme();
   const { user } = useUser();
   const clerkUser = user;
   const userContext = useContext(UserContext);
 
   if (!userContext) {
-    throw new Error("Profile must be used within a UserProvider");
+    throw new Error('Profile must be used within a UserProvider');
   }
 
   if (!userId) {
-    throw new Error("User does not exist! Please SignUp again");
+    throw new Error('User does not exist! Please SignUp again');
   }
 
   if (!clerkUser) {
-    throw new Error("User does not exist! Please SignUp again");
+    throw new Error('User does not exist! Please SignUp again');
   }
 
   const { setUser } = userContext;
@@ -135,7 +153,7 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
   const onNextBtnPress = (e: GestureResponderEvent) => {
     trigger();
     if (isValid) {
-      setConfirmDetails(true);
+      setConfirmDetails(!confirmDetails);
     }
   };
 
@@ -147,7 +165,7 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
     const email =
       clerkUser.primaryEmailAddress != null
         ? clerkUser.primaryEmailAddress.emailAddress
-        : "";
+        : '';
 
     const userInfo = {
       email,
@@ -157,12 +175,8 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
       gender,
     };
 
-    const navigateToSuccessError = (props: ScreenProps["SuccessError"]) => {
-      if (props.status == "error") {
-        navigation.navigate("SuccessError", { ...props });
-      } else {
-        navigation.replace("SuccessError", { ...props });
-      }
+    const navigateToSuccessError = (props: ScreenProps['SuccessError']) => {
+      navigation.navigate('SuccessError', { ...props });
     };
 
     try {
@@ -171,7 +185,7 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
 
         const uploadResult = await firebaseService.uploadProfileAvatar(
           userId,
-          profileAvatar,
+          profileAvatar
         );
 
         uploadPath = uploadResult
@@ -179,7 +193,7 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
           : null;
       }
 
-      const token = getToken({ template: "event-hand-jwt" });
+      const token = getToken({ template: 'event-hand-jwt' });
 
       const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/users`;
 
@@ -191,9 +205,9 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
         : userInfo;
 
       const request = {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
@@ -210,29 +224,29 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
           setUser({ _id: data._id as string, ...user });
           setLoading(false);
           navigateToSuccessError({
-            description: "Your information was saved successfully.",
-            buttonText: "Continue",
-            navigateTo: "Home",
-            status: "success",
+            description: 'Your information was saved successfully.',
+            buttonText: 'Continue',
+            navigateTo: 'Home',
+            status: 'success',
           });
           break;
         case 403:
-          setSubmitErrMessage("Forbidden - Access denied.");
-          throw new Error("Forbidden - Access denied."); // Forbidden
+          setSubmitErrMessage('Forbidden - Access denied.');
+          throw new Error('Forbidden - Access denied.'); // Forbidden
         case 404:
-          setSubmitErrMessage("Server is unreachable.");
-          throw new Error("Server is unreachable."); // Not Found
+          setSubmitErrMessage('Server is unreachable.');
+          throw new Error('Server is unreachable.'); // Not Found
         default:
-          setSubmitErrMessage(`${response.status}: Unexpected error occurred.`);
-          throw new Error(`${response.status}: Unexpected error occurred.`); // Other status codes
+          setSubmitErrMessage('Unexpected error occurred.');
+          throw new Error('Unexpected error occurred.'); // Other status codes
       }
     } catch (error) {
       console.error(error);
       setLoading(false);
       navigateToSuccessError({
         description: submitErrMessage,
-        buttonText: "Continue",
-        status: "error",
+        buttonText: 'Continue',
+        status: 'error',
       });
     }
   };
@@ -241,222 +255,460 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
 
   const FormFields = () => {
     return (
-      <View id="profile-form-field" testID="test-profile-form-field">
-        <Text style={styles.title}>SET UP YOUR PROFILE</Text>
-        <ProfileUpload
-          name="profileAvatar"
-          label="Upload your photo"
-          control={control as unknown as Control<FieldValues, unknown>}
-          register={register as unknown as UseFormRegister<FieldValues>}
-          errors={errors}
-        />
-        <Text style={styles.label}>First Name</Text>
-        <Controller
-          name="firstName"
-          control={control}
-          render={({ field: { onChange, onBlur, value } }) => {
-            const onValueChange = (text: string) => onChange(text);
+      <Block safe marginTop={sizes.md}>
+        <Block
+          id='profile-form-field'
+          testID='test-profile-form-field'
+          scroll
+          paddingHorizontal={sizes.s}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: sizes.padding }}
+        >
+          <Block flex={0} style={{ zIndex: 0 }}>
+            <Image
+              background
+              resizeMode='cover'
+              padding={sizes.sm}
+              paddingBottom={sizes.l}
+              radius={sizes.cardRadius}
+              source={assets.background}
+            >
+              <Text transform='uppercase' white marginLeft={sizes.s}>
+                Set up your Profile
+              </Text>
 
-            return (
-              <TextInput
-                id="first-name-text-input"
-                testID="test-first-name-input"
-                style={styles.input}
-                placeholder="First Name"
-                onBlur={onBlur}
-                value={value}
-                onChangeText={onValueChange}
-                autoCapitalize="none"
-                returnKeyType="next"
-              />
-            );
-          }}
-        />
-        <Text testID="test-first-name-err-text" style={styles.errorText}>
-          {errors["firstName"]?.message}
-        </Text>
-        <Text style={styles.label}>Last Name</Text>
-        <Controller
-          name="lastName"
-          control={control}
-          render={({ field: { onChange, onBlur, value } }) => {
-            const onValueChange = (text: string) => onChange(text);
+              <Block flex={0} align='center' marginTop={sizes.md}>
+                <ProfileUpload
+                  name='profileAvatar'
+                  label='Upload your photo'
+                  control={control as unknown as Control<FieldValues, unknown>}
+                  register={register as unknown as UseFormRegister<FieldValues>}
+                  errors={errors}
+                />
+              </Block>
+            </Image>
+          </Block>
+          <Block
+            flex={0}
+            radius={sizes.sm}
+            marginTop={-sizes.l}
+            marginHorizontal='8%'
+            color='rgba(255,255,255,1)'
+          >
+            <Block align='flex-start' className='pl-4 pt-4'>
+              <Text p className='capitalize'>
+                First Name
+              </Text>
+              <Controller
+                name='firstName'
+                control={control}
+                render={({ field: { onChange, onBlur, value } }) => {
+                  const onValueChange = (text: string) => onChange(text);
 
-            return (
-              <TextInput
-                id="last-name-text-input"
-                testID="test-last-name-input"
-                style={styles.input}
-                placeholder="Last Name"
-                value={value}
-                onBlur={onBlur}
-                onChangeText={onValueChange}
-                autoCapitalize="none"
-                returnKeyType="next"
+                  return (
+                    <TextInput
+                      id='first-name-text-input'
+                      testID='test-first-name-input'
+                      placeholder='First Name'
+                      onBlur={onBlur}
+                      value={value}
+                      onChangeText={onValueChange}
+                      autoCapitalize='none'
+                      returnKeyType='next'
+                      className='border p-1 rounded-lg border-purple-700 w-11/12'
+                    />
+                  );
+                }}
               />
-            );
-          }}
-        />
-        <Text testID="test-last-name-err-text" style={styles.errorText}>
-          {errors["lastName"]?.message}
-        </Text>
-        <Text style={styles.label}>Contact No.</Text>
-        <Controller
-          name="contactNumber"
-          control={control}
-          render={({ field: { onChange, onBlur, value } }) => {
-            const onValueChange = (text: string) => onChange(text);
+              <Text testID='test-first-name-err-text' danger>
+                {errors['firstName']?.message}
+              </Text>
+            </Block>
 
-            return (
-              <TextInput
-                id="contact-number-input"
-                testID="test-contact-number-input"
-                style={styles.input}
-                placeholder="Contact No."
-                onBlur={onBlur}
-                onChangeText={onValueChange}
-                value={value}
-                autoCapitalize="none"
-                returnKeyType="next"
-                keyboardType="number-pad"
-                maxLength={11}
-                textContentType="telephoneNumber"
-                inputMode="tel"
+            <Block align='flex-start' className='pl-4'>
+              <Text p className='capitalize'>
+                Last Name
+              </Text>
+              <Controller
+                name='lastName'
+                control={control}
+                render={({ field: { onChange, onBlur, value } }) => {
+                  const onValueChange = (text: string) => onChange(text);
+
+                  return (
+                    <TextInput
+                      id='last-name-text-input'
+                      testID='test-last-name-input'
+                      placeholder='Last Name'
+                      value={value}
+                      onBlur={onBlur}
+                      onChangeText={onValueChange}
+                      autoCapitalize='none'
+                      returnKeyType='next'
+                      className='border p-1 rounded-lg border-purple-700 w-11/12'
+                    />
+                  );
+                }}
               />
-            );
-          }}
-        />
-        <Text testID="test-contact-number-err-text" style={styles.errorText}>
-          {errors["contactNumber"]?.message}
-        </Text>
-        <GenderPicker
-          control={control as unknown as Control<FieldValues, unknown>}
-          register={register as unknown as UseFormRegister<FieldValues>}
-          errors={errors}
-          triggerValidation={trigger}
-          showLabel
-        />
-        <Button title="NEXT" testID="next-btn" onPress={onNextBtnPress} />
-      </View>
+              <Text testID='test-last-name-err-text' danger>
+                {errors['lastName']?.message}
+              </Text>
+            </Block>
+
+            <Block align='flex-start' className='pl-4'>
+              <Text p>Contact Number</Text>
+              <Controller
+                name='contactNumber'
+                control={control}
+                render={({ field: { onChange, onBlur, value } }) => {
+                  const onValueChange = (text: string) => onChange(text);
+
+                  return (
+                    <TextInput
+                      id='contact-number-input'
+                      testID='test-contact-number-input'
+                      placeholder='Contact No.'
+                      onBlur={onBlur}
+                      onChangeText={onValueChange}
+                      value={value}
+                      autoCapitalize='none'
+                      returnKeyType='next'
+                      keyboardType='number-pad'
+                      maxLength={11}
+                      textContentType='telephoneNumber'
+                      inputMode='tel'
+                      className='border p-1 rounded-lg border-purple-700 w-11/12'
+                    />
+                  );
+                }}
+              />
+              <Text testID='test-contact-number-err-text' danger>
+                {errors['contactNumber']?.message}
+              </Text>
+            </Block>
+
+            <Block align='flex-start' className='pl-4'>
+              <Text p>Gender</Text>
+              <GenderPicker
+                control={control as unknown as Control<FieldValues, unknown>}
+                register={register as unknown as UseFormRegister<FieldValues>}
+                errors={errors}
+                triggerValidation={trigger}
+              />
+            </Block>
+            <Button
+              testID='next-btn'
+              onPress={onNextBtnPress}
+              primary
+              outlined
+              marginBottom={sizes.s}
+              marginHorizontal={sizes.sm}
+              shadow={false}
+              disabled={!isValid}
+            >
+              <Text bold primary transform='uppercase'>
+                Update
+              </Text>
+            </Button>
+          </Block>
+        </Block>
+        {/* <Block>
+            <Text>First Name</Text>
+            <Controller
+              name="firstName"
+              control={control}
+              render={({ field: { onChange, onBlur, value } }) => {
+                const onValueChange = (text: string) => onChange(text);
+
+                return (
+                  <TextInput
+                    id="first-name-text-input"
+                    testID="test-first-name-input"
+                    placeholder="First Name"
+                    onBlur={onBlur}
+                    value={value}
+                    onChangeText={onValueChange}
+                    autoCapitalize="none"
+                    returnKeyType="next"
+                  />
+                );
+              }}
+            />
+            <Text testID="test-first-name-err-text">
+              {errors["firstName"]?.message}
+            </Text>
+            <Text>Last Name</Text>
+            <Controller
+              name="lastName"
+              control={control}
+              render={({ field: { onChange, onBlur, value } }) => {
+                const onValueChange = (text: string) => onChange(text);
+
+                return (
+                  <TextInput
+                    id="last-name-text-input"
+                    testID="test-last-name-input"
+                    placeholder="Last Name"
+                    value={value}
+                    onBlur={onBlur}
+                    onChangeText={onValueChange}
+                    autoCapitalize="none"
+                    returnKeyType="next"
+                  />
+                );
+              }}
+            />
+            <Text testID="test-last-name-err-text">
+              {errors["lastName"]?.message}
+            </Text>
+            <Text>Contact No.</Text>
+            <Controller
+              name="contactNumber"
+              control={control}
+              render={({ field: { onChange, onBlur, value } }) => {
+                const onValueChange = (text: string) => onChange(text);
+
+                return (
+                  <TextInput
+                    id="contact-number-input"
+                    testID="test-contact-number-input"
+                    placeholder="Contact No."
+                    onBlur={onBlur}
+                    onChangeText={onValueChange}
+                    value={value}
+                    autoCapitalize="none"
+                    returnKeyType="next"
+                    keyboardType="number-pad"
+                    maxLength={11}
+                    textContentType="telephoneNumber"
+                    inputMode="tel"
+                  />
+                );
+              }}
+            />
+            <Text testID="test-contact-number-err-text" danger>
+              {errors["contactNumber"]?.message}
+            </Text>
+            <GenderPicker
+              control={control as unknown as Control<FieldValues, unknown>}
+              register={register as unknown as UseFormRegister<FieldValues>}
+              errors={errors}
+              triggerValidation={trigger}
+              showLabel
+            />
+            <Button testID="next-btn" onPress={onNextBtnPress} />
+          </Block> */}
+      </Block>
     );
   };
 
   useFocusEffect(
     useCallback(() => {
       const backAction = () => {
-        setConfirmDetails(false);
+        setConfirmDetails(!confirmDetails);
         return true;
       };
 
       const backHandler = BackHandler.addEventListener(
-        "hardwareBackPress",
-        backAction,
+        'hardwareBackPress',
+        backAction
       );
 
       return () => backHandler.remove();
-    }, [confirmDetails]),
+    }, [confirmDetails])
   );
 
   const Confirmation = () => {
     const avatarUri =
-      getValues("profileAvatar") !== null
-        ? getValues("profileAvatar")!.uri
-        : "";
+      getValues('profileAvatar') !== null
+        ? getValues('profileAvatar')!.uri
+        : '';
 
     return (
-      <View id="profile-form-confirm" testID="test-profile-form-confirm">
-        {/* <Text style={styles.title}>CONFIRM DETAILS</Text> */}
-        <Avatar
-          uri={avatarUri}
-          label="CONFIRM DETAILS"
-          labelTextStyle={styles.title as TextStyle}
-        />
-        <Text style={styles.label}>FIRST NAME:</Text>
-        <Text id="fist-name" testID="test-first-name" style={styles.details}>
-          {getValues("firstName")}
-        </Text>
-        <Text style={styles.label}>LAST NAME:</Text>
-        <Text id="last-name" testID="test-last-name" style={styles.details}>
-          {getValues("lastName")}
-        </Text>
-        <Text style={styles.label}>CONTACT NO.</Text>
-        <Text id="contact-num" testID="test-contact-num" style={styles.details}>
-          {getValues("contactNumber")}
-        </Text>
-        <Text style={styles.label}>GENDER</Text>
-        <Text id="gender" testID="gender" style={styles.details}>
-          {getValues("gender")}
-        </Text>
-        <Button
-          title="SAVE"
-          testID="test-save-btn"
-          onPress={onSubmitPress}
-          disabled={!isValid}
-        />
-        <Text testID="save-err-text" style={styles.errorText}>
-          {submitErrMessage}
-        </Text>
-      </View>
+      <Block safe marginTop={sizes.md}>
+        <Block
+          id='profile-form-field'
+          testID='test-profile-form-field'
+          scroll
+          paddingHorizontal={sizes.s}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: sizes.padding }}
+        >
+          <Block flex={0} style={{ zIndex: 0 }}>
+            <Image
+              background
+              resizeMode='cover'
+              padding={sizes.sm}
+              paddingBottom={sizes.l}
+              radius={sizes.cardRadius}
+              source={assets.background}
+            >
+              <Button
+                row
+                flex={0}
+                justify='flex-start'
+                onPress={() => navigation.goBack()}
+              >
+                <AntDesign name='back' size={24} color='white' />
+                <Text p white marginLeft={sizes.s}>
+                  Go back
+                </Text>
+              </Button>
+              <Block flex={0} align='center' marginVertical={sizes.sm}>
+                <Avatar uri={avatarUri} label='CONFIRM DETAILS' />
+              </Block>
+            </Image>
+          </Block>
+          <Block
+            flex={0}
+            radius={sizes.sm}
+            marginTop={-sizes.l}
+            marginHorizontal='8%'
+            color='rgba(255,255,255,1)'
+          >
+            <Block align='flex-start' className='pl-4 pt-4'>
+              <Text p>First Name</Text>
+              <Text
+                id='fist-name'
+                testID='test-first-name'
+                className='capitalize font-bold'
+              >
+                {getValues('firstName')}
+              </Text>
+            </Block>
+
+            <Block align='flex-start' className='pl-4 pt-4'>
+              <Text p>Last Name</Text>
+              <Text
+                id='last-name'
+                testID='test-last-name'
+                className='capitalize'
+              >
+                {getValues('lastName')}
+              </Text>
+            </Block>
+
+            <Block align='flex-start' className='pl-4 pt-4'>
+              <Text p>Contact Number</Text>
+              <Text id='contact-num' testID='test-contact-num'>
+                {getValues('contactNumber')}
+              </Text>
+            </Block>
+
+            <Block align='flex-start' className='pl-4 pt-4 pb-4'>
+              <Text p>Gender</Text>
+              <Text id='gender' testID='gender'>
+                {getValues('gender')}
+              </Text>
+            </Block>
+            <Button
+              testID='test-save-btn'
+              onPress={onSubmitPress}
+              disabled={!isValid}
+              primary
+              outlined
+              marginBottom={sizes.s}
+              marginHorizontal={sizes.sm}
+              shadow={false}
+            >
+              <Text bold primary transform='uppercase'>
+                Confirm
+              </Text>
+            </Button>
+            <Text testID='save-err-text' danger>
+              {submitErrMessage}
+            </Text>
+          </Block>
+        </Block>
+      </Block>
+
+      // <Block id="profile-form-confirm" testID="test-profile-form-confirm">
+      //   {/* <Text style={styles.title}>CONFIRM DETAILS</Text> */}
+      //   <Avatar uri={avatarUri} label="CONFIRM DETAILS" />
+      //   <Text>FIRST NAME:</Text>
+      //   <Text id="fist-name" testID="test-first-name">
+      //     {getValues("firstName")}
+      //   </Text>
+      //   <Text>LAST NAME:</Text>
+      // <Text id="last-name" testID="test-last-name">
+      //   {getValues("lastName")}
+      // </Text>
+      //   <Text>CONTACT NO.</Text>
+      // //   <Text id="contact-num" testID="test-contact-num">
+      // //     {getValues("contactNumber")}
+      // //   </Text>
+      //   <Text>GENDER</Text>
+      //   <Text id="gender" testID="gender">
+      //     {getValues("gender")}
+      //   </Text>
+      //   <Button
+      //     testID="test-save-btn"
+      //     onPress={onSubmitPress}
+      //     disabled={!isValid}
+      //   />
+      //   <Text testID="save-err-text" danger>
+      //     {submitErrMessage}
+      //   </Text>
     );
   };
 
   const Form = () => (confirmDetails ? <Confirmation /> : <FormFields />);
 
   return (
-    <View style={styles.container}>
+    <Block>
       {loading && <Loading />}
       {/* {!loading && <FormFields />} */}
       {!loading && <Form />}
-    </View>
+    </Block>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    paddingHorizontal: 20,
-  },
-  title: {
-    fontFamily: "Arial",
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#333",
-    textAlign: "center",
-    marginVertical: 20,
-    textTransform: "uppercase",
-    letterSpacing: 1.5,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: "500",
-    marginBottom: 5,
-  },
-  details: {
-    textAlign: "center",
-    paddingVertical: 10,
-    fontSize: 16,
-    borderBottomWidth: 1,
-    marginBottom: 20,
-  },
-  input: {
-    height: 40,
-    borderColor: "gray",
-    borderWidth: 1,
-    marginBottom: 10,
-    padding: 10,
-  },
-  loading: {
-    transform: [
-      {
-        scale: 2.0,
-      },
-    ],
-  },
-  errorText: {
-    color: "red",
-    marginBottom: 10,
-  },
-});
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     justifyContent: "center",
+//     paddingHorizontal: 20,
+//   },
+//   title: {
+//     fontFamily: "Arial",
+//     fontSize: 24,
+//     fontWeight: "bold",
+//     color: "#333",
+//     textAlign: "center",
+//     marginVertical: 20,
+//     textTransform: "uppercase",
+//     letterSpacing: 1.5,
+//   },
+//   label: {
+//     fontSize: 16,
+//     fontWeight: "500",
+//     marginBottom: 5,
+//   },
+//   details: {
+//     textAlign: "center",
+//     paddingVertical: 10,
+//     fontSize: 16,
+//     borderBottomWidth: 1,
+//     marginBottom: 20,
+//   },
+//   input: {
+//     height: 40,
+//     borderColor: "gray",
+//     borderWidth: 1,
+//     marginBottom: 10,
+//     padding: 10,
+//   },
+//   loading: {
+//     transform: [
+//       {
+//         scale: 2.0,
+//       },
+//     ],
+//   },
+//   errorText: {
+//     color: "red",
+//     marginBottom: 10,
+//   },
+// });
 
 export default ProfileForm;

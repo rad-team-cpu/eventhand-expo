@@ -1,18 +1,18 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useSignUp } from "@clerk/clerk-expo";
-import { Entypo } from "@expo/vector-icons";
+import { AntDesign, Entypo } from "@expo/vector-icons";
 import { yupResolver } from "@hookform/resolvers/yup";
 import React, { useState } from "react";
 import { useForm, FieldValues, Controller } from "react-hook-form";
-import {
-  View,
-  TextInput,
-  Button,
-  Text,
-  StyleSheet,
-  Pressable,
-} from "react-native";
+import { View, TextInput, Pressable } from "react-native";
 import { object, string, ref } from "yup";
 
+import Block from "Components/Ui/Block";
+import Button from "Components/Ui/Button";
+import Image from "Components/Ui/Image";
+import Text from "Components/Ui/Text";
+import useTheme from "../../core/theme";
+import { SignUpScreenProps } from "../../types/types";
 import Loading from "../Loading";
 
 interface SignUpInput extends FieldValues {
@@ -39,7 +39,7 @@ const signUpValidationSchema = object().shape({
     .oneOf([ref("password")], "Password does not match"),
 });
 
-const SignupForm = () => {
+const SignupForm = ({ navigation }: SignUpScreenProps) => {
   const { isLoaded, signUp, setActive } = useSignUp();
   const {
     control,
@@ -58,6 +58,7 @@ const SignupForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showRetypePassword, setShowRetypePassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { assets, colors, sizes, gradients } = useTheme();
 
   const clerkSignUp = async (input: SignUpInput) => {
     const { emailAddress, password } = input;
@@ -120,184 +121,315 @@ const SignupForm = () => {
     setShowRetypePassword(!showRetypePassword);
 
   return (
-    <View style={styles.container}>
+    <Block safe>
       {loading && <Loading />}
       {!pendingVerification && !loading && (
-        <View id="signup-form" testID="test-signup-form">
-          <Text>SIGNUP</Text>
-          <View style={styles.textBox}>
-            <Controller
-              name="emailAddress"
-              control={control}
-              render={({ field: { onChange, onBlur, value } }) => {
-                const onValueChange = (text: string) => onChange(text);
-
-                return (
-                  <TextInput
-                    id="email-text-input"
-                    testID="test-email-input"
-                    style={styles.input}
-                    placeholder="Email"
-                    value={value}
-                    onBlur={onBlur}
-                    onChangeText={onValueChange}
-                    autoCapitalize="none"
-                    returnKeyType="next"
-                    keyboardType="email-address"
-                    textContentType="emailAddress"
-                  />
-                );
-              }}
-            />
-          </View>
-          <Text testID="email-err-text" style={styles.errorText}>
-            {errors["emailAddress"]?.message}
-          </Text>
-          <View style={styles.textBox}>
-            <Controller
-              name="password"
-              control={control}
-              render={({ field: { onChange, onBlur, value } }) => {
-                const onValueChange = (text: string) => onChange(text);
-
-                return (
-                  <TextInput
-                    id="password-input"
-                    testID="test-password-input"
-                    placeholder="Password"
-                    style={styles.input}
-                    onBlur={onBlur}
-                    value={value}
-                    onChangeText={onValueChange}
-                    autoCapitalize="none"
-                    returnKeyType="next"
-                    textContentType="password"
-                    secureTextEntry={!showPassword}
-                  />
-                );
-              }}
-            />
-            <Pressable
-              onPress={onPasswordIconPress}
-              style={styles.iconContainer}
+        <Block id="signup-form" testID="test-signup-form">
+          <Block flex={0} style={{ zIndex: 0 }}>
+            <Image
+              background
+              resizeMode="cover"
+              padding={sizes.sm}
+              source={assets.background}
+              height={sizes.height}
             >
-              {showPasswordIcon(showPassword)}
-            </Pressable>
-          </View>
-          <Text testID="password-err-text" style={styles.errorText}>
-            {errors["password"]?.message}
-          </Text>
-          <View style={styles.textBox}>
-            <Controller
-              name="confirmPassword"
-              control={control}
-              render={({ field: { onChange, onBlur, value } }) => {
-                const onValueChange = (text: string) => onChange(text);
-
-                return (
-                  <TextInput
-                    id="confirm-password-input"
-                    testID="test-password-input"
-                    style={styles.input}
-                    placeholder="Re-type Password"
-                    onBlur={onBlur}
-                    onChangeText={onValueChange}
-                    value={value}
-                    autoCapitalize="none"
-                    returnKeyType="next"
-                    textContentType="password"
-                    secureTextEntry={!showRetypePassword}
+              <Button
+                row
+                flex={0}
+                justify="flex-start"
+                onPress={() => navigation.goBack()}
+              >
+                <AntDesign name="back" size={24} color="white" />
+                <Text p white marginLeft={sizes.s}>
+                  Go back
+                </Text>
+              </Button>
+              <Text h4 center white marginTop={sizes.md}>
+                EventHand
+              </Text>
+            </Image>
+          </Block>
+          <Block scroll marginTop={-(sizes.height * 0.8 - sizes.l)}>
+            <Block flex={0} radius={sizes.sm} marginHorizontal="8%">
+              <Block
+                blur
+                flex={0}
+                intensity={100}
+                radius={sizes.sm}
+                overflow="hidden"
+                justify="space-evenly"
+                tint={colors.blurTint}
+                paddingVertical={sizes.sm}
+              >
+                <Block
+                  row
+                  flex={0}
+                  align="center"
+                  justify="center"
+                  marginBottom={sizes.sm}
+                  paddingHorizontal={sizes.xxl}
+                >
+                  <Block
+                    flex={0}
+                    height={1}
+                    width="50%"
+                    end={[1, 0]}
+                    start={[0, 1]}
+                    gradient={gradients.divider}
+                    marginTop={sizes.sm}
                   />
-                );
-              }}
-            />
-            <Pressable
-              onPress={onConfirmPasswordIconPress}
-              style={styles.iconContainer}
-            >
-              {showPasswordIcon(showRetypePassword)}
-            </Pressable>
-          </View>
-          <Text testID="confirm-password-err-text" style={styles.errorText}>
-            {errors["confirmPassword"]?.message}
-          </Text>
-          <Button
-            title="Sign Up"
-            testID="test-signup-btn"
-            onPress={onSignUpPress}
-            disabled={!isValid}
-          />
-          <Text testID="signup-err-text" style={styles.errorText}>
-            {signUpErrMessage}
-          </Text>
-        </View>
-      )}
-      {pendingVerification && (
-        <View>
-          <View style={styles.textBox}>
-            <TextInput
-              style={styles.input}
-              value={code}
-              placeholder="Code"
-              onChangeText={(code) => setCode(code)}
-            />
-          </View>
-          <View style={{ marginVertical: 10 }}>
-            <Button
-              title="Verify"
-              testID="test-verify-btn"
-              onPress={onPressVerify}
-            />
-          </View>
+                  <Text center marginHorizontal={sizes.sm} marginTop={sizes.sm}>
+                    Sign up
+                  </Text>
+                  <Block
+                    flex={0}
+                    height={1}
+                    width="50%"
+                    end={[0, 1]}
+                    start={[1, 0]}
+                    gradient={gradients.divider}
+                    marginTop={sizes.sm}
+                  />
+                </Block>
+                <Block paddingHorizontal={sizes.sm}>
+                  <Controller
+                    name="emailAddress"
+                    control={control}
+                    render={({ field: { onChange, onBlur, value } }) => {
+                      const onValueChange = (text: string) => onChange(text);
+                      return (
+                        <TextInput
+                          id="email-text-input"
+                          testID="test-email-input"
+                          placeholder="Email"
+                          value={value}
+                          onBlur={onBlur}
+                          onChangeText={onValueChange}
+                          autoCapitalize="none"
+                          returnKeyType="next"
+                          keyboardType="email-address"
+                          textContentType="emailAddress"
+                          className="mt-2 border p-2 rounded-lg border-purple-700"
+                        />
+                      );
+                    }}
+                  />
+                  <Text testID="email-err-text" danger>
+                    {errors["emailAddress"]?.message}
+                  </Text>
+                  <Controller
+                    name="password"
+                    control={control}
+                    render={({ field: { onChange, onBlur, value } }) => {
+                      const onValueChange = (text: string) => onChange(text);
+                      return (
+                        <>
+                        <TextInput
+                          id="password-input"
+                          testID="test-password-input"
+                          placeholder="Password"
+                          onBlur={onBlur}
+                          value={value}
+                          onChangeText={onValueChange}
+                          autoCapitalize="none"
+                          returnKeyType="next"
+                          textContentType="password"
+                          secureTextEntry
+                          className="border p-2 rounded-lg border-purple-700"
+                        >
 
-          <Text testID="verify-err-text" style={styles.errorText}>
-            {verifyErrMessage}
-          </Text>
-        </View>
+                        </TextInput>
+                        <Pressable onPress={onPasswordIconPress}>
+                          {showPasswordIcon(showPassword)}
+                        </Pressable>
+                        </>
+                      );
+                    }}
+                  />
+
+                  <Text testID="password-err-text" danger>
+                    {errors["password"]?.message}
+                  </Text>
+                  <Controller
+                    name="confirmPassword"
+                    control={control}
+                    render={({ field: { onChange, onBlur, value } }) => {
+                      const onValueChange = (text: string) => onChange(text);
+
+                      return (
+                        <TextInput
+                          id="confirm-password-input"
+                          testID="test-password-input"
+                          placeholder="Re-type Password"
+                          onBlur={onBlur}
+                          onChangeText={onValueChange}
+                          value={value}
+                          autoCapitalize="none"
+                          returnKeyType="next"
+                          textContentType="password"
+                          secureTextEntry={!showRetypePassword}
+                          className="border p-2 rounded-lg border-purple-700"
+                        />
+                      );
+                    }}
+                  />
+                  
+                  <Text testID="confirm-password-err-text" danger>
+                    {errors["confirmPassword"]?.message}
+                  </Text>
+                  <Button
+                    testID="test-signup-btn"
+                    onPress={onSignUpPress}
+                    primary
+                    outlined
+                    marginVertical={sizes.s}
+                    marginHorizontal={sizes.sm}
+                    shadow={false}
+                    disabled={!isValid}
+                  >
+                    
+                    <Text bold primary transform="uppercase">
+                      Sign up
+                    </Text>
+                  </Button>
+                  <Text testID="signup-err-text" danger marginBottom={3}>
+                    {signUpErrMessage}
+                  </Text>
+                </Block>
+              </Block>
+            </Block>
+          </Block>
+        </Block>
       )}
-    </View>
+      {pendingVerification && !loading && (
+        <Block safe>
+          <Block flex={0} style={{ zIndex: 0 }}>
+            <Image
+              background
+              resizeMode="cover"
+              padding={sizes.sm}
+              source={assets.background}
+              height={sizes.height}
+            >
+              <Button
+                row
+                flex={0}
+                justify="flex-start"
+                onPress={() => navigation.goBack()}
+              >
+                <AntDesign name="back" size={24} color="white" />
+                <Text p white marginLeft={sizes.s}>
+                  Go back
+                </Text>
+              </Button>
+              <Text h4 center white marginTop={sizes.md}>
+                EventHand
+              </Text>
+            </Image>
+          </Block>
+          <Block keyboard marginTop={-(sizes.height * 0.8 - sizes.l)}>
+            <Block flex={0} radius={sizes.sm} marginHorizontal="8%">
+              <Block
+                blur
+                flex={0}
+                intensity={100}
+                radius={sizes.sm}
+                overflow="hidden"
+                justify="space-evenly"
+                tint={colors.blurTint}
+                paddingVertical={sizes.sm}
+              >
+                <Block
+                  row
+                  flex={0}
+                  align="center"
+                  justify="center"
+                  marginBottom={sizes.sm}
+                  paddingHorizontal={sizes.xxl}
+                >
+                  <Block
+                    flex={0}
+                    height={1}
+                    width="50%"
+                    end={[1, 0]}
+                    start={[0, 1]}
+                    gradient={gradients.divider}
+                    marginTop={sizes.sm}
+                  />
+                  <Text center marginHorizontal={sizes.sm} marginTop={sizes.sm}>
+                    Verify
+                  </Text>
+                  <Block
+                    flex={0}
+                    height={1}
+                    width="50%"
+                    end={[0, 1]}
+                    start={[1, 0]}
+                    gradient={gradients.divider}
+                    marginTop={sizes.sm}
+                  />
+                </Block>
+                <Block paddingHorizontal={sizes.sm}>
+                  <Text bold primary center>
+                    Verification code sent via email!
+                  </Text>
+                  <TextInput
+                    value={code}
+                    placeholder="Code"
+                    onChangeText={(code) => setCode(code)}
+                    className="m-4 border p-2 rounded-lg border-purple-700"
+                  />
+                  <Button
+                    testID="test-verify-btn"
+                    onPress={onPressVerify}
+                    primary
+                    outlined
+                    marginVertical={sizes.s}
+                    marginHorizontal={sizes.sm}
+                    shadow={false}
+                    disabled={!isValid}
+                  >
+                    <Text bold primary transform="uppercase">
+                      Verify
+                    </Text>
+                  </Button>
+                  <Text testID="verify-err-text" danger>
+                    {verifyErrMessage}
+                  </Text>
+                </Block>
+              </Block>
+            </Block>
+          </Block>
+        </Block>
+      )}
+    </Block>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    paddingHorizontal: 20,
-  },
-  // input: {
-  //   height: 40,
-  //   borderColor: "gray",
-  //   borderWidth: 1,
-  //   marginBottom: 10,
-  //   padding: 10,
-  // },
-  textBox: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "gray",
-    borderRadius: 8,
-    paddingHorizontal: 8,
-  },
-  input: {
-    flex: 1,
-    paddingVertical: 8,
-  },
-  iconContainer: {
-    padding: 8,
-  },
-  loading: {
-    transform: [
-      {
-        scale: 2.0,
-      },
-    ],
-  },
-  errorText: {
-    color: "red",
-    marginBottom: 10,
-  },
-});
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     justifyContent: "center",
+//     paddingHorizontal: 20,
+//   },
+//   input: {
+//     height: 40,
+//     borderColor: "gray",
+//     borderWidth: 1,
+//     marginBottom: 10,
+//     padding: 10,
+//   },
+//   loading: {
+//     transform: [
+//       {
+//         scale: 2.0,
+//       },
+//     ],
+//   },
+//   errorText: {
+//     color: "red",
+//     marginBottom: 10,
+//   },
+// });
 
 export default SignupForm;

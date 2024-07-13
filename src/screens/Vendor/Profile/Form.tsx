@@ -1,5 +1,5 @@
 import { useAuth, useUser } from "@clerk/clerk-expo";
-import { EmailAddressResource } from "@clerk/types/dist/emailAddress";
+// import { EmailAddressResource } from "@clerk/types/dist/emailAddress";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useFocusEffect } from "@react-navigation/native";

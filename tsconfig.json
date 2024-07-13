@@ -8,11 +8,11 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "screens/*": ["src/screens/*"],
-      "Components/*": ["src/Components/*"],
-      "Contexts/*": ["src/Contexts/*"],
-      "types/*": ["src/types/*"],
-      "service/*": ["src/service/*"]
+      "screens/*": ["./src/screens/*"],
+      "Components/*": ["./src/Components/*"],
+      "Contexts/*": ["./src/Contexts/*"],
+      "types/*": ["./src/types/*"],
+      "service/*": ["./src/service/*"]
     }
   },
   "extends": "expo/tsconfig.base",
