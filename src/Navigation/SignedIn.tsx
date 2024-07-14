@@ -74,11 +74,6 @@ const SignedInNav = () => {
         options={chatOptions}
       />
       <SignedInStack.Screen
-        name="Chat"
-        component={Chat}
-        options={chatOptions}
-      />
-      <SignedInStack.Screen
         name='VendorMenu'
         component={VendorMenu}
         options={{ headerShown: false }}
