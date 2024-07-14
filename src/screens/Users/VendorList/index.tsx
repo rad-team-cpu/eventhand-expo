@@ -34,7 +34,7 @@ export default function VendorList() {
 
   const fetchVendors = async () => {
     try {
-      const response = await axios.get(`http://192.168.254.100:3000/vendors`, {
+      const response = await axios.get(`${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors`, {
         headers: {
           'Content-Type': 'application/json',
         },

@@ -27,7 +27,7 @@ const BookingConfirmation = () => {
   const fetchPackage = useCallback(async () => {
     try {
       const response = await axios.get(
-        `http://192.168.254.100:3000/packages/${packageId}`,
+        `${process.env.EXPO_PUBLIC_BACKEND_URL}/packages/${packageId}`,
         {
           headers: {
             'Content-Type': 'application/json',

@@ -26,7 +26,7 @@ const VendorMenu = () => {
 
     const fetchVendor = useCallback(async () => {
       try {
-        const response = await axios.get(`http://192.168.254.100:3000/vendors/${vendorId}`, {
+        const response = await axios.get(`${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors/${vendorId}`, {
           headers: {
             'Content-Type': 'application/json',
           },
