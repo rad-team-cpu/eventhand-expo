@@ -1,10 +1,33 @@
 import { useAuth } from '@clerk/clerk-expo';
 import React, { createContext, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import { Chat } from 'types/types';
+
+type SenderType = "CLIENT" | "VENDOR"
+
+type SocketInputType = "REGISTER" | "SEND_MESSAGE" | "GET_MESSAGES" | "GET_CHAT_LIST" | "SWITCH"
+
+type GetChatListInput = {
+    senderId: string,
+    senderType: SenderType,
+    inputType: SocketInputType,
+    pageNumber: number,
+    pageSize: number,
+}
+
+type SocketInput = GetChatListInput
+
+type GetChatListOutput = {
+    documents: Chat[];
+    totalPages: number;
+    currentPage: number;
+    hasMore: boolean;
+}
 
 type WebSocketContextType = {
     isConnected: boolean;
     messages: string[];
-    sendMessage: (message: string) => void;
+    chatList: Chat[]
+    sendMessage: (message: SocketInput) => void;
   };
 
 interface WebSocketProviderProps {
@@ -16,8 +39,8 @@ const WebSocketContext = createContext<WebSocketContextType | undefined>(undefin
 
 const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
     const { getToken,  isLoaded } = useAuth();
-    const [socket, setSocket] = useState<WebSocket | undefined>(undefined);
     const [isConnected, setIsConnected] = useState(false);
+    const [chatList, setChatList] = useState<Chat[]>([])
     const [messages, setMessages] = useState<string[]>([]);
     const websocketRef = useRef<WebSocket | null>(null);
 
@@ -36,14 +59,23 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
               };
           
               socket.onmessage = (event) => {
-                console.log('WebSocket message received:', event.data);
-                setMessages((prevMessages) => [...prevMessages, event.data]);
+                const parsedData = JSON.parse(event.data)
+                console.log('WEBSOCKET MESSAGE RECIEVED!:');
+                console.log(`TYPE:`, parsedData.outputType)
+
+                if(parsedData.outputType == "GET_CHAT_LIST"){
+                    const message: GetChatListOutput = {
+                        ...parsedData.chatList,
+                    }
+
+                    setChatList(message.documents)
+                }
+            
               };
           
               socket.onclose = (event) => {
                 console.log('WebSocket closed:', event.reason);
                 setIsConnected(false);
-                // Try to reconnect in 5 seconds
                 setTimeout(connectWebSocket, 5000);
               };
           
@@ -59,9 +91,10 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
         }
       }, [getToken]);
 
-      const sendMessage = (message: string) => {
+      const sendMessage = (message: SocketInput) => {
         if (websocketRef.current && isConnected) {
-          websocketRef.current.send(message);
+          const input = JSON.stringify(message)
+          websocketRef.current.send(input);
         } else {
           console.warn('WebSocket is not connected. Unable to send message.');
         }
@@ -76,13 +109,13 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
       }, [connectWebSocket]);
     
       return (
-        <WebSocketContext.Provider value={{ isConnected, messages, sendMessage }}>
+        <WebSocketContext.Provider value={{ isConnected, messages, sendMessage, chatList }}>
           {children}
         </WebSocketContext.Provider>
       );
 };
 
-export  {WebSocketContext, WebSocketProvider, WebSocketContextType}
+export  {WebSocketContext, WebSocketProvider, WebSocketContextType, SocketInput, GetChatListInput}
 
 
 

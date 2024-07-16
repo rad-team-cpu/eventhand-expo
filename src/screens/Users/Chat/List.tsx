@@ -1,7 +1,9 @@
 import { faker } from "@faker-js/faker";
 import { useNavigation } from "@react-navigation/native";
+import { UserContext } from "Contexts/UserContext";
+import { GetChatListInput, WebSocketContext } from "Contexts/WebSocket";
 import { format } from "date-fns/format";
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -10,7 +12,9 @@ import {
   StyleSheet,
   Pressable,
   ImageSourcePropType,
+  ActivityIndicator,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Chat, HomeScreenNavigationProp } from "types/types";
 
 // Sample data
@@ -53,8 +57,8 @@ const createChatData = () => {
     _id: faker.string.uuid(),
     senderImage: faker.image.avatar(),
     senderName: faker.person.fullName(),
-    partialMessage: faker.lorem.sentences(),
-    lastDateSent: faker.date.anytime(),
+    latestMessage: faker.lorem.sentences(),
+    timestamp: faker.date.anytime(),
   };
 
   return chat;
@@ -66,17 +70,20 @@ const ChatItem: React.FC<Chat> = ({
   _id,
   senderImage,
   senderName,
-  partialMessage,
-  lastDateSent,
+  latestMessage,
+  timestamp,
 }) => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
-  const formattedDate = format(lastDateSent!, "PPpp");
+  const formattedDate = format(timestamp!, "PPpp");
   const image: ImageSourcePropType = senderImage
     ? { uri: senderImage }
     : require("../../../assets/images/user.png");
 
+
+
   const onPress = () => {
     navigation.navigate("Chat", { _id, senderImage, senderName });
+
   };
 
   return (
@@ -102,7 +109,7 @@ const ChatItem: React.FC<Chat> = ({
             numberOfLines={2}
             ellipsizeMode="tail"
           >
-            {partialMessage}
+            {latestMessage}
           </Text>
         </View>
         <View style={styles.separator} />
@@ -115,12 +122,45 @@ const ChatItem: React.FC<Chat> = ({
 };
 
 function ChatList() {
+  const [page, setPage] = useState<number>(1);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const userContext = useContext(UserContext);
+  const webSocket =  useContext(WebSocketContext);
+  if(!userContext){
+    throw new Error("Component must be under User Provider!!")
+  } 
+
+  if(!webSocket){
+    throw new Error("Component must be under Websocket Provider!!");
+  }
+
+  const {user } = userContext;
+  const { sendMessage, chatList } = webSocket;
+
+  useEffect(() => {
+    const getChatListInput: GetChatListInput = {
+      senderId: user._id,
+      senderType: "CLIENT",
+      pageNumber: page,
+      pageSize: 10,
+      inputType: "GET_CHAT_LIST"
+    }
+
+    sendMessage(getChatListInput);
+  }, [page])
+
   return (
-    <FlatList
-      data={data}
-      renderItem={({ item }) => <ChatItem {...item} />}
-      keyExtractor={({ _id }) => _id}
-    />
+    <SafeAreaView>
+      <FlatList
+        data={chatList}
+        renderItem={({ item }) => <ChatItem {...item} />}
+        keyExtractor={({ _id }) => _id}
+        onEndReached={ () => setPage(prevPage => prevPage + 1)}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={loading ? <ActivityIndicator size="large" /> : null}
+      />
+    </SafeAreaView>
   );
 }
 

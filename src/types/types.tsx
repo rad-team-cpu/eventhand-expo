@@ -59,8 +59,8 @@ interface Chat {
   _id: string;
   senderImage?: string;
   senderName: string;
-  partialMessage?: string;
-  lastDateSent?: Date;
+  latestMessage?: string;
+  timestamp?: Date;
 }
 interface ChatMessage {
   id: string;
