@@ -13,6 +13,7 @@ import VendorHome from 'screens/Vendor/Home';
 import VendorProfileForm from 'screens/Vendor/Profile/Form';
 import { ScreenProps } from 'types/types';
 import BookingConfirmation from 'screens/Users/BookingConfirmation';
+import BookingDetails from 'screens/Users/BookingDetails';
 
 const SignedInStack = createNativeStackNavigator<ScreenProps>();
 
@@ -72,6 +73,11 @@ const SignedInNav = () => {
       <SignedInStack.Screen
         name='BookingConfirmation'
         component={BookingConfirmation}
+        options={{ headerShown: false }}
+      />
+      <SignedInStack.Screen
+        name='BookingDetails'
+        component={BookingDetails}
         options={{ headerShown: false }}
       />
       <SignedInStack.Screen

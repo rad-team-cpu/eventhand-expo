@@ -37,7 +37,7 @@ interface Vendor {
 }
 
 interface PackageType {
-  id: string;
+  _id: string;
   name: string;
   vendor: Vendor;
   vendorId: string;
@@ -120,8 +120,21 @@ interface VendorMenuProps {
   vendorId: string;
 }
 
+interface VendorListProps {
+  vendorId?: string;
+  _id?: string;
+  attendees?: number;
+  budget?: number;
+  date?: Date | string;
+}
+
 interface BookingConfirmationProps {
   packageId: string;
+}
+
+interface BookingDetailsProps {
+  packageId: string;
+  vendorId: string
 }
 
 type ScreenProps = {
@@ -131,8 +144,10 @@ type ScreenProps = {
   ProfileForm: undefined;
   EventForm: undefined;
   EventView: EventInfo;
+  VendorList: VendorListProps;
   VendorMenu: VendorMenuProps;
   BookingConfirmation: BookingConfirmationProps;
+  BookingDetails: BookingDetailsProps;
   SuccessError: SuccessErrorProps;
   Confirmation: ConfirmationProps;
   VendorHome: HomeProps;

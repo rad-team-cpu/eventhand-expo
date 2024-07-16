@@ -4,36 +4,21 @@ import Block from 'Components/Ui/Block';
 import Image from 'Components/Ui/Image';
 import useTheme from 'src/core/theme';
 import Button from 'Components/Ui/Button';
-import { Text } from 'react-native';
-import { AntDesign } from '@expo/vector-icons';
+import { ScrollView, Text, TouchableOpacity } from 'react-native';
+import { AntDesign, Entypo } from '@expo/vector-icons';
 import axios from 'axios';
-import {
-  Vendor,
-  PackageType,
-  Product,
-  ScreenProps,
-  HomeScreenNavigationProp,
-} from 'types/types';
+import { Vendor, PackageType, Product } from 'types/types';
 
-const BookingConfirmation = () => {
-  const navigation = useNavigation<HomeScreenNavigationProp>();
+const BookingDetails = () => {
+  const navigation = useNavigation();
   const route = useRoute();
   const { assets, colors, sizes, gradients } = useTheme();
-  const [vendorPackage, setVendorPackage] = useState<PackageType>();
-  const [vendor, setVendor] = useState<Vendor>();
+  const [vendorPackage, setVendorPackage] = useState<PackageType | null>(null);
+  const [vendor, setVendor] = useState<Vendor | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const { packageId } = route.params as { packageId: string };
-
-  const onPressBook = (packageId: string, vendorId: string) => {
-    const BookingDetailsProps: ScreenProps['BookingDetails'] = {
-      packageId,
-      vendorId,
-    };
-
-    navigation.navigate('BookingDetails', BookingDetailsProps);
-  };
+  const { packageId, vendorId} = route.params as { packageId: string, vendorId: string };
 
   const fetchPackage = useCallback(async () => {
     try {
@@ -203,17 +188,12 @@ const BookingConfirmation = () => {
             </Block>
           </Block>
         ))}
-        {vendorPackage && (
-          <Button
-            onPress={() => onPressBook(packageId, vendorPackage.vendorId)}
-            gradient={gradients.primary}
-          >
-            <Text className='text-white uppercase'>Book now</Text>
-          </Button>
-        )}
+        <Button gradient={gradients.primary}>
+          <Text className='text-white uppercase'>Book now</Text>
+        </Button>
       </Block>
     </Block>
   );
 };
 
-export default BookingConfirmation;
+export default BookingDetails;
