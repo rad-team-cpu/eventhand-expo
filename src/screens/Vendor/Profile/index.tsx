@@ -60,6 +60,8 @@ function VendorProfile() {
       description: "You are trying to switch to client mode.",
       confirmNavigateTo: "Home",
       confrimNavParams: { initialTab: "Profile" },
+      isSwitching: true,
+      switchingTo: "CLIENT"
     };
 
     navigation.navigate("Confirmation", { ...confirmationProps });

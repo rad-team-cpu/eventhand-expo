@@ -6,15 +6,19 @@ type SenderType = "CLIENT" | "VENDOR"
 
 type SocketInputType = "REGISTER" | "SEND_MESSAGE" | "GET_MESSAGES" | "GET_CHAT_LIST" | "SWITCH"
 
-type GetChatListInput = {
-    senderId: string,
-    senderType: SenderType,
+type SocketRegisterInput = {
+  senderId: string,
+  senderType: SenderType,
+}
+
+type GetChatListInput =  SocketRegisterInput & {
     inputType: SocketInputType,
     pageNumber: number,
     pageSize: number,
 }
 
-type SocketInput = GetChatListInput
+
+type SocketInput = SocketRegisterInput | GetChatListInput
 
 type GetChatListOutput = {
     documents: Chat[];
@@ -115,7 +119,7 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
       );
 };
 
-export  {WebSocketContext, WebSocketProvider, WebSocketContextType, SocketInput, GetChatListInput}
+export  {WebSocketContext, WebSocketProvider, WebSocketContextType, SocketInput, GetChatListInput, SocketRegisterInput}
 
 
 

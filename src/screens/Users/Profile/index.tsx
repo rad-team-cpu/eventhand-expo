@@ -67,6 +67,8 @@ export default function Profile() {
       description:
         "You are trying to switch to vendor mode, if you haven't registered for a vendor account you will be taken to a vendor registration form.",
       confirmNavigateTo: "VendorHome",
+      isSwitching: true,
+      switchingTo: "VENDOR"
     };
 
     navigation.navigate("Confirmation", { ...confirmationProps });

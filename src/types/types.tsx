@@ -113,6 +113,8 @@ interface ConfirmationProps {
   description?: string;
   confirmNavigateTo: keyof ScreenProps;
   confrimNavParams?: ScreenProps[keyof ScreenProps];
+  isSwitching: boolean;
+  switchingTo?: "CLIENT" | "VENDOR"
 }
 
 interface HomeProps {

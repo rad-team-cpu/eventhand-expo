@@ -127,6 +127,7 @@ function ChatList() {
   const [hasMore, setHasMore] = useState(true);
   const userContext = useContext(UserContext);
   const webSocket =  useContext(WebSocketContext);
+
   if(!userContext){
     throw new Error("Component must be under User Provider!!")
   } 
@@ -209,6 +210,16 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f8f9fa', // Light background color
+  },
+  emptyText: {
+    fontSize: 18,
+    color: '#6c757d', // Muted text color
   },
 });
 
