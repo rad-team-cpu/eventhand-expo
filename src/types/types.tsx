@@ -32,7 +32,7 @@ interface Vendor {
   contactNumber: string;
   tags: [];
   about: string;
-  credibilityFactors: CredibilityFactorsType
+  credibilityFactors: CredibilityFactorsType;
   packages: PackageType[];
 }
 
@@ -44,7 +44,7 @@ interface PackageType {
   price: number;
   image: string;
   capacity: number;
-  inclusions: Product[]
+  inclusions: Product[];
 }
 
 interface Product {
@@ -134,7 +134,7 @@ interface BookingConfirmationProps {
 
 interface BookingDetailsProps {
   packageId: string;
-  vendorId: string
+  vendorId: string;
 }
 
 type ScreenProps = {
@@ -210,7 +210,10 @@ type VendorListScreenProps = CompositeScreenProps<
 
 type VendorMenuScreenProps = NativeStackScreenProps<ScreenProps, 'VendorMenu'>;
 
-type BookingConfirmationScreenProps = NativeStackScreenProps<ScreenProps, 'BookingConfirmation'>;
+type BookingConfirmationScreenProps = NativeStackScreenProps<
+  ScreenProps,
+  'BookingConfirmation'
+>;
 
 type ProfileScreenProps = CompositeScreenProps<
   BottomTabScreenProps<HomeScreenBottomTabsProps, 'Profile'>,

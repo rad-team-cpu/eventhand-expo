@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/core';
 import Block from 'Components/Ui/Block';
 import Image from 'Components/Ui/Image';
@@ -7,9 +7,12 @@ import Button from 'Components/Ui/Button';
 import { ScrollView, Text, TouchableOpacity } from 'react-native';
 import { AntDesign, Entypo } from '@expo/vector-icons';
 import axios from 'axios';
-import { Vendor, PackageType, Product } from 'types/types';
+import { Vendor, PackageType, Product, EventInfo } from 'types/types';
+import { UserContext } from 'Contexts/UserContext';
+import formatDate from 'src/core/helpers';
 
 const BookingDetails = () => {
+  const userContext = useContext(UserContext);
   const navigation = useNavigation();
   const route = useRoute();
   const { assets, colors, sizes, gradients } = useTheme();
@@ -18,7 +21,16 @@ const BookingDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const { packageId, vendorId} = route.params as { packageId: string, vendorId: string };
+  if (!userContext) {
+    throw new Error('UserInfo must be used within a UserProvider');
+  }
+  const { user } = userContext;
+  const { events } = user;
+
+  const { packageId, vendorId } = route.params as {
+    packageId: string;
+    vendorId: string;
+  };
 
   const fetchPackage = useCallback(async () => {
     try {
@@ -91,78 +103,31 @@ const BookingDetails = () => {
       showsVerticalScrollIndicator={false}
       contentContainerStyle={{ paddingBottom: sizes.xxl }}
     >
-      <Block flex={0}>
-        {/* <Image src={packages?.image } height={260} /> */}
-        <Image
-          background
-          source={assets?.card4}
-          height={200}
-          padding={sizes.sm}
-          radius={sizes.cardRadius}
-          resizeMode='cover'
-        >
-          <Button
-            row
-            flex={0}
-            justify='flex-start'
-            onPress={() => navigation.goBack()}
-          >
-            <AntDesign name='back' size={24} color='white' />
-            <Text className='text-white ml-1'>Go back</Text>
-          </Button>
-        </Image>
-      </Block>
-
-      <Block
-        row
-        flex={0}
-        align='center'
-        justify='space-between'
-        marginVertical={sizes.sm}
-      >
-        <Block>
-          <Text className='font-bold text-xl'>{vendorPackage?.name}</Text>
-        </Block>
-        <Block row flex={0} align='flex-end' justify='flex-end'>
-          <Text className='font-bold text-xl'>₱{vendorPackage?.price}</Text>
-        </Block>
-      </Block>
-
-      {/* <Text className='mb-5'>Good for {vendorPackage?.capacity} pax!</Text> */}
-
-      <Block row marginBottom={sizes.m}>
-        <Block row>
-          <Image
-            radius={sizes.s}
-            width={sizes.xl}
-            height={sizes.xl}
-            // source={{ uri: option?.user?.avatar }}
-            style={{ backgroundColor: colors.white }}
-          />
-          <Block marginLeft={sizes.s}>
-            <Text className='font-semibold'>{vendor?.name}</Text>
-            {vendor?.tags
-              .slice(0, 1)
-              .map((tag, index) => <Text key={index}>{tag}</Text>)}
-          </Block>
-        </Block>
-        <Button
-          round
-          height={40}
-          gradient={gradients.dark}
-          //   onPress={() =>
-          //     navigation.navigate('Chat', { userId: option?.user?.id })
-          //   }
-        >
-          <AntDesign name='message1' color='white' size={25} />
-        </Button>
-      </Block>
-
       <Block card paddingVertical={sizes.s} paddingHorizontal={sizes.sm}>
+        <Button
+          row
+          flex={0}
+          justify='flex-start'
+          onPress={() => navigation.goBack()}
+        >
+          <AntDesign name='back' size={24} color='#ec4899' />
+          <Text className='text-pink-600 ml-1'>Go back</Text>
+        </Button>
+        <Text className='font-bold p-2'>Booking Details:</Text>
+        <Block>
+          {events?.map((event: EventInfo) => (
+            <Block>
+              {/* <Text>{event?.name}</Text> */}
+              <Text>{formatDate(event?.date)}</Text>
+              <Text>{event?.attendees} pax</Text>
+              {/* <Text>Event Budget: ₱{event?.budget}</Text> */}
+            </Block>
+          ))}
+        </Block>
         {vendorPackage?.inclusions.map((inclusion: Product) => (
           <Block
             key={inclusion.id}
-            className=' h-18 w-full rounded-xl flex flex-row mb-2'
+            className=' h-18 w-full rounded-xl flex flex-row my-5'
           >
             <Image
               background
@@ -188,8 +153,18 @@ const BookingDetails = () => {
             </Block>
           </Block>
         ))}
+        <Block
+          row
+          flex={0}
+          align='center'
+          justify='space-between'
+          marginVertical={sizes.sm}
+        >
+          <Text className='font-bold text-xl'>{vendorPackage?.name}</Text>
+          <Text className='font-bold text-pink-500'>Total: ₱{vendorPackage?.price.toFixed(2)}</Text>
+        </Block>
         <Button gradient={gradients.primary}>
-          <Text className='text-white uppercase'>Book now</Text>
+          <Text className='text-white uppercase'>Confirm</Text>
         </Button>
       </Block>
     </Block>
