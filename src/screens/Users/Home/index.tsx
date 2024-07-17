@@ -13,6 +13,8 @@ import EventList from "screens/Users/Events/List";
 import Profile from "screens/Users/Profile";
 import { HomeScreenProps } from "types/types";
 import VendorList from "../VendorList";
+import { WebSocketContext } from "Contexts/WebSocket";
+import ErrorScreen from "Components/Error";
 
 interface HomeNaveProps {
   initialRouteName?: string;
@@ -82,10 +84,17 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
   const { initialTab, noFetch } = route.params;
   const { getToken, userId, isLoaded } = useAuth();
   const [loading, setLoading] = useState(!noFetch);
+  const [error, setError] = useState(false);
   const userContext = useContext(UserContext);
+  const webSocket =  useContext(WebSocketContext);
+
 
   if (!userContext) {
     throw new Error("UserInfo must be used within a UserProvider");
+  }
+
+  if(!webSocket){
+    throw new Error("Component must be under Websocket Provider!!");
   }
 
   if (!isLoaded) {
@@ -93,6 +102,7 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
   }
 
   const { setUser } = userContext;
+  const {connectionTimeout, isConnected, reconnect} = webSocket; 
 
   const fetchUserId = async () => {
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/${userId}`;
@@ -127,17 +137,43 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
       }
     } catch (error: any) {
       console.error(`Error fetching user (${error.code}): ${error} `);
+      setError(true)
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    if (!noFetch) {
-      fetchUserId();
-    }
-  }, []);
+  const onRetryPress = () => {
+    reconnect();
+    setLoading(true)
+    setError(false)
+  }
 
-  return loading ? <Loading /> : <HomeNav initialRouteName={initialTab} />;
+  useEffect(() => {
+    if(isConnected && !noFetch){
+      fetchUserId()
+    }
+    if(connectionTimeout){
+      setError(true)
+      setLoading(false)
+    } 
+    console.log(loading)
+  }, [connectionTimeout, isConnected]);
+
+  if( loading ){
+    return <Loading />
+  }
+  
+  if(error){
+    return <ErrorScreen 
+            description="Failed to connect to the server" 
+            buttonText="RETRY" 
+            onPress={onRetryPress}
+          />
+  }
+
+  return <HomeNav initialRouteName={initialTab} />
+
+
 };
 
 const styles = StyleSheet.create({
