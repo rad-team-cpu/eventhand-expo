@@ -4,19 +4,23 @@ import Block from 'Components/Ui/Block';
 import Image from 'Components/Ui/Image';
 import useTheme from 'src/core/theme';
 import Button from 'Components/Ui/Button';
-import { ScrollView, Text } from 'react-native';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { AntDesign, Entypo } from '@expo/vector-icons';
 import axios from 'axios';
-import { Vendor, PackageType } from 'types/types';
+import {
+  Vendor,
+  PackageType,
+  ScreenProps,
+  HomeScreenNavigationProp,
+} from 'types/types';
 
 const VendorMenu = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<HomeScreenNavigationProp>();
   const route = useRoute();
   const { assets, colors, sizes } = useTheme();
   const [vendor, setVendor] = useState<Vendor>();
 
-  const { vendorId } = route.params as { vendorId: number };
-  // console.log(vendorId)
+  const { vendorId } = route.params as { vendorId: string };
 
   const IMAGE_SIZE = (sizes.width - (sizes.padding + sizes.sm) * 2) / 3;
   const IMAGE_VERTICAL_SIZE =
@@ -25,67 +29,39 @@ const VendorMenu = () => {
   const IMAGE_VERTICAL_MARGIN =
     (sizes.width - (IMAGE_VERTICAL_SIZE + sizes.sm) * 2) / 2;
 
-    const fetchVendor = useCallback(async () => {
-      try {
-        const response = await axios.get(`http://192.168.254.100:3000/vendors/${vendorId}`, {
+  const fetchVendor = useCallback(async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors/${vendorId}/packages`,
+        {
           headers: {
             'Content-Type': 'application/json',
           },
-        });
-        setVendor(response.data);
-      } catch (error: any) {
-        if (error instanceof TypeError) {
-          console.error('Network request failed. Possible causes: CORS issues, network issues, or incorrect URL.');
-        } else {
-          console.error('Error fetching vendors:', error.message);
         }
+      );
+      setVendor(response.data);
+    } catch (error: any) {
+      if (error instanceof TypeError) {
+        console.error(
+          'Network request failed. Possible causes: CORS issues, network issues, or incorrect URL.'
+        );
+      } else {
+        console.error('Error fetching vendors:', error.message);
       }
-    }, [vendorId]);
+    }
+  }, [vendorId]);
+
+  const onPressPackage = (packageId: string) => {
+    const BookingConfirmationProps: ScreenProps['BookingConfirmation'] = {
+      packageId,
+    };
+
+    navigation.navigate('BookingConfirmation', BookingConfirmationProps);
+  };
 
   useEffect(() => {
     fetchVendor();
   }, []);
-
-  // const vendor = {
-  //   id: merchantId,
-  //   name: 'JJ Photography',
-  //   category: 'Photography',
-  //   about:
-  //     'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum',
-  //   packages: [
-  //     {
-  //       id: 1,
-  //       name: 'Gold Package',
-  //       inclusions: [
-  //         { name: 'Same Day Edit', quantity: '30 mins' },
-  //         { name: 'Same Day Edit', quantity: '30 mins' },
-  //         { name: 'Same Day Edit', quantity: '30 mins' },
-  //       ],
-  //     },
-  //     {
-  //       id: 2,
-  //       name: 'Silver Package',
-  //       inclusions: [
-  //         { name: 'Same Day Edit', quantity: '30 mins' },
-  //         { name: 'Same Day Edit', quantity: '30 mins' },
-  //         { name: 'Same Day Edit', quantity: '30 mins' },
-  //       ],
-  //     },
-  //     {
-  //       id: 3,
-  //       name: 'Bronze Package',
-  //       inclusions: [
-  //         { name: 'Same Day Edit', quantity: '30 mins' },
-  //         { name: 'Same Day Edit', quantity: '30 mins' },
-  //         { name: 'Same Day Edit', quantity: '30 mins' },
-  //       ],
-  //     },
-  //   ],
-  //   stats: { bookings: 341, ratings: 4.5, reviews: 560 },
-  //   portfolio: [assets?.card1, assets?.card2, assets?.card3], // Replace with actual images
-  // };
-
-  const onPressPackage = () => {};
 
   if (!vendor) {
     return (
@@ -131,13 +107,16 @@ const VendorMenu = () => {
               <Text className='items-center text-white font-bold text-3xl'>
                 {vendor.name}
               </Text>
-              {/* <Block row align='center'>
+              <Block row align='center'>
                 {vendor.tags.map((tag, index) => (
                   <Text key={index} className='items-center text-white mx-1'>
                     {tag}
                   </Text>
                 ))}
-              </Block> */}
+                {/* <Text className='items-center text-white mx-1'>
+                  Photography
+                </Text> */}
+              </Block>
               <Block row marginVertical={sizes.xs}>
                 <Button
                   white
@@ -159,15 +138,13 @@ const VendorMenu = () => {
                     </Text>
                   </Block>
                 </Button>
-                <Button
+                {/* <Button
                   white
                   outlined
                   marginHorizontal={sizes.sm}
                   shadow={false}
                   radius={sizes.m}
-                  onPress={() => {
-                    // alert(`Follow ${user?.name}`);
-                  }}
+                  onPress={() => onPressPackage('668f84bf792019f5d8988fea')}
                 >
                   <Block
                     justify='center'
@@ -177,7 +154,7 @@ const VendorMenu = () => {
                   >
                     <Text className='uppercase text-white font-bold'>Book</Text>
                   </Block>
-                </Button>
+                </Button> */}
               </Block>
             </Block>
           </Image>
@@ -185,10 +162,11 @@ const VendorMenu = () => {
           {/* profile: stats */}
           <Block
             flex={0}
-            radius={sizes.xs}
+            radius={sizes.md}
             marginTop={-sizes.md}
+            shadow
             marginHorizontal='8%'
-            padding={sizes.sm}
+            padding={sizes.xs}
             color='rgba(255,255,255,0.9)'
             
           >
@@ -196,11 +174,11 @@ const VendorMenu = () => {
               row
               blur
               flex={0}
-              radius={sizes.xs}
+              radius={sizes.md}
               overflow='hidden'
               tint={colors.blurTint}
               justify='space-evenly'
-              paddingVertical={sizes.m}
+              paddingVertical={sizes.xs}
             >
               <Block align='center'>
                 <Text className='text-sm font-bold'>
@@ -230,13 +208,13 @@ const VendorMenu = () => {
             </Text>
           </Block>
           <Block paddingHorizontal={sizes.sm}>
-            <Text className='text-xl font-bold pb-2'>Packages</Text>
+            <Text className='text-xl font-bold pb-2'>Choose a Package</Text>
             <ScrollView showsHorizontalScrollIndicator={false}>
-              {/* {vendor.packages.map((vendorPackage: PackageType ) => (
+              {vendor.packages.map((vendorPackage: PackageType) => (
                 <TouchableOpacity
-                  key={vendorPackage.id}
-                  className=' h-24 w-full rounded-xl border flex flex-row mt-2'
-                  onPress={() => onPressPackage()}
+                  key={vendorPackage._id}
+                  className=' h-24 w-full rounded-xl border border-pink-500 flex flex-row mt-2'
+                  onPress={() => onPressPackage(vendorPackage._id)}
                 >
                   <Image
                     background
@@ -245,27 +223,31 @@ const VendorMenu = () => {
                     rounded
                     className='rounded-xl h-24 w-24'
                   ></Image>
-                  <View className='w-52 rounded-xl'>
-                    <Text className='text-xs text-center font-semibold'>
-                      {vendorPackage.name}
-                    </Text>
+                  <View>
+                    <View className='w-52 rounded-xl flex flex-row justify-center p-2'>
+                      <Text className='text-s text-center font-semibold pr-2'>
+                        {vendorPackage.name} 
+                      </Text>
+                      <Text className='text-s text-center font-semibold'>
+                        ₱{vendorPackage.price}
+                      </Text>
+                    </View>
                     {vendorPackage.inclusions.slice(0, 3).map((inclusion) => (
                       <View className='flex flex-row justify-between p-1'>
                         <Text className='text-xs '> {inclusion.name} </Text>
-                        <Text className='text-xs'> {inclusion.quantity} </Text>
+                        <Text className='text-xs'> x{inclusion.quantity} </Text>
                       </View>
                     ))}
                   </View>
                 </TouchableOpacity>
-              ))} */}
+              ))}
             </ScrollView>
           </Block>
 
-          {/* profile: photo album */}
           <Block paddingHorizontal={sizes.sm} className='mt-2'>
             <Block row align='center' justify='space-between'>
               <Text className='text-xl font-bold'>Portfolio</Text>
-              <Button>
+              <Button >
                 <Text className='font-semibold'>View All</Text>
               </Button>
             </Block>
@@ -282,7 +264,7 @@ const VendorMenu = () => {
                 <Image
                   resizeMode='cover'
                   source={assets?.card2}
-                  // marginBottom={IMAGE_VERTICAL_MARGIN}
+                  marginBottom={IMAGE_VERTICAL_MARGIN}
                   style={{
                     height: IMAGE_VERTICAL_SIZE,
                     width: IMAGE_VERTICAL_SIZE,
