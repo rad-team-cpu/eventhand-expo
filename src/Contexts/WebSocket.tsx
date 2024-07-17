@@ -30,10 +30,11 @@ type GetChatListOutput = {
 type WebSocketContextType = {
     isConnected: boolean;
     messages: string[];
-    chatList: Chat[]
+    chatList?: GetChatListOutput
     sendMessage: (message: SocketInput) => void;
     reconnect: () => void;
     connectionTimeout: boolean;
+    loading: boolean
   };
 
 interface WebSocketProviderProps {
@@ -46,9 +47,9 @@ const WebSocketContext = createContext<WebSocketContextType | undefined>(undefin
 const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
     const { getToken,  isLoaded } = useAuth();
     const [isConnected, setIsConnected] = useState(false);
-    const [chatList, setChatList] = useState<Chat[]>([])
+    const [chatList, setChatList] = useState<GetChatListOutput | undefined>(undefined)
     const [messages, setMessages] = useState<string[]>([]);
-    const [connectionError, setConnectionError] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(false);
     const [connectionTimeout, setConnectionTimeout] = useState<boolean>(false);
     const websocketRef = useRef<WebSocket | null>(null);
     const reconnectionAttemptRef = useRef<number>(0)
@@ -70,6 +71,7 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
               };
           
               socket.onmessage = (event) => {
+                setLoading(true)
                 const parsedData = JSON.parse(event.data)
                 console.log('WEBSOCKET MESSAGE RECIEVED!:');
                 console.log(`TYPE:`, parsedData.outputType)
@@ -79,7 +81,8 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
                         ...parsedData.chatList,
                     }
 
-                    setChatList(message.documents)
+                    setChatList(message)
+                    setLoading(false)
                 }
             
               };
@@ -102,7 +105,6 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
                 socket.close();
               };
               
-              console.log(reconnectionAttemptRef.current)
               websocketRef.current = socket;
 
         } catch (error) {
@@ -133,7 +135,7 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
       }, [connectWebSocket]);
     
       return (
-        <WebSocketContext.Provider value={{ isConnected, messages, sendMessage, chatList, reconnect, connectionTimeout }}>
+        <WebSocketContext.Provider value={{ isConnected, messages, sendMessage, chatList, reconnect, connectionTimeout, loading }}>
           {children}
         </WebSocketContext.Provider>
       );

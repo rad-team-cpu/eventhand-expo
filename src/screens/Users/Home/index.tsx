@@ -13,7 +13,7 @@ import EventList from "screens/Users/Events/List";
 import Profile from "screens/Users/Profile";
 import { HomeScreenProps } from "types/types";
 import VendorList from "../VendorList";
-import { WebSocketContext } from "Contexts/WebSocket";
+import { GetChatListInput, WebSocketContext } from "Contexts/WebSocket";
 import ErrorScreen from "Components/Error";
 
 interface HomeNaveProps {
@@ -101,8 +101,8 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
     throw new Error("Failed to load clerk");
   }
 
-  const { setUser } = userContext;
-  const {connectionTimeout, isConnected, reconnect} = webSocket; 
+  const { setUser, } = userContext;
+  const {connectionTimeout, isConnected, reconnect, sendMessage, } = webSocket; 
 
   const fetchUserId = async () => {
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/${userId}`;
@@ -124,6 +124,16 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
       
       if (res.status === 200) {
         setUser({ ...data });
+        const getChatListInput: GetChatListInput = {
+          senderId: data._id,
+          senderType: "CLIENT",
+          pageNumber: 1,
+          pageSize: 10,
+          inputType: "GET_CHAT_LIST"
+        }
+        
+        sendMessage(getChatListInput);
+
         setLoading(false);
       } else if (res.status === 400) {
         throw new Error("Bad request - Invalid data.");
@@ -156,7 +166,6 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
       setError(true)
       setLoading(false)
     } 
-    console.log(loading)
   }, [connectionTimeout, isConnected]);
 
   if( loading ){

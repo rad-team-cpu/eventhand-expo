@@ -1,5 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { useNavigation } from "@react-navigation/native";
+import ErrorScreen from "Components/Error";
 import { UserContext } from "Contexts/UserContext";
 import { GetChatListInput, WebSocketContext } from "Contexts/WebSocket";
 import { format } from "date-fns/format";
@@ -17,41 +18,6 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Chat, HomeScreenNavigationProp } from "types/types";
 
-// Sample data
-const chatData = [
-  {
-    id: "1",
-    senderName: "John Doe",
-    partialMessage: "Hey, how are you?",
-    lastDateSent: new Date(),
-    userImage: faker.image.avatar(),
-  },
-  {
-    id: "2",
-    senderName: "Jane Smith",
-    partialMessage:
-      "Can we meet tomorrow? I need to discuss something important with you regarding our upcoming project and some new ideas I have in mind.",
-    lastDateSent: new Date(),
-    userImage: faker.image.avatar(),
-  },
-  {
-    id: "3",
-    senderName: "John Doe",
-    partialMessage: "Hey, how are you?",
-    lastDateSent: new Date(),
-    userImage: faker.image.avatar(),
-  },
-  {
-    id: "4",
-    senderName: "Jane Smith",
-    partialMessage:
-      "Can we meet tomorrow? I need to discuss something important with you regarding our upcoming project and some new ideas I have in mind.",
-    lastDateSent: new Date(),
-    userImage: faker.image.avatar(),
-  },
-  // Add more chat data as needed
-];
-
 const createChatData = () => {
   const chat: Chat = {
     _id: faker.string.uuid(),
@@ -64,7 +30,7 @@ const createChatData = () => {
   return chat;
 };
 
-const data: Chat[] = Array.from(Array(10), () => createChatData());
+const data: Chat[] = Array.from(Array(1), () => createChatData());
 
 const ChatItem: React.FC<Chat> = ({
   _id,
@@ -123,8 +89,6 @@ const ChatItem: React.FC<Chat> = ({
 
 function ChatList() {
   const [page, setPage] = useState<number>(1);
-  const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
   const userContext = useContext(UserContext);
   const webSocket =  useContext(WebSocketContext);
 
@@ -137,9 +101,13 @@ function ChatList() {
   }
 
   const {user } = userContext;
-  const { sendMessage, chatList } = webSocket;
+  const { sendMessage, chatList, loading, isConnected, reconnect } = webSocket;
 
-  useEffect(() => {
+  const onRetryPress = () => {
+    reconnect();
+  }
+
+  const getChatList = () => {
     const getChatListInput: GetChatListInput = {
       senderId: user._id,
       senderType: "CLIENT",
@@ -147,19 +115,62 @@ function ChatList() {
       pageSize: 10,
       inputType: "GET_CHAT_LIST"
     }
+    
+    if(chatList?.hasMore){
+      sendMessage(getChatListInput);
+    }
+  }
 
-    sendMessage(getChatListInput);
+  
+  useEffect(() => {
+    getChatList()
+
   }, [page])
+
+  if(!isConnected){
+    return <ErrorScreen 
+            description="Failed to connect to the server" 
+            buttonText="RETRY" 
+            onPress={onRetryPress}
+          />
+  }
+
+  const renderEmptyComponent = () => {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+        <Text>No messages available</Text>
+      </View>
+    );
+  };
+
+  
+  if(!chatList || chatList.documents.length == 0){
+    return renderEmptyComponent()
+  }
+
+  const renderFooter = () => {
+    if (loading) {
+      return <ActivityIndicator size="large" color="#CB0C9F"  />;
+    }
+    if (!chatList.hasMore) {
+      return <Text style={{ textAlign: 'center', padding: 10 }}>No more messages</Text>;
+    }
+    return null;
+  };
+
+  const data = chatList.documents
 
   return (
     <SafeAreaView>
       <FlatList
-        data={chatList}
+        data={data}
         renderItem={({ item }) => <ChatItem {...item} />}
         keyExtractor={({ _id }) => _id}
+        onStartReached={getChatList}
+        onStartReachedThreshold={0.5}
         onEndReached={ () => setPage(prevPage => prevPage + 1)}
         onEndReachedThreshold={0.5}
-        ListFooterComponent={loading ? <ActivityIndicator size="large" /> : null}
+        ListFooterComponent={renderFooter}
       />
     </SafeAreaView>
   );

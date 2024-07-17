@@ -12,7 +12,7 @@ const Loading = () => {
       <ActivityIndicator
         testID="test-loading"
         size="large"
-        color="#007AFF"
+        color="#CB0C9F"
         style={styles.loading}
       />
     </View>
