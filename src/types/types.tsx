@@ -32,19 +32,14 @@ interface Vendor {
   contactNumber: string;
   tags: [];
   about: string;
-  credibilityFactors: CredibilityFactorsType;
+  credibilityFactors: CredibilityFactorsType
   packages: PackageType[];
 }
 
 interface PackageType {
-  _id: string;
+  id: string;
   name: string;
-  vendor: Vendor;
-  vendorId: string;
-  price: number;
-  image: string;
-  capacity: number;
-  inclusions: Product[];
+  inclusions: Product[]
 }
 
 interface Product {
@@ -120,23 +115,6 @@ interface VendorMenuProps {
   vendorId: string;
 }
 
-interface VendorListProps {
-  vendorId?: string;
-  _id?: string;
-  attendees?: number;
-  budget?: number;
-  date?: Date | string;
-}
-
-interface BookingConfirmationProps {
-  packageId: string;
-}
-
-interface BookingDetailsProps {
-  packageId: string;
-  vendorId: string;
-}
-
 type ScreenProps = {
   SignUp: undefined;
   Login: undefined;
@@ -144,10 +122,7 @@ type ScreenProps = {
   ProfileForm: undefined;
   EventForm: undefined;
   EventView: EventInfo;
-  VendorList: VendorListProps;
   VendorMenu: VendorMenuProps;
-  BookingConfirmation: BookingConfirmationProps;
-  BookingDetails: BookingDetailsProps;
   SuccessError: SuccessErrorProps;
   Confirmation: ConfirmationProps;
   VendorHome: HomeProps;
@@ -210,11 +185,6 @@ type VendorListScreenProps = CompositeScreenProps<
 
 type VendorMenuScreenProps = NativeStackScreenProps<ScreenProps, 'VendorMenu'>;
 
-type BookingConfirmationScreenProps = NativeStackScreenProps<
-  ScreenProps,
-  'BookingConfirmation'
->;
-
 type ProfileScreenProps = CompositeScreenProps<
   BottomTabScreenProps<HomeScreenBottomTabsProps, 'Profile'>,
   NativeStackScreenProps<ScreenProps>
@@ -250,7 +220,6 @@ export {
   ChatScreenProps,
   VendorListScreenProps,
   VendorMenuScreenProps,
-  BookingConfirmationScreenProps,
   ProfileScreenProps,
   EventFormScreenProps,
   VendorHomeScreenProps,

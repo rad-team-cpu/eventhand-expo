@@ -3,20 +3,12 @@ import { format } from "date-fns/format";
 import ExpoStatusBar from "expo-status-bar/build/ExpoStatusBar";
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { EventInfo, EventViewScreenProps, ScreenProps } from "types/types";
+import { EventViewScreenProps } from "types/types";
 
 function EventView({ navigation, route }: EventViewScreenProps) {
   const { _id, attendees, budget, date } = route.params;
   const dateString =
     typeof date == "string" ? date : format(date, "MMMM dd, yyyy");
-
-    const handleFindSupplier = (_id: string, attendees: number, budget: number, date: Date | string) => {
-      const vendorListProps: ScreenProps['EventView'] = {
-        _id, attendees, budget, date
-      };
-  
-      navigation.navigate('VendorList', vendorListProps);
-    };
 
   return (
     <>
@@ -34,7 +26,7 @@ function EventView({ navigation, route }: EventViewScreenProps) {
         </View>
       </View>
       <View style={styles.container}>
-        <Pressable style={styles.button} android_ripple={{ color: "#c0c0c0" }} onPress={() => handleFindSupplier(_id, attendees, budget, date)}>
+        <Pressable style={styles.button} android_ripple={{ color: "#c0c0c0" }}>
           <FontAwesome
             name="search"
             size={24}

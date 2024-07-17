@@ -11,49 +11,34 @@ import Button from 'Components/Ui/Button';
 import Image from 'Components/Ui/Image';
 import useTheme from '../../../core/theme';
 import { Text } from 'react-native';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Loading from 'screens/Loading';
 import { StatusBar } from 'expo-status-bar';
-import { UserContext } from 'Contexts/UserContext';
 import StarRating from 'Components/Ui/StarRating';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { HomeScreenNavigationProp, ScreenProps, Vendor } from 'types/types';
 
 export default function VendorList() {
-  const userContext = useContext(UserContext);
   const [loading, setLoading] = useState(false);
-  const route = useRoute();
   const { assets, colors, sizes, gradients } = useTheme();
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const [vendors, setVendors] = useState<Vendor[]>([]);
 
-  if (!userContext) {
-    throw new Error('UserInfo must be used within a UserProvider');
-  }
-  const { user } = userContext;
-  const { events } = user;
-
   const onPressVendor = (vendorId: string) => {
-    if (events && events.length > 0) {
-      const vendorMenuProps: ScreenProps['VendorMenu'] = {
-        vendorId,
-      };
-      navigation.navigate('VendorMenu', vendorMenuProps);
-    } else {
-      navigation.navigate('EventForm');
-    }
+    const vendorMenuProps: ScreenProps['VendorMenu'] = {
+      vendorId,
+    };
+
+    navigation.navigate('VendorMenu', vendorMenuProps);
   };
 
   const fetchVendors = async () => {
     try {
-      const response = await axios.get(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const response = await axios.get(`http://192.168.254.100:3000/vendors`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
       setVendors(response.data);
     } catch (error: any) {
       if (error instanceof TypeError) {
@@ -131,10 +116,10 @@ export default function VendorList() {
                     <Text className='text-xs text-center'>{vendor.name}</Text>
 
                     <View className=' items-center'>
-                      {/* <StarRating
-                        rating={vendor.credibilityFactors?.ratingsScore}
+                      <StarRating
+                        rating={vendor.credibilityFactors.ratingsScore}
                         starStyle='width'
-                      /> */}
+                      />
                     </View>
 
                     {/* <StarRating rating={vendor.rating} starStyle='width' /> */}
@@ -166,10 +151,10 @@ export default function VendorList() {
                     <Text className='text-xs text-center'>Hello</Text>
 
                     <View className=' items-center'>
-                      {/* <StarRating
+                      <StarRating
                         rating={vendor.credibilityFactors.ratingsScore}
                         starStyle='width'
-                      /> */}
+                      />
                     </View>
 
                     {/* <StarRating rating={vendor.rating} starStyle='width' /> */}
