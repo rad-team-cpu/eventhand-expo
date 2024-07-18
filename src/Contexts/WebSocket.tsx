@@ -1,20 +1,27 @@
 import { useAuth } from '@clerk/clerk-expo';
 import React, { createContext, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
-import { Chat } from 'types/types';
+import { Chat, ChatMessage } from 'types/types';
 
 type SenderType = "CLIENT" | "VENDOR"
+
+type PaginationInput = {
+  pageNumber: number,
+  pageSize: number,
+}
 
 type SocketInputType = "REGISTER" | "SEND_MESSAGE" | "GET_MESSAGES" | "GET_CHAT_LIST" | "SWITCH"
 
 type SocketRegisterInput = {
   senderId: string,
   senderType: SenderType,
+  inputType: SocketInputType,
+
 }
 
-type GetChatListInput =  SocketRegisterInput & {
-    inputType: SocketInputType,
-    pageNumber: number,
-    pageSize: number,
+type GetChatListInput =  SocketRegisterInput & PaginationInput
+
+type GetMessagesInput = SocketRegisterInput & PaginationInput &  {
+  chatId: string,
 }
 
 
@@ -27,14 +34,23 @@ type GetChatListOutput = {
     hasMore: boolean;
 }
 
+
+
+type GetMessagesOutput = {
+  documents: ChatMessage[];
+  totalPages: number;
+  currentPage: number;
+  hasMore: boolean;
+}
+
 type WebSocketContextType = {
     isConnected: boolean;
-    messages: string[];
-    chatList?: GetChatListOutput
+    chatList?: GetChatListOutput;
+    chatMessages?: GetMessagesOutput;
     sendMessage: (message: SocketInput) => void;
     reconnect: () => void;
     connectionTimeout: boolean;
-    loading: boolean
+    loading: boolean;
   };
 
 interface WebSocketProviderProps {
@@ -48,7 +64,7 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
     const { getToken,  isLoaded } = useAuth();
     const [isConnected, setIsConnected] = useState(false);
     const [chatList, setChatList] = useState<GetChatListOutput | undefined>(undefined)
-    const [messages, setMessages] = useState<string[]>([]);
+    const [chatMessages, setChatMessages] = useState<GetMessagesOutput | undefined>(undefined);
     const [loading, setLoading] = useState<boolean>(false);
     const [connectionTimeout, setConnectionTimeout] = useState<boolean>(false);
     const websocketRef = useRef<WebSocket | null>(null);
@@ -80,9 +96,18 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
                     const message: GetChatListOutput = {
                         ...parsedData.chatList,
                     }
-
+                    
                     setChatList(message)
                     setLoading(false)
+                }
+
+                if(parsedData.outputType == "GET_MESSAGES"){
+                  const message: GetMessagesOutput = {
+                    ...parsedData.messageList
+                  }
+
+                  setChatMessages(message);
+                  setLoading(false);
                 }
             
               };
@@ -121,6 +146,7 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
         }
       };
 
+
       const reconnect = () => {
         reconnectionAttemptRef.current = 0
         setConnectionTimeout(false)
@@ -135,13 +161,13 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
       }, [connectWebSocket]);
     
       return (
-        <WebSocketContext.Provider value={{ isConnected, messages, sendMessage, chatList, reconnect, connectionTimeout, loading }}>
+        <WebSocketContext.Provider value={{ isConnected, chatMessages, sendMessage, chatList, reconnect, connectionTimeout, loading }}>
           {children}
         </WebSocketContext.Provider>
       );
 };
 
-export  {WebSocketContext, WebSocketProvider, WebSocketContextType, SocketInput, GetChatListInput, SocketRegisterInput}
+export  {WebSocketContext, WebSocketProvider, WebSocketContextType, SocketInput, GetChatListInput, SocketRegisterInput, GetMessagesInput}
 
 
 

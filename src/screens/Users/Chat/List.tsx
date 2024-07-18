@@ -2,7 +2,7 @@ import { faker } from "@faker-js/faker";
 import { useNavigation } from "@react-navigation/native";
 import ErrorScreen from "Components/Error";
 import { UserContext } from "Contexts/UserContext";
-import { GetChatListInput, WebSocketContext } from "Contexts/WebSocket";
+import { GetChatListInput, GetMessagesInput, WebSocketContext } from "Contexts/WebSocket";
 import { format } from "date-fns/format";
 import React, { useContext, useEffect, useState } from "react";
 import {
@@ -18,26 +18,33 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Chat, HomeScreenNavigationProp } from "types/types";
 
-const createChatData = () => {
-  const chat: Chat = {
-    _id: faker.string.uuid(),
-    senderImage: faker.image.avatar(),
-    senderName: faker.person.fullName(),
-    latestMessage: faker.lorem.sentences(),
-    timestamp: faker.date.anytime(),
-  };
+// for fake data generation for frontend use only
+// const createChatData = () => {
+//   const chat: Chat = {
+//     _id: faker.string.uuid(),
+//     senderImage: faker.image.avatar(),
+//     senderName: faker.person.fullName(),
+//     latestMessage: faker.lorem.sentences(),
+//     timestamp: faker.date.anytime(),
+//   };
 
-  return chat;
-};
+//   return chat;
+// };
 
-const data: Chat[] = Array.from(Array(1), () => createChatData());
+// const data: Chat[] = Array.from(Array(1), () => createChatData());
 
-const ChatItem: React.FC<Chat> = ({
+interface ChatItemProps extends Chat {
+  onItemPress?: (item: Chat) => void 
+}
+
+const ChatItem: React.FC<ChatItemProps> = ({
   _id,
+  senderId,
   senderImage,
   senderName,
   latestMessage,
   timestamp,
+  onItemPress
 }) => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const formattedDate = format(timestamp!, "PPpp");
@@ -48,7 +55,17 @@ const ChatItem: React.FC<Chat> = ({
 
 
   const onPress = () => {
-    navigation.navigate("Chat", { _id, senderImage, senderName });
+    navigation.navigate("Chat", { _id, senderId, senderImage, senderName });
+    if(onItemPress){
+      onItemPress({
+        _id,
+        senderId,
+        senderImage,
+        senderName,
+        latestMessage,
+        timestamp,
+      })
+    }
 
   };
 
@@ -158,13 +175,26 @@ function ChatList() {
     return null;
   };
 
+  const onItemPress = (args: Chat) => {
+    const getMessagesInput: GetMessagesInput = {
+      senderId: args.senderId,
+      senderType: "CLIENT",
+      chatId: args._id,
+      pageNumber: 1,
+      pageSize: 15,
+      inputType: "GET_MESSAGES"
+    };
+
+    sendMessage(getMessagesInput);
+  }
+
   const data = chatList.documents
 
   return (
     <SafeAreaView>
       <FlatList
         data={data}
-        renderItem={({ item }) => <ChatItem {...item} />}
+        renderItem={({ item }) => <ChatItem {...item} onItemPress={onItemPress}/>}
         keyExtractor={({ _id }) => _id}
         onStartReached={getChatList}
         onStartReachedThreshold={0.5}

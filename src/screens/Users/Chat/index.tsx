@@ -1,6 +1,7 @@
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialIcons } from "@expo/vector-icons";
 import { faker } from "@faker-js/faker";
 import { UserContext } from "Contexts/UserContext";
+import { GetMessagesInput, WebSocketContext } from "Contexts/WebSocket";
 import { getInfoAsync } from "expo-file-system";
 import {
   launchImageLibraryAsync,
@@ -16,9 +17,12 @@ import {
   TimeProps,
   Time,
   Actions,
+  SendProps,
+  Send,
 } from "react-native-gifted-chat";
+import Loading from "screens/Loading";
 import FirebaseService from "service/firebase";
-import { ChatScreenProps, ImageInfo } from "types/types";
+import { ChatMessage, ChatScreenProps, ImageInfo } from "types/types";
 import { v4 as uuidv4 } from "uuid";
 import { object, string, number, ValidationError } from "yup";
 
@@ -28,6 +32,15 @@ const isYupValidationError = (error: any) => {
     error.errors.every((perm: any) => typeof perm === "string")
   );
 };
+
+const CustomSend = (props: SendProps<IMessage>) => {
+  return (
+    <Send {...props} containerStyle={{justifyContent: "center"}}>
+      <MaterialIcons name="send" size={24} color="#CB0C9F"  />
+    </Send>
+  )
+}
+
 
 const CustomMessageBubble = (props: BubbleProps<IMessage>) => {
   return (
@@ -76,17 +89,46 @@ type MessageState = "OK" | "ERROR";
 function Chat({ navigation, route }: ChatScreenProps) {
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [messageState, setMessageState] = useState<MessageState>("OK");
+  const [page, setPage] = useState<number>(1)
   const userContext = useContext(UserContext);
-  const { senderName, senderImage } = route.params;
+  const {_id, senderName, senderImage, senderId } = route.params;
   const { setOptions } = navigation;
   const [status, requestPermission] = useMediaLibraryPermissions();
+  const webSocket =  useContext(WebSocketContext);
+
+  if(!webSocket){
+    throw new Error("Component must be under Websocket Provider!!");
+  }
+
 
   if (!userContext) {
     throw new Error("UserInfo must be used within a UserProvider");
   }
 
+  const { sendMessage, chatMessages, loading, isConnected, connectionTimeout, reconnect } = webSocket;
   const { user } = userContext;
-  const { _id } = user;
+
+
+  const getMessages = () => {
+    if(chatMessages){
+      const { hasMore} = chatMessages;
+      
+      if(hasMore){
+        const getMessagesInput: GetMessagesInput = {
+          senderId: user._id,
+          senderType: "CLIENT",
+          chatId: _id,
+          pageNumber: page,
+          pageSize: 15,
+          inputType: "GET_MESSAGES"
+        };
+
+        sendMessage(getMessagesInput)
+      }
+    }
+
+  }
+
 
   useEffect(() => {
     setOptions({
@@ -94,37 +136,30 @@ function Chat({ navigation, route }: ChatScreenProps) {
       headerLeft: () => headerIcon(senderImage),
     });
 
-    setMessages([
-      {
-        _id: 1,
-        text: "Hello developer",
-        createdAt: new Date(),
-        user: {
-          _id: 2,
-          name: "React Native",
-          avatar: faker.image.avatar(),
-        },
-      },
-      {
-        _id: 2,
-        createdAt: new Date(Date.UTC(2016, 5, 11, 17, 20, 0)),
-        user: {
-          _id: 2,
-          name: "React Native",
-          avatar: faker.image.avatar(),
-        },
-        image: faker.image.url(),
-        // You can also add a video prop:
-        // Mark the message as sent, using one tick
-        sent: true,
-        // Mark the message as received, using two tick
-        received: true,
-        // Mark the message as pending with a clock loader
-        pending: true,
-        // Any additional custom parameters are passed through
-      },
-    ]);
-  }, []);
+    if(isConnected){
+      if(chatMessages){
+        const { documents } = chatMessages;
+        if(documents){
+          const giftedChatMessages:IMessage[] = documents.map((doc: ChatMessage) => {
+            return {
+              _id: doc._id,
+              text: doc.content,
+              createdAt: doc.timestamp,
+              user:{
+                _id: doc.senderId,
+                name: senderName,
+                avatar: senderImage
+              }
+            }
+          })
+          setMessages(giftedChatMessages);
+        }
+
+      }
+
+    }
+
+  }, [page, chatMessages]);
 
   const onSend = useCallback((messages: IMessage[] = []) => {
     setMessages((previousMessages) =>
@@ -138,9 +173,10 @@ function Chat({ navigation, route }: ChatScreenProps) {
       onSend={(messages) => onSend(messages)}
       renderBubble={CustomMessageBubble}
       renderTime={CustomTimeStamp}
+      renderSend={CustomSend}
       renderAvatar={null}
       user={{
-        _id: 1,
+        _id: user._id,
       }}
       loadEarlier
       infiniteScroll
@@ -252,10 +288,13 @@ const styles = StyleSheet.create({
   senderBubble: {
     borderRadius: 15,
     backgroundColor: "#e5a435",
+    marginVertical: 5
+
   },
   userBubble: {
     borderRadius: 15,
     backgroundColor: "#CB0C9F",
+    marginVertical: 5
   },
   messageText: {
     color: "#ffff",

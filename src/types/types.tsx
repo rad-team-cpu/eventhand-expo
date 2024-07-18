@@ -57,13 +57,14 @@ interface CredibilityFactorsType {
 
 interface Chat {
   _id: string;
+  senderId: string
   senderImage?: string;
   senderName: string;
   latestMessage?: string;
   timestamp?: Date;
 }
 interface ChatMessage {
-  id: string;
+  _id: string;
   senderId: string;
   content: string;
   timestamp: Date;
@@ -219,6 +220,7 @@ export {
   EventInfo,
   UserProfile,
   Chat,
+  ChatMessage,
   Vendor,
   ImageInfo,
   ImageUploadResult,
