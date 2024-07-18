@@ -81,11 +81,6 @@ const SignedInNav = () => {
         options={{ headerShown: false }}
       />
       <SignedInStack.Screen
-        name='BookingConfirmation'
-        component={BookingConfirmation}
-        options={{ headerShown: false }}
-      />
-      <SignedInStack.Screen
         name="BookingConfirmation"
         component={BookingConfirmation}
         options={{ headerShown: false }}
