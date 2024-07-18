@@ -24,6 +24,16 @@ type GetMessagesInput = SocketRegisterInput & PaginationInput &  {
   chatId: string,
 }
 
+type SendMessageInput = SocketRegisterInput & {
+  chatId: string;
+  senderId: string;
+  senderName: string;
+  recieverId: string;
+  recieverName: string;
+  content: string;
+  timeStamp: Date;
+  isImage: boolean;
+}
 
 type SocketInput = SocketRegisterInput | GetChatListInput
 
@@ -161,13 +171,13 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
       }, [connectWebSocket]);
     
       return (
-        <WebSocketContext.Provider value={{ isConnected, chatMessages, sendMessage, chatList, reconnect, connectionTimeout, loading }}>
+        <WebSocketContext.Provider value={{ isConnected, chatMessages, sendMessage, chatList, reconnect, connectionTimeout, loading, }}>
           {children}
         </WebSocketContext.Provider>
       );
 };
 
-export  {WebSocketContext, WebSocketProvider, WebSocketContextType, SocketInput, GetChatListInput, SocketRegisterInput, GetMessagesInput}
+export  {WebSocketContext, WebSocketProvider, WebSocketContextType, SocketInput, GetChatListInput, SocketRegisterInput, GetMessagesInput, SendMessageInput}
 
 
 

@@ -1,7 +1,6 @@
 import { Feather, MaterialIcons } from "@expo/vector-icons";
-import { faker } from "@faker-js/faker";
 import { UserContext } from "Contexts/UserContext";
-import { GetMessagesInput, WebSocketContext } from "Contexts/WebSocket";
+import { GetMessagesInput, SendMessageInput, WebSocketContext } from "Contexts/WebSocket";
 import { getInfoAsync } from "expo-file-system";
 import {
   launchImageLibraryAsync,
@@ -111,7 +110,7 @@ function Chat({ navigation, route }: ChatScreenProps) {
 
   const getMessages = () => {
     if(chatMessages){
-      const { hasMore} = chatMessages;
+      const { hasMore } = chatMessages;
       
       if(hasMore){
         const getMessagesInput: GetMessagesInput = {
@@ -159,9 +158,30 @@ function Chat({ navigation, route }: ChatScreenProps) {
 
     }
 
-  }, [page, chatMessages]);
+    if(connectionTimeout){
+      reconnect();
+    }
+
+  }, [page, chatMessages, connectionTimeout]);
 
   const onSend = useCallback((messages: IMessage[] = []) => {
+    const message = messages[0];
+
+    const sendMessageInput: SendMessageInput = {
+      chatId: _id,
+      senderId: user._id,
+      senderName: `${user.firstName} ${user.lastName}`,
+      recieverId: senderId,
+      recieverName: senderName,
+      content: message.text,
+      timeStamp: new Date(message.createdAt),
+      isImage: false,
+      senderType: "CLIENT",
+      inputType: "SEND_MESSAGE"
+    }
+
+    sendMessage(sendMessageInput);
+
     setMessages((previousMessages) =>
       GiftedChat.append(previousMessages, messages),
     );
