@@ -7,7 +7,7 @@ import Button from 'Components/Ui/Button';
 import { ScrollView, Text, TouchableOpacity } from 'react-native';
 import { AntDesign, Entypo } from '@expo/vector-icons';
 import axios from 'axios';
-import { Vendor, PackageType, Product, EventInfo } from 'types/types';
+import { Vendor, PackageType, Product, EventInfo, ScreenProps } from 'types/types';
 import { UserContext } from 'Contexts/UserContext';
 import formatDate from 'src/core/helpers';
 
@@ -161,9 +161,14 @@ const BookingDetails = () => {
           marginVertical={sizes.sm}
         >
           <Text className='font-bold text-xl'>{vendorPackage?.name}</Text>
-          <Text className='font-bold text-pink-500'>Total: ₱{vendorPackage?.price.toFixed(2)}</Text>
+          <Text className='font-bold text-pink-500'>
+            Total: ₱{vendorPackage?.price.toFixed(2)}
+          </Text>
         </Block>
-        <Button gradient={gradients.primary}>
+        <Button
+          gradient={gradients.primary}
+          // onPress={() => onPressConfirm(packageId, vendorPackage.vendorId)}
+        >
           <Text className='text-white uppercase'>Confirm</Text>
         </Button>
       </Block>
