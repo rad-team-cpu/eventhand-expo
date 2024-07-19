@@ -1,5 +1,5 @@
 import { useAuth } from '@clerk/clerk-expo';
-import { Feather } from '@expo/vector-icons';
+import { Feather, AntDesign } from '@expo/vector-icons';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useFocusEffect } from '@react-navigation/native';
 import DatePicker from 'src/Components/Input/DatePicker';
@@ -187,8 +187,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
               inputMode='numeric'
               keyboardType='numeric'
               returnKeyType='done'
-              className="my-4 p-2 rounded-lg border-gold border-2"
-
+              className='my-4 p-2 rounded-lg border-gold border-2'
             />
           );
         }}
@@ -221,8 +220,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
               inputMode='numeric'
               keyboardType='numeric'
               returnKeyType='done'
-              className="my-4 p-2 rounded-lg border-gold border-2"
-
+              className='my-4 p-2 rounded-lg border-gold border-2'
             />
           );
         }}
@@ -325,7 +323,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
 
   const EventButton = () => {
     if (step === 2) {
-      return <Button title='SUBMIT' color='#CB0C9F' onPress={onSubmitPress}/>;
+      return <Button title='SUBMIT' color='#CB0C9F' onPress={onSubmitPress} />;
     } else {
       return (
         <Pressable
@@ -403,6 +401,12 @@ function EventForm({ navigation }: EventFormScreenProps) {
     >
       <Stepper />
       <Block card paddingVertical={sizes.md} paddingHorizontal={sizes.md}>
+        <Pressable onPress={backAction}>
+          <Block className='flex flex-row mb-2'>
+            <AntDesign name='back' size={20} color={'#CB0C9F'} />
+            <Text className='ml-1 text-primary'>Go back</Text>
+          </Block>
+        </Pressable>
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.description}>{description}</Text>
         <EventInput />
