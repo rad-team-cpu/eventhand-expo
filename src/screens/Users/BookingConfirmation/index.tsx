@@ -13,6 +13,7 @@ import {
   Product,
   ScreenProps,
   HomeScreenNavigationProp,
+  Tag,
 } from 'types/types';
 
 const BookingConfirmation = () => {
@@ -158,7 +159,7 @@ const BookingConfirmation = () => {
             <Text className='font-semibold'>{vendor?.name}</Text>
             {vendor?.tags
               .slice(0, 1)
-              .map((tag, index) => <Text key={index}>{tag}</Text>)}
+              .map((tag: Tag, index) => <Text key={index} className='capitalize'>{tag.name}</Text>)}
           </Block>
         </Block>
         <Button

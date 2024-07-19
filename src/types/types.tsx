@@ -54,6 +54,11 @@ interface Product {
   quantity: number;
 }
 
+interface Tag {
+  _id: string;
+  name: string;
+}
+
 interface CredibilityFactorsType {
   ratingsScore: number;
   bookings: number;
@@ -235,6 +240,7 @@ export {
   ImageUploadResult,
   PackageType,
   Product,
+  Tag,
   CredibilityFactorsType,
   ScreenProps,
   SignUpScreenProps,

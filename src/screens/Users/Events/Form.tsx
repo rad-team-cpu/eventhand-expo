@@ -1,19 +1,19 @@
-import { useAuth } from "@clerk/clerk-expo";
-import { Feather } from "@expo/vector-icons";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { useFocusEffect } from "@react-navigation/native";
-import DatePicker from "src/Components/Input/DatePicker";
-import { UserContext } from "Contexts/UserContext";
-import { format } from "date-fns/format";
-import { sub } from "date-fns/fp";
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import { useAuth } from '@clerk/clerk-expo';
+import { Feather } from '@expo/vector-icons';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useFocusEffect } from '@react-navigation/native';
+import DatePicker from 'src/Components/Input/DatePicker';
+import { UserContext } from 'Contexts/UserContext';
+import { format } from 'date-fns/format';
+import { sub } from 'date-fns/fp';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import {
   Control,
   Controller,
   FieldValues,
   UseFormRegister,
   useForm,
-} from "react-hook-form";
+} from 'react-hook-form';
 import {
   BackHandler,
   StyleSheet,
@@ -22,10 +22,12 @@ import {
   TextInput,
   Button,
   Pressable,
-} from "react-native";
-import Loading from "screens/Loading";
-import { EventFormScreenProps, EventInfo, ScreenProps } from "types/types";
-import { date, number, object } from "yup";
+} from 'react-native';
+import Loading from 'screens/Loading';
+import { EventFormScreenProps, EventInfo, ScreenProps } from 'types/types';
+import { date, number, object } from 'yup';
+import Block from 'Components/Ui/Block';
+import useTheme from 'src/core/theme';
 
 interface EventFormInput extends FieldValues {
   date: Date;
@@ -35,43 +37,45 @@ interface EventFormInput extends FieldValues {
 
 const EventFormInputValidation = object().shape({
   date: date()
-    .required("Please enter the date of you event")
+    .required('Please enter the date of your event')
     .min(sub({ days: 1 }, new Date())),
   guests: number()
-    .required("Please enter number of your guests")
-    .moreThan(-1, "Input must be a postive number")
-    .integer("Input must be an integer"),
+    .required('Please enter number of your guests')
+    .moreThan(-1, 'Input must be a positive number')
+    .integer('Input must be an integer'),
   budget: number()
-    .required("Please enter number of your guests")
-    .moreThan(-1, "Input must be a postive number")
-    .integer("Input must be an integer")
-
+    .required('Please enter your budget')
+    .moreThan(-1, 'Input must be a positive number')
+    .integer('Input must be an integer'),
 });
+
+const totalSteps = 3;
 
 function EventForm({ navigation }: EventFormScreenProps) {
   const userContext = useContext(UserContext);
   const { userId, isLoaded, getToken } = useAuth();
+  const { assets, colors, sizes, gradients } = useTheme();
 
   if (!isLoaded) {
-    throw new Error("Clerk failed to load");
+    throw new Error('Clerk failed to load');
   }
 
   if (!userContext) {
-    throw new Error("Profile must be used within a UserProvider");
+    throw new Error('Profile must be used within a UserProvider');
   }
 
   const { user, setUser } = userContext;
 
   if (!userId) {
-    throw new Error("User does not exist! Please SignUp again");
+    throw new Error('User does not exist! Please SignUp again');
   }
 
   const [step, setStep] = useState(0);
   const [description, setDescription] = useState(
-    "Please select the date of your event",
+    'Please select the date of your event'
   );
-  const [title, setTitle] = useState("When is the date of your event?");
-  const [submitErrMessage, setSubmitErrMessage] = useState("");
+  const [title, setTitle] = useState('When is the date of your event?');
+  const [submitErrMessage, setSubmitErrMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
   const {
@@ -83,8 +87,8 @@ function EventForm({ navigation }: EventFormScreenProps) {
     resetField,
     formState: { errors, isValid },
   } = useForm<EventFormInput, unknown>({
-    mode: "onChange",
-    reValidateMode: "onChange",
+    mode: 'onChange',
+    reValidateMode: 'onChange',
     defaultValues: {
       date: new Date(),
       guests: 0,
@@ -101,13 +105,13 @@ function EventForm({ navigation }: EventFormScreenProps) {
     }
     switch (step) {
       case 0:
-        resetField("date");
+        resetField('date');
         break;
       case 1:
-        resetField("guests");
+        resetField('guests');
         break;
       case 2:
-        resetField("budget");
+        resetField('budget');
         break;
     }
 
@@ -117,43 +121,38 @@ function EventForm({ navigation }: EventFormScreenProps) {
   useFocusEffect(
     useCallback(() => {
       const backHandler = BackHandler.addEventListener(
-        "hardwareBackPress",
-        backAction,
+        'hardwareBackPress',
+        backAction
       );
 
       return () => backHandler.remove();
-    }, [step]),
+    }, [step])
   );
 
   useEffect(() => {
     switch (step) {
       case 0:
-        setTitle("When is the date of your event?");
-        setDescription("Please select the date of your event");
+        setTitle('When is the date of your event?');
+        setDescription('Please select the date of your event');
         break;
       case 1:
-        setTitle("How many will attend?");
-        setDescription("Please enter the number of people that will attend.");
+        setTitle('How many will attend?');
+        setDescription('Please enter the number of people that will attend.');
         break;
       case 2:
-        setTitle("How much is your budget?");
-        setDescription("Please enter your budget for the event.");
+        setTitle('How much is your budget?');
+        setDescription('Please enter your budget for the event.');
         break;
     }
   }, [step]);
-  //     const userContext = useContext(UserContext);
-
-  //   if (!userContext) {
-  //     throw new Error("Profile must be used within a UserProvider");
-  //   }
 
   const EventDateInput = () => {
     return (
       <>
         <DatePicker
-          name="date"
+          name='date'
           label={new Date().toLocaleDateString()}
-          display="spinner"
+          display='spinner'
           minimumDate={new Date()}
           control={control as unknown as Control<FieldValues, unknown>}
           register={register as unknown as UseFormRegister<FieldValues>}
@@ -162,10 +161,10 @@ function EventForm({ navigation }: EventFormScreenProps) {
     );
   };
 
-  const EventguestsInput = () => {
+  const EventGuestsInput = () => {
     return (
       <Controller
-        name="guests"
+        name='guests'
         control={control}
         render={({ field: { onChange, onBlur, value } }) => {
           const onValueChange = (input: string) => {
@@ -178,17 +177,18 @@ function EventForm({ navigation }: EventFormScreenProps) {
 
           return (
             <TextInput
-              id="event-attendee-input"
-              testID="test-event-attendee-input"
-              style={styles.input}
+              id='event-attendee-input'
+              testID='test-event-attendee-input'
               onBlur={onBlur}
               value={String(value)}
               defaultValue={String(value)}
               onChangeText={onValueChange}
-              autoCapitalize="none"
-              inputMode="numeric"
-              keyboardType="numeric"
-              returnKeyType="done"
+              autoCapitalize='none'
+              inputMode='numeric'
+              keyboardType='numeric'
+              returnKeyType='done'
+              className="my-4 p-2 rounded-lg border-gold border-2"
+
             />
           );
         }}
@@ -199,7 +199,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
   const EventBudgetInput = () => {
     return (
       <Controller
-        name="budget"
+        name='budget'
         control={control}
         render={({ field: { onChange, onBlur, value } }) => {
           const onValueChange = (input: string) => {
@@ -211,17 +211,18 @@ function EventForm({ navigation }: EventFormScreenProps) {
           };
           return (
             <TextInput
-              id="event-budget-input"
-              testID="test-event-budget-input"
-              style={styles.input}
+              id='event-budget-input'
+              testID='test-event-budget-input'
               onBlur={onBlur}
               value={String(value)}
               defaultValue={String(value)}
               onChangeText={onValueChange}
-              autoCapitalize="none"
-              inputMode="numeric"
-              keyboardType="numeric"
-              returnKeyType="done"
+              autoCapitalize='none'
+              inputMode='numeric'
+              keyboardType='numeric'
+              returnKeyType='done'
+              className="my-4 p-2 rounded-lg border-gold border-2"
+
             />
           );
         }}
@@ -234,33 +235,34 @@ function EventForm({ navigation }: EventFormScreenProps) {
       case 0:
         return <EventDateInput />;
       case 1:
-        return <EventguestsInput />;
+        return <EventGuestsInput />;
       case 2:
         return <EventBudgetInput />;
-      case 3:
+      default:
+        return null;
     }
   };
 
   const submitEventInput = async (input: EventFormInput) => {
     setLoading(true);
 
-    const navigateToSuccessError = (props: ScreenProps["SuccessError"]) => {
-      if (props.status == "error") {
-        navigation.navigate("SuccessError", { ...props });
+    const navigateToSuccessError = (props: ScreenProps['SuccessError']) => {
+      if (props.status === 'error') {
+        navigation.navigate('SuccessError', { ...props });
       } else {
-        navigation.replace("SuccessError", { ...props });
+        navigation.replace('SuccessError', { ...props });
       }
     };
 
     try {
-      const token = getToken({ template: "event-hand-jwt" });
+      const token = await getToken({ template: 'event-hand-jwt' });
 
       const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events`;
 
       const request = {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
@@ -287,10 +289,10 @@ function EventForm({ navigation }: EventFormScreenProps) {
           } else {
             setUser({ ...user, events: [event] });
           }
-          const dateString = format(event.date, "MMMM dd, yyyy");
+          const dateString = format(event.date, 'MMMM dd, yyyy');
 
           setLoading(false);
-          navigation.replace("EventView", {
+          navigation.replace('EventView', {
             _id: event._id,
             date: dateString,
             budget: event.budget,
@@ -299,22 +301,22 @@ function EventForm({ navigation }: EventFormScreenProps) {
 
           break;
         case 403:
-          setSubmitErrMessage("Forbidden - Access denied.");
-          throw new Error("Forbidden - Access denied."); // Forbidden
+          setSubmitErrMessage('Forbidden - Access denied.');
+          throw new Error('Forbidden - Access denied.'); // Forbidden
         case 404:
-          setSubmitErrMessage("Server is unreachable.");
-          throw new Error("Server is unreachable."); // Not Found
+          setSubmitErrMessage('Server is unreachable.');
+          throw new Error('Server is unreachable.'); // Not Found
         default:
-          setSubmitErrMessage("Unexpected error occurred.");
-          throw new Error("Unexpected error occurred."); // Other status codes
+          setSubmitErrMessage('Unexpected error occurred.');
+          throw new Error('Unexpected error occurred.'); // Other status codes
       }
     } catch (error) {
       console.error(error);
       setLoading(false);
       navigateToSuccessError({
         description: submitErrMessage,
-        buttonText: "Continue",
-        status: "error",
+        buttonText: 'Continue',
+        status: 'error',
       });
     }
   };
@@ -322,8 +324,8 @@ function EventForm({ navigation }: EventFormScreenProps) {
   const onSubmitPress = handleSubmit(submitEventInput);
 
   const EventButton = () => {
-    if (step == 2) {
-      return <Button title="SUBMIT" color="#6495ed" onPress={onSubmitPress} />;
+    if (step === 2) {
+      return <Button title='SUBMIT' color='#CB0C9F' onPress={onSubmitPress}/>;
     } else {
       return (
         <Pressable
@@ -331,7 +333,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
           android_ripple={{ radius: 60 }}
           onPress={onNextBtnPress}
         >
-          <Feather name="chevrons-right" size={24} color="white" />
+          <Feather name='chevrons-right' size={24} color='white' />
         </Pressable>
       );
     }
@@ -340,13 +342,13 @@ function EventForm({ navigation }: EventFormScreenProps) {
   const onNextBtnPress = () => {
     switch (step) {
       case 0:
-        trigger("date");
+        trigger('date');
         break;
       case 1:
-        trigger("guests");
+        trigger('guests');
         break;
       case 2:
-        trigger("budget");
+        trigger('budget');
         break;
     }
 
@@ -363,30 +365,67 @@ function EventForm({ navigation }: EventFormScreenProps) {
     return <Loading />;
   }
 
+  const Stepper = () => {
+    return (
+      <Block className='m-10'>
+        <View className='flex-row justify-center'>
+          {Array.from({ length: totalSteps }, (_, index) => (
+            <View
+              key={index}
+              style={[
+                styles.step,
+                index <= step ? styles.activeStep : styles.inactiveStep,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.stepText,
+                  index <= step
+                    ? styles.activeStepText
+                    : styles.inactiveStepText,
+                ]}
+              >
+                {index + 1}
+              </Text>
+            </View>
+          ))}
+        </View>
+      </Block>
+    );
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{title}</Text>
-      <Text style={styles.description}>{description}</Text>
-      <EventInput />
-      <EventButton />
-      <Text testID="test-first-name-err-text" style={styles.errorText}>
-        {step == 0 && errors["date"]?.message}
-        {step == 1 && errors["guests"]?.message}
-        {step == 2 && errors["budget"]?.message}
-      </Text>
-    </View>
+    <Block
+      scroll
+      padding={sizes.padding}
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={{ paddingBottom: sizes.xxl }}
+    >
+      <Stepper />
+      <Block card paddingVertical={sizes.md} paddingHorizontal={sizes.md}>
+        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.description}>{description}</Text>
+        <EventInput />
+        <EventButton />
+        <Text testID='test-first-name-err-text' style={styles.errorText}>
+          {step === 0 && errors['date']?.message}
+          {step === 1 && errors['guests']?.message}
+          {step === 2 && errors['budget']?.message}
+        </Text>
+      </Block>
+    </Block>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginBottom: 10,
   },
   description: {
@@ -394,40 +433,68 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   input: {
-    width: "80%",
+    width: '80%',
     height: 40,
-    borderColor: "gray",
+    borderColor: 'gray',
     borderWidth: 1,
     marginBottom: 20,
     paddingHorizontal: 10,
   },
   ripple: {
-    position: "absolute",
+    position: 'absolute',
     top: 0,
     bottom: 0,
-    width: "100%",
+    width: '100%',
   },
   button: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#6495ed",
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#CB0C9F',
     paddingVertical: 5,
     paddingHorizontal: 30,
-    // borderWidth: 1,
     borderRadius: 5,
-    // borderColor: "#6495ed",
   },
   disabledButton: {
-    backgroundColor: "gray",
+    backgroundColor: 'gray',
   },
   buttonText: {
-    color: "white",
+    color: 'white',
     fontSize: 16,
   },
   errorText: {
     fontSize: 16,
-    color: "red",
+    color: 'red',
     marginTop: 10,
+  },
+  stepperContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 20,
+  },
+  step: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 5,
+  },
+  activeStep: {
+    backgroundColor: '#CB0C9F',
+  },
+  inactiveStep: {
+    backgroundColor: 'gray',
+  },
+  stepText: {
+    color: 'white',
+    fontSize: 16,
+  },
+  activeStepText: {
+    color: 'white',
+  },
+  inactiveStepText: {
+    color: 'white',
   },
 });
 
