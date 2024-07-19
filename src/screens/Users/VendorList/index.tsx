@@ -34,14 +34,19 @@ export default function VendorList() {
   const { events } = user;
 
   const onPressVendor = (vendorId: string) => {
-    if (events && events.length > 0) {
-      const vendorMenuProps: ScreenProps['VendorMenu'] = {
-        vendorId,
-      };
+    const vendorMenuProps: ScreenProps['VendorMenu'] = {
+          vendorId,
+        };
+
       navigation.navigate('VendorMenu', vendorMenuProps);
-    } else {
-      navigation.navigate('EventForm');
-    }
+    // if (events && events.length > 0) {
+    //   const vendorMenuProps: ScreenProps['VendorMenu'] = {
+    //     vendorId,
+    //   };
+    //   navigation.navigate('VendorMenu', vendorMenuProps);
+    // } else {
+    //   navigation.navigate('EventForm');
+    // }
   };
 
   const fetchVendors = async () => {

@@ -47,11 +47,10 @@ const ChatItem: React.FC<ChatItemProps> = ({
   onItemPress
 }) => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
-  const formattedDate = format(timestamp!, "PPpp");
+  const formattedDate = format(timestamp!, "Pp");
   const image: ImageSourcePropType = senderImage
     ? { uri: senderImage }
     : require("../../../assets/images/user.png");
-
 
 
   const onPress = () => {
@@ -177,14 +176,14 @@ function ChatList() {
 
   const onItemPress = (args: Chat) => {
     const getMessagesInput: GetMessagesInput = {
-      senderId: args.senderId,
+      senderId: user._id,
       senderType: "CLIENT",
-      chatId: args._id,
+      receiverId: args.senderId,
       pageNumber: 1,
       pageSize: 15,
       inputType: "GET_MESSAGES"
     };
-
+    
     sendMessage(getMessagesInput);
   }
 

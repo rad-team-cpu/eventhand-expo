@@ -116,7 +116,7 @@ function Chat({ navigation, route }: ChatScreenProps) {
         const getMessagesInput: GetMessagesInput = {
           senderId: user._id,
           senderType: "CLIENT",
-          chatId: _id,
+          receiverId: _id,
           pageNumber: page,
           pageSize: 15,
           inputType: "GET_MESSAGES"
@@ -167,14 +167,13 @@ function Chat({ navigation, route }: ChatScreenProps) {
   const onSend = useCallback((messages: IMessage[] = []) => {
     const message = messages[0];
 
+
     const sendMessageInput: SendMessageInput = {
       chatId: _id,
       senderId: user._id,
-      senderName: `${user.firstName} ${user.lastName}`,
-      recieverId: senderId,
-      recieverName: senderName,
+      receiverId: senderId,
       content: message.text,
-      timeStamp: new Date(message.createdAt),
+      timestamp: message.createdAt as Date,
       isImage: false,
       senderType: "CLIENT",
       inputType: "SEND_MESSAGE"

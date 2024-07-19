@@ -21,17 +21,15 @@ type SocketRegisterInput = {
 type GetChatListInput =  SocketRegisterInput & PaginationInput
 
 type GetMessagesInput = SocketRegisterInput & PaginationInput &  {
-  chatId: string,
+  receiverId: string,
 }
 
 type SendMessageInput = SocketRegisterInput & {
   chatId: string;
   senderId: string;
-  senderName: string;
-  recieverId: string;
-  recieverName: string;
+  receiverId: string;
   content: string;
-  timeStamp: Date;
+  timestamp: Date;
   isImage: boolean;
 }
 
@@ -106,8 +104,8 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
                     const message: GetChatListOutput = {
                         ...parsedData.chatList,
                     }
-                    
                     setChatList(message)
+                    console.log(chatList?.documents)
                     setLoading(false)
                 }
 

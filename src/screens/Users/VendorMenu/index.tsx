@@ -1,10 +1,11 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/core';
+import { ObjectId } from "bson";
 import Block from 'Components/Ui/Block';
 import Image from 'Components/Ui/Image';
 import useTheme from 'src/core/theme';
 import Button from 'Components/Ui/Button';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Pressable, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { AntDesign, Entypo } from '@expo/vector-icons';
 import axios from 'axios';
 import {
@@ -13,14 +14,29 @@ import {
   ScreenProps,
   HomeScreenNavigationProp,
 } from 'types/types';
+import { GetMessagesInput, WebSocketContext } from 'Contexts/WebSocket';
+import { UserContext } from 'Contexts/UserContext';
 
 const VendorMenu = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const route = useRoute();
   const { assets, colors, sizes } = useTheme();
   const [vendor, setVendor] = useState<Vendor>();
+  const userContext = useContext(UserContext);
+  const webSocket =  useContext(WebSocketContext);
 
   const { vendorId } = route.params as { vendorId: string };
+
+  if(!userContext){
+    throw new Error("Component must be under User Provider!!!")
+  }
+  
+  if(!webSocket){
+    throw new Error("Component must be under Websocket Provider!!");
+  }
+
+  const { sendMessage } = webSocket;
+  const { user } = userContext;
 
   const IMAGE_SIZE = (sizes.width - (sizes.padding + sizes.sm) * 2) / 3;
   const IMAGE_VERTICAL_SIZE =
@@ -28,6 +44,7 @@ const VendorMenu = () => {
   const IMAGE_MARGIN = (sizes.width - IMAGE_SIZE * 3 - sizes.padding * 2) / 2;
   const IMAGE_VERTICAL_MARGIN =
     (sizes.width - (IMAGE_VERTICAL_SIZE + sizes.sm) * 2) / 2;
+    
 
   const fetchVendor = useCallback(async () => {
     try {
@@ -50,6 +67,7 @@ const VendorMenu = () => {
       }
     }
   }, [vendorId]);
+  
 
   const onPressPackage = (packageId: string) => {
     const BookingConfirmationProps: ScreenProps['BookingConfirmation'] = {
@@ -58,6 +76,22 @@ const VendorMenu = () => {
 
     navigation.navigate('BookingConfirmation', BookingConfirmationProps);
   };
+
+  const onMessagePress = () => {
+    const getMessagesInput: GetMessagesInput = {
+      senderId: user._id,
+      senderType: "CLIENT",
+      receiverId: vendorId,
+      pageNumber: 1,
+      pageSize: 15,
+      inputType: "GET_MESSAGES"
+    };
+
+    sendMessage(getMessagesInput);
+    if(vendor){
+      navigation.navigate("Chat", {_id: new ObjectId().toString(), senderId: vendorId, senderName: vendor.name, senderImage: vendor.logo})
+    }
+  }
 
   useEffect(() => {
     fetchVendor();
@@ -108,11 +142,11 @@ const VendorMenu = () => {
                 {vendor.name}
               </Text>
               <Block row align='center'>
-                {vendor.tags.map((tag, index) => (
+                {/* {vendor.tags.map((tag, index) => (
                   <Text key={index} className='items-center text-white mx-1'>
                     {tag}
                   </Text>
-                ))}
+                ))} */}
                 {/* <Text className='items-center text-white mx-1'>
                   Photography
                 </Text> */}
@@ -133,9 +167,11 @@ const VendorMenu = () => {
                     paddingHorizontal={sizes.m}
                     color='rgba(255,255,255,0.2)'
                   >
-                    <Text className='uppercase font-bold text-white items-center'>
-                      Message
-                    </Text>
+                    <Pressable onPress={onMessagePress}>
+                      <Text className='uppercase font-bold text-white items-center'>
+                        Message
+                      </Text>
+                    </Pressable>
                   </Block>
                 </Button>
                 {/* <Button
