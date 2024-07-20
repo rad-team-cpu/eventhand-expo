@@ -1,22 +1,22 @@
-import { FontAwesome } from "@expo/vector-icons";
-import { format } from "date-fns/format";
-import ExpoStatusBar from "expo-status-bar/build/ExpoStatusBar";
-import React from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
-import { EventInfo, EventViewScreenProps, ScreenProps } from "types/types";
+import { FontAwesome } from '@expo/vector-icons';
+import { format } from 'date-fns/format';
+import ExpoStatusBar from 'expo-status-bar/build/ExpoStatusBar';
+import React from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { EventInfo, EventViewScreenProps, ScreenProps } from 'types/types';
 
 function EventView({ navigation, route }: EventViewScreenProps) {
   const { _id, attendees, budget, date } = route.params;
   const dateString =
-    typeof date == "string" ? date : format(date, "MMMM dd, yyyy");
+    typeof date == 'string' ? date : format(date, 'MMMM dd, yyyy');
 
-    const handleFindSupplier = (_id: string, attendees: number, budget: number, date: Date | string) => {
-      const vendorListProps: ScreenProps['EventView'] = {
-        _id, attendees, budget, date
-      };
-  
-      navigation.navigate('VendorList', vendorListProps);
+  const handleFindSupplier = (_id: string) => {
+    const vendorListProps: ScreenProps['VendorList'] = {
+      _id,
     };
+
+    navigation.navigate('VendorList', vendorListProps);
+  };
 
   return (
     <>
@@ -26,19 +26,23 @@ function EventView({ navigation, route }: EventViewScreenProps) {
         <View style={listStyles.separator} />
         <View style={listStyles.row}>
           <Text style={listStyles.budgetText}>
-            Budget: {budget !== 0 ? `₱${budget}` : "∞"}
+            Budget: {budget !== 0 ? `₱${budget}` : '∞'}
           </Text>
           <Text style={listStyles.capacityText}>
-            Capacity: {attendees !== 0 ? `₱${attendees}` : "∞"}
+            Capacity: {attendees !== 0 ? `₱${attendees}` : '∞'}
           </Text>
         </View>
       </View>
       <View style={styles.container}>
-        <Pressable style={styles.button} android_ripple={{ color: "#c0c0c0" }} onPress={() => handleFindSupplier(_id, attendees, budget, date)}>
+        <Pressable
+          style={styles.button}
+          android_ripple={{ color: '#c0c0c0' }}
+          onPress={() => handleFindSupplier(_id)}
+        >
           <FontAwesome
-            name="search"
+            name='search'
             size={24}
-            color="white"
+            color='white'
             style={styles.icon}
           />
           <Text style={styles.buttonText}>Find Supplier</Text>
@@ -51,13 +55,13 @@ function EventView({ navigation, route }: EventViewScreenProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   button: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#6200EE",
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#6200EE',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
@@ -66,11 +70,11 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   buttonText: {
-    color: "white",
+    color: 'white',
     fontSize: 16,
   },
   floatingBtnContainer: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 10,
     right: 10,
   },
@@ -78,9 +82,9 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 15,
-    backgroundColor: "#6200EE",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: '#6200EE',
+    justifyContent: 'center',
+    alignItems: 'center',
     elevation: 5,
   },
 });
@@ -93,33 +97,33 @@ const listStyles = StyleSheet.create({
     padding: 16,
     marginVertical: 1,
     marginLeft: 1,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     borderLeftWidth: 10,
     borderTopLeftRadius: 8,
     borderBottomLeftRadius: 8,
-    borderRightColor: "#fff",
+    borderRightColor: '#fff',
     borderRightWidth: 5,
     borderTopRightRadius: 8,
     borderBottomRightRadius: 8,
     elevation: 2, // Add shadow for floating effect
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
   dateText: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginBottom: 8,
   },
   separator: {
     borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
+    borderBottomColor: '#ccc',
     marginBottom: 8,
   },
   row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   budgetText: {
     fontSize: 16,
@@ -131,17 +135,17 @@ const listStyles = StyleSheet.create({
     padding: 16,
     marginTop: 30,
     marginHorizontal: 5,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     borderLeftWidth: 8,
     borderTopLeftRadius: 16,
     borderBottomLeftRadius: 16,
-    borderLeftColor: "#6200EE",
+    borderLeftColor: '#6200EE',
     borderRightWidth: 8,
     borderTopRightRadius: 16,
     borderBottomRightRadius: 16,
-    borderRightColor: "#6200EE",
+    borderRightColor: '#6200EE',
     elevation: 10, // Add shadow for floating effect
-    shadowColor: "black",
+    shadowColor: 'black',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 10,

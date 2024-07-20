@@ -1,4 +1,4 @@
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons, AntDesign } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { UserContext } from 'Contexts/UserContext';
 import { format } from 'date-fns/format';
@@ -7,6 +7,7 @@ import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import Block from 'Components/Ui/Block';
 import Image from 'Components/Ui/Image';
 import useTheme from '../../../core/theme';
+import { StatusBar } from 'expo-status-bar';
 
 import { EventInfo, HomeScreenNavigationProp } from 'types/types';
 
@@ -27,129 +28,6 @@ const FloatingCreateButton = ({ onPress }: FloatingCreateButtonProps) => {
     </View>
   );
 };
-
-// const data: EventInfo[] = [
-//   {
-//     id: "event1",
-//     attendees: 150,
-//     budget: 2000,
-//     date: new Date("2024-07-10"),
-//   },
-//   {
-//     id: "event2",
-//     attendees: 75,
-//     budget: 1500,
-//     date: new Date("2024-08-15"),
-//   },
-//   {
-//     id: "event3",
-//     attendees: 200,
-//     budget: 3000,
-//     date: new Date("2024-09-20"),
-//   },
-//   {
-//     id: "event4",
-//     attendees: 50,
-//     budget: 800,
-//     date: new Date("2024-10-05"),
-//   },
-//   {
-//     id: "event5",
-//     attendees: 120,
-//     budget: 2200,
-//     date: new Date("2024-11-12"),
-//   },
-//   {
-//     id: "event6",
-//     attendees: 90,
-//     budget: 1300,
-//     date: new Date("2024-12-01"),
-//   },
-//   {
-//     id: "event7",
-//     attendees: 300,
-//     budget: 5000,
-//     date: new Date("2024-12-25"),
-//   },
-//   {
-//     id: "event8",
-//     attendees: 45,
-//     budget: 600,
-//     date: new Date("2025-01-10"),
-//   },
-//   {
-//     id: "event9",
-//     attendees: 180,
-//     budget: 2700,
-//     date: new Date("2025-02-14"),
-//   },
-//   {
-//     id: "event10",
-//     attendees: 60,
-//     budget: 1000,
-//     date: new Date("2025-03-05"),
-//   },
-//   {
-//     id: "event11",
-//     attendees: 130,
-//     budget: 2100,
-//     date: new Date("2025-04-20"),
-//   },
-//   {
-//     id: "event12",
-//     attendees: 85,
-//     budget: 1200,
-//     date: new Date("2025-05-15"),
-//   },
-//   {
-//     id: "event13",
-//     attendees: 95,
-//     budget: 1400,
-//     date: new Date("2025-06-10"),
-//   },
-//   {
-//     id: "event14",
-//     attendees: 250,
-//     budget: 4000,
-//     date: new Date("2025-07-30"),
-//   },
-//   {
-//     id: "event15",
-//     attendees: 110,
-//     budget: 1800,
-//     date: new Date("2025-08-20"),
-//   },
-//   {
-//     id: "event16",
-//     attendees: 70,
-//     budget: 900,
-//     date: new Date("2025-09-10"),
-//   },
-//   {
-//     id: "event17",
-//     attendees: 210,
-//     budget: 3200,
-//     date: new Date("2025-10-25"),
-//   },
-//   {
-//     id: "event18",
-//     attendees: 60,
-//     budget: 950,
-//     date: new Date("2025-11-10"),
-//   },
-//   {
-//     id: "event19",
-//     attendees: 170,
-//     budget: 2500,
-//     date: new Date("2025-12-05"),
-//   },
-//   {
-//     id: "event20",
-//     attendees: 100,
-//     budget: 1500,
-//     date: new Date("2026-01-01"),
-//   },
-// ];
 
 const getRandomColor = () => {
   const letters = '0123456789ABCDEF';
@@ -184,10 +62,13 @@ const EventListItem = ({ _id, date, budget, attendees }: EventInfo) => {
       <View style={styles.separator} />
       <View style={styles.row}>
         <Text style={styles.budgetText}>
-          Budget: {budget !== 0 ? `₱${budget}` : '∞'}
+          Budget:{' '}
+          {budget !== 0
+            ? `₱${budget.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+            : '∞'}
         </Text>
         <Text style={styles.capacityText}>
-          Capacity: {attendees !== 0 ? `₱${attendees}` : '∞'}
+          Capacity: {attendees !== 0 ? `${attendees} pax` : '∞'}
         </Text>
       </View>
     </Pressable>
@@ -232,10 +113,16 @@ function EventList() {
 
   if (events && events.length > 0) {
     return (
-      <>
-        <Events events={events} />
+      <Block safe>
+        <StatusBar style='auto' />
+        <Block flex={0} style={{ zIndex: 0 }}>
+          <Text className='pt-10 pl-6 font-bold text-2xl text-pink-600'>
+            Upcoming Events
+          </Text>
+          <Events events={events} />
+        </Block>
         <FloatingCreateButton onPress={onCreatePress} />
-      </>
+      </Block>
     );
   }
 
@@ -263,9 +150,7 @@ function EventList() {
           rounded
           className='rounded-xl h-72 w-72'
         ></Image>
-        <Text className='font-bold'>
-          You have no events!
-        </Text>
+        <Text className='font-bold'>You have no events!</Text>
       </View>
       <FloatingCreateButton onPress={onCreatePress} />
     </Block>
@@ -311,11 +196,12 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   listContainer: {
-    paddingBottom: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 30,
   },
   itemContainer: {
     padding: 16,
-    marginVertical: 1,
+    marginVertical: 3,
     marginLeft: 1,
     backgroundColor: '#fff',
     borderLeftWidth: 10,

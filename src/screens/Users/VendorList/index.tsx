@@ -32,6 +32,9 @@ export default function VendorList() {
   }
   const { user } = userContext;
   const { events } = user;
+  // const { _id } = route.params as {
+  //   _id: string;
+  // };
 
   const onPressVendor = (vendorId: string) => {
     if (events && events.length > 0) {
