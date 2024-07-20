@@ -1,4 +1,6 @@
 import { Feather, MaterialIcons } from "@expo/vector-icons";
+import { faker } from "@faker-js/faker";
+import { ObjectId } from "bson";
 import { UserContext } from "Contexts/UserContext";
 import { GetMessagesInput, SendMessageInput, WebSocketContext } from "Contexts/WebSocket";
 import { getInfoAsync } from "expo-file-system";
@@ -19,18 +21,12 @@ import {
   SendProps,
   Send,
 } from "react-native-gifted-chat";
-import Loading from "screens/Loading";
 import FirebaseService from "service/firebase";
 import { ChatMessage, ChatScreenProps, ImageInfo } from "types/types";
-import { v4 as uuidv4 } from "uuid";
-import { object, string, number, ValidationError } from "yup";
 
-const isYupValidationError = (error: any) => {
-  return (
-    Array.isArray(error.errors) &&
-    error.errors.every((perm: any) => typeof perm === "string")
-  );
-};
+const firebaseService = FirebaseService.getInstance();
+
+
 
 const CustomSend = (props: SendProps<IMessage>) => {
   return (
@@ -80,6 +76,16 @@ const headerIcon = (image?: string) => {
   );
 };
 
+// const renderChatActions = (props) = (onPressActionButton: ) => {
+
+//   return (
+//     <Actions
+//       icon={() => <Feather name="upload" size={20} color="#CB0C9F" />}
+//       onPressActionButton={() => selectImage()}
+//     />
+//   );
+// }
+
 const getFileInfo = async (fileURI: string) =>
   await getInfoAsync(fileURI, { size: true });
 
@@ -128,6 +134,54 @@ function Chat({ navigation, route }: ChatScreenProps) {
 
   }
 
+  const convertToGiftedMessages = async (doc: ChatMessage) => {
+      if(doc.isImage){
+        const firebaseUrl =  await firebaseService.getProfilePicture(doc.content)
+
+        return  {
+          _id: doc._id,
+          text:"",
+          createdAt: doc.timestamp,
+          user: {
+            _id: doc.senderId,
+          },
+          image: firebaseUrl,
+        }
+      }
+      return {
+        _id: doc._id,
+        text: doc.content,
+        createdAt: doc.timestamp,
+        user:{
+          _id: doc.senderId,
+        }
+      }
+  }
+
+  const fetchMessages = useCallback(async () => {
+    if(isConnected){
+      if(chatMessages){
+        const { documents } = chatMessages;
+        if(documents){
+          const giftedChatMessages:IMessage[] = await Promise.all(documents.map(convertToGiftedMessages)).catch(err =>{ 
+            console.error(err) 
+            return [ {
+              _id: new ObjectId().toString(),
+              text: "Failed to load Messages",
+              createdAt: new Date(),
+              system: true,
+              user: {
+                _id: user._id,
+              },
+            }]
+          })
+          setMessages(giftedChatMessages);
+        }
+      }
+    }
+  }, [chatMessages])
+
+
 
   useEffect(() => {
     setOptions({
@@ -135,34 +189,14 @@ function Chat({ navigation, route }: ChatScreenProps) {
       headerLeft: () => headerIcon(senderImage),
     });
 
-    if(isConnected){
-      if(chatMessages){
-        const { documents } = chatMessages;
-        if(documents){
-          const giftedChatMessages:IMessage[] = documents.map((doc: ChatMessage) => {
-            return {
-              _id: doc._id,
-              text: doc.content,
-              createdAt: doc.timestamp,
-              user:{
-                _id: doc.senderId,
-                name: senderName,
-                avatar: senderImage
-              }
-            }
-          })
-          setMessages(giftedChatMessages);
-        }
 
-      }
-
-    }
+    fetchMessages();
 
     if(connectionTimeout){
       reconnect();
     }
 
-  }, [page, chatMessages, connectionTimeout]);
+  }, [page, fetchMessages, connectionTimeout]);
 
   const onSend = useCallback((messages: IMessage[] = []) => {
     const message = messages[0];
@@ -180,6 +214,7 @@ function Chat({ navigation, route }: ChatScreenProps) {
     }
 
     sendMessage(sendMessageInput);
+
 
     setMessages((previousMessages) =>
       GiftedChat.append(previousMessages, messages),
@@ -200,23 +235,6 @@ function Chat({ navigation, route }: ChatScreenProps) {
       loadEarlier
       infiniteScroll
       renderActions={(props) => {
-        const firebaseService = FirebaseService.getInstance();
-
-        const imageValidationSchema = object({
-          fileSize: number().max(
-            5242880,
-            "File size too large, must be below 5mb",
-          ),
-          uri: string(),
-          mimeType: string().matches(/^image\/(png|jpeg)$/, {
-            message: "File must be a png or jpeg",
-            excludeEmptyString: true,
-          }),
-          fileExtension: string().matches(/^(png|jpe?g)$/, {
-            message: "File must be a png or jpeg",
-            excludeEmptyString: true,
-          }),
-        });
 
         const pickImageAsync = async () => {
           // setLoading(true);
@@ -248,45 +266,55 @@ function Chat({ navigation, route }: ChatScreenProps) {
             };
 
             try {
-              const validImage =
-                await imageValidationSchema.validate(selectImage);
+              const result = await firebaseService.uploadMessageImage(_id, selectedImageInfo)
 
-
-
-            } catch (error: any) {
-              let sysMessage: IMessage;
-              if (isYupValidationError(error)) {
-                sysMessage = {
-                  _id: uuidv4(),
-                  text: error.errors[0],
-                  createdAt: new Date(Date.UTC(2016, 5, 11, 17, 20, 0)),
-                  system: true,
-                  user: {
-                    _id,
-                  },
-                };
-              } else {
-                sysMessage = {
-                  _id: uuidv4(),
-                  text: "A Error has occured",
-                  createdAt: new Date(Date.UTC(2016, 5, 11, 17, 20, 0)),
-                  system: true,
-                  user: {
-                    _id,
-                  },
-                };
+              const image = {
+                _id: 1,
+                text:"",
+                createdAt: new Date(Date.UTC(2016, 5, 11, 17, 20, 0)),
+                user: {
+                  _id: user._id,                  
+                },
+                image: selectedImageInfo.uri,
               }
 
+              const sendMessageInput: SendMessageInput = {
+                chatId: _id,
+                senderId: user._id,
+                receiverId: senderId,
+                content: result.metadata.fullPath,
+                timestamp: new Date(),
+                isImage: true,
+                senderType: "CLIENT",
+                inputType: "SEND_MESSAGE"
+              }
+          
+              sendMessage(sendMessageInput);
+
+              setMessages((previousMessage) =>
+                GiftedChat.append(previousMessage, [image]),
+              );
+              
+            } catch (error: any) {
+              const sysMessage: IMessage = {
+                  _id: new ObjectId().toString(),
+                  text: "Error uploading image",
+                  createdAt: new Date(),
+                  system: true,
+                  user: {
+                    _id: user._id,
+                  },
+                }
+              
+              console.error(error)
               setMessageState("ERROR");
               setMessages((previousMessage) =>
                 GiftedChat.append(previousMessage, [sysMessage]),
               );
             }
-            // onChange(selectedImageInfo);
           } else {
             alert("You did not select any image.");
           }
-          // setLoading(false);
         };
 
         const selectImage = () => pickImageAsync();

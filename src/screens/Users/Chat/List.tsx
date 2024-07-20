@@ -43,6 +43,7 @@ const ChatItem: React.FC<ChatItemProps> = ({
   senderImage,
   senderName,
   latestMessage,
+  isImage,
   timestamp,
   onItemPress
 }) => {
@@ -91,7 +92,7 @@ const ChatItem: React.FC<ChatItemProps> = ({
             numberOfLines={2}
             ellipsizeMode="tail"
           >
-            {latestMessage}
+            {(isImage)? "Sent an Image " :latestMessage}
           </Text>
         </View>
         <View style={styles.separator} />

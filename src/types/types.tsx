@@ -66,6 +66,7 @@ interface Chat {
   senderImage?: string;
   senderName: string;
   latestMessage?: string;
+  isImage?:boolean;
   timestamp?: Date;
 }
 interface ChatMessage {
@@ -73,6 +74,7 @@ interface ChatMessage {
   senderId: string;
   content: string;
   timestamp: Date;
+  isImage?: boolean
 }
 
 interface UserChat {
