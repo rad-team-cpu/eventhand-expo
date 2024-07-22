@@ -118,11 +118,8 @@ function ChatList() {
   }
 
   const {user } = userContext;
-  const { sendMessage, chatList, loading, isConnected, reconnect } = webSocket;
+  const { sendMessage, chatList, loading } = webSocket;
 
-  const onRetryPress = () => {
-    reconnect();
-  }
 
   const getChatList = () => {
     const getChatListInput: GetChatListInput = {
@@ -144,13 +141,6 @@ function ChatList() {
 
   }, [page])
 
-  if(!isConnected){
-    return <ErrorScreen 
-            description="Failed to connect to the server" 
-            buttonText="RETRY" 
-            onPress={onRetryPress}
-          />
-  }
 
   const renderEmptyComponent = () => {
     return (
