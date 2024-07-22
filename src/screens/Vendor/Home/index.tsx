@@ -8,22 +8,22 @@ import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
 
 import { VendorContext } from "../../../Contexts/VendorContext";
-import { Vendor, VendorHomeScreenProps } from "../../../types/types";
+import { Vendor, VendorHomeScreenBottomTabsProps, VendorHomeScreenProps } from "../../../types/types";
 import Loading from "../../Loading";
 import VendorBooking from "../Bookings";
-import VendorChat from "../Chat";
 import VendorProfile from "../Profile";
 import ChatList from "screens/Chat/List";
 import { GetChatListInput, SocketSwitchInput, WebSocketContext } from "Contexts/WebSocket";
 import ErrorScreen from "Components/Error";
 import ConfirmationDialog from "Components/ConfirmationDialog";
+import { UserContext } from "Contexts/UserContext";
 
 interface VendorHomeNavProps {
-  initialTab?: string;
+  initialTab?: keyof VendorHomeScreenBottomTabsProps;
 }
 
 const VendorHomeNav = ({ initialTab }: VendorHomeNavProps) => {
-  const Tab = createBottomTabNavigator();
+  const Tab = createBottomTabNavigator<VendorHomeScreenBottomTabsProps>();
 
   const bookingIconOptions: BottomTabNavigationOptions = {
     tabBarTestID: `booking-nav-btn`,
@@ -61,6 +61,7 @@ const VendorHomeNav = ({ initialTab }: VendorHomeNavProps) => {
       <Tab.Screen
         name="ChatList"
         component={ChatList}
+        initialParams={{mode: "VENDOR"}}
         options={chatIconOptions}
       />
       <Tab.Screen
@@ -78,6 +79,7 @@ const VendorHome = ({ navigation, route }: VendorHomeScreenProps) => {
   const [error, setError] = useState(false);
   const vendorContext = useContext(VendorContext);
   const webSocket =  useContext(WebSocketContext);
+  const userContext = useContext(UserContext);
   const { initialTab, noFetch } = route.params;
   const clerkId = userId; //clerk-auth-generated-user-id
 
@@ -87,6 +89,10 @@ const VendorHome = ({ navigation, route }: VendorHomeScreenProps) => {
     buttonText="LOGOUT" 
     onPress={() => signOut()}
   />
+  }
+
+  if (!userContext) {
+    throw new Error("UserInfo must be used within a UserProvider");
   }
 
   if (!vendorContext) {
@@ -101,6 +107,7 @@ const VendorHome = ({ navigation, route }: VendorHomeScreenProps) => {
     throw new Error("Failed to load clerk");
   }
 
+  const {mode, setMode} = userContext
   const {vendor, setVendor, setSwitching, switching } = vendorContext;
   const {connectionTimeout, isConnected, reconnect, sendMessage, } = webSocket; 
 
@@ -133,15 +140,15 @@ const VendorHome = ({ navigation, route }: VendorHomeScreenProps) => {
           contactNumber: data.contactNumber,
         };
         setVendor({ ...vendor });
-        // const getChatListInput: GetChatListInput = {
-        //   senderId: data._id,
-        //   senderType: "VENDOR",
-        //   pageNumber: 1,
-        //   pageSize: 10,
-        //   inputType: "GET_CHAT_LIST"
-        // }
+        const getChatListInput: GetChatListInput = {
+          senderId: data._id,
+          senderType: "VENDOR",
+          pageNumber: 1,
+          pageSize: 10,
+          inputType: "GET_CHAT_LIST"
+        }
         
-        // sendMessage(getChatListInput);
+        sendMessage(getChatListInput);
         
         setLoading(false);
       } else if (res.status === 400) {
@@ -191,8 +198,10 @@ const VendorHome = ({ navigation, route }: VendorHomeScreenProps) => {
       }
       sendMessage(switchInput)
     }
-
+    setMode("CLIENT")
     setSwitching(false)
+
+    console.log(`Mode Switched: ${mode}`)
   }
 
   const onCancel = () => {
@@ -223,7 +232,7 @@ const VendorHome = ({ navigation, route }: VendorHomeScreenProps) => {
           />
   }
 
-  return   <VendorHomeNav initialTab={initialTab} />;
+  return   <VendorHomeNav initialTab={initialTab as keyof VendorHomeScreenBottomTabsProps } />;
 };
 
 const styles = StyleSheet.create({

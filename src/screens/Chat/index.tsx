@@ -2,6 +2,7 @@ import { Feather, MaterialIcons } from "@expo/vector-icons";
 import { faker } from "@faker-js/faker";
 import { ObjectId } from "bson";
 import { UserContext } from "Contexts/UserContext";
+import { VendorContext } from "Contexts/VendorContext";
 import { GetMessagesInput, SendMessageInput, WebSocketContext } from "Contexts/WebSocket";
 import { getInfoAsync } from "expo-file-system";
 import {
@@ -99,19 +100,24 @@ function Chat({ navigation, route }: ChatScreenProps) {
   const {_id, senderName, senderImage, senderId } = route.params;
   const { setOptions } = navigation;
   const [status, requestPermission] = useMediaLibraryPermissions();
+  const vendorContext = useContext(VendorContext);
   const webSocket =  useContext(WebSocketContext);
 
   if(!webSocket){
     throw new Error("Component must be under Websocket Provider!!");
   }
 
+  if (!vendorContext) {
+    throw new Error("UserInfo must be used within a UserProvider");
+  }
 
   if (!userContext) {
     throw new Error("UserInfo must be used within a UserProvider");
   }
 
   const { sendMessage, chatMessages, loading, isConnected, connectionTimeout, reconnect } = webSocket;
-  const { user } = userContext;
+  const { user, mode } = userContext;
+  const { vendor } = vendorContext;
 
 
   const getMessages = () => {
@@ -120,7 +126,7 @@ function Chat({ navigation, route }: ChatScreenProps) {
       
       if(hasMore){
         const getMessagesInput: GetMessagesInput = {
-          senderId: user._id,
+          senderId: (mode === "CLIENT")? user._id: vendor.id,
           senderType: "CLIENT",
           receiverId: _id,
           pageNumber: page,
@@ -171,7 +177,7 @@ function Chat({ navigation, route }: ChatScreenProps) {
               createdAt: new Date(),
               system: true,
               user: {
-                _id: user._id,
+                _id: (mode === "CLIENT")? user._id: vendor.id,
               },
             }]
           })
@@ -204,7 +210,7 @@ function Chat({ navigation, route }: ChatScreenProps) {
 
     const sendMessageInput: SendMessageInput = {
       chatId: _id,
-      senderId: user._id,
+      senderId: (mode === "CLIENT")? user._id: vendor.id,
       receiverId: senderId,
       content: message.text,
       timestamp: message.createdAt as Date,
@@ -230,7 +236,7 @@ function Chat({ navigation, route }: ChatScreenProps) {
       renderSend={CustomSend}
       renderAvatar={null}
       user={{
-        _id: user._id,
+        _id: (mode === "CLIENT")? user._id: vendor.id,
       }}
       loadEarlier
       infiniteScroll
@@ -273,14 +279,14 @@ function Chat({ navigation, route }: ChatScreenProps) {
                 text:"",
                 createdAt: new Date(Date.UTC(2016, 5, 11, 17, 20, 0)),
                 user: {
-                  _id: user._id,                  
+                  _id: (mode === "CLIENT")? user._id: vendor.id,                  
                 },
                 image: selectedImageInfo.uri,
               }
 
               const sendMessageInput: SendMessageInput = {
                 chatId: _id,
-                senderId: user._id,
+                senderId: (mode === "CLIENT")? user._id: vendor.id,
                 receiverId: senderId,
                 content: result.metadata.fullPath,
                 timestamp: new Date(),
@@ -302,7 +308,7 @@ function Chat({ navigation, route }: ChatScreenProps) {
                   createdAt: new Date(),
                   system: true,
                   user: {
-                    _id: user._id,
+                    _id: (mode === "CLIENT")? user._id: vendor.id,
                   },
                 }
               

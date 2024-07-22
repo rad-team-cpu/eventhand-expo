@@ -11,18 +11,18 @@ import Loading from "screens/Loading";
 import ChatList from "screens/Chat/List";
 import EventList from "screens/Users/Events/List";
 import Profile from "screens/Users/Profile";
-import { HomeScreenProps } from "types/types";
+import { HomeScreenProps,  HomeScreenBottomTabsProps } from "types/types";
 import VendorList from "../VendorList";
 import { GetChatListInput, SocketSwitchInput, WebSocketContext } from "Contexts/WebSocket";
 import ErrorScreen from "Components/Error";
 import ConfirmationDialog from "Components/ConfirmationDialog";
 
-interface HomeNaveProps {
-  initialRouteName?: string;
+interface HomeNavProps {
+  initialRouteName?: keyof HomeScreenBottomTabsProps;
 }
 
-const HomeNav = ({ initialRouteName = "EventList" }: HomeNaveProps) => {
-  const Tab = createBottomTabNavigator();
+const HomeNav = ({ initialRouteName = "Events" }: HomeNavProps) => {
+  const Tab = createBottomTabNavigator<HomeScreenBottomTabsProps>();
 
   const eventsIconOptions: BottomTabNavigationOptions = {
     tabBarTestID: `events-nav-btn`,
@@ -71,7 +71,7 @@ const HomeNav = ({ initialRouteName = "EventList" }: HomeNaveProps) => {
         component={EventList}
         options={eventsIconOptions}
       />
-      <Tab.Screen name="ChatList" component={ChatList} options={chatIconOptions} />
+      <Tab.Screen name="ChatList" component={ChatList} initialParams={{mode: "CLIENT"}} options={chatIconOptions} />
       <Tab.Screen
         name="Profile"
         component={Profile}
@@ -110,7 +110,7 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
     throw new Error("Failed to load clerk");
   }
 
-  const {user, setUser, setSwitching, switching} = userContext;
+  const {user, setUser, setSwitching, switching, setMode, mode} = userContext;
   const {connectionTimeout, isConnected, reconnect, sendMessage, } = webSocket; 
 
   const fetchUserId = async () => {
@@ -196,8 +196,10 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
       }
       sendMessage(switchInput)
     }
-
+    setMode("VENDOR");
     setSwitching(false)
+
+    console.log(`Mode Switched: ${mode}`)
   }
 
   const onCancel = () => {
@@ -224,7 +226,7 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
           />
   }
 
-  return <HomeNav initialRouteName={initialTab} />
+  return <HomeNav initialRouteName={initialTab as keyof HomeScreenBottomTabsProps} />
 
 
 };

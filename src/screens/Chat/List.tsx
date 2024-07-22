@@ -2,6 +2,7 @@ import { faker } from "@faker-js/faker";
 import { useNavigation } from "@react-navigation/native";
 import ErrorScreen from "Components/Error";
 import { UserContext } from "Contexts/UserContext";
+import { VendorContext } from "Contexts/VendorContext";
 import { GetChatListInput, GetMessagesInput, WebSocketContext } from "Contexts/WebSocket";
 import { format } from "date-fns/format";
 import React, { useContext, useEffect, useState } from "react";
@@ -16,7 +17,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Chat, HomeScreenNavigationProp } from "types/types";
+import { Chat, ChatListScreenPropsList, HomeScreenNavigationProp } from "types/types";
 
 // for fake data generation for frontend use only
 // const createChatData = () => {
@@ -104,19 +105,27 @@ const ChatItem: React.FC<ChatItemProps> = ({
   );
 };
 
-function ChatList() {
+function ChatList({route}: ChatListScreenPropsList) {
   const [page, setPage] = useState<number>(1);
   const userContext = useContext(UserContext);
+  const vendorContext = useContext(VendorContext);
   const webSocket =  useContext(WebSocketContext);
+  const { mode } = route.params
 
   if(!userContext){
     throw new Error("Component must be under User Provider!!")
   } 
 
+  if (!vendorContext) {
+    throw new Error("UserInfo must be used within a UserProvider");
+  }
+
   if(!webSocket){
     throw new Error("Component must be under Websocket Provider!!");
   }
 
+  
+  const {vendor } = vendorContext;
   const {user } = userContext;
   const { sendMessage, chatList, loading } = webSocket;
 
@@ -124,7 +133,7 @@ function ChatList() {
   const getChatList = () => {
     const getChatListInput: GetChatListInput = {
       senderId: user._id,
-      senderType: "CLIENT",
+      senderType: mode,
       pageNumber: page,
       pageSize: 10,
       inputType: "GET_CHAT_LIST"
@@ -163,8 +172,8 @@ function ChatList() {
 
   const onItemPress = (args: Chat) => {
     const getMessagesInput: GetMessagesInput = {
-      senderId: user._id,
-      senderType: "CLIENT",
+      senderId: (mode === "CLIENT")? user._id: vendor.id,
+      senderType: (mode === "CLIENT")? "CLIENT" : "VENDOR",
       receiverId: args.senderId,
       pageNumber: 1,
       pageSize: 15,

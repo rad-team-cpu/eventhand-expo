@@ -14,6 +14,8 @@ import type {
 import { FullMetadata, StorageReference } from 'firebase/storage';
 import { ImageSourcePropType } from 'react-native';
 
+type UserMode = "CLIENT" | "VENDOR";
+
 interface EventInfo {
   _id: string;
   attendees: number;
@@ -132,7 +134,7 @@ interface ConfirmationProps {
 
 interface HomeProps {
   noFetch?: boolean;
-  initialTab?: string;
+  initialTab?: string | keyof HomeScreenBottomTabsProps | keyof VendorHomeScreenBottomTabsProps;
 }
 
 interface VendorMenuProps {
@@ -205,31 +207,43 @@ type ConfirmationScreenProps = NativeStackScreenProps<
   "Confirmation"
 >;
 
+interface ChatListProps{
+  mode: "VENDOR" | "CLIENT"
+}
+
 
 type HomeScreenBottomTabsProps = {
   Home: NavigatorScreenParams<ScreenProps>;
-  VendorList: undefined;
-  EventList: undefined;
-  ChatList: undefined;
+  Vendors: undefined;
+  Events: undefined;
+  ChatList: ChatListProps;
+  Profile: undefined;
+};
+
+type VendorHomeScreenBottomTabsProps = {
+  Home: NavigatorScreenParams<ScreenProps>;
+  Bookings: undefined;
+  ChatList: ChatListProps;
   Profile: undefined;
 };
 
 type EventListScreenProps = CompositeScreenProps<
-  BottomTabScreenProps<HomeScreenBottomTabsProps, 'EventList'>,
+  BottomTabScreenProps<HomeScreenBottomTabsProps, 'Events'>,
   NativeStackScreenProps<ScreenProps>
 >;
 
 type EventListNavigationProps = CompositeNavigationProp<
-  BottomTabNavigationProp<HomeScreenBottomTabsProps, 'EventList'>,
+  BottomTabNavigationProp<HomeScreenBottomTabsProps, 'Events'>,
   NativeStackNavigationProp<ScreenProps>
 >;
 
-type ChatScreenPropsList = CompositeScreenProps<
-  BottomTabScreenProps<HomeScreenBottomTabsProps, 'ChatList'>,
+type ChatListScreenPropsList = CompositeScreenProps<
+  BottomTabScreenProps<HomeScreenBottomTabsProps | VendorHomeScreenBottomTabsProps, 'ChatList'>,
   NativeStackScreenProps<ScreenProps>
 >;
+
 type VendorListScreenProps = CompositeScreenProps<
-  BottomTabScreenProps<HomeScreenBottomTabsProps, 'VendorList'>,
+  BottomTabScreenProps<HomeScreenBottomTabsProps, 'Vendors'>,
   NativeStackScreenProps<ScreenProps>
 >;
 
@@ -271,6 +285,7 @@ export {
   LoginScreenProps,
   HomeScreenProps,
   HomeScreenNavigationProp,
+  HomeScreenBottomTabsProps,
   SuccessErrorScreenProps,
   ConfirmationScreenProps,
   ProfileFormScreenProps,
@@ -286,4 +301,7 @@ export {
   EventFormScreenProps,
   VendorHomeScreenProps,
   VendorProfileFormScreenProps,
+  VendorHomeScreenBottomTabsProps,
+  ChatListScreenPropsList,
+  UserMode
 };

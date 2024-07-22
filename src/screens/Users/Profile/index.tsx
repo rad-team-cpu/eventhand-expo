@@ -11,8 +11,6 @@ import Text from "Components/Ui/Text";
 import useTheme from "../../../core/theme";
 import Loading from "../../Loading";
 import FirebaseService from "service/firebase";
-import { HomeScreenNavigationProp} from "types/types";
-import { useNavigation } from "@react-navigation/native";
 
 export default function Profile() {
   const { isLoaded, signOut } = useAuth();
