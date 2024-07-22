@@ -103,7 +103,7 @@ const VendorHome = ({ navigation, route }: VendorHomeScreenProps) => {
 
       if (res.status === 200) {
         const data = await res.json();
-        const vendor: Vendor = {
+        const vendor = {
           id: data._id,
           logo: data.logo,
           name: data.name,
