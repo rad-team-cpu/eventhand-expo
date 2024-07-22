@@ -51,7 +51,7 @@ const ChatItem: React.FC<ChatItemProps> = ({
   const formattedDate = format(timestamp!, "Pp");
   const image: ImageSourcePropType = senderImage
     ? { uri: senderImage }
-    : require("../../../assets/images/user.png");
+    : require("../../assets/images/user.png");
 
 
   const onPress = () => {
