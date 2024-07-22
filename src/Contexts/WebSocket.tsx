@@ -33,6 +33,9 @@ type SendMessageInput = SocketRegisterInput & {
   isImage: boolean;
 }
 
+type SocketSwitchInput = SocketRegisterInput & {clerkId: string}
+
+
 type SocketInput = SocketRegisterInput | GetChatListInput
 
 type GetChatListOutput = {
@@ -42,14 +45,13 @@ type GetChatListOutput = {
     hasMore: boolean;
 }
 
-
-
 type GetMessagesOutput = {
   documents: ChatMessage[];
   totalPages: number;
   currentPage: number;
   hasMore: boolean;
 }
+
 
 type WebSocketContextType = {
     isConnected: boolean;
@@ -175,7 +177,7 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
       );
 };
 
-export  {WebSocketContext, WebSocketProvider, WebSocketContextType, SocketInput, GetChatListInput, SocketRegisterInput, GetMessagesInput, SendMessageInput}
+export  {WebSocketContext, WebSocketProvider, WebSocketContextType, SocketInput, GetChatListInput, SocketRegisterInput, GetMessagesInput, SendMessageInput, SocketSwitchInput}
 
 
 

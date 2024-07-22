@@ -13,7 +13,7 @@ import EventList from "screens/Users/Events/List";
 import Profile from "screens/Users/Profile";
 import { HomeScreenProps } from "types/types";
 import VendorList from "../VendorList";
-import { GetChatListInput, WebSocketContext } from "Contexts/WebSocket";
+import { GetChatListInput, SocketSwitchInput, WebSocketContext } from "Contexts/WebSocket";
 import ErrorScreen from "Components/Error";
 import ConfirmationDialog from "Components/ConfirmationDialog";
 
@@ -83,12 +83,20 @@ const HomeNav = ({ initialRouteName = "EventList" }: HomeNaveProps) => {
 
 const Home = ({ navigation, route }: HomeScreenProps) => {
   const { initialTab, noFetch } = route.params;
-  const { getToken, userId, isLoaded } = useAuth();
+  const { getToken, userId, isLoaded, signOut } = useAuth();
   const [loading, setLoading] = useState(!noFetch);
   const [error, setError] = useState(false);
   const userContext = useContext(UserContext);
   const webSocket =  useContext(WebSocketContext);
+  const clerkId = userId; //clerk-auth-generated-user-id
 
+  if(!clerkId){
+    return <ErrorScreen 
+    description="MUST BE A REGISTERED USER TO ACCESS" 
+    buttonText="LOGOUT" 
+    onPress={() => signOut()}
+  />
+  }
 
   if (!userContext) {
     throw new Error("UserInfo must be used within a UserProvider");
@@ -102,7 +110,7 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
     throw new Error("Failed to load clerk");
   }
 
-  const { setUser, setSwitching, switching} = userContext;
+  const {user, setUser, setSwitching, switching} = userContext;
   const {connectionTimeout, isConnected, reconnect, sendMessage, } = webSocket; 
 
   const fetchUserId = async () => {
@@ -178,6 +186,17 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
       index: 0,
       routes: [{ name: "VendorHome", params: { initialTab: "Profile"  } }],
     });
+    
+    if(user._id !== ""){
+      const switchInput: SocketSwitchInput = {
+        senderId: user._id,
+        senderType: "CLIENT",
+        inputType: "SWITCH",
+        clerkId: clerkId
+      }
+      sendMessage(switchInput)
+    }
+
     setSwitching(false)
   }
 

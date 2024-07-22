@@ -135,11 +135,7 @@ function ChatList() {
     }
   }
 
-  
-  useEffect(() => {
-    getChatList()
 
-  }, [page])
 
 
   const renderEmptyComponent = () => {

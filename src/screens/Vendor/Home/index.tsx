@@ -14,7 +14,7 @@ import VendorBooking from "../Bookings";
 import VendorChat from "../Chat";
 import VendorProfile from "../Profile";
 import ChatList from "screens/Chat/List";
-import { GetChatListInput, WebSocketContext } from "Contexts/WebSocket";
+import { GetChatListInput, SocketSwitchInput, WebSocketContext } from "Contexts/WebSocket";
 import ErrorScreen from "Components/Error";
 import ConfirmationDialog from "Components/ConfirmationDialog";
 
@@ -73,12 +73,21 @@ const VendorHomeNav = ({ initialTab }: VendorHomeNavProps) => {
 };
 
 const VendorHome = ({ navigation, route }: VendorHomeScreenProps) => {
-  const { getToken, userId, isLoaded } = useAuth();
+  const { getToken, userId, isLoaded, signOut } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const vendorContext = useContext(VendorContext);
   const webSocket =  useContext(WebSocketContext);
   const { initialTab, noFetch } = route.params;
+  const clerkId = userId; //clerk-auth-generated-user-id
+
+  if(!clerkId){
+    return <ErrorScreen 
+    description="MUST BE A REGISTERED USER TO ACCESS" 
+    buttonText="LOGOUT" 
+    onPress={() => signOut()}
+  />
+  }
 
   if (!vendorContext) {
     throw new Error("UserInfo must be used within a UserProvider");
@@ -92,7 +101,7 @@ const VendorHome = ({ navigation, route }: VendorHomeScreenProps) => {
     throw new Error("Failed to load clerk");
   }
 
-  const { setVendor, setSwitching, switching } = vendorContext;
+  const {vendor, setVendor, setSwitching, switching } = vendorContext;
   const {connectionTimeout, isConnected, reconnect, sendMessage, } = webSocket; 
 
 
@@ -173,8 +182,17 @@ const VendorHome = ({ navigation, route }: VendorHomeScreenProps) => {
       index: 0,
       routes: [{ name: "Home", params: { initialTab: "Profile"  } }],
     });
-    setSwitching(false)
+    if(vendor.id !== ""){
+      const switchInput: SocketSwitchInput = {
+        senderId: vendor.id,
+        senderType: "VENDOR",
+        inputType: "SWITCH",
+        clerkId: clerkId
+      }
+      sendMessage(switchInput)
+    }
 
+    setSwitching(false)
   }
 
   const onCancel = () => {

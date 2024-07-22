@@ -205,6 +205,7 @@ type ConfirmationScreenProps = NativeStackScreenProps<
   "Confirmation"
 >;
 
+
 type HomeScreenBottomTabsProps = {
   Home: NavigatorScreenParams<ScreenProps>;
   VendorList: undefined;
