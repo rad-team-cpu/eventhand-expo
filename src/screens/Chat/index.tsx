@@ -115,27 +115,24 @@ function Chat({ navigation, route }: ChatScreenProps) {
     throw new Error("UserInfo must be used within a UserProvider");
   }
 
-  const { sendMessage, chatMessages, loading, isConnected, connectionTimeout, reconnect } = webSocket;
+  const { sendMessage, chatMessages, chatMessagesOptions, isConnected, connectionTimeout, reconnect } = webSocket;
   const { user, mode } = userContext;
   const { vendor } = vendorContext;
 
 
   const getMessages = () => {
-    if(chatMessages){
-      const { hasMore } = chatMessages;
-      
-      if(hasMore){
-        const getMessagesInput: GetMessagesInput = {
-          senderId: (mode === "CLIENT")? user._id: vendor.id,
-          senderType: "CLIENT",
-          receiverId: _id,
-          pageNumber: page,
-          pageSize: 15,
-          inputType: "GET_MESSAGES"
-        };
+    if(chatMessagesOptions.hasMore){
+      const getMessagesInput: GetMessagesInput = {
+        senderId: (mode === "CLIENT")? user._id: vendor.id,
+        senderType: "CLIENT",
+        receiverId: _id,
+        pageNumber: page,
+        pageSize: 15,
+        inputType: "GET_MESSAGES"
+      };
 
-        sendMessage(getMessagesInput)
-      }
+      sendMessage(getMessagesInput)
+      
     }
 
   }
@@ -166,12 +163,9 @@ function Chat({ navigation, route }: ChatScreenProps) {
 
   const fetchMessages = useCallback(async () => {
     if(isConnected){
-      if(chatMessages){
-        const { documents } = chatMessages;
-        if(documents){
-          const giftedChatMessages:IMessage[] = await Promise.all(documents.map(convertToGiftedMessages)).catch(err =>{ 
-            console.error(err) 
-            return [ {
+      const giftedChatMessages:IMessage[] = await Promise.all(chatMessages.map(convertToGiftedMessages)).catch(err =>{ 
+        console.error(err) 
+          return [{
               _id: new ObjectId().toString(),
               text: "Failed to load Messages",
               createdAt: new Date(),
@@ -181,9 +175,9 @@ function Chat({ navigation, route }: ChatScreenProps) {
               },
             }]
           })
-          setMessages(giftedChatMessages);
-        }
-      }
+        setMessages(giftedChatMessages);
+        
+      
     }
   }, [chatMessages])
 
