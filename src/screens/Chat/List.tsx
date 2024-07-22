@@ -127,7 +127,7 @@ function ChatList({route}: ChatListScreenPropsList) {
   
   const {vendor } = vendorContext;
   const {user } = userContext;
-  const { sendMessage, chatList, loading } = webSocket;
+  const { sendMessage, chatList, chatListOptions, loading } = webSocket;
 
 
   const getChatList = () => {
@@ -139,7 +139,7 @@ function ChatList({route}: ChatListScreenPropsList) {
       inputType: "GET_CHAT_LIST"
     }
     
-    if(chatList?.hasMore){
+    if(chatListOptions.hasMore){
       sendMessage(getChatListInput);
     }
   }
@@ -156,7 +156,7 @@ function ChatList({route}: ChatListScreenPropsList) {
   };
 
   
-  if(!chatList || chatList.documents.length == 0){
+  if(chatList.length == 0){
     return renderEmptyComponent()
   }
 
@@ -164,7 +164,7 @@ function ChatList({route}: ChatListScreenPropsList) {
     if (loading) {
       return <ActivityIndicator size="large" color="#CB0C9F"  />;
     }
-    if (!chatList.hasMore) {
+    if (!chatListOptions.hasMore) {
       return <Text style={{ textAlign: 'center', padding: 10 }}>No more messages</Text>;
     }
     return null;
@@ -183,7 +183,7 @@ function ChatList({route}: ChatListScreenPropsList) {
     sendMessage(getMessagesInput);
   }
 
-  const data = chatList.documents
+  const data = chatList
 
   return (
     <SafeAreaView>

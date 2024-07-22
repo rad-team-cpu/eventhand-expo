@@ -9,6 +9,8 @@ type PaginationInput = {
   pageSize: number,
 }
 
+type PaginationOptions = PaginationInput & { hasMore: boolean}
+
 type SocketInputType = "REGISTER" | "SEND_MESSAGE" | "GET_MESSAGES" | "GET_CHAT_LIST" | "SWITCH"
 
 type SocketRegisterInput = {
@@ -53,10 +55,13 @@ type GetMessagesOutput = {
 }
 
 
+
 type WebSocketContextType = {
     isConnected: boolean;
-    chatList?: GetChatListOutput;
-    chatMessages?: GetMessagesOutput;
+    chatList: Chat[];
+    chatListOptions: PaginationOptions
+    chatMessages: ChatMessage[];
+    chatMessagesOptions: PaginationOptions
     sendMessage: (message: SocketInput) => void;
     reconnect: () => void;
     connectionTimeout: boolean;
@@ -69,12 +74,20 @@ interface WebSocketProviderProps {
 
 const WebSocketContext = createContext<WebSocketContextType | undefined>(undefined);
 
+const defaultPaginationOptions = {
+  pageNumber: 1,
+  pageSize: 10,
+  hasMore: true
+}
+
 
 const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
     const { getToken,  isLoaded } = useAuth();
     const [isConnected, setIsConnected] = useState(false);
-    const [chatList, setChatList] = useState<GetChatListOutput | undefined>(undefined)
-    const [chatMessages, setChatMessages] = useState<GetMessagesOutput | undefined>(undefined);
+    const [chatList, setChatList] = useState<Chat[]>([])
+    const [chatListOptions, setChatListOptions] = useState<PaginationOptions>(defaultPaginationOptions)
+    const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+    const [chatMessagesOptions, setChatMessagesOptions] = useState<PaginationOptions>(defaultPaginationOptions)
     const [loading, setLoading] = useState<boolean>(false);
     const [connectionTimeout, setConnectionTimeout] = useState<boolean>(false);
     const websocketRef = useRef<WebSocket | null>(null);
@@ -90,6 +103,7 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
             const token = await getToken({ template: "event-hand-jwt" });
             const url = `${process.env.EXPO_PUBLIC_WEBSOCKET_URL}?token=${token}`;
             const socket = new WebSocket(url);
+            console.log(`CONNECTING TO: ${process.env.EXPO_PUBLIC_WEBSOCKET_URL}`)
 
             socket.onopen = () => {
                 console.log('WebSocket connected');
@@ -106,8 +120,15 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
                     const message: GetChatListOutput = {
                         ...parsedData.chatList,
                     }
-                    setChatList(message)
-                    console.log(chatList?.documents)
+
+                    const {hasMore, currentPage, totalPages} = message
+
+                    setChatList(message.documents)
+                    setChatListOptions({
+                      hasMore,
+                      pageNumber: currentPage,
+                      pageSize: totalPages
+                    })
                     setLoading(false)
                 }
 
@@ -116,8 +137,23 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
                     ...parsedData.messageList
                   }
 
-                  setChatMessages(message);
+                  const {hasMore, currentPage, totalPages} = message
+
+                  setChatMessages(message.documents);
+                  setChatMessagesOptions({
+                    hasMore,
+                    pageNumber: currentPage,
+                    pageSize: totalPages
+                  })
                   setLoading(false);
+                }
+
+                if(parsedData.outputType === 'CHAT_MESSAGE_RECIEVED'){
+                  const message: ChatMessage = {
+                    ...parsedData.message
+                  }
+
+                  setChatMessages(prevMessages => [...prevMessages, message])
                 }
             
               };
@@ -171,7 +207,18 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
       }, [connectWebSocket]);
     
       return (
-        <WebSocketContext.Provider value={{ isConnected, chatMessages, sendMessage, chatList, reconnect, connectionTimeout, loading, }}>
+        <WebSocketContext.Provider value={
+          { isConnected, 
+            chatMessages, 
+            chatMessagesOptions, 
+            sendMessage, 
+            chatList, 
+            chatListOptions, 
+            reconnect, 
+            connectionTimeout, 
+            loading, 
+          }
+        }>
           {children}
         </WebSocketContext.Provider>
       );
