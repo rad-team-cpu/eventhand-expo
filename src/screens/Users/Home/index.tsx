@@ -8,18 +8,21 @@ import { UserContext } from "Contexts/UserContext";
 import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
 import Loading from "screens/Loading";
-import Chat from "screens/Users/Chat";
+import ChatList from "screens/Chat/List";
 import EventList from "screens/Users/Events/List";
 import Profile from "screens/Users/Profile";
-import { HomeScreenProps } from "types/types";
+import { HomeScreenProps,  HomeScreenBottomTabsProps } from "types/types";
 import VendorList from "../VendorList";
+import { GetChatListInput, SocketSwitchInput, WebSocketContext } from "Contexts/WebSocket";
+import ErrorScreen from "Components/Error";
+import ConfirmationDialog from "Components/ConfirmationDialog";
 
-interface HomeNaveProps {
-  initialRouteName?: string;
+interface HomeNavProps {
+  initialRouteName?: keyof HomeScreenBottomTabsProps;
 }
 
-const HomeNav = ({ initialRouteName = "EventList" }: HomeNaveProps) => {
-  const Tab = createBottomTabNavigator();
+const HomeNav = ({ initialRouteName = "Events" }: HomeNavProps) => {
+  const Tab = createBottomTabNavigator<HomeScreenBottomTabsProps>();
 
   const eventsIconOptions: BottomTabNavigationOptions = {
     tabBarTestID: `events-nav-btn`,
@@ -68,7 +71,7 @@ const HomeNav = ({ initialRouteName = "EventList" }: HomeNaveProps) => {
         component={EventList}
         options={eventsIconOptions}
       />
-      <Tab.Screen name="Chat" component={Chat} options={chatIconOptions} />
+      <Tab.Screen name="ChatList" component={ChatList} initialParams={{mode: "CLIENT"}} options={chatIconOptions} />
       <Tab.Screen
         name="Profile"
         component={Profile}
@@ -80,19 +83,35 @@ const HomeNav = ({ initialRouteName = "EventList" }: HomeNaveProps) => {
 
 const Home = ({ navigation, route }: HomeScreenProps) => {
   const { initialTab, noFetch } = route.params;
-  const { getToken, userId, isLoaded } = useAuth();
+  const { getToken, userId, isLoaded, signOut } = useAuth();
   const [loading, setLoading] = useState(!noFetch);
+  const [error, setError] = useState(false);
   const userContext = useContext(UserContext);
+  const webSocket =  useContext(WebSocketContext);
+  const clerkId = userId; //clerk-auth-generated-user-id
+
+  if(!clerkId){
+    return <ErrorScreen 
+    description="MUST BE A REGISTERED USER TO ACCESS" 
+    buttonText="LOGOUT" 
+    onPress={() => signOut()}
+  />
+  }
 
   if (!userContext) {
     throw new Error("UserInfo must be used within a UserProvider");
+  }
+
+  if(!webSocket){
+    throw new Error("Component must be under Websocket Provider!!");
   }
 
   if (!isLoaded) {
     throw new Error("Failed to load clerk");
   }
 
-  const { setUser } = userContext;
+  const {user, setUser, setSwitching, switching, setMode, mode} = userContext;
+  const {connectionTimeout, isConnected, reconnect, sendMessage, } = webSocket; 
 
   const fetchUserId = async () => {
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/${userId}`;
@@ -110,10 +129,20 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
 
     try {
       const res = await fetch(url, request);
-
+      const data = await res.json();
+      
       if (res.status === 200) {
-        const data = await res.json();
         setUser({ ...data });
+        const getChatListInput: GetChatListInput = {
+          senderId: data._id,
+          senderType: "CLIENT",
+          pageNumber: 1,
+          pageSize: 10,
+          inputType: "GET_CHAT_LIST"
+        }
+        
+        sendMessage(getChatListInput);
+
         setLoading(false);
       } else if (res.status === 400) {
         throw new Error("Bad request - Invalid data.");
@@ -125,19 +154,81 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
       } else {
         throw new Error("Unexpected error occurred.");
       }
-    } catch (error) {
-      console.error("Error fetching user:", error);
+    } catch (error: any) {
+      console.error(`Error fetching user (${error.code}): ${error} `);
+      setError(true)
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    if (!noFetch) {
-      fetchUserId();
-    }
-  }, []);
+  const onRetryPress = () => {
+    reconnect();
+    setLoading(true)
+    setError(false)
+  }
 
-  return loading ? <Loading /> : <HomeNav initialRouteName={initialTab} />;
+  useEffect(() => {
+    if(isConnected && !noFetch){
+      fetchUserId()
+    }
+    if(connectionTimeout){
+      setError(true)
+      setLoading(false)
+    } 
+  }, [connectionTimeout, isConnected]);
+
+  if( loading ){
+    return <Loading />
+  }
+
+  const onConfirm = () => {
+    navigation.reset({
+      index: 0,
+      routes: [{ name: "VendorHome", params: { initialTab: "Profile"  } }],
+    });
+    
+    if(user._id !== ""){
+      const switchInput: SocketSwitchInput = {
+        senderId: user._id,
+        senderType: "CLIENT",
+        inputType: "SWITCH",
+        clerkId: clerkId
+      }
+      sendMessage(switchInput)
+    }
+    setMode("VENDOR");
+    setSwitching(false)
+
+    console.log(`Mode Switched: ${mode}`)
+  }
+
+  const onCancel = () => {
+    setSwitching(false)
+  }
+
+  if(switching){
+    const ConfirmationDialogProps = {
+      title: "Switch to your Vendor Account?",
+      description:
+        "You are trying to switch to vendor mode, if you haven't registered for a vendor account you will be taken to a vendor registration form.",
+      onConfirm,
+      onCancel,
+    };
+  
+    return <ConfirmationDialog {...ConfirmationDialogProps} />;
+  }
+  
+  if(error){
+    return <ErrorScreen 
+            description="Failed to connect to the server" 
+            buttonText="RETRY" 
+            onPress={onRetryPress}
+          />
+  }
+
+  return <HomeNav initialRouteName={initialTab as keyof HomeScreenBottomTabsProps} />
+
+
 };
 
 const styles = StyleSheet.create({

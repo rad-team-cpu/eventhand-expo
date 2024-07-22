@@ -4,6 +4,7 @@ import {
 } from '@react-navigation/native-stack';
 import Confirmation from 'screens/Confirmation';
 import SuccessError from 'screens/SuccessError';
+import Chat from "screens/Chat";
 import EventView from 'screens/Users/Events';
 import EventForm from 'screens/Users/Events/Form';
 import Home from 'screens/Users/Home';
@@ -25,12 +26,12 @@ const homeHeaderOptions: NativeStackNavigationOptions = {
   headerShown: false,
 };
 
-const homeInitialParams: ScreenProps['Home'] = {
-  initialTab: 'EventList',
+const homeInitialParams: ScreenProps["Home"] = {
+  initialTab: "EventList",
 };
 
-const vendorHomeInitialParams: ScreenProps['Home'] = {
-  initialTab: 'Bookings',
+const vendorHomeInitialParams: ScreenProps["Home"] = {
+  initialTab: "Bookings",
 };
 
 const eventFormHeaderOptions: NativeStackNavigationOptions = {
@@ -39,6 +40,10 @@ const eventFormHeaderOptions: NativeStackNavigationOptions = {
 
 const eventViewHeaderOptions: NativeStackNavigationOptions = {
   headerShown: false,
+};
+
+const chatOptions: NativeStackNavigationOptions = {
+  headerBackVisible: false,
 };
 
 const SignedInNav = () => {
@@ -66,22 +71,27 @@ const SignedInNav = () => {
         options={{ headerShown: false }}
       />
       <SignedInStack.Screen
+        name="Chat"
+        component={Chat}
+        options={chatOptions}
+      />
+      <SignedInStack.Screen
         name='VendorMenu'
         component={VendorMenu}
         options={{ headerShown: false }}
       />
       <SignedInStack.Screen
-        name='BookingConfirmation'
+        name="BookingConfirmation"
         component={BookingConfirmation}
         options={{ headerShown: false }}
       />
       <SignedInStack.Screen
-        name='BookingDetails'
+        name="BookingDetails"
         component={BookingDetails}
         options={{ headerShown: false }}
       />
       <SignedInStack.Screen
-        name='SuccessError'
+        name="SuccessError"
         component={SuccessError}
         options={{ headerShown: false }}
       />
@@ -104,5 +114,6 @@ const SignedInNav = () => {
     </SignedInStack.Navigator>
   );
 };
+
 
 export default SignedInNav;

@@ -462,6 +462,7 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
           "You are trying to return to client mode. changes will not be saved",
         confirmNavigateTo: "Home",
         confrimNavParams: { initialTab: "Profile" },
+        isSwitching: false,
       };
 
       navigation.navigate("Confirmation", { ...confirmationProps });
