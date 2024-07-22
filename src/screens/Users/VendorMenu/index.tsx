@@ -13,6 +13,7 @@ import {
   PackageType,
   ScreenProps,
   HomeScreenNavigationProp,
+  Tag,
 } from 'types/types';
 import { GetMessagesInput, WebSocketContext } from 'Contexts/WebSocket';
 import { UserContext } from 'Contexts/UserContext';
@@ -142,11 +143,11 @@ const VendorMenu = () => {
                 {vendor.name}
               </Text>
               <Block row align='center'>
-                {/* {vendor.tags.map((tag, index) => (
-                  <Text key={index} className='items-center text-white mx-1'>
-                    {tag}
+                {vendor.tags.map((tag: Tag) => (
+                  <Text key={tag._id} className='items-center text-white mx-1 capitalize'>
+                    - {tag.name} -
                   </Text>
-                ))} */}
+                ))}
                 {/* <Text className='items-center text-white mx-1'>
                   Photography
                 </Text> */}
