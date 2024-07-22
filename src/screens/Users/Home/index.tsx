@@ -15,6 +15,7 @@ import { HomeScreenProps } from "types/types";
 import VendorList from "../VendorList";
 import { GetChatListInput, WebSocketContext } from "Contexts/WebSocket";
 import ErrorScreen from "Components/Error";
+import ConfirmationDialog from "Components/ConfirmationDialog";
 
 interface HomeNaveProps {
   initialRouteName?: string;
@@ -101,7 +102,7 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
     throw new Error("Failed to load clerk");
   }
 
-  const { setUser, } = userContext;
+  const { setUser, setSwitching, switching} = userContext;
   const {connectionTimeout, isConnected, reconnect, sendMessage, } = webSocket; 
 
   const fetchUserId = async () => {
@@ -170,6 +171,30 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
 
   if( loading ){
     return <Loading />
+  }
+
+  const onConfirm = () => {
+    navigation.reset({
+      index: 0,
+      routes: [{ name: "VendorHome", params: { initialTab: "Profile"  } }],
+    });
+    setSwitching(false)
+  }
+
+  const onCancel = () => {
+    setSwitching(false)
+  }
+
+  if(switching){
+    const ConfirmationDialogProps = {
+      title: "Switch to your Vendor Account?",
+      description:
+        "You are trying to switch to vendor mode, if you haven't registered for a vendor account you will be taken to a vendor registration form.",
+      onConfirm,
+      onCancel,
+    };
+  
+    return <ConfirmationDialog {...ConfirmationDialogProps} />;
   }
   
   if(error){

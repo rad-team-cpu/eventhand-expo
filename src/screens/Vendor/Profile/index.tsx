@@ -22,7 +22,7 @@ function VendorProfile() {
     throw new Error("Component must be used within a VendorProvider");
   }
 
-  const { vendor } = vendorContext;
+  const { vendor, setSwitching } = vendorContext;
   const {logo, name, email, contactNumber } = vendor;
 
   const downloadAvatarImage = async (profilePicturePath: string) => {
@@ -54,18 +54,7 @@ function VendorProfile() {
     signOut();
   };
 
-  const onClientModePress = () => {
-    const confirmationProps: ScreenProps["Confirmation"] = {
-      title: "Switch to Client mode?",
-      description: "You are trying to switch to client mode.",
-      confirmNavigateTo: "Home",
-      confrimNavParams: { initialTab: "Profile" },
-      isSwitching: true,
-      switchingTo: "CLIENT"
-    };
-
-    navigation.navigate("Confirmation", { ...confirmationProps });
-  };
+  const onClientModePress = () => setSwitching(true);
 
   return (
     <View testID="test-profile" style={styles.container}>

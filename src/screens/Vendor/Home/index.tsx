@@ -13,6 +13,10 @@ import Loading from "../../Loading";
 import VendorBooking from "../Bookings";
 import VendorChat from "../Chat";
 import VendorProfile from "../Profile";
+import ChatList from "screens/Chat/List";
+import { GetChatListInput, WebSocketContext } from "Contexts/WebSocket";
+import ErrorScreen from "Components/Error";
+import ConfirmationDialog from "Components/ConfirmationDialog";
 
 interface VendorHomeNavProps {
   initialTab?: string;
@@ -55,8 +59,8 @@ const VendorHomeNav = ({ initialTab }: VendorHomeNavProps) => {
         options={bookingIconOptions}
       />
       <Tab.Screen
-        name="Chat"
-        component={VendorChat}
+        name="ChatList"
+        component={ChatList}
         options={chatIconOptions}
       />
       <Tab.Screen
@@ -71,20 +75,28 @@ const VendorHomeNav = ({ initialTab }: VendorHomeNavProps) => {
 const VendorHome = ({ navigation, route }: VendorHomeScreenProps) => {
   const { getToken, userId, isLoaded } = useAuth();
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const vendorContext = useContext(VendorContext);
+  const webSocket =  useContext(WebSocketContext);
   const { initialTab, noFetch } = route.params;
 
   if (!vendorContext) {
     throw new Error("UserInfo must be used within a UserProvider");
   }
 
+  if(!webSocket){
+    throw new Error("Component must be under Websocket Provider!!");
+  }
+
   if (!isLoaded) {
     throw new Error("Failed to load clerk");
   }
 
-  const { setVendor } = vendorContext;
+  const { setVendor, setSwitching, switching } = vendorContext;
+  const {connectionTimeout, isConnected, reconnect, sendMessage, } = webSocket; 
 
-  const fetchUserId = async () => {
+
+  const fetchVendor = async () => {
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors/${userId}`;
 
     const token = getToken({ template: "event-hand-jwt" });
@@ -112,6 +124,16 @@ const VendorHome = ({ navigation, route }: VendorHomeScreenProps) => {
           contactNumber: data.contactNumber,
         };
         setVendor({ ...vendor });
+        // const getChatListInput: GetChatListInput = {
+        //   senderId: data._id,
+        //   senderType: "VENDOR",
+        //   pageNumber: 1,
+        //   pageSize: 10,
+        //   inputType: "GET_CHAT_LIST"
+        // }
+        
+        // sendMessage(getChatListInput);
+        
         setLoading(false);
       } else if (res.status === 400) {
         throw new Error("Bad request - Invalid data.");
@@ -130,14 +152,60 @@ const VendorHome = ({ navigation, route }: VendorHomeScreenProps) => {
   };
 
   useEffect(() => {
-    if (!noFetch) {
-      fetchUserId();
-    }else{
-      setLoading(false);
+    if(isConnected && !noFetch){
+      fetchVendor()
     }
-  }, []);
 
-  return loading ? <Loading /> : <VendorHomeNav initialTab={initialTab} />;
+    if(connectionTimeout){
+      setError(true)
+      setLoading(false)
+    } 
+
+  }, [connectionTimeout, isConnected]);
+  const onRetryPress = () => {
+    reconnect();
+    setLoading(true)
+    setError(false)
+  }
+
+  const onConfirm = () => {
+    navigation.reset({
+      index: 0,
+      routes: [{ name: "Home", params: { initialTab: "Profile"  } }],
+    });
+    setSwitching(false)
+
+  }
+
+  const onCancel = () => {
+    setSwitching(false)
+  }
+
+  if(switching){
+    const ConfirmationDialogProps = {
+      title: "Switch to Client mode?",
+      description: "You are trying to switch to client mode.",
+      onConfirm,
+      onCancel,
+    };
+  
+    return <ConfirmationDialog {...ConfirmationDialogProps} />;
+  }
+
+  if( loading ){
+    return <Loading />
+  }
+  
+
+  if(error){
+    return <ErrorScreen 
+            description="Failed to connect to the server" 
+            buttonText="RETRY" 
+            onPress={onRetryPress}
+          />
+  }
+
+  return   <VendorHomeNav initialTab={initialTab} />;
 };
 
 const styles = StyleSheet.create({

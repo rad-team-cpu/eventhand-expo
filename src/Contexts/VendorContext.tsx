@@ -13,6 +13,8 @@ interface VendorProfile {
 interface VendorContextType {
   vendor: VendorProfile;
   setVendor: React.Dispatch<React.SetStateAction<VendorProfile>>;
+  switching: boolean;
+  setSwitching: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 interface VendorProviderProps {
@@ -22,6 +24,7 @@ interface VendorProviderProps {
 const VendorContext = createContext<VendorContextType | undefined>(undefined);
 
 const VendorProvider = (props: VendorProviderProps) => {
+  const [switching, setSwitching] = useState<boolean>(false);
   const [vendor, setVendor] = useState<VendorProfile>({
     id: "",
     name: "",
@@ -32,7 +35,7 @@ const VendorProvider = (props: VendorProviderProps) => {
   const { children } = props;
 
   return (
-    <VendorContext.Provider value={{ vendor, setVendor }}>
+    <VendorContext.Provider value={{ vendor, setVendor, switching, setSwitching }}>
       {children}
     </VendorContext.Provider>
   );

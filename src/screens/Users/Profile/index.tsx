@@ -2,7 +2,6 @@
 import { useAuth } from "@clerk/clerk-expo";
 import { StatusBar } from "expo-status-bar";
 import React, { useContext, useEffect, useState } from "react";
-
 import { UserContext } from "Contexts/UserContext";
 import Avatar from "Components/Avatar";
 import Block from "Components/Ui/Block";
@@ -12,23 +11,22 @@ import Text from "Components/Ui/Text";
 import useTheme from "../../../core/theme";
 import Loading from "../../Loading";
 import FirebaseService from "service/firebase";
-import { HomeScreenNavigationProp, ScreenProps } from "types/types";
+import { HomeScreenNavigationProp} from "types/types";
 import { useNavigation } from "@react-navigation/native";
 
 export default function Profile() {
   const { isLoaded, signOut } = useAuth();
   const [signOutErrMessage, setSignOutErrMessage] = useState("");
   const [avatarImage, setAvatarImage] = useState("");
-  const { assets, colors, sizes, gradients } = useTheme();
+  const { assets,  sizes, } = useTheme();
   const [loading, setLoading] = useState(true);
   const userContext = useContext(UserContext);
-  const navigation = useNavigation<HomeScreenNavigationProp>();
 
   if (!userContext) {
     throw new Error("UserInfo must be used within a UserProvider");
   }
 
-  const { user } = userContext;
+  const { user, setSwitching } = userContext;
   const { profilePicture, email, firstName, lastName, contactNumber } = user;
   const name = `${firstName} ${lastName}`;
 
@@ -61,18 +59,7 @@ export default function Profile() {
     signOut();
   };
 
-    const onVendorModePress = () => {
-    const confirmationProps: ScreenProps["Confirmation"] = {
-      title: "Switch to your Vendor Account?",
-      description:
-        "You are trying to switch to vendor mode, if you haven't registered for a vendor account you will be taken to a vendor registration form.",
-      confirmNavigateTo: "VendorHome",
-      isSwitching: true,
-      switchingTo: "VENDOR"
-    };
-
-    navigation.navigate("Confirmation", { ...confirmationProps });
-  };
+  const onVendorModePress = () => setSwitching(true);
 
   return (
     <Block testID="test-profile">

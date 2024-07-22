@@ -66,7 +66,7 @@ const headerIcon = (image?: string) => {
   let source = { uri: image };
 
   if (!image) {
-    source = require("../../../assets/images/user.png");
+    source = require("../../assets/images/user.png");
   }
 
   return (

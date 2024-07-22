@@ -4,6 +4,8 @@ import { UserProfile } from "types/types";
 interface UserContextType {
   user: UserProfile;
   setUser: React.Dispatch<React.SetStateAction<UserProfile>>;
+  switching: boolean;
+  setSwitching: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 interface UserProviderProps {
@@ -13,6 +15,7 @@ interface UserProviderProps {
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 const UserProvider = (props: UserProviderProps) => {
+  const [switching, setSwitching] = useState<boolean>(false);
   const [user, setUser] = useState<UserProfile>({
     _id: "",
     email: "",
@@ -27,7 +30,7 @@ const UserProvider = (props: UserProviderProps) => {
   const { children } = props;
 
   return (
-    <UserContext.Provider value={{ user, setUser }}>
+    <UserContext.Provider value={{ user, setUser, switching, setSwitching }}>
       {children}
     </UserContext.Provider>
   );
