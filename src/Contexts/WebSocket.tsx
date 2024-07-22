@@ -55,6 +55,7 @@ type GetMessagesOutput = {
 }
 
 
+
 type WebSocketContextType = {
     isConnected: boolean;
     chatList: Chat[];
@@ -145,6 +146,14 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
                     pageSize: totalPages
                   })
                   setLoading(false);
+                }
+
+                if(parsedData.outputType === 'CHAT_MESSAGE_RECIEVED'){
+                  const message: ChatMessage = {
+                    ...parsedData.message
+                  }
+
+                  setChatMessages(prevMessages => [...prevMessages, message])
                 }
             
               };
