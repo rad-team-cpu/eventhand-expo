@@ -8,7 +8,7 @@ import { UserContext } from "Contexts/UserContext";
 import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
 import Loading from "screens/Loading";
-import ChatList from "screens/Users/Chat/List";
+import ChatList from "screens/Chat/List";
 import EventList from "screens/Users/Events/List";
 import Profile from "screens/Users/Profile";
 import { HomeScreenProps } from "types/types";

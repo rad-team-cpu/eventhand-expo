@@ -4,7 +4,7 @@ import {
 } from '@react-navigation/native-stack';
 import Confirmation from 'screens/Confirmation';
 import SuccessError from 'screens/SuccessError';
-import Chat from "screens/Users/Chat";
+import Chat from "screens/Chat";
 import EventView from 'screens/Users/Events';
 import EventForm from 'screens/Users/Events/Form';
 import Home from 'screens/Users/Home';
