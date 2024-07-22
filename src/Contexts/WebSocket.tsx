@@ -90,6 +90,7 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
             const token = await getToken({ template: "event-hand-jwt" });
             const url = `${process.env.EXPO_PUBLIC_WEBSOCKET_URL}?token=${token}`;
             const socket = new WebSocket(url);
+            console.log(`CONNECTING TO: ${process.env.EXPO_PUBLIC_WEBSOCKET_URL}`)
 
             socket.onopen = () => {
                 console.log('WebSocket connected');
@@ -107,7 +108,6 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
                         ...parsedData.chatList,
                     }
                     setChatList(message)
-                    console.log(chatList?.documents)
                     setLoading(false)
                 }
 

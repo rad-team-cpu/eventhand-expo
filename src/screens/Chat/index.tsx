@@ -215,7 +215,7 @@ function Chat({ navigation, route }: ChatScreenProps) {
       content: message.text,
       timestamp: message.createdAt as Date,
       isImage: false,
-      senderType: "CLIENT",
+      senderType: mode,
       inputType: "SEND_MESSAGE"
     }
 
@@ -277,7 +277,7 @@ function Chat({ navigation, route }: ChatScreenProps) {
               const image = {
                 _id: 1,
                 text:"",
-                createdAt: new Date(Date.UTC(2016, 5, 11, 17, 20, 0)),
+                createdAt: new Date(),
                 user: {
                   _id: (mode === "CLIENT")? user._id: vendor.id,                  
                 },
@@ -291,7 +291,7 @@ function Chat({ navigation, route }: ChatScreenProps) {
                 content: result.metadata.fullPath,
                 timestamp: new Date(),
                 isImage: true,
-                senderType: "CLIENT",
+                senderType: mode,
                 inputType: "SEND_MESSAGE"
               }
           
