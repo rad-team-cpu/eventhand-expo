@@ -79,12 +79,7 @@ const headerIcon = (image?: string) => {
 
 // const renderChatActions = (props) = (onPressActionButton: ) => {
 
-//   return (
-//     <Actions
-//       icon={() => <Feather name="upload" size={20} color="#CB0C9F" />}
-//       onPressActionButton={() => selectImage()}
-//     />
-//   );
+
 // }
 
 const getFileInfo = async (fileURI: string) =>
@@ -162,7 +157,6 @@ function Chat({ navigation, route }: ChatScreenProps) {
   }
 
   const fetchMessages = useCallback(async () => {
-    if(isConnected){
       const giftedChatMessages:IMessage[] = await Promise.all(chatMessages.map(convertToGiftedMessages)).catch(err =>{ 
         console.error(err) 
           return [{
@@ -175,10 +169,10 @@ function Chat({ navigation, route }: ChatScreenProps) {
               },
             }]
           })
-        setMessages(giftedChatMessages);
-        
-      
-    }
+          setMessages((previousMessages) =>
+            GiftedChat.prepend(previousMessages, giftedChatMessages),
+          );
+    
   }, [chatMessages])
 
 
@@ -190,17 +184,34 @@ function Chat({ navigation, route }: ChatScreenProps) {
     });
 
 
-    fetchMessages();
 
-    if(connectionTimeout){
-      reconnect();
+    if(!isConnected){
+      const sysMessage: IMessage = {
+        _id: new ObjectId().toString(),
+        text: "No Internet Connection",
+        createdAt: new Date(),
+        system: true,
+        user: {
+          _id: (mode === "CLIENT")? user._id: vendor.id,
+        },
+      }
+    
+      setMessages((previousMessage) =>
+        GiftedChat.append(previousMessage, [ sysMessage ]),
+      );
+    }else{
+      fetchMessages();
+
     }
 
-  }, [page, fetchMessages, connectionTimeout]);
+    // if(connectionTimeout){
+    //   reconnect();
+    // }
+
+  }, [page, fetchMessages, connectionTimeout, isConnected]);
 
   const onSend = useCallback((messages: IMessage[] = []) => {
     const message = messages[0];
-
 
     const sendMessageInput: SendMessageInput = {
       chatId: _id,
@@ -232,8 +243,9 @@ function Chat({ navigation, route }: ChatScreenProps) {
       user={{
         _id: (mode === "CLIENT")? user._id: vendor.id,
       }}
-      loadEarlier
+      loadEarlier={chatMessagesOptions.hasMore}
       infiniteScroll
+      onLoadEarlier={() => setPage(page => page + 1)}
       renderActions={(props) => {
 
         const pickImageAsync = async () => {

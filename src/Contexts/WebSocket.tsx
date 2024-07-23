@@ -108,6 +108,7 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
             socket.onopen = () => {
                 console.log('WebSocket connected');
                 setIsConnected(true);
+                setConnectionTimeout(false);
               };
           
               socket.onmessage = (event) => {
@@ -148,12 +149,12 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
                   setLoading(false);
                 }
 
-                if(parsedData.outputType === 'CHAT_MESSAGE_RECIEVED'){
+                if(parsedData.outputType === 'CHAT_MESSAGE_RECEIVED'){
                   const message: ChatMessage = {
                     ...parsedData.message
                   }
 
-                  setChatMessages(prevMessages => [...prevMessages, message])
+                  setChatMessages(prevMessages => [ message, ...prevMessages ])
                 }
             
               };

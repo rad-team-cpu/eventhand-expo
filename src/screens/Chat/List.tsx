@@ -5,7 +5,7 @@ import { UserContext } from "Contexts/UserContext";
 import { VendorContext } from "Contexts/VendorContext";
 import { GetChatListInput, GetMessagesInput, WebSocketContext } from "Contexts/WebSocket";
 import { format } from "date-fns/format";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -130,7 +130,8 @@ function ChatList({route}: ChatListScreenPropsList) {
   const { sendMessage, chatList, chatListOptions, loading } = webSocket;
 
 
-  const getChatList = () => {
+  const getChatList = useCallback(() => {
+    setPage(prevPage => prevPage + 1)
     const getChatListInput: GetChatListInput = {
       senderId: user._id,
       senderType: mode,
@@ -142,9 +143,7 @@ function ChatList({route}: ChatListScreenPropsList) {
     if(chatListOptions.hasMore){
       sendMessage(getChatListInput);
     }
-  }
-
-
+  }, [page])
 
 
   const renderEmptyComponent = () => {
@@ -191,9 +190,7 @@ function ChatList({route}: ChatListScreenPropsList) {
         data={data}
         renderItem={({ item }) => <ChatItem {...item} onItemPress={onItemPress}/>}
         keyExtractor={({ _id }) => _id}
-        onStartReached={getChatList}
-        onStartReachedThreshold={0.5}
-        onEndReached={ () => setPage(prevPage => prevPage + 1)}
+        onEndReached={getChatList}
         onEndReachedThreshold={0.5}
         ListFooterComponent={renderFooter}
       />
