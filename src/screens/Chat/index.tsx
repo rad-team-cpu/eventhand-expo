@@ -79,12 +79,7 @@ const headerIcon = (image?: string) => {
 
 // const renderChatActions = (props) = (onPressActionButton: ) => {
 
-//   return (
-//     <Actions
-//       icon={() => <Feather name="upload" size={20} color="#CB0C9F" />}
-//       onPressActionButton={() => selectImage()}
-//     />
-//   );
+
 // }
 
 const getFileInfo = async (fileURI: string) =>
@@ -174,14 +169,9 @@ function Chat({ navigation, route }: ChatScreenProps) {
               },
             }]
           })
-
-        if(messages.length == 0){
-          setMessages(giftedChatMessages);        
-        }else{
           setMessages((previousMessages) =>
-            GiftedChat.append(previousMessages, giftedChatMessages),
+            GiftedChat.prepend(previousMessages, giftedChatMessages),
           );
-        }
     
   }, [chatMessages])
 
@@ -253,8 +243,9 @@ function Chat({ navigation, route }: ChatScreenProps) {
       user={{
         _id: (mode === "CLIENT")? user._id: vendor.id,
       }}
-      loadEarlier
+      loadEarlier={chatMessagesOptions.hasMore}
       infiniteScroll
+      onLoadEarlier={() => setPage(page => page + 1)}
       renderActions={(props) => {
 
         const pickImageAsync = async () => {
