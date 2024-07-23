@@ -162,7 +162,6 @@ function Chat({ navigation, route }: ChatScreenProps) {
   }
 
   const fetchMessages = useCallback(async () => {
-    if(isConnected){
       const giftedChatMessages:IMessage[] = await Promise.all(chatMessages.map(convertToGiftedMessages)).catch(err =>{ 
         console.error(err) 
           return [{
@@ -175,10 +174,15 @@ function Chat({ navigation, route }: ChatScreenProps) {
               },
             }]
           })
-        setMessages(giftedChatMessages);
-        
-      
-    }
+
+        if(messages.length == 0){
+          setMessages(giftedChatMessages);        
+        }else{
+          setMessages((previousMessages) =>
+            GiftedChat.append(previousMessages, giftedChatMessages),
+          );
+        }
+    
   }, [chatMessages])
 
 
@@ -190,17 +194,34 @@ function Chat({ navigation, route }: ChatScreenProps) {
     });
 
 
-    fetchMessages();
 
-    if(connectionTimeout){
-      reconnect();
+    if(!isConnected){
+      const sysMessage: IMessage = {
+        _id: new ObjectId().toString(),
+        text: "No Internet Connection",
+        createdAt: new Date(),
+        system: true,
+        user: {
+          _id: (mode === "CLIENT")? user._id: vendor.id,
+        },
+      }
+    
+      setMessages((previousMessage) =>
+        GiftedChat.append(previousMessage, [ sysMessage ]),
+      );
+    }else{
+      fetchMessages();
+
     }
 
-  }, [page, fetchMessages, connectionTimeout]);
+    // if(connectionTimeout){
+    //   reconnect();
+    // }
+
+  }, [page, fetchMessages, connectionTimeout, isConnected]);
 
   const onSend = useCallback((messages: IMessage[] = []) => {
     const message = messages[0];
-
 
     const sendMessageInput: SendMessageInput = {
       chatId: _id,

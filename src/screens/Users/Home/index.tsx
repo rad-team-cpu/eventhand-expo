@@ -144,6 +144,7 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
         sendMessage(getChatListInput);
 
         setLoading(false);
+        console.log("USER DATA SUCCESSFULLY LOADED")
       } else if (res.status === 400) {
         throw new Error("Bad request - Invalid data.");
       } else if (res.status === 401) {
@@ -162,6 +163,7 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
   };
 
   const onRetryPress = () => {
+    console.log("RECONNECTING...")
     reconnect();
     setLoading(true)
     setError(false)
@@ -169,6 +171,7 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
 
   useEffect(() => {
     if(isConnected && !noFetch){
+      console.log("FETCHING USER DATA...")
       fetchUserId()
     }
     if(connectionTimeout){
