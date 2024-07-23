@@ -173,7 +173,7 @@ function Chat({ navigation, route }: ChatScreenProps) {
             GiftedChat.prepend(previousMessages, giftedChatMessages),
           );
     
-  }, [chatMessages])
+  }, [chatMessages, page])
 
 
 
@@ -208,7 +208,7 @@ function Chat({ navigation, route }: ChatScreenProps) {
     //   reconnect();
     // }
 
-  }, [page, fetchMessages, connectionTimeout, isConnected]);
+  }, [fetchMessages, connectionTimeout, isConnected]);
 
   const onSend = useCallback((messages: IMessage[] = []) => {
     const message = messages[0];
