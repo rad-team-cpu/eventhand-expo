@@ -66,6 +66,7 @@ type WebSocketContextType = {
     reconnect: () => void;
     connectionTimeout: boolean;
     loading: boolean;
+    websocketRef: React.MutableRefObject<WebSocket | null>;
   };
 
 interface WebSocketProviderProps {
@@ -114,8 +115,8 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
               socket.onmessage = (event) => {
                 setLoading(true)
                 const parsedData = JSON.parse(event.data)
-                console.log('WEBSOCKET MESSAGE RECIEVED!:');
-                console.log(`TYPE:`, parsedData.outputType)
+                console.log('WEBSOCKET MESSAGE RECIEVED: ', parsedData.outputType);
+
 
                 if(parsedData.outputType == "GET_CHAT_LIST"){
                     const message: GetChatListOutput = {
@@ -149,15 +150,9 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
                   setLoading(false);
                 }
 
-                if(parsedData.outputType === 'CHAT_MESSAGE_RECEIVED'){
-                  const message: ChatMessage = {
-                    ...parsedData.message
-                  }
-
-                  setChatMessages(prevMessages => [ message, ...prevMessages ])
-                }
             
               };
+
           
               socket.onclose = (event) => {
                 console.log('WebSocket closed:', event.reason);
@@ -218,6 +213,7 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
             reconnect, 
             connectionTimeout, 
             loading, 
+            websocketRef
           }
         }>
           {children}
