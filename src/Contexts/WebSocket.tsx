@@ -60,8 +60,6 @@ type WebSocketContextType = {
     isConnected: boolean;
     chatList: Chat[];
     chatListOptions: PaginationOptions
-    chatMessages: ChatMessage[];
-    chatMessagesOptions: PaginationOptions
     sendMessage: (message: SocketInput) => void;
     reconnect: () => void;
     connectionTimeout: boolean;
@@ -133,24 +131,7 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
                     })
                     setLoading(false)
                 }
-
-                if(parsedData.outputType == "GET_MESSAGES"){
-                  const message: GetMessagesOutput = {
-                    ...parsedData.messageList
-                  }
-
-                  const {hasMore, currentPage, totalPages} = message
-
-                  setChatMessages(message.documents);
-                  setChatMessagesOptions({
-                    hasMore,
-                    pageNumber: currentPage,
-                    pageSize: totalPages
-                  })
-                  setLoading(false);
-                }
-
-            
+                      
               };
 
           
@@ -205,8 +186,6 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
       return (
         <WebSocketContext.Provider value={
           { isConnected, 
-            chatMessages, 
-            chatMessagesOptions, 
             sendMessage, 
             chatList, 
             chatListOptions, 
@@ -221,7 +200,7 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
       );
 };
 
-export  {WebSocketContext, WebSocketProvider, WebSocketContextType, SocketInput, GetChatListInput, SocketRegisterInput, GetMessagesInput, SendMessageInput, SocketSwitchInput}
+export  {WebSocketContext, WebSocketProvider, WebSocketContextType, SocketInput, GetChatListInput, SocketRegisterInput, GetMessagesInput, GetMessagesOutput, SendMessageInput, SocketSwitchInput}
 
 
 

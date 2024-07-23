@@ -3,7 +3,7 @@ import { faker } from "@faker-js/faker";
 import { ObjectId } from "bson";
 import { UserContext } from "Contexts/UserContext";
 import { VendorContext } from "Contexts/VendorContext";
-import { GetMessagesInput, SendMessageInput, WebSocketContext } from "Contexts/WebSocket";
+import { GetMessagesInput, GetMessagesOutput, SendMessageInput, WebSocketContext } from "Contexts/WebSocket";
 import { getInfoAsync } from "expo-file-system";
 import {
   launchImageLibraryAsync,
@@ -24,6 +24,13 @@ import {
 } from "react-native-gifted-chat";
 import FirebaseService from "service/firebase";
 import { ChatMessage, ChatScreenProps, ImageInfo } from "types/types";
+
+type PaginationInfo = { 
+  hasMore: boolean
+  currentPage: number
+  totalPages: number
+}
+
 
 const firebaseService = FirebaseService.getInstance();
 
@@ -84,6 +91,7 @@ function Chat({ navigation, route }: ChatScreenProps) {
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [messageState, setMessageState] = useState<MessageState>("OK");
   const [page, setPage] = useState<number>(1)
+  const [paginationInfo, setPaginationInfo] = useState<PaginationInfo | undefined>()
   const userContext = useContext(UserContext);
   const {_id, senderName, senderImage, senderId } = route.params;
   const { setOptions } = navigation;
@@ -103,7 +111,7 @@ function Chat({ navigation, route }: ChatScreenProps) {
     throw new Error("UserInfo must be used within a UserProvider");
   }
 
-  const { sendMessage, chatMessages, chatMessagesOptions, isConnected, connectionTimeout, reconnect, websocketRef } = webSocket;
+  const { sendMessage,  isConnected, connectionTimeout, reconnect, websocketRef } = webSocket;
   const { user, mode } = userContext;
   const { vendor } = vendorContext;
 
@@ -113,23 +121,6 @@ function Chat({ navigation, route }: ChatScreenProps) {
 
   const wsRef = websocketRef.current;
 
-
-  const getMessages = () => {
-    if(chatMessagesOptions.hasMore){
-      const getMessagesInput: GetMessagesInput = {
-        senderId: (mode === "CLIENT")? user._id: vendor.id,
-        senderType: "CLIENT",
-        receiverId: _id,
-        pageNumber: page,
-        pageSize: 15,
-        inputType: "GET_MESSAGES"
-      };
-
-      sendMessage(getMessagesInput)
-      
-    }
-
-  }
 
   const convertToGiftedMessages = async (doc: ChatMessage) => {
       if(doc.isImage){
@@ -155,8 +146,26 @@ function Chat({ navigation, route }: ChatScreenProps) {
       } as IMessage
   }
 
-  const fetchMessages = useCallback(async () => {
-      const giftedChatMessages:IMessage[] = await Promise.all(chatMessages.map(convertToGiftedMessages)).catch(err =>{ 
+
+  const chatHandler = useCallback(async (message: MessageEvent) => {
+    const parsedData = JSON.parse(message.data)
+
+    if(parsedData.outputType == "GET_MESSAGES"){
+      const messageList: GetMessagesOutput = {
+        ...parsedData.messageList
+      }
+  
+      const {hasMore, currentPage, totalPages} = messageList
+  
+        setPaginationInfo({
+          hasMore,
+          currentPage,
+          totalPages
+      })
+  
+      const chatMessages = messageList.documents
+      
+      const convertedMessages:IMessage[] = await Promise.all(chatMessages.map(convertToGiftedMessages)).catch(err =>{ 
         console.error(err) 
           return [{
               _id: new ObjectId().toString(),
@@ -167,13 +176,13 @@ function Chat({ navigation, route }: ChatScreenProps) {
                 _id: (mode === "CLIENT")? user._id: vendor.id,
               },
             }]
-          })
-          setMessages(giftedChatMessages);
-    
-  }, [chatMessages])
+        })
+      
+      setMessages(convertedMessages);
+  
 
-  const chatMessageReceivedHandler = async (message: MessageEvent) => {
-    const parsedData = JSON.parse(message.data)
+    }
+
 
     if(parsedData.outputType === 'CHAT_MESSAGE_RECEIVED'){
       const message: ChatMessage = {
@@ -184,8 +193,10 @@ function Chat({ navigation, route }: ChatScreenProps) {
 
       setMessages( prevMessages => GiftedChat.append(prevMessages, [ convertedMessage ]) )
     }
-
-  }
+    
+  }, [])
+  
+  
 
 
 
@@ -195,7 +206,7 @@ function Chat({ navigation, route }: ChatScreenProps) {
       headerLeft: () => headerIcon(senderImage),
     });
 
-    wsRef.addEventListener("message", chatMessageReceivedHandler)
+    wsRef.addEventListener("message", chatHandler)
 
 
     if(!isConnected){
@@ -212,22 +223,18 @@ function Chat({ navigation, route }: ChatScreenProps) {
       setMessages((previousMessage) =>
         GiftedChat.append(previousMessage, [ sysMessage ]),
       );
-    }else{
-      fetchMessages();
-
     }
-    console.log(messages)
     // if(connectionTimeout){
     //   reconnect();
     // }
 
     return () => {
       if(wsRef){
-        wsRef.removeEventListener("message", chatMessageReceivedHandler);
+        wsRef.removeEventListener("message", chatHandler);
       }
     }
 
-  }, [fetchMessages, connectionTimeout, isConnected]);
+  }, [ connectionTimeout, isConnected]);
 
   const onSend = useCallback((messages: IMessage[] = []) => {
     const message = messages[0];
