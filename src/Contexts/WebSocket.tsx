@@ -11,7 +11,7 @@ type PaginationInput = {
 
 type PaginationOptions = PaginationInput & { hasMore: boolean}
 
-type SocketInputType = "REGISTER" | "SEND_MESSAGE" | "GET_MESSAGES" | "GET_CHAT_LIST" | "SWITCH"
+type SocketInputType = "REGISTER" | "SEND_MESSAGE" | "GET_MESSAGES" | "GET_CHAT_LIST" | "SWITCH" | "GET_EARLIER_MESSAGES"
 
 type SocketRegisterInput = {
   senderId: string,

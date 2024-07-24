@@ -87,11 +87,18 @@ const getFileInfo = async (fileURI: string) =>
 
 type MessageState = "OK" | "ERROR";
 
+
+const defaultPaginationInfo: PaginationInfo = {
+  currentPage: 1,
+  totalPages: 20,
+  hasMore: true
+}
+
 function Chat({ navigation, route }: ChatScreenProps) {
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [messageState, setMessageState] = useState<MessageState>("OK");
   const [page, setPage] = useState<number>(1)
-  const [paginationInfo, setPaginationInfo] = useState<PaginationInfo | undefined>()
+  const [paginationInfo, setPaginationInfo] = useState<PaginationInfo>(defaultPaginationInfo)
   const userContext = useContext(UserContext);
   const {_id, senderName, senderImage, senderId } = route.params;
   const { setOptions } = navigation;
@@ -146,11 +153,32 @@ function Chat({ navigation, route }: ChatScreenProps) {
       } as IMessage
   }
 
+  const onLoadEarlier = () => {
+    setPage(page => {
+      const newPage =  page + 1
+      if(paginationInfo.hasMore){
+        const getMessagesInput: GetMessagesInput = {
+          senderId: (mode === "CLIENT")? user._id: vendor.id,
+          senderType: (mode === "CLIENT")? "CLIENT" : "VENDOR",
+          receiverId: senderId,
+          pageNumber: newPage,
+          pageSize: 20,
+          inputType: "GET_EARLIER_MESSAGES"
+        };
+        
+        sendMessage(getMessagesInput);
+      }
+      
+      return newPage
+    })
+  }
+
 
   const chatHandler = useCallback(async (message: MessageEvent) => {
     const parsedData = JSON.parse(message.data)
+    const { outputType } = parsedData;
 
-    if(parsedData.outputType == "GET_MESSAGES"){
+    if(outputType === "GET_MESSAGES" || outputType === "GET_EARLIER_MESSAGES") {
       const messageList: GetMessagesOutput = {
         ...parsedData.messageList
       }
@@ -178,13 +206,14 @@ function Chat({ navigation, route }: ChatScreenProps) {
             }]
         })
       
-      setMessages(convertedMessages);
-  
-
+      if(outputType === "GET_EARLIER_MESSAGES"){
+        setMessages(prevMessages => GiftedChat.prepend(prevMessages, convertedMessages));
+      } else {
+        setMessages(convertedMessages);
+      }
     }
 
-
-    if(parsedData.outputType === 'CHAT_MESSAGE_RECEIVED'){
+    if(outputType === 'CHAT_MESSAGE_RECEIVED'){
       const message: ChatMessage = {
         ...parsedData.message
       }
@@ -195,9 +224,6 @@ function Chat({ navigation, route }: ChatScreenProps) {
     }
     
   }, [])
-  
-  
-
 
 
   useEffect(() => {
@@ -269,14 +295,9 @@ function Chat({ navigation, route }: ChatScreenProps) {
       user={{
         _id: (mode === "CLIENT")? user._id: vendor.id,
       }}
-      // loadEarlier={chatMessagesOptions.hasMore}
+      loadEarlier={paginationInfo.hasMore}
       infiniteScroll
-      // onLoadEarlier={() => {
-      //   if(chatMessagesOptions.hasMore){
-      //     setPage(page => page + 1)
-
-      //   }
-      // }}
+      onLoadEarlier={onLoadEarlier}
       renderActions={(props) => {
 
         const pickImageAsync = async () => {

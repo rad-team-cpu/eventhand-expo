@@ -175,7 +175,7 @@ function ChatList({route}: ChatListScreenPropsList) {
       senderType: (mode === "CLIENT")? "CLIENT" : "VENDOR",
       receiverId: args.senderId,
       pageNumber: 1,
-      pageSize: 15,
+      pageSize: 20,
       inputType: "GET_MESSAGES"
     };
     
