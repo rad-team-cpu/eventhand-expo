@@ -10,7 +10,7 @@ import {
   useMediaLibraryPermissions,
 } from "expo-image-picker";
 import React, { useState, useCallback, useEffect, useContext } from "react";
-import { View, Image, StyleSheet } from "react-native";
+import { View, Image, StyleSheet, Pressable } from "react-native";
 import {
   GiftedChat,
   BubbleProps,
@@ -23,6 +23,7 @@ import {
   Send,
 } from "react-native-gifted-chat";
 import FirebaseService from "service/firebase";
+import { Entypo } from "@expo/vector-icons";
 import { ChatMessage, ChatScreenProps, ImageInfo, PaginationInfo } from "types/types";
 
 const firebaseService = FirebaseService.getInstance();
@@ -68,8 +69,13 @@ const headerIcon = (image?: string) => {
   }
 
   return (
-    <View style={styles.iconContainer}>
-      <Image source={source} style={styles.icon} />
+    <View style={styles.leftHeaderContainer}>
+      <Pressable onPress={() => { /* Handle back action */ }} style={styles.backButton}>
+        <Entypo name="chevron-left" size={24} color="#000" />
+      </Pressable>
+     <View style={styles.iconContainer}>
+        <Image source={source} style={styles.icon} />
+      </View>
     </View>
   );
 };
@@ -410,6 +416,13 @@ const styles = StyleSheet.create({
   },
   timeStampText: {
     color: "#ffff",
+  },
+  leftHeaderContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  backButton: {
+    marginRight: 5,
   },
   iconContainer: {
     width: 40,
