@@ -309,10 +309,12 @@ function Chat({ navigation, route }: ChatScreenProps) {
             };
 
             try {
-              const result = await firebaseService.uploadMessageImage(_id, selectedImageInfo)
+              const messageId = new ObjectId()
+
+              const result = await firebaseService.uploadMessageImage(_id, messageId.toString(), selectedImageInfo)
 
               const image = {
-                _id: 1,
+                _id: messageId.toString(),
                 text:"",
                 createdAt: new Date(),
                 user: {
