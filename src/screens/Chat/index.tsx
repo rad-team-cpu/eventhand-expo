@@ -128,7 +128,6 @@ function Chat({ navigation, route }: ChatScreenProps) {
 
   const wsRef = websocketRef.current;
 
-
   const convertToGiftedMessages = async (doc: ChatMessage) => {
       if(doc.isImage){
         const firebaseUrl =  await firebaseService.getProfilePicture(doc.content)
@@ -173,6 +172,7 @@ function Chat({ navigation, route }: ChatScreenProps) {
     })
   }
 
+  const isParticipant = (id: string) => id !== senderId || (mode === "CLIENT")? id !== user._id: id !== vendor.id;
 
   const chatHandler = useCallback(async (message: MessageEvent) => {
     const parsedData = JSON.parse(message.data)
@@ -218,9 +218,11 @@ function Chat({ navigation, route }: ChatScreenProps) {
         ...parsedData.message
       }
 
-      const convertedMessage: IMessage = await convertToGiftedMessages(message)
+      if(isParticipant(message.senderId)){
+        const convertedMessage: IMessage = await convertToGiftedMessages(message)
 
-      setMessages( prevMessages => GiftedChat.append(prevMessages, [ convertedMessage ]) )
+        setMessages( prevMessages => GiftedChat.append(prevMessages, [ convertedMessage ]) )
+      }
     }
     
   }, [])
