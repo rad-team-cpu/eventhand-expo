@@ -1,6 +1,6 @@
 import { useAuth } from '@clerk/clerk-expo';
 import React, { createContext, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
-import { Chat, ChatMessage } from 'types/types';
+import { Chat, ChatMessage, PaginationInfo } from 'types/types';
 
 type SenderType = "CLIENT" | "VENDOR"
 
@@ -9,9 +9,9 @@ type PaginationInput = {
   pageSize: number,
 }
 
-type PaginationOptions = PaginationInput & { hasMore: boolean}
 
-type SocketInputType = "REGISTER" | "SEND_MESSAGE" | "GET_MESSAGES" | "GET_CHAT_LIST" | "SWITCH" | "GET_EARLIER_MESSAGES"
+
+type SocketInputType = "REGISTER" | "SEND_MESSAGE" | "GET_MESSAGES" | "GET_CHAT_LIST" | "SWITCH" | "GET_EARLIER_MESSAGES" | "GET_MORE_CHAT_LIST"
 
 type SocketRegisterInput = {
   senderId: string,
@@ -59,11 +59,11 @@ type GetMessagesOutput = {
 type WebSocketContextType = {
     isConnected: boolean;
     chatList: Chat[];
-    chatListOptions: PaginationOptions
+    chatListOptions: PaginationInfo
     sendMessage: (message: SocketInput) => void;
     reconnect: () => void;
     connectionTimeout: boolean;
-    loading: boolean;
+    loadingChatList: boolean;
     websocketRef: React.MutableRefObject<WebSocket | null>;
   };
 
@@ -73,10 +73,10 @@ interface WebSocketProviderProps {
 
 const WebSocketContext = createContext<WebSocketContextType | undefined>(undefined);
 
-const defaultPaginationOptions = {
-  pageNumber: 1,
-  pageSize: 10,
-  hasMore: true
+const defaultPaginationOptions: PaginationInfo = {
+  currentPage: 1,
+  totalPages: 20,
+  hasMore: false
 }
 
 
@@ -84,8 +84,8 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
     const { getToken,  isLoaded } = useAuth();
     const [isConnected, setIsConnected] = useState(false);
     const [chatList, setChatList] = useState<Chat[]>([])
-    const [chatListOptions, setChatListOptions] = useState<PaginationOptions>(defaultPaginationOptions)
-    const [loading, setLoading] = useState<boolean>(false);
+    const [chatListOptions, setChatListOptions] = useState<PaginationInfo>(defaultPaginationOptions)
+    const [loadingChatList, setLoadingChatList] = useState<boolean>(false);
     const [connectionTimeout, setConnectionTimeout] = useState<boolean>(false);
     const websocketRef = useRef<WebSocket | null>(null);
     const reconnectionAttemptRef = useRef<number>(0)
@@ -109,25 +109,31 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
               };
           
               socket.onmessage = (event) => {
-                setLoading(true)
                 const parsedData = JSON.parse(event.data)
                 console.log('WEBSOCKET MESSAGE RECIEVED: ', parsedData.outputType);
 
 
-                if(parsedData.outputType == "GET_CHAT_LIST"){
+                if(parsedData.outputType == "GET_CHAT_LIST" || parsedData.outputType === "GET_MORE_CHAT_LIST"){
+                  setLoadingChatList(true)
                     const message: GetChatListOutput = {
                         ...parsedData.chatList,
                     }
 
                     const {hasMore, currentPage, totalPages} = message
 
-                    setChatList(message.documents)
                     setChatListOptions({
                       hasMore,
-                      pageNumber: currentPage,
-                      pageSize: totalPages
+                      currentPage,
+                      totalPages
                     })
-                    setLoading(false)
+
+                    if(parsedData.outputType === "GET_MORE_CHAT_LIST"){
+                      setChatList(prevList => [...prevList, ...message.documents])
+                    }else{
+                      setChatList(message.documents)
+                    }
+
+                    setLoadingChatList(false)
                 }
                       
               };
@@ -189,7 +195,7 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
             chatListOptions, 
             reconnect, 
             connectionTimeout, 
-            loading, 
+            loadingChatList, 
             websocketRef
           }
         }>
@@ -198,7 +204,7 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
       );
 };
 
-export  {WebSocketContext, WebSocketProvider, WebSocketContextType, SocketInput, GetChatListInput, SocketRegisterInput, GetMessagesInput, GetMessagesOutput, SendMessageInput, SocketSwitchInput}
+export  {WebSocketContext, WebSocketProvider, WebSocketContextType, SocketInput, GetChatListInput, GetChatListOutput, SocketRegisterInput, GetMessagesInput, GetMessagesOutput, SendMessageInput, SocketSwitchInput}
 
 
 

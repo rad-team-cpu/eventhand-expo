@@ -16,6 +16,12 @@ import { ImageSourcePropType } from 'react-native';
 
 type UserMode = "CLIENT" | "VENDOR";
 
+type PaginationInfo = { 
+  hasMore: boolean
+  currentPage: number
+  totalPages: number
+}
+
 interface EventInfo {
   _id: string;
   attendees: number;
@@ -303,5 +309,6 @@ export {
   VendorProfileFormScreenProps,
   VendorHomeScreenBottomTabsProps,
   ChatListScreenPropsList,
-  UserMode
+  UserMode,
+  PaginationInfo
 };

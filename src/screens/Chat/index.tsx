@@ -23,14 +23,7 @@ import {
   Send,
 } from "react-native-gifted-chat";
 import FirebaseService from "service/firebase";
-import { ChatMessage, ChatScreenProps, ImageInfo } from "types/types";
-
-type PaginationInfo = { 
-  hasMore: boolean
-  currentPage: number
-  totalPages: number
-}
-
+import { ChatMessage, ChatScreenProps, ImageInfo, PaginationInfo } from "types/types";
 
 const firebaseService = FirebaseService.getInstance();
 
