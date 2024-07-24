@@ -85,8 +85,6 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
     const [isConnected, setIsConnected] = useState(false);
     const [chatList, setChatList] = useState<Chat[]>([])
     const [chatListOptions, setChatListOptions] = useState<PaginationOptions>(defaultPaginationOptions)
-    const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
-    const [chatMessagesOptions, setChatMessagesOptions] = useState<PaginationOptions>(defaultPaginationOptions)
     const [loading, setLoading] = useState<boolean>(false);
     const [connectionTimeout, setConnectionTimeout] = useState<boolean>(false);
     const websocketRef = useRef<WebSocket | null>(null);
