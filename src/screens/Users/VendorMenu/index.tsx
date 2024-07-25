@@ -14,6 +14,8 @@ import {
   HomeScreenNavigationProp,
   Tag,
 } from 'types/types';
+import Loading from 'screens/Loading';
+
 
 const VendorMenu = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
@@ -67,7 +69,7 @@ const VendorMenu = () => {
   if (!vendor) {
     return (
       <Block safe marginTop={sizes.md}>
-        <Text>Loading...</Text>
+        <Loading />
       </Block>
     );
   }
@@ -114,9 +116,6 @@ const VendorMenu = () => {
                     - {tag.name} -
                   </Text>
                 ))}
-                {/* <Text className='items-center text-white mx-1'>
-                  Photography
-                </Text> */}
               </Block>
               <Block row marginVertical={sizes.xs}>
                 <Button
@@ -125,7 +124,6 @@ const VendorMenu = () => {
                   shadow={false}
                   radius={sizes.m}
                   onPress={() => {
-                    // alert(`Follow ${user?.name}`);
                   }}
                 >
                   <Block
@@ -169,7 +167,6 @@ const VendorMenu = () => {
             marginHorizontal='8%'
             padding={sizes.xs}
             color='rgba(255,255,255,0.9)'
-            
           >
             <Block
               row

@@ -21,6 +21,11 @@ interface EventInfo {
   date: Date | string;
 }
 
+interface Tag {
+  _id: string;
+  name?: string;
+}
+
 interface Vendor {
   _id: string;
   logo?: string | undefined;
@@ -52,11 +57,6 @@ interface Product {
   name: string;
   description: string;
   quantity: number;
-}
-
-interface Tag {
-  _id: string;
-  name: string;
 }
 
 interface CredibilityFactorsType {

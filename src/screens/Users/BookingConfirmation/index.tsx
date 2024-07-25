@@ -15,6 +15,7 @@ import {
   HomeScreenNavigationProp,
   Tag,
 } from 'types/types';
+import Loading from 'screens/Loading';
 
 const BookingConfirmation = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
@@ -93,7 +94,7 @@ const BookingConfirmation = () => {
   }, [vendorPackage, fetchVendor]);
 
   if (loading) {
-    return <Text>Loading...</Text>;
+    return <Loading />;
   }
 
   if (error) {

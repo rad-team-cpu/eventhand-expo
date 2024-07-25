@@ -10,6 +10,7 @@ import axios from 'axios';
 import { Vendor, PackageType, Product, EventInfo, ScreenProps } from 'types/types';
 import { UserContext } from 'Contexts/UserContext';
 import formatDate from 'src/core/helpers';
+import Loading from 'screens/Loading';
 
 const BookingDetails = () => {
   const userContext = useContext(UserContext);
@@ -89,7 +90,7 @@ const BookingDetails = () => {
   }, [vendorPackage, fetchVendor]);
 
   if (loading) {
-    return <Text>Loading...</Text>;
+    return <Loading />;
   }
 
   if (error) {
