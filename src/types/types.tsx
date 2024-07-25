@@ -26,6 +26,13 @@ interface Tag {
   name?: string;
 }
 
+enum BookingStatus {
+  Pending = 'PENDING',
+  Confirmed = 'CONFIRMED',
+  Cancelled = 'CANCELLED',
+
+}
+
 interface Vendor {
   _id: string;
   logo?: string | undefined;
@@ -36,7 +43,6 @@ interface Vendor {
   address?: string;
   contactNumber: string;
   tags: [];
-  about: string;
   credibilityFactors: CredibilityFactorsType;
   packages: PackageType[];
 }
@@ -77,6 +83,7 @@ interface UserChat {
 }
 
 interface UserProfile {
+  _id: string;
   profilePicture?: string | null;
   email: string;
   lastName: string;
@@ -233,6 +240,7 @@ type VendorProfileFormScreenProps = NativeStackScreenProps<
 >;
 
 export {
+  BookingStatus,
   EventInfo,
   UserProfile,
   Vendor,

@@ -7,7 +7,14 @@ import Button from 'Components/Ui/Button';
 import { ScrollView, Text, TouchableOpacity } from 'react-native';
 import { AntDesign, Entypo } from '@expo/vector-icons';
 import axios from 'axios';
-import { Vendor, PackageType, Product, EventInfo, ScreenProps } from 'types/types';
+import {
+  Vendor,
+  PackageType,
+  Product,
+  EventInfo,
+  ScreenProps,
+  BookingStatus,
+} from 'types/types';
 import { UserContext } from 'Contexts/UserContext';
 import formatDate from 'src/core/helpers';
 import Loading from 'screens/Loading';
@@ -21,6 +28,8 @@ const BookingDetails = () => {
   const [vendor, setVendor] = useState<Vendor | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [submitErrMessage, setSubmitErrMessage] = useState('');
+  const [selectedEventId, setSelectedEventId] = useState<string>();
 
   if (!userContext) {
     throw new Error('UserInfo must be used within a UserProvider');
@@ -83,6 +92,35 @@ const BookingDetails = () => {
     loadPackage();
   }, [fetchPackage]);
 
+  const onPressConfirm = async (
+    packageId: string,
+    vendorId: string,
+    eventId: string,
+    userId: string
+  ) => {
+    try {
+      const response = await axios.post(
+        `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking`,
+        {
+          packageId: packageId,
+          vendorId: vendorId,
+          eventId: eventId,
+          clientId: userId,
+          bookingStatus: BookingStatus.Pending,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      console.log('Booking confirmed:', response.data);
+    } catch (error: any) {
+      console.error('Error confirming booking:', error.message);
+      setError('Error confirming booking');
+    }
+  };
+
   useEffect(() => {
     if (vendorPackage && vendorPackage.vendorId) {
       fetchVendor(vendorPackage.vendorId);
@@ -116,13 +154,39 @@ const BookingDetails = () => {
         </Button>
         <Text className='font-bold p-2'>Booking Details:</Text>
         <Block>
-          {events?.map((event: EventInfo) => (
-            <Block>
-              {/* <Text>{event?.name}</Text> */}
-              <Text>{formatDate(event?.date)}</Text>
-              <Text>{event?.attendees} pax</Text>
-              {/* <Text>Event Budget: ₱{event?.budget}</Text> */}
-            </Block>
+          {events?.map((eventInfo: EventInfo) => (
+            <TouchableOpacity
+              key={eventInfo._id}
+              onPress={() => setSelectedEventId(eventInfo._id)}
+            >
+              <Block
+                className={`${
+                  selectedEventId === eventInfo._id
+                    ? 'bg-pink-500 text-white'
+                    : 'bg-white text-black'
+                } p-2 my-1 rounded-lg border border-gold`}
+              >
+                {/* <Text>{event?.name}</Text> */}
+                <Text
+                  className={`${
+                    selectedEventId === eventInfo._id
+                      ? ' text-white'
+                      : ' text-black'
+                  }`}
+                >
+                  {formatDate(eventInfo?.date)}
+                </Text>
+                <Text
+                  className={`${
+                    selectedEventId === eventInfo._id
+                      ? ' text-white'
+                      : ' text-black'
+                  }`}
+                >
+                  {eventInfo?.attendees} pax
+                </Text>
+              </Block>
+            </TouchableOpacity>
           ))}
         </Block>
         {vendorPackage?.inclusions.map((inclusion: Product) => (
@@ -168,7 +232,13 @@ const BookingDetails = () => {
         </Block>
         <Button
           gradient={gradients.primary}
-          // onPress={() => onPressConfirm(packageId, vendorPackage.vendorId)}
+          onPress={() => {
+            if (packageId && vendorId && selectedEventId && user?._id) {
+              onPressConfirm(packageId, vendorId, selectedEventId, user._id);
+            } else {
+              setError('Please select an event');
+            }
+          }}
         >
           <Text className='text-white uppercase'>Confirm</Text>
         </Button>
