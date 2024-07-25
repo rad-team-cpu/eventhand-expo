@@ -171,7 +171,13 @@ function Chat({ navigation, route }: ChatScreenProps) {
     })
   }
 
-  const isParticipant = (id: string) => id === senderId || (mode === "CLIENT")? id === user._id: id === vendor.id;
+  const isParticipant = (id: string) => {
+    if(mode === "CLIENT"){
+      return id === senderId || id === user._id
+    }
+    if(mode === "VENDOR"){
+      return id === senderId || id === vendor.id;
+    }  };
 
   const chatHandler = useCallback(async (message: MessageEvent) => {
     const parsedData = JSON.parse(message.data)
