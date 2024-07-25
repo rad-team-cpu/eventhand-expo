@@ -130,6 +130,7 @@ const VendorHome = ({ navigation, route }: VendorHomeScreenProps) => {
       const res = await fetch(url, request);
 
       if (res.status === 200) {
+        console.log("FETCHING VENDOR DATA...")
         const data = await res.json();
         const vendor = {
           id: data._id,
@@ -151,6 +152,7 @@ const VendorHome = ({ navigation, route }: VendorHomeScreenProps) => {
         sendMessage(getChatListInput);
         
         setLoading(false);
+        console.log("VENDOR DATA SUCCESSFULLY LOADED")
       } else if (res.status === 400) {
         throw new Error("Bad request - Invalid data.");
       } else if (res.status === 401) {
@@ -178,6 +180,7 @@ const VendorHome = ({ navigation, route }: VendorHomeScreenProps) => {
     } 
 
   }, [connectionTimeout, isConnected]);
+
   const onRetryPress = () => {
     reconnect();
     setLoading(true)

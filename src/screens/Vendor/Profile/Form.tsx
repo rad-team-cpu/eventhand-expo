@@ -4,9 +4,11 @@ import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useFocusEffect } from "@react-navigation/native";
 import Avatar from "Components/Avatar";
+import ErrorScreen from "Components/Error";
 import GenderPicker from "Components/Input/GenderPicker";
 import ProfileUpload from "Components/Input/ProfileUpload";
 import TagButtons from "Components/Input/TagButtons";
+import SuccessScreen from "Components/Success";
 import { UserContext } from "Contexts/UserContext";
 import { VendorContext } from "Contexts/VendorContext";
 import { UploadResult } from "firebase/storage";
@@ -96,6 +98,8 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
   const { getToken, userId } = useAuth();
   const [loading, setLoading] = useState(false);
   const [newEmail, setNewEmail] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState(false);
   const [confirmDetails, setConfirmDetails] = useState(false);
   const { user } = useUser();
   const clerkUser = user;
@@ -116,6 +120,7 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
     handleSubmit,
     getValues,
     trigger,
+    reset,
     formState: { errors, isValid },
   } = useForm<VendorProfileInput, unknown>({
     mode: "onBlur",
@@ -199,13 +204,7 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
           const data = await response.json();
           setVendor({ id: data._id as string, ...vendor });
           setLoading(false);
-          navigateToSuccessError({
-            description: "Your information was saved successfully.",
-            buttonText: "Continue",
-            navigateTo: "VendorHome",
-            status: "success",
-            navParams: { initialTab: "Profile", noFetch: true },
-          });
+          setSuccess(true)
           break;
         case 403:
           setSubmitErrMessage("Forbidden - Access denied.");
@@ -213,18 +212,11 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
         case 404:
           setSubmitErrMessage("Server is unreachable.");
           throw new Error("Server is unreachable."); // Not Found
-        default:
-          setSubmitErrMessage("Unexpected error occurred.");
-          throw new Error("Unexpected error occurred."); // Other status codes
       }
     } catch (error) {
       console.error(error);
       setLoading(false);
-      navigateToSuccessError({
-        description: submitErrMessage,
-        buttonText: "Continue",
-        status: "error",
-      });
+      setError(true)
     }
   };
 
@@ -508,8 +500,8 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
         <Text id="contact-num" testID="test-contact-num" style={styles.details}>
           {getValues("contactNumber")}
         </Text>
-        <Text style={styles.label}>ADDRESS:</Text>
-        {/* <Text id="address" testID="test-address" style={styles.details}>
+        {/* <Text style={styles.label}>ADDRESS:</Text>
+        <Text id="address" testID="test-address" style={styles.details}>
           {getValues("address")}
         </Text> */}
         <Button
@@ -526,8 +518,35 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
   };
 
   const Form = () => {
+    const onSuccessPress = () => {
+      setLoading(false)
+      navigation.replace("VendorHome", {initialTab: "Profile"})
+    }
+
+    const onErrorPress = () => {
+      reset()
+      setError(false)
+      setConfirmDetails(false)
+    }
+
     if (loading) {
       return <Loading />;
+    }
+
+    if(success){
+      return <SuccessScreen
+        description="Your information was saved successfully."
+        buttonText="Proceed to Home"
+        onPress={onSuccessPress}
+      />
+    }
+
+    if(error){
+      return <ErrorScreen
+      description="An Error has Occured"
+      buttonText="Try Again"
+      onPress={onErrorPress}
+    />
     }
 
     return confirmDetails ? <Confirmation /> : <FormFields />;
