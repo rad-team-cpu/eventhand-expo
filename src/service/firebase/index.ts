@@ -79,6 +79,22 @@ class FirebaseService {
     return result;
   }
 
+  async uploadMessageImage(
+    chatId: string,
+    messageId: string,
+    image: ImageInfo,
+  ) {
+    if (!image.uri || image.uri == "") {
+      throw new Error("Invalid Uri");
+    }
+
+    const fileName = `images/chat/${chatId}/${messageId}.${image.fileExtension}`;
+
+    const result = await this.uploadFile(fileName, image.uri);
+
+    return result;
+  }
+
   async getProfilePicture(path: string) {
     const profilePictureRef = ref(this.storage, path);
     try {

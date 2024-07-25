@@ -5,16 +5,19 @@ import { VendorProvider } from "Contexts/VendorContext";
 
 import SignedInNav from "./SignedIn";
 import SignedOutNav from "./SignedOut";
+import { WebSocketProvider } from "Contexts/WebSocket";
 
 const Navigator = () => {
   return (
     <NavigationContainer>
       <SignedIn>
-        <UserProvider>
-          <VendorProvider>
-            <SignedInNav />
-          </VendorProvider>
-        </UserProvider>
+        <WebSocketProvider>
+          <UserProvider>
+            <VendorProvider>
+              <SignedInNav />
+            </VendorProvider>
+          </UserProvider>
+        </WebSocketProvider>
       </SignedIn>
       <SignedOut>
         <SignedOutNav />

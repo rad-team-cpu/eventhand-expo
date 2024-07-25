@@ -14,6 +14,14 @@ import type {
 import { FullMetadata, StorageReference } from 'firebase/storage';
 import { ImageSourcePropType } from 'react-native';
 
+type UserMode = "CLIENT" | "VENDOR";
+
+type PaginationInfo = { 
+  hasMore: boolean
+  currentPage: number
+  totalPages: number
+}
+
 interface EventInfo {
   _id: string;
   attendees: number;
@@ -70,11 +78,22 @@ interface CredibilityFactorsType {
   bookings: number;
   reviews: number;
 }
+
+interface Chat {
+  _id: string;
+  senderId: string
+  senderImage?: string;
+  senderName: string;
+  latestMessage?: string;
+  isImage?:boolean;
+  timestamp?: Date;
+}
 interface ChatMessage {
-  id: string;
+  _id: string;
   senderId: string;
   content: string;
   timestamp: Date;
+  isImage?: boolean
 }
 
 interface UserChat {
@@ -121,11 +140,13 @@ interface ConfirmationProps {
   description?: string;
   confirmNavigateTo: keyof ScreenProps;
   confrimNavParams?: ScreenProps[keyof ScreenProps];
+  isSwitching: boolean;
+  switchingTo?: "CLIENT" | "VENDOR"
 }
 
 interface HomeProps {
   noFetch?: boolean;
-  initialTab?: string;
+  initialTab?: string | keyof HomeScreenBottomTabsProps | keyof VendorHomeScreenBottomTabsProps;
 }
 
 interface VendorMenuProps {
@@ -162,6 +183,7 @@ type ScreenProps = {
   BookingDetails: BookingDetailsProps;
   SuccessError: SuccessErrorProps;
   Confirmation: ConfirmationProps;
+  Chat: Chat
   VendorHome: HomeProps;
   VendorProfileForm: undefined;
 };
@@ -181,7 +203,11 @@ type ProfileFormScreenProps = NativeStackScreenProps<
 
 type EventFormScreenProps = NativeStackScreenProps<ScreenProps, 'EventForm'>;
 
-type EventViewScreenProps = NativeStackScreenProps<ScreenProps, 'EventView'>;
+type EventViewScreenProps = NativeStackScreenProps<ScreenProps, "EventView">;
+
+type ChatScreenProps = NativeStackScreenProps<ScreenProps, "Chat">;
+
+type ChatNavigationProps = NativeStackNavigationProp<ScreenProps, "Chat">;
 
 type SuccessErrorScreenProps = NativeStackScreenProps<
   ScreenProps,
@@ -190,33 +216,46 @@ type SuccessErrorScreenProps = NativeStackScreenProps<
 
 type ConfirmationScreenProps = NativeStackScreenProps<
   ScreenProps,
-  'Confirmation'
+  "Confirmation"
 >;
+
+interface ChatListProps{
+  mode: "VENDOR" | "CLIENT"
+}
+
 
 type HomeScreenBottomTabsProps = {
   Home: NavigatorScreenParams<ScreenProps>;
-  VendorList: undefined;
-  EventList: undefined;
-  Chat: undefined;
+  Vendors: undefined;
+  Events: undefined;
+  ChatList: ChatListProps;
+  Profile: undefined;
+};
+
+type VendorHomeScreenBottomTabsProps = {
+  Home: NavigatorScreenParams<ScreenProps>;
+  Bookings: undefined;
+  ChatList: ChatListProps;
   Profile: undefined;
 };
 
 type EventListScreenProps = CompositeScreenProps<
-  BottomTabScreenProps<HomeScreenBottomTabsProps, 'EventList'>,
+  BottomTabScreenProps<HomeScreenBottomTabsProps, 'Events'>,
   NativeStackScreenProps<ScreenProps>
 >;
 
 type EventListNavigationProps = CompositeNavigationProp<
-  BottomTabNavigationProp<HomeScreenBottomTabsProps, 'EventList'>,
+  BottomTabNavigationProp<HomeScreenBottomTabsProps, 'Events'>,
   NativeStackNavigationProp<ScreenProps>
 >;
 
-type ChatScreenProps = CompositeScreenProps<
-  BottomTabScreenProps<HomeScreenBottomTabsProps, 'Chat'>,
+type ChatListScreenPropsList = CompositeScreenProps<
+  BottomTabScreenProps<HomeScreenBottomTabsProps | VendorHomeScreenBottomTabsProps, 'ChatList'>,
   NativeStackScreenProps<ScreenProps>
 >;
+
 type VendorListScreenProps = CompositeScreenProps<
-  BottomTabScreenProps<HomeScreenBottomTabsProps, 'VendorList'>,
+  BottomTabScreenProps<HomeScreenBottomTabsProps, 'Vendors'>,
   NativeStackScreenProps<ScreenProps>
 >;
 
@@ -236,13 +275,17 @@ type VendorHomeScreenProps = NativeStackScreenProps<ScreenProps, 'VendorHome'>;
 
 type VendorProfileFormScreenProps = NativeStackScreenProps<
   ScreenProps,
-  'VendorProfileForm'
+  "VendorProfileForm"
 >;
+
+
 
 export {
   BookingStatus,
   EventInfo,
   UserProfile,
+  Chat,
+  ChatMessage,
   Vendor,
   ImageInfo,
   ImageUploadResult,
@@ -255,6 +298,7 @@ export {
   LoginScreenProps,
   HomeScreenProps,
   HomeScreenNavigationProp,
+  HomeScreenBottomTabsProps,
   SuccessErrorScreenProps,
   ConfirmationScreenProps,
   ProfileFormScreenProps,
@@ -262,6 +306,7 @@ export {
   EventListNavigationProps,
   EventViewScreenProps,
   ChatScreenProps,
+  ChatNavigationProps,
   VendorListScreenProps,
   VendorMenuScreenProps,
   BookingConfirmationScreenProps,
@@ -269,4 +314,8 @@ export {
   EventFormScreenProps,
   VendorHomeScreenProps,
   VendorProfileFormScreenProps,
+  VendorHomeScreenBottomTabsProps,
+  ChatListScreenPropsList,
+  UserMode,
+  PaginationInfo
 };
