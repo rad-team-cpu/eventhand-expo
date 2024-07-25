@@ -127,9 +127,8 @@ function ChatList({route}: ChatListScreenPropsList) {
   
   const {vendor } = vendorContext;
   const {user } = userContext;
-  const { sendMessage, chatList, chatListOptions, loading } = webSocket;
-
-
+  const { sendMessage, chatList, chatListOptions, loadingChatList } = webSocket;
+  
   const getChatList = useCallback(() => {
     setPage(prevPage => prevPage + 1)
     const getChatListInput: GetChatListInput = {
@@ -137,13 +136,21 @@ function ChatList({route}: ChatListScreenPropsList) {
       senderType: mode,
       pageNumber: page,
       pageSize: 10,
-      inputType: "GET_CHAT_LIST"
+      inputType: "GET_MORE_CHAT_LIST"
     }
     
-    if(chatListOptions.hasMore){
-      sendMessage(getChatListInput);
-    }
+
+    sendMessage(getChatListInput);
+    
   }, [page])
+
+
+  useEffect(() => {
+    if(chatListOptions.hasMore){
+      getChatList()
+    }
+  }, [getChatList])
+
 
 
   const renderEmptyComponent = () => {
@@ -160,7 +167,7 @@ function ChatList({route}: ChatListScreenPropsList) {
   }
 
   const renderFooter = () => {
-    if (loading) {
+    if (loadingChatList) {
       return <ActivityIndicator size="large" color="#CB0C9F"  />;
     }
     if (!chatListOptions.hasMore) {
@@ -175,7 +182,7 @@ function ChatList({route}: ChatListScreenPropsList) {
       senderType: (mode === "CLIENT")? "CLIENT" : "VENDOR",
       receiverId: args.senderId,
       pageNumber: 1,
-      pageSize: 15,
+      pageSize: 20,
       inputType: "GET_MESSAGES"
     };
     
@@ -190,7 +197,7 @@ function ChatList({route}: ChatListScreenPropsList) {
         data={data}
         renderItem={({ item }) => <ChatItem {...item} onItemPress={onItemPress}/>}
         keyExtractor={({ _id }) => _id}
-        onEndReached={getChatList}
+        onEndReached={() => setPage(page => page + 1)}
         onEndReachedThreshold={0.5}
         ListFooterComponent={renderFooter}
       />

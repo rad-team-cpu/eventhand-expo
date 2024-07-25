@@ -10,7 +10,7 @@ import {
   useMediaLibraryPermissions,
 } from "expo-image-picker";
 import React, { useState, useCallback, useEffect, useContext } from "react";
-import { View, Image, StyleSheet } from "react-native";
+import { View, Image, StyleSheet, Pressable } from "react-native";
 import {
   GiftedChat,
   BubbleProps,
@@ -23,14 +23,8 @@ import {
   Send,
 } from "react-native-gifted-chat";
 import FirebaseService from "service/firebase";
-import { ChatMessage, ChatScreenProps, ImageInfo } from "types/types";
-
-type PaginationInfo = { 
-  hasMore: boolean
-  currentPage: number
-  totalPages: number
-}
-
+import { Entypo } from "@expo/vector-icons";
+import { ChatMessage, ChatScreenProps, ImageInfo, PaginationInfo } from "types/types";
 
 const firebaseService = FirebaseService.getInstance();
 
@@ -75,8 +69,13 @@ const headerIcon = (image?: string) => {
   }
 
   return (
-    <View style={styles.iconContainer}>
-      <Image source={source} style={styles.icon} />
+    <View style={styles.leftHeaderContainer}>
+      <Pressable onPress={() => { /* Handle back action */ }} style={styles.backButton}>
+        <Entypo name="chevron-left" size={24} color="#000" />
+      </Pressable>
+     <View style={styles.iconContainer}>
+        <Image source={source} style={styles.icon} />
+      </View>
     </View>
   );
 };
@@ -87,11 +86,18 @@ const getFileInfo = async (fileURI: string) =>
 
 type MessageState = "OK" | "ERROR";
 
+
+const defaultPaginationInfo: PaginationInfo = {
+  currentPage: 1,
+  totalPages: 20,
+  hasMore: true
+}
+
 function Chat({ navigation, route }: ChatScreenProps) {
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [messageState, setMessageState] = useState<MessageState>("OK");
   const [page, setPage] = useState<number>(1)
-  const [paginationInfo, setPaginationInfo] = useState<PaginationInfo | undefined>()
+  const [paginationInfo, setPaginationInfo] = useState<PaginationInfo>(defaultPaginationInfo)
   const userContext = useContext(UserContext);
   const {_id, senderName, senderImage, senderId } = route.params;
   const { setOptions } = navigation;
@@ -121,7 +127,6 @@ function Chat({ navigation, route }: ChatScreenProps) {
 
   const wsRef = websocketRef.current;
 
-
   const convertToGiftedMessages = async (doc: ChatMessage) => {
       if(doc.isImage){
         const firebaseUrl =  await firebaseService.getProfilePicture(doc.content)
@@ -146,11 +151,33 @@ function Chat({ navigation, route }: ChatScreenProps) {
       } as IMessage
   }
 
+  const onLoadEarlier = () => {
+    setPage(page => {
+      const newPage =  page + 1
+      if(paginationInfo.hasMore){
+        const getMessagesInput: GetMessagesInput = {
+          senderId: (mode === "CLIENT")? user._id: vendor.id,
+          senderType: (mode === "CLIENT")? "CLIENT" : "VENDOR",
+          receiverId: senderId,
+          pageNumber: newPage,
+          pageSize: 20,
+          inputType: "GET_EARLIER_MESSAGES"
+        };
+        
+        sendMessage(getMessagesInput);
+      }
+      
+      return newPage
+    })
+  }
+
+  const isParticipant = (id: string) => id !== senderId || (mode === "CLIENT")? id !== user._id: id !== vendor.id;
 
   const chatHandler = useCallback(async (message: MessageEvent) => {
     const parsedData = JSON.parse(message.data)
+    const { outputType } = parsedData;
 
-    if(parsedData.outputType == "GET_MESSAGES"){
+    if(outputType === "GET_MESSAGES" || outputType === "GET_EARLIER_MESSAGES") {
       const messageList: GetMessagesOutput = {
         ...parsedData.messageList
       }
@@ -178,26 +205,26 @@ function Chat({ navigation, route }: ChatScreenProps) {
             }]
         })
       
-      setMessages(convertedMessages);
-  
-
+      if(outputType === "GET_EARLIER_MESSAGES"){
+        setMessages(prevMessages => GiftedChat.prepend(prevMessages, convertedMessages));
+      } else {
+        setMessages(convertedMessages);
+      }
     }
 
-
-    if(parsedData.outputType === 'CHAT_MESSAGE_RECEIVED'){
+    if(outputType === 'CHAT_MESSAGE_RECEIVED'){
       const message: ChatMessage = {
         ...parsedData.message
       }
 
-      const convertedMessage: IMessage = await convertToGiftedMessages(message)
+      if(isParticipant(message.senderId)){
+        const convertedMessage: IMessage = await convertToGiftedMessages(message)
 
-      setMessages( prevMessages => GiftedChat.append(prevMessages, [ convertedMessage ]) )
+        setMessages( prevMessages => GiftedChat.append(prevMessages, [ convertedMessage ]) )
+      }
     }
     
   }, [])
-  
-  
-
 
 
   useEffect(() => {
@@ -269,14 +296,9 @@ function Chat({ navigation, route }: ChatScreenProps) {
       user={{
         _id: (mode === "CLIENT")? user._id: vendor.id,
       }}
-      // loadEarlier={chatMessagesOptions.hasMore}
+      loadEarlier={paginationInfo.hasMore}
       infiniteScroll
-      // onLoadEarlier={() => {
-      //   if(chatMessagesOptions.hasMore){
-      //     setPage(page => page + 1)
-
-      //   }
-      // }}
+      onLoadEarlier={onLoadEarlier}
       renderActions={(props) => {
 
         const pickImageAsync = async () => {
@@ -309,10 +331,12 @@ function Chat({ navigation, route }: ChatScreenProps) {
             };
 
             try {
-              const result = await firebaseService.uploadMessageImage(_id, selectedImageInfo)
+              const messageId = new ObjectId()
+
+              const result = await firebaseService.uploadMessageImage(_id, messageId.toString(), selectedImageInfo)
 
               const image = {
-                _id: 1,
+                _id: messageId.toString(),
                 text:"",
                 createdAt: new Date(),
                 user: {
@@ -392,6 +416,13 @@ const styles = StyleSheet.create({
   },
   timeStampText: {
     color: "#ffff",
+  },
+  leftHeaderContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  backButton: {
+    marginRight: 5,
   },
   iconContainer: {
     width: 40,
