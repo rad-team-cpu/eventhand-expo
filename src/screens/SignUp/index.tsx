@@ -53,7 +53,7 @@ const SignupForm = ({ navigation }: SignUpScreenProps) => {
   });
   const [code, setCode] = useState("");
   const [signUpErrMessage, setSignUpErrMessage] = useState("");
-  const [pendingVerification, setPendingVerification] = useState(false);
+  const [pendingVerification, setPendingVerification] = useState(true);
   const [verifyErrMessage, setVerifyErrMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showRetypePassword, setShowRetypePassword] = useState(false);
@@ -327,7 +327,7 @@ const SignupForm = ({ navigation }: SignUpScreenProps) => {
               </Text>
             </Image>
           </Block>
-          <Block keyboard marginTop={-(sizes.height * 0.8 - sizes.l)}>
+          <Block scroll marginTop={-(sizes.height * 0.8 - sizes.l)}>
             <Block flex={0} radius={sizes.sm} marginHorizontal="8%">
               <Block
                 blur
@@ -369,7 +369,7 @@ const SignupForm = ({ navigation }: SignUpScreenProps) => {
                     marginTop={sizes.sm}
                   />
                 </Block>
-                <Block paddingHorizontal={sizes.sm}>
+                <Block  paddingHorizontal={sizes.sm}>
                   <Text bold primary center>
                     Verification code sent via email!
                   </Text>

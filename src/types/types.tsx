@@ -104,7 +104,6 @@ interface UserProfile {
   contactNumber: string;
   gender: string;
   events?: EventInfo[];
-  chats?: UserChat[];
   vendorId?: string;
 }
 
