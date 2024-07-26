@@ -14,14 +14,16 @@ import {
   EventInfo,
   ScreenProps,
   BookingStatus,
+  HomeScreenNavigationProp,
 } from 'types/types';
 import { UserContext } from 'Contexts/UserContext';
 import formatDate from 'src/core/helpers';
 import Loading from 'screens/Loading';
+import SuccessScreen from 'Components/Success';
 
 const BookingDetails = () => {
   const userContext = useContext(UserContext);
-  const navigation = useNavigation();
+  const navigation = useNavigation<HomeScreenNavigationProp>();
   const route = useRoute();
   const { assets, colors, sizes, gradients } = useTheme();
   const [vendorPackage, setVendorPackage] = useState<PackageType | null>(null);
@@ -29,7 +31,8 @@ const BookingDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [submitErrMessage, setSubmitErrMessage] = useState('');
-  const [selectedEventId, setSelectedEventId] = useState<string>();
+  const [selectedEvent, setSelectedEvent] = useState<EventInfo>();
+  const [success, setSuccess] = useState(false);
 
   if (!userContext) {
     throw new Error('UserInfo must be used within a UserProvider');
@@ -115,6 +118,7 @@ const BookingDetails = () => {
         }
       );
       console.log('Booking confirmed:', response.data);
+      setSuccess(true);
     } catch (error: any) {
       console.error('Error confirming booking:', error.message);
       setError('Error confirming booking');
@@ -127,12 +131,45 @@ const BookingDetails = () => {
     }
   }, [vendorPackage, fetchVendor]);
 
+  const onSuccessPress = () => {
+    if (selectedEvent) {
+      const eventViewProps: ScreenProps['EventView'] = {
+        _id: selectedEvent._id,
+        date: selectedEvent.date,
+        budget: selectedEvent.budget,
+        attendees: selectedEvent.attendees,
+        bookings: [
+          {
+            packageId: packageId,
+            vendorId: vendorId,
+            eventId: selectedEvent._id,
+            clientId: user._id,
+            bookingStatus: BookingStatus.Pending,
+          },
+        ],
+      };
+      navigation.navigate('EventView', eventViewProps);
+    } else {
+      setError('No event selected');
+    }
+  };
+
   if (loading) {
     return <Loading />;
   }
 
   if (error) {
     return <Text>{error}</Text>;
+  }
+
+  if (success) {
+    return (
+      <SuccessScreen
+        description="Booking is now pending for vendor's approval."
+        buttonText='Proceed to Home'
+        onPress={onSuccessPress}
+      />
+    );
   }
 
   return (
@@ -157,11 +194,11 @@ const BookingDetails = () => {
           {events?.map((eventInfo: EventInfo) => (
             <TouchableOpacity
               key={eventInfo._id}
-              onPress={() => setSelectedEventId(eventInfo._id)}
+              onPress={() => setSelectedEvent(eventInfo)}
             >
               <Block
                 className={`${
-                  selectedEventId === eventInfo._id
+                  selectedEvent?._id === eventInfo._id
                     ? 'bg-pink-500 text-white'
                     : 'bg-white text-black'
                 } p-2 my-1 rounded-lg border border-gold`}
@@ -169,7 +206,7 @@ const BookingDetails = () => {
                 {/* <Text>{event?.name}</Text> */}
                 <Text
                   className={`${
-                    selectedEventId === eventInfo._id
+                    selectedEvent?._id === eventInfo._id
                       ? ' text-white'
                       : ' text-black'
                   }`}
@@ -178,7 +215,7 @@ const BookingDetails = () => {
                 </Text>
                 <Text
                   className={`${
-                    selectedEventId === eventInfo._id
+                    selectedEvent?._id === eventInfo._id
                       ? ' text-white'
                       : ' text-black'
                   }`}
@@ -233,8 +270,8 @@ const BookingDetails = () => {
         <Button
           gradient={gradients.primary}
           onPress={() => {
-            if (packageId && vendorId && selectedEventId && user?._id) {
-              onPressConfirm(packageId, vendorId, selectedEventId, user._id);
+            if (packageId && vendorId && selectedEvent?._id && user?._id) {
+              onPressConfirm(packageId, vendorId, selectedEvent?._id, user._id);
             } else {
               setError('Please select an event');
             }
