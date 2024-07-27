@@ -41,3 +41,5 @@ jobs:
         uses: Borales/actions-yarn@v4.2.0
         with:
           cmd: ci-test
+      - name: Build on EAS
+        run: eas build --profile preview --platform android --non-interactive --no-wait
