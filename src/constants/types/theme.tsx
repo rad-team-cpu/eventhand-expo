@@ -211,6 +211,8 @@ export interface ThemeAssets {
   card3: ImageSourcePropType;
   card4: ImageSourcePropType;
   noEvents: ImageSourcePropType;
+  noMessages: ImageSourcePropType;
+
 }
 
 export interface ThemeFonts {
