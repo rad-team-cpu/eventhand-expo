@@ -80,11 +80,7 @@ const ChatItem: React.FC<ChatItemProps> = ({
 
   return (
     <Block>
-      <Block flex={0} style={{ zIndex: 0 }}>
-        <Text className='pt-4 pl-6 mb-2 font-bold text-2xl text-pink-600'>
-          Chat
-        </Text>
-      </Block>
+      <Block flex={0} style={{ zIndex: 0 }}></Block>
       <Pressable
         testID='test-chat-item'
         style={styles.chatItem}
@@ -216,6 +212,9 @@ function ChatList({ route }: ChatListScreenPropsList) {
 
   return (
     <SafeAreaView>
+      <Text className='pt-4 pl-6 mb-2 font-bold text-2xl text-pink-600'>
+        Chat
+      </Text>
       <FlatList
         data={data}
         renderItem={({ item }) => (

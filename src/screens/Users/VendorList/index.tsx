@@ -31,6 +31,7 @@ export default function VendorList() {
   const { assets, colors, sizes, gradients } = useTheme();
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const [venueVendors, setVenueVendors] = useState<Vendor[]>([]);
+  const [planningVendors, setPlanningVendors] = useState<Vendor[]>([]);
   const [cateringVendors, setCateringVendors] = useState<Vendor[]>([]);
   const [photographyVendors, setPhotographyVendors] = useState<Vendor[]>([]);
 
@@ -87,6 +88,7 @@ export default function VendorList() {
     fetchVendors(['66966f907ca14eb4d4778a61'], setCateringVendors);
     fetchVendors(['66966f897ca14eb4d4778a5f'], setVenueVendors);
     fetchVendors(['66966f9a7ca14eb4d4778a65'], setPhotographyVendors);
+    fetchVendors(['66966f5e7ca14eb4d4778a5b'], setPlanningVendors);
   }, []);
 
   return (
@@ -186,7 +188,6 @@ export default function VendorList() {
                       className='h-24 w-24 rounded-xl'
                     ></Image>
                     <Text className='text-xs text-center'>{vendor.name}</Text>
-
                     <View className=' items-center'>
                       {/* <StarRating
                         rating={vendor.credibilityFactors.ratingsScore}
@@ -200,18 +201,18 @@ export default function VendorList() {
           </View>
           <View className='w-full h-auto flex items-left justify-left gap-y-2'>
             <Text className='text-xl text-black font-bold capitalize'>
-              Suppliers you might need
+              Suppliers you might need!
             </Text>
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
               className=' flex flex-row'
             >
-              {venueVendors.slice(0, 7).map((vendor) => (
+              {planningVendors.slice(0, 7).map((vendor) => (
                 <TouchableOpacity
-                  // key={vendor.id}
+                  key={vendor._id}
                   className='w-20 h-20 rounded-xl mr-2'
-                  // onPress={() => {}}
+                  onPress={() => onPressVendor(vendor._id)}
                 >
                   <View className='bg-slate-500/30 w-20 h-14 rounded-xl align-middle '>
                     {/* <Image
@@ -220,29 +221,6 @@ export default function VendorList() {
                     /> */}
                   </View>
                   <Text className='text-xs text-center'>{vendor.name}</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
-          <View className='w-full h-auto flex items-left justify-left gap-y-2'>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              className=' flex flex-row'
-            >
-              {venueVendors.slice(5, 12).map((vendor) => (
-                <TouchableOpacity
-                  // key={vendor.id}
-                  className='w-12 h-12 rounded-xl border mr-2'
-                  // onPress={() => {}}
-                >
-                  <View className='bg-slate-500/30 w-12 h-12 rounded-xl align-middle '>
-                    {/* <Image
-                      source={require('@/assets/images/Customer/mobilehotdog.webp')}
-                      className='bg-contain w-24 h-24 z-0'
-                    /> */}
-                    <Text className='text-xs text-center'>{vendor.name}</Text>
-                  </View>
                 </TouchableOpacity>
               ))}
             </ScrollView>
