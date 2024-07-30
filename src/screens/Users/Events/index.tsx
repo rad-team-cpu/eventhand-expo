@@ -42,7 +42,6 @@ function EventView({ navigation, route }: EventViewScreenProps) {
         }
       );
       setEventBookings(response.data);
-      console.log(response.data)
     } catch (error: any) {
       if (error instanceof TypeError) {
         console.error(
