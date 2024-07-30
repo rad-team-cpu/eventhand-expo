@@ -12,7 +12,12 @@ import {
   ScreenProps,
   BookingStatus,
   BookingDetailsProps,
+  PackageType,
+  Product,
+  HomeScreenBottomTabsProps,
 } from 'types/types';
+import Button from 'Components/Ui/Button';
+import { AntDesign } from '@expo/vector-icons';
 
 function EventView({ navigation, route }: EventViewScreenProps) {
   const { _id, attendees, budget, date, bookings } = route.params;
@@ -26,10 +31,10 @@ function EventView({ navigation, route }: EventViewScreenProps) {
   ]);
   const [eventBookings, setEventBookings] = useState<BookingDetailsProps[]>([]);
 
-  const fetchBookings = async () => {
+  const fetchBookings = async (eventId: string) => {
     try {
       const response = await axios.get(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking`,
+        `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking?event=${eventId}`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -37,7 +42,7 @@ function EventView({ navigation, route }: EventViewScreenProps) {
         }
       );
       setEventBookings(response.data);
-      console.log(response.data);
+      console.log(response.data)
     } catch (error: any) {
       if (error instanceof TypeError) {
         console.error(
@@ -65,15 +70,41 @@ function EventView({ navigation, route }: EventViewScreenProps) {
             eventBooking.bookingStatus === BookingStatus.Confirmed
         )
         .map((booking) => (
-          <View key={booking.vendorId} style={styles.vendorContainer}>
+          <View
+            key={booking._id}
+            style={styles.vendorContainer}
+            className='bg-white rounded-lg justify-between'
+          >
             <Image
               radius={sizes.s}
               width={sizes.xl}
               height={sizes.xl}
               // source={{ uri: option?.user?.avatar }}
-              style={{ backgroundColor: colors.white }}
+              style={{ backgroundColor: colors.gray }}
             />
-            <Text style={styles.vendorName}>{booking.vendorId}</Text>
+            <View>
+              <Text
+                className='text-s text-center font-semibold'
+                style={styles.vendorName}
+              >
+                {(booking.package as PackageType).name}
+              </Text>
+            </View>
+            {(booking.package as PackageType).inclusions.map(
+              (inclusion: Product) => (
+                <View className='flex-row space-x-1'>
+                  <Text className='text-xs text-center font-semibold'>
+                    {inclusion.name}
+                  </Text>
+                  <Text className='text-xs text-center font-semibold'>
+                    x{inclusion.quantity}
+                  </Text>
+                </View>
+              )
+            )}
+            <Text className='text-s font-semibold' style={styles.vendorName}>
+              ₱{(booking.package as PackageType).price}
+            </Text>
           </View>
         ))}
     </View>
@@ -87,7 +118,7 @@ function EventView({ navigation, route }: EventViewScreenProps) {
           <View
             key={booking._id}
             style={styles.vendorContainer}
-            className='bg-white rounded-lg'
+            className='bg-white rounded-lg justify-between'
           >
             <Image
               radius={sizes.s}
@@ -96,8 +127,28 @@ function EventView({ navigation, route }: EventViewScreenProps) {
               // source={{ uri: option?.user?.avatar }}
               style={{ backgroundColor: colors.gray }}
             />
-            <Text className='ml-5' style={styles.vendorName}>
-              {booking.vendorId}
+            <View>
+              <Text
+                className='text-s text-center font-semibold'
+                style={styles.vendorName}
+              >
+                {(booking.package as PackageType).name}
+              </Text>
+            </View>
+            {(booking.package as PackageType).inclusions.map(
+              (inclusion: Product) => (
+                <View className='flex-row space-x-1'>
+                  <Text className='text-xs text-center font-semibold'>
+                    {inclusion.name}
+                  </Text>
+                  <Text className='text-xs text-center font-semibold'>
+                    x{inclusion.quantity}
+                  </Text>
+                </View>
+              )
+            )}
+            <Text className='text-s font-semibold' style={styles.vendorName}>
+              ₱{(booking.package as PackageType).price}
             </Text>
           </View>
         ))}
@@ -110,13 +161,23 @@ function EventView({ navigation, route }: EventViewScreenProps) {
   });
 
   useEffect(() => {
-    fetchBookings();
+    const eventId = _id;
+    fetchBookings(eventId);
   }, []);
 
   return (
     <>
       <ExpoStatusBar />
       <View style={listStyles.eventContainer}>
+        <Button
+          row
+          flex={0}
+          justify='flex-start'
+          onPress={() => navigation.goBack()}
+        >
+          <AntDesign name='back' size={24} color='#CB0C9F' />
+          <Text className='text-primary ml-1'>Go back</Text>
+        </Button>
         <Text style={listStyles.dateText}>{dateString}</Text>
         <View style={listStyles.separator} />
         <View style={listStyles.row}>
@@ -157,6 +218,7 @@ function EventView({ navigation, route }: EventViewScreenProps) {
           />
         )}
       />
+      {/* <HomeNav /> */}
     </>
   );
 }
@@ -231,7 +293,8 @@ const styles = StyleSheet.create({
 
 const listStyles = StyleSheet.create({
   eventContainer: {
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
     marginTop: 30,
     marginHorizontal: 5,
     backgroundColor: '#fff',

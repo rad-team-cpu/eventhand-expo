@@ -105,10 +105,10 @@ const BookingDetails = () => {
       const response = await axios.post(
         `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking`,
         {
-          packageId: packageId,
-          vendorId: vendorId,
-          eventId: eventId,
-          clientId: userId,
+          package: packageId,
+          vendor: vendorId,
+          event: eventId,
+          client: userId,
           bookingStatus: BookingStatus.Pending,
         },
         {
@@ -187,7 +187,7 @@ const BookingDetails = () => {
           onPress={() => navigation.goBack()}
         >
           <AntDesign name='back' size={24} color='#ec4899' />
-          <Text className='text-pink-600 ml-1'>Go back</Text>
+          <Text className='text-primary ml-1'>Go back</Text>
         </Button>
         <Text className='font-bold p-2'>Booking Details:</Text>
         <Block>
@@ -199,7 +199,7 @@ const BookingDetails = () => {
               <Block
                 className={`${
                   selectedEvent?._id === eventInfo._id
-                    ? 'bg-pink-500 text-white'
+                    ? 'bg-primary text-white'
                     : 'bg-white text-black'
                 } p-2 my-1 rounded-lg border border-gold`}
               >
@@ -263,7 +263,7 @@ const BookingDetails = () => {
           marginVertical={sizes.sm}
         >
           <Text className='font-bold text-xl'>{vendorPackage?.name}</Text>
-          <Text className='font-bold text-pink-500'>
+          <Text className='font-bold text-primary'>
             Total: ₱{vendorPackage?.price.toFixed(2)}
           </Text>
         </Block>

@@ -170,9 +170,13 @@ interface BookingConfirmationProps {
 
 interface BookingDetailsProps {
   _id?: string;
-  packageId: string;
-  vendorId: string;
+  package?: PackageType;
+  packageId?: string;
+  vendor?: Vendor;
+  vendorId?: string;
+  client?: UserProfile;
   clientId?: string;
+  event?: EventInfo;
   eventId?: string;
   bookingStatus?: BookingStatus;
 }
@@ -226,7 +230,7 @@ type ConfirmationScreenProps = NativeStackScreenProps<
   'Confirmation'
 >;
 
-interface ChatListProps {
+export interface ChatListProps {
   mode: 'VENDOR' | 'CLIENT';
 }
 

@@ -42,10 +42,10 @@ export default function VendorList() {
 
   const onPressVendor = (vendorId: string) => {
     const vendorMenuProps: ScreenProps['VendorMenu'] = {
-          vendorId,
-        };
+      vendorId,
+    };
 
-      navigation.navigate('VendorMenu', vendorMenuProps);
+    navigation.navigate('VendorMenu', vendorMenuProps);
     // if (events && events.length > 0) {
     //   const vendorMenuProps: ScreenProps['VendorMenu'] = {
     //     vendorId,
@@ -85,8 +85,8 @@ export default function VendorList() {
 
   useEffect(() => {
     fetchVendors(['66966f907ca14eb4d4778a61'], setCateringVendors);
-    fetchVendors(['66966f897ca14eb4d4778a5d'], setVenueVendors);
-    fetchVendors(['66966f907ca14eb4d4778a61'], setPhotographyVendors);
+    fetchVendors(['66966f897ca14eb4d4778a5f'], setVenueVendors);
+    fetchVendors(['66966f9a7ca14eb4d4778a65'], setPhotographyVendors);
   }, []);
 
   return (
@@ -185,7 +185,7 @@ export default function VendorList() {
                       rounded
                       className='h-24 w-24 rounded-xl'
                     ></Image>
-                    <Text className='text-xs text-center'>Photographer</Text>
+                    <Text className='text-xs text-center'>{vendor.name}</Text>
 
                     <View className=' items-center'>
                       {/* <StarRating
