@@ -56,9 +56,9 @@ function EventView({ route }: EventViewScreenProps) {
     }
   };
 
-  // const handleFindSupplier = () => {
-  //   navigation.navigate('VendorList');
-  // };
+  const handleFindSupplier = () => {
+    navigation.navigate('Home', { initialTab: 'ChatList' });
+  };
 
   const ConfirmedVendors = () => (
     <View style={styles.listContainer}>
@@ -181,7 +181,7 @@ function EventView({ route }: EventViewScreenProps) {
             <Pressable
               style={styles.button}
               android_ripple={{ color: '#c0c0c0' }}
-              // onPress={() => handleFindSupplier()}
+              onPress={() => handleFindSupplier()}
             >
               <FontAwesome
                 name='search'
@@ -227,7 +227,6 @@ function EventView({ route }: EventViewScreenProps) {
 
 const styles = StyleSheet.create({
   container: {
-
     marginVertical: 1,
   },
   button: {
