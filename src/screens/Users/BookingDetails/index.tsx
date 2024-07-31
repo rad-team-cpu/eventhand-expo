@@ -5,7 +5,7 @@ import Image from 'Components/Ui/Image';
 import useTheme from 'src/core/theme';
 import Button from 'Components/Ui/Button';
 import { ScrollView, Text, TouchableOpacity } from 'react-native';
-import { AntDesign } from '@expo/vector-icons';
+import { AntDesign, Entypo } from '@expo/vector-icons';
 import axios from 'axios';
 import {
   Vendor,
@@ -20,6 +20,7 @@ import { UserContext } from 'Contexts/UserContext';
 import formatDate from 'src/core/helpers';
 import Loading from 'screens/Loading';
 import SuccessScreen from 'Components/Success';
+import { format } from 'date-fns/format';
 
 const BookingDetails = () => {
   const userContext = useContext(UserContext);
@@ -31,7 +32,7 @@ const BookingDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [submitErrMessage, setSubmitErrMessage] = useState('');
-  const [selectedEvent, setSelectedEvent] = useState<EventInfo | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<EventInfo>();
   const [success, setSuccess] = useState(false);
 
   if (!userContext) {
@@ -95,18 +96,6 @@ const BookingDetails = () => {
     loadPackage();
   }, [fetchPackage]);
 
-  useEffect(() => {
-    if (vendorPackage && vendorPackage.vendorId) {
-      fetchVendor(vendorPackage.vendorId);
-    }
-  }, [vendorPackage, fetchVendor]);
-
-  useEffect(() => {
-    if (events && events.length === 1) {
-      setSelectedEvent(events[0]);
-    }
-  }, [events]);
-
   const onPressConfirm = async (
     packageId: string,
     vendorId: string,
@@ -137,11 +126,17 @@ const BookingDetails = () => {
     }
   };
 
+  useEffect(() => {
+    if (vendorPackage && vendorPackage.vendorId) {
+      fetchVendor(vendorPackage.vendorId);
+    }
+  }, [vendorPackage, fetchVendor]);
+
   const onSuccessPress = () => {
     if (selectedEvent) {
       const eventViewProps: ScreenProps['EventView'] = {
         _id: selectedEvent._id,
-        date: selectedEvent.date,
+        date: format(selectedEvent.date, 'MMMM dd, yyyy'),
         budget: selectedEvent.budget,
         attendees: selectedEvent.attendees,
         bookings: [
@@ -195,7 +190,7 @@ const BookingDetails = () => {
           <AntDesign name='back' size={24} color='#ec4899' />
           <Text className='text-primary ml-1'>Go back</Text>
         </Button>
-        <Text className='font-bold p-2'>Choose an Event:</Text>
+        <Text className='font-bold p-2'>Booking Details:</Text>
         <Block>
           {events?.map((eventInfo: EventInfo) => (
             <TouchableOpacity
@@ -209,42 +204,41 @@ const BookingDetails = () => {
                     : 'bg-white text-black'
                 } p-2 my-1 rounded-lg border border-gold`}
               >
+                {/* <Text>{event?.name}</Text> */}
                 <Text
                   className={`${
                     selectedEvent?._id === eventInfo._id
-                      ? 'text-white'
-                      : 'text-black'
+                      ? ' text-white'
+                      : ' text-black'
                   }`}
                 >
-                  {formatDate(eventInfo.date)}
+                  {format(eventInfo?.date, 'MMMM dd, yyyy')}
                 </Text>
                 <Text
                   className={`${
                     selectedEvent?._id === eventInfo._id
-                      ? 'text-white'
-                      : 'text-black'
+                      ? ' text-white'
+                      : ' text-black'
                   }`}
                 >
-                  {eventInfo.attendees} pax
+                  {eventInfo?.attendees} pax
                 </Text>
               </Block>
             </TouchableOpacity>
           ))}
         </Block>
-        <Text className='font-bold mt-1'>Booking Details:</Text>
-
         {vendorPackage?.inclusions.map((inclusion: Product) => (
           <Block
             key={inclusion.id}
-            className='h-18 w-full rounded-xl flex flex-row my-2'
+            className=' h-18 w-full rounded-xl flex flex-row my-5'
           >
             <Image
               background
               padding={sizes.md}
-              src={inclusion.imageURL}
+              source={assets.card1}
               rounded
               className='rounded-xl h-18 w-18'
-            />
+            ></Image>
             <Block>
               <Block className='w-52 rounded-xl flex flex-row justify-between p-2'>
                 <Text className='text-xs text-center font-semibold capitalize'>
@@ -269,7 +263,7 @@ const BookingDetails = () => {
           justify='space-between'
           marginVertical={sizes.sm}
         >
-          <Text className='font-bold text-md'>{vendorPackage?.name}</Text>
+          <Text className='font-bold text-xl'>{vendorPackage?.name}</Text>
           <Text className='font-bold text-primary'>
             Total: ₱{vendorPackage?.price.toFixed(2)}
           </Text>
@@ -278,19 +272,13 @@ const BookingDetails = () => {
           gradient={gradients.primary}
           onPress={() => {
             if (packageId && vendorId && selectedEvent?._id && user?._id) {
-              onPressConfirm(packageId, vendorId, selectedEvent._id, user._id);
+              onPressConfirm(packageId, vendorId, selectedEvent?._id, user._id);
             } else {
               setError('Please select an event');
             }
           }}
-          disabled={!selectedEvent}
-          className={`${
-            !selectedEvent
-              ? 'bg-gray-500 cursor-not-allowed'
-              : 'bg-blue-500 active:bg-blue-700'
-          } text-white font-bold py-2 px-4 rounded-xl`}
         >
-          <Text className='text-white'>Confirm</Text>
+          <Text className='text-white uppercase'>Confirm</Text>
         </Button>
       </Block>
     </Block>
