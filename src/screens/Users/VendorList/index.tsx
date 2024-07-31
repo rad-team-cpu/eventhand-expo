@@ -27,9 +27,9 @@ import {
 export default function VendorList() {
   const userContext = useContext(UserContext);
   const [loading, setLoading] = useState(false);
-  const route = useRoute();
-  const { assets, colors, sizes, gradients } = useTheme();
+  const { assets, sizes } = useTheme();
   const navigation = useNavigation<HomeScreenNavigationProp>();
+  const route = useRoute();
   const [venueVendors, setVenueVendors] = useState<Vendor[]>([]);
   const [planningVendors, setPlanningVendors] = useState<Vendor[]>([]);
   const [cateringVendors, setCateringVendors] = useState<Vendor[]>([]);
@@ -47,14 +47,14 @@ export default function VendorList() {
     };
 
     navigation.navigate('VendorMenu', vendorMenuProps);
-    // if (events && events.length > 0) {
-    //   const vendorMenuProps: ScreenProps['VendorMenu'] = {
-    //     vendorId,
-    //   };
-    //   navigation.navigate('VendorMenu', vendorMenuProps);
-    // } else {
-    //   navigation.navigate('EventForm');
-    // }
+    if (events && events.length > 0) {
+      const vendorMenuProps: ScreenProps['VendorMenu'] = {
+        vendorId,
+      };
+      navigation.navigate('VendorMenu', vendorMenuProps);
+    } else {
+      navigation.navigate('EventForm');
+    }
   };
 
   const fetchVendors = async (

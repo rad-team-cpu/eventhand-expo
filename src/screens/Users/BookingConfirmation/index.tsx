@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/core';
 import Block from 'Components/Ui/Block';
 import Image from 'Components/Ui/Image';
@@ -16,6 +16,9 @@ import {
   Tag,
 } from 'types/types';
 import Loading from 'screens/Loading';
+import { GetMessagesInput, WebSocketContext } from 'Contexts/WebSocket';
+import { UserContext } from 'Contexts/UserContext';
+import { ObjectId } from 'bson';
 
 const BookingConfirmation = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
@@ -25,6 +28,20 @@ const BookingConfirmation = () => {
   const [vendor, setVendor] = useState<Vendor>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const userContext = useContext(UserContext);
+  const webSocket = useContext(WebSocketContext);
+
+  if (!userContext) {
+    throw new Error('Component must be under User Provider!!!');
+  }
+
+  if (!webSocket) {
+    throw new Error('Component must be under Websocket Provider!!');
+  }
+
+  const { sendMessage } = webSocket;
+
+  const { user } = userContext;
 
   const { packageId } = route.params as { packageId: string };
 
@@ -70,6 +87,30 @@ const BookingConfirmation = () => {
       setLoading(false);
     }
   }, []);
+
+  const onMessagePress = () => {
+    if (!vendor) {
+      throw new Error('Choose a recipient');
+    }
+    const getMessagesInput: GetMessagesInput = {
+      senderId: user._id,
+      senderType: 'CLIENT',
+      receiverId: vendor._id,
+      pageNumber: 1,
+      pageSize: 15,
+      inputType: 'GET_MESSAGES',
+    };
+
+    sendMessage(getMessagesInput);
+    if (vendor) {
+      navigation.navigate('Chat', {
+        _id: new ObjectId().toString(),
+        senderId: vendor._id,
+        senderName: vendor.name,
+        senderImage: vendor.logo,
+      });
+    }
+  };
 
   useEffect(() => {
     const loadPackage = async () => {
@@ -158,18 +199,18 @@ const BookingConfirmation = () => {
           />
           <Block marginLeft={sizes.s}>
             <Text className='font-semibold'>{vendor?.name}</Text>
-            {vendor?.tags
-              .slice(0, 1)
-              .map((tag: Tag, index) => <Text key={index} className='capitalize'>{tag.name}</Text>)}
+            {vendor?.tags.slice(0, 1).map((tag: Tag, index) => (
+              <Text key={index} className='capitalize'>
+                {tag.name}
+              </Text>
+            ))}
           </Block>
         </Block>
         <Button
           round
           height={40}
           gradient={gradients.dark}
-          //   onPress={() =>
-          //     navigation.navigate('Chat', { userId: option?.user?.id })
-          //   }
+          onPress={onMessagePress}
         >
           <AntDesign name='message1' color='white' size={25} />
         </Button>

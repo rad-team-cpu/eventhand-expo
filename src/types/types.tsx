@@ -53,6 +53,7 @@ interface Vendor {
   tags: [];
   credibilityFactors: CredibilityFactorsType;
   packages: PackageType[];
+  bookings?: BookingDetailsProps[];
 }
 
 interface PackageType {
@@ -156,13 +157,13 @@ interface VendorMenuProps {
   vendorId: string;
 }
 
-interface VendorListProps {
-  vendorId?: string;
-  _id?: string;
-  attendees?: number;
-  budget?: number;
-  date?: Date | string;
-}
+// interface VendorListProps {
+//   vendorId?: string;
+//   _id?: string;
+//   attendees?: number;
+//   budget?: number;
+//   date?: Date | string;
+// }
 
 interface BookingConfirmationProps {
   packageId: string;
@@ -188,7 +189,7 @@ type ScreenProps = {
   ProfileForm: undefined;
   EventForm: undefined;
   EventView: EventInfo;
-  VendorList: VendorListProps;
+  VendorList: undefined;
   VendorMenu: VendorMenuProps;
   BookingConfirmation: BookingConfirmationProps;
   BookingDetails: BookingDetailsProps;

@@ -1,11 +1,17 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/core';
-import { ObjectId } from "bson";
+import { ObjectId } from 'bson';
 import Block from 'Components/Ui/Block';
 import Image from 'Components/Ui/Image';
 import useTheme from 'src/core/theme';
 import Button from 'Components/Ui/Button';
-import { Pressable, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Pressable,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { AntDesign, Entypo } from '@expo/vector-icons';
 import axios from 'axios';
 import {
@@ -26,16 +32,16 @@ const VendorMenu = () => {
   const { assets, colors, sizes } = useTheme();
   const [vendor, setVendor] = useState<Vendor>();
   const userContext = useContext(UserContext);
-  const webSocket =  useContext(WebSocketContext);
+  const webSocket = useContext(WebSocketContext);
 
   const { vendorId } = route.params as { vendorId: string };
 
-  if(!userContext){
-    throw new Error("Component must be under User Provider!!!")
+  if (!userContext) {
+    throw new Error('Component must be under User Provider!!!');
   }
-  
-  if(!webSocket){
-    throw new Error("Component must be under Websocket Provider!!");
+
+  if (!webSocket) {
+    throw new Error('Component must be under Websocket Provider!!');
   }
 
   const { sendMessage } = webSocket;
@@ -47,7 +53,6 @@ const VendorMenu = () => {
   const IMAGE_MARGIN = (sizes.width - IMAGE_SIZE * 3 - sizes.padding * 2) / 2;
   const IMAGE_VERTICAL_MARGIN =
     (sizes.width - (IMAGE_VERTICAL_SIZE + sizes.sm) * 2) / 2;
-    
 
   const fetchVendor = useCallback(async () => {
     try {
@@ -60,6 +65,7 @@ const VendorMenu = () => {
         }
       );
       setVendor(response.data);
+      console.log(response.data);
     } catch (error: any) {
       if (error instanceof TypeError) {
         console.error(
@@ -70,7 +76,6 @@ const VendorMenu = () => {
       }
     }
   }, [vendorId]);
-  
 
   const onPressPackage = (packageId: string) => {
     const BookingConfirmationProps: ScreenProps['BookingConfirmation'] = {
@@ -83,18 +88,23 @@ const VendorMenu = () => {
   const onMessagePress = () => {
     const getMessagesInput: GetMessagesInput = {
       senderId: user._id,
-      senderType: "CLIENT",
+      senderType: 'CLIENT',
       receiverId: vendorId,
       pageNumber: 1,
       pageSize: 15,
-      inputType: "GET_MESSAGES"
+      inputType: 'GET_MESSAGES',
     };
 
     sendMessage(getMessagesInput);
-    if(vendor){
-      navigation.navigate("Chat", {_id: new ObjectId().toString(), senderId: vendorId, senderName: vendor.name, senderImage: vendor.logo})
+    if (vendor) {
+      navigation.navigate('Chat', {
+        _id: new ObjectId().toString(),
+        senderId: vendorId,
+        senderName: vendor.name,
+        senderImage: vendor.logo,
+      });
     }
-  }
+  };
 
   useEffect(() => {
     fetchVendor();
@@ -146,7 +156,10 @@ const VendorMenu = () => {
               </Text>
               <Block row align='center'>
                 {vendor.tags.map((tag: Tag) => (
-                  <Text key={tag._id} className='items-center text-white mx-1 capitalize'>
+                  <Text
+                    key={tag._id}
+                    className='items-center text-white mx-1 capitalize'
+                  >
                     - {tag.name} -
                   </Text>
                 ))}
@@ -157,8 +170,7 @@ const VendorMenu = () => {
                   outlined
                   shadow={false}
                   radius={sizes.m}
-                  onPress={() => {
-                  }}
+                  onPress={onMessagePress}
                 >
                   <Block
                     justify='center'
@@ -216,7 +228,7 @@ const VendorMenu = () => {
             >
               <Block align='center'>
                 <Text className='text-sm font-bold'>
-                  {vendor?.credibilityFactors?.bookings || 0}
+                  {vendor?.bookings?.length || 0}
                 </Text>
                 <Text>Bookings</Text>
               </Block>
@@ -260,7 +272,7 @@ const VendorMenu = () => {
                   <View>
                     <View className='w-52 rounded-xl flex flex-row justify-center p-2'>
                       <Text className='text-s text-center font-semibold pr-2'>
-                        {vendorPackage.name} 
+                        {vendorPackage.name}
                       </Text>
                       <Text className='text-s text-center font-semibold'>
                         ₱{vendorPackage.price}
@@ -281,7 +293,7 @@ const VendorMenu = () => {
           <Block paddingHorizontal={sizes.sm} className='mt-2'>
             <Block row align='center' justify='space-between'>
               <Text className='text-xl font-bold'>Portfolio</Text>
-              <Button >
+              <Button>
                 <Text className='font-semibold'>View All</Text>
               </Button>
             </Block>

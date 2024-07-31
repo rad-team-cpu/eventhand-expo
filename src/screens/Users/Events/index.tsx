@@ -15,12 +15,15 @@ import {
   PackageType,
   Product,
   HomeScreenBottomTabsProps,
+  HomeScreenNavigationProp,
 } from 'types/types';
 import Button from 'Components/Ui/Button';
 import { AntDesign } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
-function EventView({ navigation, route }: EventViewScreenProps) {
+function EventView({ route }: EventViewScreenProps) {
   const { _id, attendees, budget, date, bookings } = route.params;
+  const navigation = useNavigation<HomeScreenNavigationProp>();
   const dateString =
     typeof date == 'string' ? date : format(date, 'MMMM dd, yyyy');
   const { colors, sizes } = useTheme();
@@ -53,13 +56,9 @@ function EventView({ navigation, route }: EventViewScreenProps) {
     }
   };
 
-  const handleFindSupplier = (_id: string) => {
-    const vendorListProps: ScreenProps['VendorList'] = {
-      _id,
-    };
-
-    navigation.navigate('VendorList', vendorListProps);
-  };
+  // const handleFindSupplier = () => {
+  //   navigation.navigate('VendorList');
+  // };
 
   const ConfirmedVendors = () => (
     <View style={styles.listContainer}>
@@ -168,15 +167,33 @@ function EventView({ navigation, route }: EventViewScreenProps) {
     <>
       <ExpoStatusBar />
       <View style={listStyles.eventContainer}>
-        <Button
-          row
-          flex={0}
-          justify='flex-start'
-          onPress={() => navigation.goBack()}
-        >
-          <AntDesign name='back' size={24} color='#CB0C9F' />
-          <Text className='text-primary ml-1'>Go back</Text>
-        </Button>
+        <View className='flex flex-row justify-between'>
+          <Button
+            row
+            flex={0}
+            justify='flex-start'
+            onPress={() => navigation.goBack()}
+          >
+            <AntDesign name='back' size={24} color='#CB0C9F' />
+            <Text className='text-primary ml-1'>Go back</Text>
+          </Button>
+          <View style={styles.container}>
+            <Pressable
+              style={styles.button}
+              android_ripple={{ color: '#c0c0c0' }}
+              // onPress={() => handleFindSupplier()}
+            >
+              <FontAwesome
+                name='search'
+                size={10}
+                color='white'
+                style={styles.icon}
+              />
+              <Text style={styles.buttonText}>Find Supplier</Text>
+            </Pressable>
+          </View>
+        </View>
+
         <Text style={listStyles.dateText}>{dateString}</Text>
         <View style={listStyles.separator} />
         <View style={listStyles.row}>
@@ -188,21 +205,7 @@ function EventView({ navigation, route }: EventViewScreenProps) {
           </Text>
         </View>
       </View>
-      {/* <View style={styles.container}>
-        <Pressable
-          style={styles.button}
-          android_ripple={{ color: '#c0c0c0' }}
-          onPress={() => handleFindSupplier(_id)}
-        >
-          <FontAwesome
-            name="search"
-            size={24}
-            color="white"
-            style={styles.icon}
-          />
-          <Text style={styles.buttonText}>Find Supplier</Text>
-        </Pressable>
-      </View> */}
+
       <TabView
         navigationState={{ index, routes }}
         renderScene={renderScene}
@@ -224,24 +227,23 @@ function EventView({ navigation, route }: EventViewScreenProps) {
 
 const styles = StyleSheet.create({
   container: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginVertical: 20,
+
+    marginVertical: 1,
   },
   button: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#6200EE',
     paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     borderRadius: 5,
   },
   icon: {
-    marginRight: 10,
+    marginRight: 5,
   },
   buttonText: {
     color: 'white',
-    fontSize: 16,
+    fontSize: 12,
   },
   listContainer: {
     padding: 16,
