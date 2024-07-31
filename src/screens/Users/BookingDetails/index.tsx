@@ -273,13 +273,19 @@ const BookingDetails = () => {
           gradient={gradients.primary}
           onPress={() => {
             if (packageId && vendorId && selectedEvent?._id && user?._id) {
-              onPressConfirm(packageId, vendorId, selectedEvent?._id, user._id);
+              onPressConfirm(packageId, vendorId, selectedEvent._id, user._id);
             } else {
               setError('Please select an event');
             }
           }}
+          disabled={!selectedEvent}
+          className={`${
+            !selectedEvent
+              ? 'bg-gray-500 cursor-not-allowed'
+              : 'bg-blue-500 active:bg-blue-700'
+          } text-white font-bold py-2 px-4 rounded-xl`}
         >
-          <Text className='text-white uppercase'>Confirm</Text>
+          <Text className='text-white'>Confirm</Text>
         </Button>
       </Block>
     </Block>
