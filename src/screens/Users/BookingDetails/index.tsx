@@ -5,7 +5,7 @@ import Image from 'Components/Ui/Image';
 import useTheme from 'src/core/theme';
 import Button from 'Components/Ui/Button';
 import { ScrollView, Text, TouchableOpacity } from 'react-native';
-import { AntDesign, Entypo } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
 import axios from 'axios';
 import {
   Vendor,
@@ -31,7 +31,7 @@ const BookingDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [submitErrMessage, setSubmitErrMessage] = useState('');
-  const [selectedEvent, setSelectedEvent] = useState<EventInfo>();
+  const [selectedEvent, setSelectedEvent] = useState<EventInfo | null>(null);
   const [success, setSuccess] = useState(false);
 
   if (!userContext) {
@@ -95,6 +95,18 @@ const BookingDetails = () => {
     loadPackage();
   }, [fetchPackage]);
 
+  useEffect(() => {
+    if (vendorPackage && vendorPackage.vendorId) {
+      fetchVendor(vendorPackage.vendorId);
+    }
+  }, [vendorPackage, fetchVendor]);
+
+  useEffect(() => {
+    if (events && events.length === 1) {
+      setSelectedEvent(events[0]);
+    }
+  }, [events]);
+
   const onPressConfirm = async (
     packageId: string,
     vendorId: string,
@@ -124,12 +136,6 @@ const BookingDetails = () => {
       setError('Error confirming booking');
     }
   };
-
-  useEffect(() => {
-    if (vendorPackage && vendorPackage.vendorId) {
-      fetchVendor(vendorPackage.vendorId);
-    }
-  }, [vendorPackage, fetchVendor]);
 
   const onSuccessPress = () => {
     if (selectedEvent) {
@@ -203,24 +209,23 @@ const BookingDetails = () => {
                     : 'bg-white text-black'
                 } p-2 my-1 rounded-lg border border-gold`}
               >
-                {/* <Text>{event?.name}</Text> */}
                 <Text
                   className={`${
                     selectedEvent?._id === eventInfo._id
-                      ? ' text-white'
-                      : ' text-black'
+                      ? 'text-white'
+                      : 'text-black'
                   }`}
                 >
-                  {formatDate(eventInfo?.date)}
+                  {formatDate(eventInfo.date)}
                 </Text>
                 <Text
                   className={`${
                     selectedEvent?._id === eventInfo._id
-                      ? ' text-white'
-                      : ' text-black'
+                      ? 'text-white'
+                      : 'text-black'
                   }`}
                 >
-                  {eventInfo?.attendees} pax
+                  {eventInfo.attendees} pax
                 </Text>
               </Block>
             </TouchableOpacity>
@@ -231,7 +236,7 @@ const BookingDetails = () => {
         {vendorPackage?.inclusions.map((inclusion: Product) => (
           <Block
             key={inclusion.id}
-            className=' h-18 w-full rounded-xl flex flex-row my-2'
+            className='h-18 w-full rounded-xl flex flex-row my-2'
           >
             <Image
               background
@@ -239,7 +244,7 @@ const BookingDetails = () => {
               src={inclusion.imageURL}
               rounded
               className='rounded-xl h-18 w-18'
-            ></Image>
+            />
             <Block>
               <Block className='w-52 rounded-xl flex flex-row justify-between p-2'>
                 <Text className='text-xs text-center font-semibold capitalize'>
