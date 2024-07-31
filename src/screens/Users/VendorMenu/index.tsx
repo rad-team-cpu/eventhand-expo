@@ -64,7 +64,6 @@ const VendorMenu = () => {
           },
         }
       );
-      console.log(response.data)
       setVendor(response.data);
     } catch (error: any) {
       if (error instanceof TypeError) {
