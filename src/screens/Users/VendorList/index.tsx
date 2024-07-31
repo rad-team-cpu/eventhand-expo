@@ -135,10 +135,11 @@ export default function VendorList() {
                     padding={sizes.md}
                     src={vendor.banner}
                     rounded
-                    className='h-24 w-40 rounded-xl'
+                    blurRadius={2}
+                    className='h-24 w-40 rounded-xl '
                   ></Image>
                   <View className='absolute inset-0 flex items-center justify-center'>
-                    <View className='bg-black/20 px-2 py-1 rounded'>
+                    <View className=' bg-black/30 px-2 py-1 rounded'>
                       <Text className='text-sm text-center text-white'>
                         {vendor.name}
                       </Text>

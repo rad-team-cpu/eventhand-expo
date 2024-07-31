@@ -133,18 +133,21 @@ function EventView({ route }: EventViewScreenProps) {
                 {(booking.package as PackageType).name}
               </Text>
             </View>
-            {(booking.package as PackageType).inclusions.map(
-              (inclusion: Product) => (
-                <View className='flex-row space-x-1'>
-                  <Text className='text-xs text-center font-semibold'>
-                    {inclusion.name}
-                  </Text>
-                  <Text className='text-xs text-center font-semibold'>
-                    x{inclusion.quantity}
-                  </Text>
-                </View>
-              )
-            )}
+            <View className='flex-col'>
+              {(booking.package as PackageType).inclusions.map(
+                (inclusion: Product) => (
+                  <View className='flex-row space-x-1'>
+                    <Text className='text-xs text-center font-semibold'>
+                      {inclusion.name}
+                    </Text>
+                    <Text className='text-xs text-center font-semibold'>
+                      x {inclusion.quantity}
+                    </Text>
+                  </View>
+                )
+              )}
+            </View>
+
             <Text className='text-s font-semibold' style={styles.vendorName}>
               ₱{(booking.package as PackageType).price}
             </Text>
