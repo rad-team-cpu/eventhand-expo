@@ -77,15 +77,14 @@ function EventView({ route }: EventViewScreenProps) {
               radius={sizes.s}
               width={sizes.xl}
               height={sizes.xl}
-              // source={{ uri: option?.user?.avatar }}
+              src={booking.package?.pictureURL}
               style={{ backgroundColor: colors.gray }}
             />
             <View>
-              <Text
-                className='text-s text-center font-semibold'
-                style={styles.vendorName}
-              >
-                {(booking.package as PackageType).name}
+              <Text className='text-xs text-center font-semibold'>
+                {(booking.package as PackageType).name.length > 12
+                  ? `${(booking.package as PackageType).name.substring(0, 10)}...`
+                  : (booking.package as PackageType).name}
               </Text>
             </View>
             <View className='flex-col'>
@@ -102,7 +101,7 @@ function EventView({ route }: EventViewScreenProps) {
                 )
               )}
             </View>
-            <Text className='text-s font-semibold' style={styles.vendorName}>
+            <Text className='text-xs font-semibold' style={styles.vendorName}>
               ₱{(booking.package as PackageType).price}
             </Text>
           </View>
@@ -124,15 +123,14 @@ function EventView({ route }: EventViewScreenProps) {
               radius={sizes.s}
               width={sizes.xl}
               height={sizes.xl}
-              // source={{ uri: option?.user?.avatar }}
+              src={booking.package?.pictureURL}
               style={{ backgroundColor: colors.gray }}
             />
             <View>
-              <Text
-                className='text-s text-center font-semibold'
-                style={styles.vendorName}
-              >
-                {(booking.package as PackageType).name}
+              <Text className='text-xs text-center font-semibold'>
+                {(booking.package as PackageType).name.length > 12
+                  ? `${(booking.package as PackageType).name.substring(0, 10)}...`
+                  : (booking.package as PackageType).name}
               </Text>
             </View>
             <View className='flex-col'>
