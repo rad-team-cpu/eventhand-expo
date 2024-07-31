@@ -29,7 +29,7 @@ import { UserContext } from 'Contexts/UserContext';
 const VendorMenu = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const route = useRoute();
-  const { assets, colors, sizes } = useTheme();
+  const { assets, colors, sizes, gradients } = useTheme();
   const [vendor, setVendor] = useState<Vendor>();
   const userContext = useContext(UserContext);
   const webSocket = useContext(WebSocketContext);
@@ -65,7 +65,6 @@ const VendorMenu = () => {
         }
       );
       setVendor(response.data);
-      console.log(response.data);
     } catch (error: any) {
       if (error instanceof TypeError) {
         console.error(
@@ -135,15 +134,22 @@ const VendorMenu = () => {
             radius={sizes.cardRadius}
             source={assets.background}
           >
-            <Button
-              row
-              flex={0}
-              justify='flex-start'
-              onPress={() => navigation.goBack()}
-            >
-              <AntDesign name='back' size={24} color='white' />
-              <Text className='text-white ml-1'>Go back</Text>
-            </Button>
+            <Block className='flex flex-row space-x-44'>
+              <Button row flex={0} onPress={() => navigation.goBack()}>
+                <AntDesign name='back' size={24} color='white' />
+                <Text className='text-white ml-1'>Go back</Text>
+              </Button>
+              <Block row marginVertical={sizes.xs}>
+                <Button
+                  round
+                  height={40}
+                  gradient={gradients.dark}
+                  onPress={onMessagePress}
+                >
+                  <AntDesign name='message1' color='white' size={25} />
+                </Button>
+              </Block>
+            </Block>
             <Block flex={0} align='center'>
               <Image
                 width={72}
@@ -151,57 +157,18 @@ const VendorMenu = () => {
                 src={vendor?.logo}
                 borderRadius={50}
               />
-              <Text className='items-center text-white font-bold text-3xl'>
+              <Text className='items-center text-center text-white font-bold text-xl'>
                 {vendor.name}
               </Text>
               <Block row align='center'>
                 {vendor.tags.map((tag: Tag) => (
                   <Text
                     key={tag._id}
-                    className='items-center text-white mx-1 capitalize'
+                    className='items-center text-white mx-0.5 capitalize font-light text-xs'
                   >
                     - {tag.name} -
                   </Text>
                 ))}
-              </Block>
-              <Block row marginVertical={sizes.xs}>
-                <Button
-                  white
-                  outlined
-                  shadow={false}
-                  radius={sizes.m}
-                  onPress={onMessagePress}
-                >
-                  <Block
-                    justify='center'
-                    radius={sizes.m}
-                    paddingHorizontal={sizes.m}
-                    color='rgba(255,255,255,0.2)'
-                  >
-                    <Pressable onPress={onMessagePress}>
-                      <Text className='uppercase font-bold text-white items-center'>
-                        Message
-                      </Text>
-                    </Pressable>
-                  </Block>
-                </Button>
-                {/* <Button
-                  white
-                  outlined
-                  marginHorizontal={sizes.sm}
-                  shadow={false}
-                  radius={sizes.m}
-                  onPress={() => onPressPackage('668f84bf792019f5d8988fea')}
-                >
-                  <Block
-                    justify='center'
-                    radius={sizes.m}
-                    paddingHorizontal={sizes.m}
-                    color='rgba(255,255,255,0.2)'
-                  >
-                    <Text className='uppercase text-white font-bold'>Book</Text>
-                  </Block>
-                </Button> */}
               </Block>
             </Block>
           </Image>
@@ -259,19 +226,19 @@ const VendorMenu = () => {
               {vendor.packages.map((vendorPackage: PackageType) => (
                 <TouchableOpacity
                   key={vendorPackage._id}
-                  className=' h-24 w-full rounded-xl border border-pink-500 flex flex-row mt-2'
+                  className='h-24 w-full rounded-xl border border-primary flex flex-row mt-2'
                   onPress={() => onPressPackage(vendorPackage._id)}
                 >
                   <Image
                     background
                     padding={sizes.md}
-                    source={assets.card1}
+                    src={vendorPackage.pictureURL}
                     rounded
-                    className='rounded-xl h-24 w-24'
+                    className='rounded-xl h-20 w-20 self-center ml-1'
                   ></Image>
                   <View>
-                    <View className='w-52 rounded-xl flex flex-row justify-center p-2'>
-                      <Text className='text-s text-center font-semibold pr-2'>
+                    <View className=' w-52 rounded-xl flex flex-row justify-between m-2'>
+                      <Text className='text-xs text-center font-semibold'>
                         {vendorPackage.name}
                       </Text>
                       <Text className='text-s text-center font-semibold'>
@@ -279,7 +246,7 @@ const VendorMenu = () => {
                       </Text>
                     </View>
                     {vendorPackage.inclusions.slice(0, 3).map((inclusion) => (
-                      <View className='flex flex-row justify-between p-1'>
+                      <View className='w-52 flex flex-row justify-between mx-2'>
                         <Text className='text-xs '> {inclusion.name} </Text>
                         <Text className='text-xs'> x{inclusion.quantity} </Text>
                       </View>
@@ -300,7 +267,7 @@ const VendorMenu = () => {
             <Block row justify='space-between' wrap='wrap'>
               <Image
                 resizeMode='cover'
-                source={assets?.card1}
+                src={vendor?.banner}
                 style={{
                   width: IMAGE_VERTICAL_SIZE + IMAGE_MARGIN / 2,
                   height: IMAGE_VERTICAL_SIZE * 2 + IMAGE_VERTICAL_MARGIN,
@@ -309,7 +276,7 @@ const VendorMenu = () => {
               <Block marginLeft={sizes.m}>
                 <Image
                   resizeMode='cover'
-                  source={assets?.card2}
+                  src={vendor?.banner}
                   marginBottom={IMAGE_VERTICAL_MARGIN}
                   style={{
                     height: IMAGE_VERTICAL_SIZE,
@@ -318,7 +285,7 @@ const VendorMenu = () => {
                 />
                 <Image
                   resizeMode='cover'
-                  source={assets?.card3}
+                  src={vendor?.banner}
                   style={{
                     height: IMAGE_VERTICAL_SIZE,
                     width: IMAGE_VERTICAL_SIZE,
