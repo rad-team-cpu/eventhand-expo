@@ -34,6 +34,8 @@ export default function VendorList() {
   const [planningVendors, setPlanningVendors] = useState<Vendor[]>([]);
   const [cateringVendors, setCateringVendors] = useState<Vendor[]>([]);
   const [photographyVendors, setPhotographyVendors] = useState<Vendor[]>([]);
+  const [decorationVendors, setDecorationVendors] = useState<Vendor[]>([]);
+
 
   if (!userContext) {
     throw new Error('UserInfo must be used within a UserProvider');
@@ -89,6 +91,9 @@ export default function VendorList() {
     fetchVendors(['66966f897ca14eb4d4778a5f'], setVenueVendors);
     fetchVendors(['66966f9a7ca14eb4d4778a65'], setPhotographyVendors);
     fetchVendors(['66966f5e7ca14eb4d4778a5b'], setPlanningVendors);
+    fetchVendors(['66966f957ca14eb4d4778a63'], setDecorationVendors);
+
+    
   }, []);
 
   return (
@@ -231,6 +236,46 @@ export default function VendorList() {
               className=' flex flex-row'
             >
               {planningVendors.slice(0, 7).map((vendor) => (
+                <TouchableOpacity
+                  key={vendor._id}
+                  className='w-20 h-26 rounded-xl mr-2'
+                  onPress={() => onPressVendor(vendor._id)}
+                >
+                  <View className='bg-slate-500/30 w-20 h-14 rounded-xl align-middle '>
+                    <Image
+                      background
+                      resizeMode='cover'
+                      padding={sizes.md}
+                      src={vendor.banner}
+                      rounded
+                      className='h-14 w-20 rounded-xl'
+                    ></Image>
+                  </View>
+                  <Text className='text-xs text-center'>
+                    {vendor.name.length > 12
+                      ? `${vendor.name.substring(0, 10)}...`
+                      : vendor.name}
+                  </Text>
+                  <View className=' items-center'>
+                    <StarRating
+                      rating={vendor.credibilityFactors?.ratingsScore}
+                      starStyle='width'
+                    />
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+          <View className='w-full h-auto flex items-left justify-left gap-y-2'>
+            <Text className='text-xl text-black font-bold capitalize'>
+              Design and Decoration
+            </Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              className=' flex flex-row'
+            >
+              {decorationVendors.slice(0, 7).map((vendor) => (
                 <TouchableOpacity
                   key={vendor._id}
                   className='w-20 h-26 rounded-xl mr-2'
