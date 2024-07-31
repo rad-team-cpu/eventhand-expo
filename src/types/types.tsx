@@ -14,19 +14,31 @@ import type {
 import { FullMetadata, StorageReference } from 'firebase/storage';
 import { ImageSourcePropType } from 'react-native';
 
-type UserMode = "CLIENT" | "VENDOR";
+type UserMode = 'CLIENT' | 'VENDOR';
 
-type PaginationInfo = { 
-  hasMore: boolean
-  currentPage: number
-  totalPages: number
-}
+type PaginationInfo = {
+  hasMore: boolean;
+  currentPage: number;
+  totalPages: number;
+};
 
 interface EventInfo {
   _id: string;
   attendees: number;
   budget: number;
   date: Date | string;
+  bookings?: BookingDetailsProps[];
+}
+
+interface Tag {
+  _id: string;
+  name?: string;
+}
+
+enum BookingStatus {
+  Pending = 'PENDING',
+  Confirmed = 'CONFIRMED',
+  Cancelled = 'CANCELLED',
 }
 
 interface Vendor {
@@ -39,9 +51,9 @@ interface Vendor {
   address?: string;
   contactNumber: string;
   tags: [];
-  about: string;
   credibilityFactors: CredibilityFactorsType;
   packages: PackageType[];
+  bookings?: BookingDetailsProps[];
 }
 
 interface PackageType {
@@ -62,11 +74,6 @@ interface Product {
   quantity: number;
 }
 
-interface Tag {
-  _id: string;
-  name: string;
-}
-
 interface CredibilityFactorsType {
   ratingsScore: number;
   bookings: number;
@@ -75,19 +82,20 @@ interface CredibilityFactorsType {
 
 interface Chat {
   _id: string;
-  senderId: string
+  senderId: string;
   senderImage?: string;
   senderName: string;
   latestMessage?: string;
-  isImage?:boolean;
+  isImage?: boolean;
   timestamp?: Date;
 }
+
 interface ChatMessage {
   _id: string;
   senderId: string;
   content: string;
   timestamp: Date;
-  isImage?: boolean
+  isImage?: boolean;
 }
 
 interface UserChat {
@@ -134,33 +142,44 @@ interface ConfirmationProps {
   confirmNavigateTo: keyof ScreenProps;
   confrimNavParams?: ScreenProps[keyof ScreenProps];
   isSwitching: boolean;
-  switchingTo?: "CLIENT" | "VENDOR"
+  switchingTo?: 'CLIENT' | 'VENDOR';
 }
 
 interface HomeProps {
   noFetch?: boolean;
-  initialTab?: string | keyof HomeScreenBottomTabsProps | keyof VendorHomeScreenBottomTabsProps;
+  initialTab?:
+    | string
+    | keyof HomeScreenBottomTabsProps
+    | keyof VendorHomeScreenBottomTabsProps;
 }
 
 interface VendorMenuProps {
   vendorId: string;
 }
 
-interface VendorListProps {
-  vendorId?: string;
-  _id?: string;
-  attendees?: number;
-  budget?: number;
-  date?: Date | string;
-}
+// interface VendorListProps {
+//   vendorId?: string;
+//   _id?: string;
+//   attendees?: number;
+//   budget?: number;
+//   date?: Date | string;
+// }
 
 interface BookingConfirmationProps {
   packageId: string;
 }
 
 interface BookingDetailsProps {
-  packageId: string;
-  vendorId: string;
+  _id?: string;
+  package?: PackageType;
+  packageId?: string;
+  vendor?: Vendor;
+  vendorId?: string;
+  client?: UserProfile;
+  clientId?: string;
+  event?: EventInfo;
+  eventId?: string;
+  bookingStatus?: BookingStatus;
 }
 
 type ScreenProps = {
@@ -170,13 +189,13 @@ type ScreenProps = {
   ProfileForm: undefined;
   EventForm: undefined;
   EventView: EventInfo;
-  VendorList: VendorListProps;
+  VendorList: undefined;
   VendorMenu: VendorMenuProps;
   BookingConfirmation: BookingConfirmationProps;
   BookingDetails: BookingDetailsProps;
   SuccessError: SuccessErrorProps;
   Confirmation: ConfirmationProps;
-  Chat: Chat
+  Chat: Chat;
   VendorHome: HomeProps;
   VendorProfileForm: undefined;
 };
@@ -196,11 +215,11 @@ type ProfileFormScreenProps = NativeStackScreenProps<
 
 type EventFormScreenProps = NativeStackScreenProps<ScreenProps, 'EventForm'>;
 
-type EventViewScreenProps = NativeStackScreenProps<ScreenProps, "EventView">;
+type EventViewScreenProps = NativeStackScreenProps<ScreenProps, 'EventView'>;
 
-type ChatScreenProps = NativeStackScreenProps<ScreenProps, "Chat">;
+type ChatScreenProps = NativeStackScreenProps<ScreenProps, 'Chat'>;
 
-type ChatNavigationProps = NativeStackNavigationProp<ScreenProps, "Chat">;
+type ChatNavigationProps = NativeStackNavigationProp<ScreenProps, 'Chat'>;
 
 type SuccessErrorScreenProps = NativeStackScreenProps<
   ScreenProps,
@@ -209,13 +228,12 @@ type SuccessErrorScreenProps = NativeStackScreenProps<
 
 type ConfirmationScreenProps = NativeStackScreenProps<
   ScreenProps,
-  "Confirmation"
+  'Confirmation'
 >;
 
-interface ChatListProps{
-  mode: "VENDOR" | "CLIENT"
+export interface ChatListProps {
+  mode: 'VENDOR' | 'CLIENT';
 }
-
 
 type HomeScreenBottomTabsProps = {
   Home: NavigatorScreenParams<ScreenProps>;
@@ -243,7 +261,10 @@ type EventListNavigationProps = CompositeNavigationProp<
 >;
 
 type ChatListScreenPropsList = CompositeScreenProps<
-  BottomTabScreenProps<HomeScreenBottomTabsProps | VendorHomeScreenBottomTabsProps, 'ChatList'>,
+  BottomTabScreenProps<
+    HomeScreenBottomTabsProps | VendorHomeScreenBottomTabsProps,
+    'ChatList'
+  >,
   NativeStackScreenProps<ScreenProps>
 >;
 
@@ -268,12 +289,12 @@ type VendorHomeScreenProps = NativeStackScreenProps<ScreenProps, 'VendorHome'>;
 
 type VendorProfileFormScreenProps = NativeStackScreenProps<
   ScreenProps,
-  "VendorProfileForm"
+  'VendorProfileForm'
 >;
 
-
-
 export {
+  BookingStatus,
+  BookingDetailsProps,
   EventInfo,
   UserProfile,
   Chat,
@@ -309,5 +330,5 @@ export {
   VendorHomeScreenBottomTabsProps,
   ChatListScreenPropsList,
   UserMode,
-  PaginationInfo
+  PaginationInfo,
 };

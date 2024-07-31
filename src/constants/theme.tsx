@@ -41,6 +41,8 @@ export const ASSETS: ThemeAssets = {
   card3: require("../assets/images/card3.png"),
   card4: require("../assets/images/card4.png"),
   noEvents: require("../assets/images/noEvents.png"),
+  noMessages: require("../assets/images/noMessages.png"),
+
 
 };
 

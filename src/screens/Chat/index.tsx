@@ -24,7 +24,8 @@ import {
 } from "react-native-gifted-chat";
 import FirebaseService from "service/firebase";
 import { Entypo } from "@expo/vector-icons";
-import { ChatMessage, ChatScreenProps, ImageInfo, PaginationInfo } from "types/types";
+import { ChatMessage, ChatScreenProps, HomeScreenNavigationProp, ImageInfo, PaginationInfo } from "types/types";
+import { useNavigation } from "@react-navigation/native";
 
 const firebaseService = FirebaseService.getInstance();
 
@@ -63,6 +64,7 @@ const CustomTimeStamp = (props: TimeProps<IMessage>) => {
 
 const headerIcon = (image?: string) => {
   let source = { uri: image };
+  const navigation = useNavigation<HomeScreenNavigationProp>();
 
   if (!image) {
     source = require("../../assets/images/user.png");
@@ -70,7 +72,7 @@ const headerIcon = (image?: string) => {
 
   return (
     <View style={styles.leftHeaderContainer}>
-      <Pressable onPress={() => { /* Handle back action */ }} style={styles.backButton}>
+      <Pressable onPress={() => navigation.goBack()} style={styles.backButton}>
         <Entypo name="chevron-left" size={24} color="#000" />
       </Pressable>
      <View style={styles.iconContainer}>
