@@ -547,7 +547,7 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
                 row
                 flex={0}
                 justify='flex-start'
-                onPress={() => navigation.goBack()}
+                onPress={() => setConfirmDetails(false)}
               >
                 <AntDesign name='back' size={24} color='white' />
                 <Text p white marginLeft={sizes.s}>
