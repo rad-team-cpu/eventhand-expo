@@ -226,19 +226,19 @@ const VendorMenu = () => {
               {vendor.packages.map((vendorPackage: PackageType) => (
                 <TouchableOpacity
                   key={vendorPackage._id}
-                  className=' h-24 w-full rounded-xl border border-pink-500 flex flex-row mt-2'
+                  className='h-24 w-full rounded-xl border border-primary flex flex-row mt-2'
                   onPress={() => onPressPackage(vendorPackage._id)}
                 >
                   <Image
                     background
                     padding={sizes.md}
-                    source={assets.card1}
+                    src={vendorPackage.pictureURL}
                     rounded
-                    className='rounded-xl h-24 w-24'
+                    className='rounded-xl h-20 w-20 self-center ml-1'
                   ></Image>
                   <View>
-                    <View className='w-52 rounded-xl flex flex-row justify-center p-2'>
-                      <Text className='text-s text-center font-semibold pr-2'>
+                    <View className=' w-52 rounded-xl flex flex-row justify-between m-2'>
+                      <Text className='text-xs text-center font-semibold'>
                         {vendorPackage.name}
                       </Text>
                       <Text className='text-s text-center font-semibold'>
@@ -246,7 +246,7 @@ const VendorMenu = () => {
                       </Text>
                     </View>
                     {vendorPackage.inclusions.slice(0, 3).map((inclusion) => (
-                      <View className='flex flex-row justify-between p-1'>
+                      <View className='w-52 flex flex-row justify-between mx-2'>
                         <Text className='text-xs '> {inclusion.name} </Text>
                         <Text className='text-xs'> x{inclusion.quantity} </Text>
                       </View>

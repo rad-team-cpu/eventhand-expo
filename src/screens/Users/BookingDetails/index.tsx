@@ -189,7 +189,7 @@ const BookingDetails = () => {
           <AntDesign name='back' size={24} color='#ec4899' />
           <Text className='text-primary ml-1'>Go back</Text>
         </Button>
-        <Text className='font-bold p-2'>Booking Details:</Text>
+        <Text className='font-bold p-2'>Choose an Event:</Text>
         <Block>
           {events?.map((eventInfo: EventInfo) => (
             <TouchableOpacity
@@ -226,15 +226,17 @@ const BookingDetails = () => {
             </TouchableOpacity>
           ))}
         </Block>
+        <Text className='font-bold mt-1'>Booking Details:</Text>
+
         {vendorPackage?.inclusions.map((inclusion: Product) => (
           <Block
             key={inclusion.id}
-            className=' h-18 w-full rounded-xl flex flex-row my-5'
+            className=' h-18 w-full rounded-xl flex flex-row my-2'
           >
             <Image
               background
               padding={sizes.md}
-              source={assets.card1}
+              src={inclusion.imageURL}
               rounded
               className='rounded-xl h-18 w-18'
             ></Image>
@@ -262,7 +264,7 @@ const BookingDetails = () => {
           justify='space-between'
           marginVertical={sizes.sm}
         >
-          <Text className='font-bold text-xl'>{vendorPackage?.name}</Text>
+          <Text className='font-bold text-md'>{vendorPackage?.name}</Text>
           <Text className='font-bold text-primary'>
             Total: ₱{vendorPackage?.price.toFixed(2)}
           </Text>

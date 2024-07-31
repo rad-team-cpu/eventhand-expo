@@ -167,8 +167,11 @@ export default function VendorList() {
                       rounded
                       className='h-24 w-24 rounded-xl'
                     ></Image>
-                    <Text className='text-xs text-center'>{vendor.name}</Text>
-
+                    <Text className='text-xs text-center'>
+                      {vendor.name.length > 12
+                        ? `${vendor.name.substring(0, 10)}...`
+                        : vendor.name}
+                    </Text>
                     <View className=' items-center'>
                       <StarRating
                         rating={vendor.credibilityFactors?.ratingsScore}
@@ -202,12 +205,16 @@ export default function VendorList() {
                       rounded
                       className='h-24 w-24 rounded-xl'
                     ></Image>
-                    <Text className='text-xs text-center'>{vendor.name}</Text>
+                    <Text className='text-xs text-center'>
+                      {vendor.name.length > 12
+                        ? `${vendor.name.substring(0, 10)}...`
+                        : vendor.name}
+                    </Text>
                     <View className=' items-center'>
-                      {/* <StarRating
-                        rating={vendor.credibilityFactors.ratingsScore}
+                      <StarRating
+                        rating={vendor.credibilityFactors?.ratingsScore}
                         starStyle='width'
-                      /> */}
+                      />
                     </View>
                   </View>
                 </TouchableOpacity>
@@ -239,7 +246,17 @@ export default function VendorList() {
                       className='h-14 w-20 rounded-xl'
                     ></Image>
                   </View>
-                  <Text className='text-xs text-center'>{vendor.name}</Text>
+                  <Text className='text-xs text-center'>
+                    {vendor.name.length > 12
+                      ? `${vendor.name.substring(0, 10)}...`
+                      : vendor.name}
+                  </Text>
+                  <View className=' items-center'>
+                    <StarRating
+                      rating={vendor.credibilityFactors?.ratingsScore}
+                      starStyle='width'
+                    />
+                  </View>
                 </TouchableOpacity>
               ))}
             </ScrollView>

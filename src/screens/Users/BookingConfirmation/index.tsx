@@ -194,8 +194,7 @@ const BookingConfirmation = () => {
             radius={sizes.s}
             width={sizes.xl}
             height={sizes.xl}
-            // source={{ uri: option?.user?.avatar }}
-            style={{ backgroundColor: colors.white }}
+            src={vendor?.logo}
           />
           <Block marginLeft={sizes.s}>
             <Text className='font-semibold'>{vendor?.name}</Text>
@@ -225,7 +224,7 @@ const BookingConfirmation = () => {
             <Image
               background
               padding={sizes.md}
-              source={assets.card1}
+              src={inclusion.imageURL}
               rounded
               className='rounded-xl h-18 w-18'
             ></Image>

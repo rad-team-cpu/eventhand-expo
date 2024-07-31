@@ -62,7 +62,7 @@ interface PackageType {
   vendor: Vendor;
   vendorId: string;
   price: number;
-  image: string;
+  pictureURL: string;
   capacity: number;
   inclusions: Product[];
 }
@@ -70,6 +70,7 @@ interface PackageType {
 interface Product {
   id: string;
   name: string;
+  imageURL: string;
   description: string;
   quantity: number;
 }
