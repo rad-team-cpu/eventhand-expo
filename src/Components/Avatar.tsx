@@ -16,7 +16,7 @@ const Avatar = (props: ProfileAvatarProps) => {
       <View style={defaultStyles.avatarContainer}>
         <Image
           testID="test-avatar-image"
-          src=" https://firebasestorage.googleapis.com/v0/b/eventhand.appspot.com/o/images%2Fuser_2iQDKIUraHbdSHl8zzMqqpCaumH%2Fprofile%2Favatar.jpg?alt=media&token=15f1a1cf-a940-4edd-a26c-b954c2bea209"
+          source={uri !== "" ? { uri } : defaultImage}
           style={defaultStyles.avatar}
         />
       </View>
