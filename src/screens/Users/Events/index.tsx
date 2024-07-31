@@ -21,11 +21,9 @@ import Button from 'Components/Ui/Button';
 import { AntDesign } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
-function EventView({ route }: EventViewScreenProps) {
+function EventView({ route, navigation }: EventViewScreenProps) {
   const { _id, attendees, budget, date, bookings } = route.params;
-  const navigation = useNavigation<HomeScreenNavigationProp>();
-  const dateString =
-    typeof date == 'string' ? date : format(date, 'MMMM dd, yyyy');
+  const dateString = format(date, 'MMMM dd, yyyy')
   const { colors, sizes } = useTheme();
   const [index, setIndex] = useState(0);
   const [routes] = useState([
@@ -57,7 +55,7 @@ function EventView({ route }: EventViewScreenProps) {
   };
 
   const handleFindSupplier = () => {
-    navigation.navigate('Home', { initialTab: 'ChatList' });
+    navigation.navigate('Home', { initialTab: 'Vendors' });
   };
 
   const ConfirmedVendors = () => (
