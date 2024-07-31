@@ -128,8 +128,22 @@ export default function VendorList() {
                 key={vendor._id}
                 onPress={() => onPressVendor(vendor._id)}
               >
-                <View className='bg-slate-500/30 h-24 w-40 flex items-center justify-center rounded-xl mr-3'>
-                  <Text className=' text-sm text-center'>{vendor.name}</Text>
+                <View className='bg-slate-500/30 h-24 w-40 flex items-center justify-center rounded-xl mr-3 relative'>
+                  <Image
+                    background
+                    resizeMode='cover'
+                    padding={sizes.md}
+                    src={vendor.banner}
+                    rounded
+                    className='h-24 w-40 rounded-xl'
+                  ></Image>
+                  <View className='absolute inset-0 flex items-center justify-center'>
+                    <View className='bg-black/20 px-2 py-1 rounded'>
+                      <Text className='text-sm text-center text-white'>
+                        {vendor.name}
+                      </Text>
+                    </View>
+                  </View>
                 </View>
               </TouchableOpacity>
             ))}
@@ -183,7 +197,7 @@ export default function VendorList() {
                       background
                       resizeMode='cover'
                       padding={sizes.md}
-                      source={assets.card1}
+                      src={vendor.banner}
                       rounded
                       className='h-24 w-24 rounded-xl'
                     ></Image>
@@ -201,7 +215,7 @@ export default function VendorList() {
           </View>
           <View className='w-full h-auto flex items-left justify-left gap-y-2'>
             <Text className='text-xl text-black font-bold capitalize'>
-              Suppliers you might need!
+              Need help planning?
             </Text>
             <ScrollView
               horizontal
@@ -211,14 +225,18 @@ export default function VendorList() {
               {planningVendors.slice(0, 7).map((vendor) => (
                 <TouchableOpacity
                   key={vendor._id}
-                  className='w-20 h-20 rounded-xl mr-2'
+                  className='w-20 h-26 rounded-xl mr-2'
                   onPress={() => onPressVendor(vendor._id)}
                 >
                   <View className='bg-slate-500/30 w-20 h-14 rounded-xl align-middle '>
-                    {/* <Image
-                      source={require('@/assets/images/Customer/mobilehotdog.webp')}
-                      className='bg-contain w-24 h-24 z-0'
-                    /> */}
+                    <Image
+                      background
+                      resizeMode='cover'
+                      padding={sizes.md}
+                      src={vendor.banner}
+                      rounded
+                      className='h-14 w-20 rounded-xl'
+                    ></Image>
                   </View>
                   <Text className='text-xs text-center'>{vendor.name}</Text>
                 </TouchableOpacity>
