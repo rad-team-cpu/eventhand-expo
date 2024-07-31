@@ -67,6 +67,7 @@ const VendorMenu = () => {
       setVendor(response.data);
     } catch (error: any) {
       if (error instanceof TypeError) {
+        console.error(error)
         console.error(
           'Network request failed. Possible causes: CORS issues, network issues, or incorrect URL.'
         );

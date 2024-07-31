@@ -272,10 +272,11 @@ function EventForm({ navigation }: EventFormScreenProps) {
       };
 
       const response = await fetch(url, request);
-
+      console.log(response.status)
       switch (response.status) {
         case 201:
           const data = await response.json();
+          
           const event: EventInfo = {
             _id: data._id as string,
             attendees: input.guests,
