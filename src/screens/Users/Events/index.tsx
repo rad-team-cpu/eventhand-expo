@@ -21,11 +21,9 @@ import Button from 'Components/Ui/Button';
 import { AntDesign } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
-function EventView({ route }: EventViewScreenProps) {
+function EventView({ route, navigation }: EventViewScreenProps) {
   const { _id, attendees, budget, date, bookings } = route.params;
-  const navigation = useNavigation<HomeScreenNavigationProp>();
-  const dateString =
-    typeof date == 'string' ? date : format(date, 'MMMM dd, yyyy');
+  const dateString = format(date, 'MMMM dd, yyyy')
   const { colors, sizes } = useTheme();
   const [index, setIndex] = useState(0);
   const [routes] = useState([
@@ -57,7 +55,7 @@ function EventView({ route }: EventViewScreenProps) {
   };
 
   const handleFindSupplier = () => {
-    navigation.navigate('Home', { initialTab: 'ChatList' });
+    navigation.navigate('Home', { initialTab: 'Vendors' });
   };
 
   const ConfirmedVendors = () => (
@@ -77,30 +75,31 @@ function EventView({ route }: EventViewScreenProps) {
               radius={sizes.s}
               width={sizes.xl}
               height={sizes.xl}
-              // source={{ uri: option?.user?.avatar }}
+              src={booking.package?.pictureURL}
               style={{ backgroundColor: colors.gray }}
             />
             <View>
-              <Text
-                className='text-s text-center font-semibold'
-                style={styles.vendorName}
-              >
-                {(booking.package as PackageType).name}
+              <Text className='text-xs text-center font-semibold'>
+                {(booking.package as PackageType).name.length > 12
+                  ? `${(booking.package as PackageType).name.substring(0, 10)}...`
+                  : (booking.package as PackageType).name}
               </Text>
             </View>
-            {(booking.package as PackageType).inclusions.map(
-              (inclusion: Product) => (
-                <View className='flex-row space-x-1'>
-                  <Text className='text-xs text-center font-semibold'>
-                    {inclusion.name}
-                  </Text>
-                  <Text className='text-xs text-center font-semibold'>
-                    x{inclusion.quantity}
-                  </Text>
-                </View>
-              )
-            )}
-            <Text className='text-s font-semibold' style={styles.vendorName}>
+            <View className='flex-col'>
+              {(booking.package as PackageType).inclusions.map(
+                (inclusion: Product) => (
+                  <View className='flex-row space-x-1'>
+                    <Text className='text-xs text-center font-semibold'>
+                      {inclusion.name}
+                    </Text>
+                    <Text className='text-xs text-center font-semibold'>
+                      x {inclusion.quantity}
+                    </Text>
+                  </View>
+                )
+              )}
+            </View>
+            <Text className='text-xs font-semibold' style={styles.vendorName}>
               ₱{(booking.package as PackageType).price}
             </Text>
           </View>
@@ -122,29 +121,31 @@ function EventView({ route }: EventViewScreenProps) {
               radius={sizes.s}
               width={sizes.xl}
               height={sizes.xl}
-              // source={{ uri: option?.user?.avatar }}
+              src={booking.package?.pictureURL}
               style={{ backgroundColor: colors.gray }}
             />
             <View>
-              <Text
-                className='text-s text-center font-semibold'
-                style={styles.vendorName}
-              >
-                {(booking.package as PackageType).name}
+              <Text className='text-xs text-center font-semibold'>
+                {(booking.package as PackageType).name.length > 12
+                  ? `${(booking.package as PackageType).name.substring(0, 10)}...`
+                  : (booking.package as PackageType).name}
               </Text>
             </View>
-            {(booking.package as PackageType).inclusions.map(
-              (inclusion: Product) => (
-                <View className='flex-row space-x-1'>
-                  <Text className='text-xs text-center font-semibold'>
-                    {inclusion.name}
-                  </Text>
-                  <Text className='text-xs text-center font-semibold'>
-                    x{inclusion.quantity}
-                  </Text>
-                </View>
-              )
-            )}
+            <View className='flex-col'>
+              {(booking.package as PackageType).inclusions.map(
+                (inclusion: Product) => (
+                  <View className='flex-row space-x-1'>
+                    <Text className='text-xs text-center font-semibold'>
+                      {inclusion.name}
+                    </Text>
+                    <Text className='text-xs text-center font-semibold'>
+                      x {inclusion.quantity}
+                    </Text>
+                  </View>
+                )
+              )}
+            </View>
+
             <Text className='text-s font-semibold' style={styles.vendorName}>
               ₱{(booking.package as PackageType).price}
             </Text>

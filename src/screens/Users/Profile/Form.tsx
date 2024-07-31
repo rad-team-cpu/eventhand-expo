@@ -73,13 +73,13 @@ const signUpValidationSchema = object().shape({
   lastName: string()
     .required('Enter last name.')
     .matches(
-      /^[a-zA-Z-']+$/,
+      /^[a-zA-Z-' ]+$/,
       "No digits or special characters excluding ('-) are allowed"
     ),
   firstName: string()
     .required('Enter first name.')
     .matches(
-      /^[a-zA-Z-']+$/,
+      /^[a-zA-Z-' ]+$/,
       "No digits or special characters excluding ('-) are allowed"
     ),
   contactNumber: string()
@@ -547,7 +547,7 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
                 row
                 flex={0}
                 justify='flex-start'
-                onPress={() => navigation.goBack()}
+                onPress={() => setConfirmDetails(false)}
               >
                 <AntDesign name='back' size={24} color='white' />
                 <Text p white marginLeft={sizes.s}>
