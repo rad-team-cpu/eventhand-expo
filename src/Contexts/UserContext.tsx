@@ -25,10 +25,7 @@ const UserProvider = (props: UserProviderProps) => {
     lastName: "",
     firstName: "",
     contactNumber: "",
-    gender: "",
     events: [],
-    chats: [],
-    vendorId: "",
   });
   const { children } = props;
 
