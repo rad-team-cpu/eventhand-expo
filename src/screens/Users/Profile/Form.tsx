@@ -488,7 +488,7 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
   useFocusEffect(
     useCallback(() => {
       const backAction = () => {
-        setConfirmDetails(!confirmDetails);
+        setConfirmDetails(false);
         return true;
       };
 
