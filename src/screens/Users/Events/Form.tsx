@@ -25,17 +25,19 @@ import {
 } from 'react-native';
 import Loading from 'screens/Loading';
 import { EventFormScreenProps, EventInfo, ScreenProps } from 'types/types';
-import { date, number, object } from 'yup';
+import { date, number, object, string } from 'yup';
 import Block from 'Components/Ui/Block';
 import useTheme from 'src/core/theme';
 
 interface EventFormInput extends FieldValues {
+  name: string,
   date: Date;
   guests: number;
   budget: number;
 }
 
 const EventFormInputValidation = object().shape({
+  name: string().required("Please enter a name for your event"),
   date: date()
     .required('Please enter the date of your event')
     .min(sub({ days: 1 }, new Date())),
@@ -49,7 +51,7 @@ const EventFormInputValidation = object().shape({
     .integer('Input must be an integer'),
 });
 
-const totalSteps = 3;
+const totalSteps = 4;
 
 function EventForm({ navigation }: EventFormScreenProps) {
   const userContext = useContext(UserContext);
@@ -90,6 +92,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
     mode: 'onChange',
     reValidateMode: 'onChange',
     defaultValues: {
+      name: ``,
       date: new Date(),
       guests: 0,
       budget: 0,
@@ -108,9 +111,12 @@ function EventForm({ navigation }: EventFormScreenProps) {
         resetField('date');
         break;
       case 1:
-        resetField('guests');
+        resetField('date');
         break;
       case 2:
+        resetField('guests');
+        break;
+      case 3:
         resetField('budget');
         break;
     }
@@ -132,19 +138,51 @@ function EventForm({ navigation }: EventFormScreenProps) {
   useEffect(() => {
     switch (step) {
       case 0:
+        setTitle('What is the name for your event?');
+        setDescription('Please enter the name of your event');
+        break;
+      case 1:
         setTitle('When is the date of your event?');
         setDescription('Please select the date of your event');
         break;
-      case 1:
+      case 2:
         setTitle('How many will attend?');
         setDescription('Please enter the number of people that will attend.');
         break;
-      case 2:
+      case 3:
         setTitle('How much is your budget?');
         setDescription('Please enter your budget for the event.');
         break;
     }
   }, [step]);
+
+  const EventNameInput = () => {
+    return (
+      <Controller
+        name='name'
+        control={control}
+        render={({ field: { onChange, onBlur, value } }) => {
+          const onValueChange = (input: string) => {
+            onChange(input);
+          };
+
+          return (
+            <TextInput
+              id='event-name-input'
+              testID='test-event-name-input'
+              onBlur={onBlur}
+              placeholder={`ex. ${user.firstName}'s event`}
+              defaultValue={value}
+              onChangeText={onValueChange}
+              autoCapitalize='none'
+              returnKeyType='done'
+              className='my-4 p-2 rounded-lg border-gold border-2'
+            />
+          );
+        }}
+      />
+    );
+  };
 
   const EventDateInput = () => {
     return (
@@ -231,10 +269,12 @@ function EventForm({ navigation }: EventFormScreenProps) {
   const EventInput = () => {
     switch (step) {
       case 0:
-        return <EventDateInput />;
+        return <EventNameInput />;
       case 1:
-        return <EventGuestsInput />;
+        return <EventDateInput />;
       case 2:
+        return <EventGuestsInput />;
+      case 3:
         return <EventBudgetInput />;
       default:
         return null;
@@ -243,87 +283,89 @@ function EventForm({ navigation }: EventFormScreenProps) {
 
   const submitEventInput = async (input: EventFormInput) => {
     setLoading(true);
+    console.log(input);
+    setLoading(false);
 
-    const navigateToSuccessError = (props: ScreenProps['SuccessError']) => {
-      if (props.status === 'error') {
-        navigation.navigate('SuccessError', { ...props });
-      } else {
-        navigation.replace('SuccessError', { ...props });
-      }
-    };
+    // const navigateToSuccessError = (props: ScreenProps['SuccessError']) => {
+    //   if (props.status === 'error') {
+    //     navigation.navigate('SuccessError', { ...props });
+    //   } else {
+    //     navigation.replace('SuccessError', { ...props });
+    //   }
+    // };
 
-    try {
-      const token = await getToken({ template: 'event-hand-jwt' });
+    // try {
+    //   const token = await getToken({ template: 'event-hand-jwt' });
 
-      const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events`;
+    //   const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events`;
 
-      const request = {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          clerkId: userId,
-          attendees: input.guests,
-          date: input.date,
-          budget: input.budget,
-        }),
-      };
+    //   const request = {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //       Authorization: `Bearer ${token}`,
+    //     },
+    //     body: JSON.stringify({
+    //       clerkId: userId,
+    //       attendees: input.guests,
+    //       date: input.date,
+    //       budget: input.budget,
+    //     }),
+    //   };
 
-      const response = await fetch(url, request);
-      console.log(response.status)
-      switch (response.status) {
-        case 201:
-          const data = await response.json();
+    //   const response = await fetch(url, request);
+    //   console.log(response.status)
+    //   switch (response.status) {
+    //     case 201:
+    //       const data = await response.json();
           
-          const event: EventInfo = {
-            _id: data._id as string,
-            attendees: input.guests,
-            ...input,
-          };
+    //       const event: EventInfo = {
+    //         _id: data._id as string,
+    //         attendees: input.guests,
+    //         ...input,
+    //       };
 
-          if (user.events) {
-            setUser({ ...user, events: [...user.events, event] });
-          } else {
-            setUser({ ...user, events: [event] });
-          }
-          const dateString = format(event.date, 'MMMM dd, yyyy');
+    //       if (user.events) {
+    //         setUser({ ...user, events: [...user.events, event] });
+    //       } else {
+    //         setUser({ ...user, events: [event] });
+    //       }
+    //       const dateString = format(event.date, 'MMMM dd, yyyy');
 
-          setLoading(false);
-          navigation.replace('EventView', {
-            _id: event._id,
-            date: dateString,
-            budget: event.budget,
-            attendees: event.attendees,
-          });
+    //       setLoading(false);
+    //       navigation.replace('EventView', {
+    //         _id: event._id,
+    //         date: dateString,
+    //         budget: event.budget,
+    //         attendees: event.attendees,
+    //       });
 
-          break;
-        case 403:
-          setSubmitErrMessage('Forbidden - Access denied.');
-          throw new Error('Forbidden - Access denied.'); // Forbidden
-        case 404:
-          setSubmitErrMessage('Server is unreachable.');
-          throw new Error('Server is unreachable.'); // Not Found
-        default:
-          setSubmitErrMessage('Unexpected error occurred.');
-          throw new Error('Unexpected error occurred.'); // Other status codes
-      }
-    } catch (error) {
-      console.error(error);
-      setLoading(false);
-      navigateToSuccessError({
-        description: submitErrMessage,
-        buttonText: 'Continue',
-        status: 'error',
-      });
-    }
+    //       break;
+    //     case 403:
+    //       setSubmitErrMessage('Forbidden - Access denied.');
+    //       throw new Error('Forbidden - Access denied.'); // Forbidden
+    //     case 404:
+    //       setSubmitErrMessage('Server is unreachable.');
+    //       throw new Error('Server is unreachable.'); // Not Found
+    //     default:
+    //       setSubmitErrMessage('Unexpected error occurred.');
+    //       throw new Error('Unexpected error occurred.'); // Other status codes
+    //   }
+    // } catch (error) {
+    //   console.error(error);
+    //   setLoading(false);
+    //   navigateToSuccessError({
+    //     description: submitErrMessage,
+    //     buttonText: 'Continue',
+    //     status: 'error',
+    //   });
+    // }
   };
 
   const onSubmitPress = handleSubmit(submitEventInput);
 
   const EventButton = () => {
-    if (step === 2) {
+    if (step === 3) {
       return <Button title='SUBMIT' color='#CB0C9F' onPress={onSubmitPress} />;
     } else {
       return (
@@ -341,21 +383,24 @@ function EventForm({ navigation }: EventFormScreenProps) {
   const onNextBtnPress = () => {
     switch (step) {
       case 0:
-        trigger('date');
+        trigger('name');
         break;
       case 1:
-        trigger('guests');
+        trigger('date');
         break;
       case 2:
+        trigger('guests');
+        break;
+      case 3:
         trigger('budget');
         break;
     }
 
     if (isValid) {
-      if (step > 1) {
+      if (step > 2) {
         setStep(0);
       } else {
-        setStep(step + 1);
+        setStep(step => step + 1);
       }
     }
   };
@@ -413,9 +458,10 @@ function EventForm({ navigation }: EventFormScreenProps) {
         <EventInput />
         <EventButton />
         <Text testID='test-first-name-err-text' style={styles.errorText}>
-          {step === 0 && errors['date']?.message}
-          {step === 1 && errors['guests']?.message}
-          {step === 2 && errors['budget']?.message}
+          {step === 0 && errors['name']?.message}
+          {step === 1 && errors['date']?.message}
+          {step === 2 && errors['guests']?.message}
+          {step === 3 && errors['budget']?.message}
         </Text>
       </Block>
     </Block>
