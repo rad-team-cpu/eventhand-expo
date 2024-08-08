@@ -5,15 +5,11 @@ import { AntDesign } from '@expo/vector-icons';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import Avatar from 'Components/Avatar';
-import { sub } from 'date-fns/fp';
-import { ImagePickerAsset } from 'expo-image-picker';
 import {
-  StorageReference,
   UploadResult,
-  getStorage,
-  ref,
+
 } from 'firebase/storage';
-import React, { useState, useEffect, useContext, useCallback } from 'react';
+import React, { useState, useContext, useCallback } from 'react';
 import {
   useForm,
   FieldValues,
@@ -25,14 +21,12 @@ import {
   BackHandler,
   TextInput,
   GestureResponderEvent,
-  TextStyle,
 } from 'react-native';
 import FirebaseService from 'service/firebase';
 import { object, string, number } from 'yup';
 
 // import DatePicker from "../../Components/Input/DatePicker";
 import { UserContext } from '../../../Contexts/UserContext';
-import GenderPicker from 'Components/Input/GenderPicker';
 import ProfileUpload from 'Components/Input/ProfileUpload';
 import Block from 'Components/Ui/Block';
 import Button from 'Components/Ui/Button';
@@ -53,7 +47,6 @@ interface ProfileInput extends FieldValues {
   lastName: string;
   firstName: string;
   contactNumber: string;
-  gender: string;
   // birthDate: Date;
 }
 
@@ -89,13 +82,6 @@ const signUpValidationSchema = object().shape({
       'Please enter a valid contact number ex. 09123456789.'
     )
     .length(11, 'contact number must only have 11 digits'),
-  gender: string()
-    .required('Please select a gender')
-    .test(
-      'has-gender',
-      'Please select a gender',
-      (value, context) => value === 'MALE' || value === 'FEMALE'
-    ),
   // birthDate: date()
   //   .min(sub({ years: 100 })(new Date()), "Must be at most 100 years old.")
   //   .max(sub({ years: 18 })(new Date()), "Must be at least 18 years old.")
@@ -119,7 +105,6 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
       firstName: '',
       lastName: '',
       contactNumber: '',
-      gender: '',
     },
     resolver: yupResolver(signUpValidationSchema),
   });
@@ -160,7 +145,7 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
   const createProfile = async (input: ProfileInput) => {
     setLoading(true);
     let uploadPath: string | null = null;
-    const { profileAvatar, firstName, lastName, contactNumber, gender } = input;
+    const { profileAvatar, firstName, lastName, contactNumber } = input;
 
     const email =
       clerkUser.primaryEmailAddress != null
@@ -172,7 +157,6 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
       firstName,
       lastName,
       contactNumber,
-      gender,
     };
 
     const navigateToSuccessError = (props: ScreenProps['SuccessError']) => {
@@ -386,16 +370,6 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
                 {errors['contactNumber']?.message}
               </Text>
             </Block>
-
-            <Block align='flex-start' className='pl-4'>
-              <Text p>Gender</Text>
-              <GenderPicker
-                control={control as unknown as Control<FieldValues, unknown>}
-                register={register as unknown as UseFormRegister<FieldValues>}
-                errors={errors}
-                triggerValidation={trigger}
-              />
-            </Block>
             <Button
               testID='next-btn'
               onPress={onNextBtnPress}
@@ -592,13 +566,6 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
               <Text p>Contact Number</Text>
               <Text id='contact-num' testID='test-contact-num'>
                 {getValues('contactNumber')}
-              </Text>
-            </Block>
-
-            <Block align='flex-start' className='pl-4 pt-4 pb-4'>
-              <Text p>Gender</Text>
-              <Text id='gender' testID='gender'>
-                {getValues('gender')}
               </Text>
             </Block>
             <Button

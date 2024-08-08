@@ -111,9 +111,7 @@ interface UserProfile {
   lastName: string;
   firstName: string;
   contactNumber: string;
-  gender: string;
   events?: EventInfo[];
-  vendorId?: string;
 }
 
 interface ImageInfo {
