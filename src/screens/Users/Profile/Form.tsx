@@ -110,7 +110,7 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
   });
 
   const [submitErrMessage, setSubmitErrMessage] = useState('');
-  const { getToken, userId } = useAuth();
+  const { getToken, userId, signOut } = useAuth();
   const [loading, setLoading] = useState(false);
   const [confirmDetails, setConfirmDetails] = useState(false);
   const { assets, colors, sizes, gradients } = useTheme();
@@ -257,10 +257,16 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
               radius={sizes.cardRadius}
               source={assets.background}
             >
-              <Text transform='uppercase' white marginLeft={sizes.s}>
-                Set up your Profile
-              </Text>
-
+              <Button
+                row
+                flex={0}
+                justify='flex-start'
+                onPress={() => signOut()}
+              >
+                <Text p white marginLeft={sizes.s}>
+                  Already Have an Account?
+                </Text>
+              </Button>
               <Block flex={0} align='center' marginTop={sizes.md}>
                 <ProfileUpload
                   name='profileAvatar'
@@ -280,6 +286,9 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
             color='rgba(255,255,255,1)'
           >
             <Block align='flex-start' className='pl-4 pt-4'>
+              <Text transform='uppercase'  marginBottom={sizes.s}>
+                Set up your Profile:
+              </Text>
               <Text p className='capitalize'>
                 First Name
               </Text>
@@ -479,7 +488,7 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
   useFocusEffect(
     useCallback(() => {
       const backAction = () => {
-        setConfirmDetails(!confirmDetails);
+        setConfirmDetails(false);
         return true;
       };
 
