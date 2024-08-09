@@ -1,5 +1,5 @@
 import { useAuth } from '@clerk/clerk-expo';
-import { Feather, AntDesign } from '@expo/vector-icons';
+import { Feather, AntDesign, FontAwesome } from '@expo/vector-icons';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useFocusEffect } from '@react-navigation/native';
 import DatePicker from 'src/Components/Input/DatePicker';
@@ -25,7 +25,7 @@ import {
 } from 'react-native';
 import Loading from 'screens/Loading';
 import { EventFormScreenProps, EventInfo, ScreenProps } from 'types/types';
-import { date, number, object, string } from 'yup';
+import { array, date, number, object, string } from 'yup';
 import Block from 'Components/Ui/Block';
 import useTheme from 'src/core/theme';
 
@@ -38,6 +38,7 @@ interface EventFormInput extends FieldValues {
 
 const EventFormInputValidation = object().shape({
   name: string().required("Please enter a name for your event"),
+  categories: array().of(string()).length(1, "Must select at least one category"),
   date: date()
     .required('Please enter the date of your event')
     .min(sub({ days: 1 }, new Date())),
@@ -51,7 +52,7 @@ const EventFormInputValidation = object().shape({
     .integer('Input must be an integer'),
 });
 
-const totalSteps = 4;
+const totalSteps = 5;
 
 function EventForm({ navigation }: EventFormScreenProps) {
   const userContext = useContext(UserContext);
@@ -72,7 +73,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
     throw new Error('User does not exist! Please SignUp again');
   }
 
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(1);
   const [description, setDescription] = useState(
     'Please select the date of your event'
   );
@@ -84,7 +85,6 @@ function EventForm({ navigation }: EventFormScreenProps) {
     control,
     register,
     handleSubmit,
-    getValues,
     trigger,
     resetField,
     formState: { errors, isValid },
@@ -184,6 +184,67 @@ function EventForm({ navigation }: EventFormScreenProps) {
     );
   };
 
+  type Category = {
+    label: string;
+    icon: string;
+    color: string;
+  };
+
+  const EventCategorySelect = () => {
+    const categories: Category[] = [
+      { label: "Event Planning", icon: "calendar", color: "#FF6347" },
+      { label: "Event Coordination", icon: "handshake-o", color: "#4682B4" },
+      { label: "Venue", icon: "building", color: "#32CD32" },
+      { label: "Catering", icon: "cutlery", color: "#FFD700" },
+      { label: "Photography", icon: "camera", color: "#FF69B4" },
+      { label: "Videography", icon: "video-camera", color: "#8A2BE2" },
+    ];
+  
+    const [selectedCategories, setSelectedCategories] = useState<boolean[]>(new Array(categories.length).fill(false));
+  
+    const handlePress = (index: number) => {
+      const updatedSelection = [...selectedCategories];
+      updatedSelection[index] = !updatedSelection[index];
+      setSelectedCategories(updatedSelection);
+    };
+  
+    return (
+      <View style={styles.eventCategorySelectContainer}>
+        {categories.map((category, index) => {
+          const isSelected = selectedCategories[index];
+          return (
+            <Pressable
+              key={index}
+              onPress={() => handlePress(index)}
+              style={[
+                styles.eventCategorySelectButton,
+                {
+                  backgroundColor: isSelected ? category.color : 'transparent',
+                  borderColor: category.color,
+                },
+              ]}
+            >
+              <FontAwesome
+                name={category.icon}
+                size={20}
+                color={isSelected ? 'white' : category.color}
+                style={styles.eventCategorySelectIcon}
+              />
+              <Text
+                style={[
+                  styles.eventCategorySelectLabel,
+                  { color: isSelected ? 'white' : category.color },
+                ]}
+              >
+                {category.label}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+    );
+  }
+
   const EventDateInput = () => {
     return (
       <>
@@ -271,10 +332,12 @@ function EventForm({ navigation }: EventFormScreenProps) {
       case 0:
         return <EventNameInput />;
       case 1:
-        return <EventDateInput />;
+        return <EventCategorySelect />;
       case 2:
-        return <EventGuestsInput />;
+        return <EventDateInput />;
       case 3:
+        return <EventGuestsInput />;
+      case 4:
         return <EventBudgetInput />;
       default:
         return null;
@@ -365,7 +428,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
   const onSubmitPress = handleSubmit(submitEventInput);
 
   const EventButton = () => {
-    if (step === 3) {
+    if (step === 4) {
       return <Button title='SUBMIT' color='#CB0C9F' onPress={onSubmitPress} />;
     } else {
       return (
@@ -386,18 +449,21 @@ function EventForm({ navigation }: EventFormScreenProps) {
         trigger('name');
         break;
       case 1:
-        trigger('date');
+        trigger('categories');
         break;
       case 2:
-        trigger('guests');
+        trigger('date');
         break;
       case 3:
+        trigger('guests');
+        break;
+      case 4:
         trigger('budget');
         break;
     }
 
     if (isValid) {
-      if (step > 2) {
+      if (step > 3) {
         setStep(0);
       } else {
         setStep(step => step + 1);
@@ -459,9 +525,10 @@ function EventForm({ navigation }: EventFormScreenProps) {
         <EventButton />
         <Text testID='test-first-name-err-text' style={styles.errorText}>
           {step === 0 && errors['name']?.message}
-          {step === 1 && errors['date']?.message}
-          {step === 2 && errors['guests']?.message}
-          {step === 3 && errors['budget']?.message}
+          {/* {step === 1 && errors['categories']?.message} */}
+          {step === 2 && errors['date']?.message}
+          {step === 3 && errors['guests']?.message}
+          {step === 4 && errors['budget']?.message}
         </Text>
       </Block>
     </Block>
@@ -546,6 +613,25 @@ const styles = StyleSheet.create({
   },
   inactiveStepText: {
     color: 'white',
+  },
+  eventCategorySelectContainer: {
+    flexDirection: 'column',
+    justifyContent: 'space-around',
+    margin: 10,
+  },
+  eventCategorySelectButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    borderRadius: 5,
+    marginVertical: 5,
+    borderWidth: 2,
+  },
+  eventCategorySelectIcon: {
+    marginRight: 5,
+  },
+  eventCategorySelectLabel: {
+    fontSize: 16,
   },
 });
 
