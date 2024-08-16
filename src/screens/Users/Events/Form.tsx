@@ -6,13 +6,14 @@ import DatePicker from 'src/Components/Input/DatePicker';
 import { UserContext } from 'Contexts/UserContext';
 import { format } from 'date-fns/format';
 import { sub } from 'date-fns/fp';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
   Control,
   Controller,
   FieldValues,
   UseFormRegister,
   useForm,
+  useFormState,
 } from 'react-hook-form';
 import {
   BackHandler,
@@ -25,20 +26,37 @@ import {
 } from 'react-native';
 import Loading from 'screens/Loading';
 import { EventFormScreenProps, EventInfo, ScreenProps } from 'types/types';
-import { array, date, number, object, string } from 'yup';
+import { array, boolean, date, number, object, string } from 'yup';
 import Block from 'Components/Ui/Block';
 import useTheme from 'src/core/theme';
 
-interface EventFormInput extends FieldValues {
-  name: string,
+type SelectedCategories = {
+  eventPlanning: boolean;
+  eventCoordination: boolean;
+  venue: boolean;
+  catering: boolean;
+  photography: boolean;
+  videography: boolean;
+}
+
+type EventFormInputType = {
+  name: string;
+  categories: SelectedCategories;
   date: Date;
   guests: number;
   budget: number;
 }
 
+interface EventFormInput extends FieldValues {
+  name: string;
+  date: Date;
+  guests: number;
+  budget: number;
+}
+
+
 const EventFormInputValidation = object().shape({
   name: string().required("Please enter a name for your event"),
-  categories: array().of(string()).length(1, "Must select at least one category"),
   date: date()
     .required('Please enter the date of your event')
     .min(sub({ days: 1 }, new Date())),
@@ -53,6 +71,160 @@ const EventFormInputValidation = object().shape({
 });
 
 const totalSteps = 5;
+
+type Category = {
+  name: string
+  label: string;
+  icon: string;
+  color: string;
+};
+
+
+interface EventInputProps  {
+  title: string;
+  description: string;
+  buttonLabel: string;
+  onBackBtnPress: () => boolean;
+  onBtnPress: () => void;
+  eventFormValuesRef:  React.MutableRefObject<EventFormInputType>;
+}
+
+interface FormError {
+  error: boolean;
+  message: string;
+}
+
+const EventCategorySelect = (props: EventInputProps) => {
+  const { assets, colors, sizes, gradients } = useTheme();
+  const categories: Category[] = [
+    { name: "eventPlanning", label: "Event Planning", icon: "calendar", color: "#FF6347" },
+    { name: "eventCoordination", label: "Event Coordination", icon: "handshake-o", color: "#4682B4" },
+    { name: "venue", label: "Venue", icon: "building", color: "#32CD32" },
+    { name: "catering", label: "Catering", icon: "cutlery", color: "#FFD700" },
+    { name: "photography", label: "Photography", icon: "camera", color: "#FF69B4" },
+    { name: "videography", label: "Videography", icon: "video-camera", color: "#8A2BE2" },
+  ];
+
+  const [isPressed, setIsPressed] = useState(false);
+  const [selectedCategories, setSelectedCategories] = useState<SelectedCategories>({
+    eventPlanning: false,
+    eventCoordination: false,
+    venue: false,
+    catering: false,
+    photography: false,
+    videography: false,
+  });
+  const [ selected, setSelected ] = useState<number>(0);
+  const [errorState, setErrorState] = useState<FormError>({
+    error: true,
+    message: ""
+  })
+
+
+  const {  title, description, buttonLabel, onBackBtnPress, onBtnPress, eventFormValuesRef } = props;
+
+          const handlePress = (index: number, name: keyof SelectedCategories) => {
+          const updatedSelection = {...selectedCategories};
+          updatedSelection[name] = !updatedSelection[name];
+          const selected = Object.values(updatedSelection).filter(value => value)
+
+          if(selected.length > 0){
+            setErrorState( prevState => {
+              return {
+                ...prevState,
+                error: false
+              }
+            })
+          } else{
+            setErrorState( prevState => {
+              return {
+                ...prevState,
+                error: true
+              }
+            })
+          }
+
+          setSelectedCategories(updatedSelection);
+
+          eventFormValuesRef.current = {
+            ...eventFormValuesRef.current,
+            categories:{
+              ...updatedSelection
+            }
+          }
+                  
+        };
+
+  return (
+    <Block card paddingVertical={sizes.md} paddingHorizontal={sizes.md}>
+      <Pressable onPress={onBackBtnPress}>
+        <Block className='flex flex-row mb-2'>
+          <AntDesign name='back' size={20} color={'#CB0C9F'} />
+          <Text className='ml-1 text-primary'>Go back</Text>
+        </Block>
+      </Pressable>
+      <Text style={styles.title}>{title}</Text>
+      <Text style={styles.description}>{description}</Text>
+      <View style={styles.eventCategorySelectContainer}>
+          {categories.map((category, index) => {
+            const categoryName = categories[index]["name"] as keyof SelectedCategories;
+            const isSelected = selectedCategories[categoryName];
+            return (
+              <Pressable
+                key={index}
+                onPress={() => handlePress(index, categoryName)}
+                style={[
+                  styles.eventCategorySelectButton,
+                  {
+                    backgroundColor: isSelected ? category.color : 'transparent',
+                    borderColor: category.color,
+                  },
+                ]}
+              >
+                <FontAwesome
+                  name={category.icon}
+                  size={20}
+                  color={isSelected ? 'white' : category.color}
+                  style={styles.eventCategorySelectIcon}
+                />
+                <Text
+                  style={[
+                    styles.eventCategorySelectLabel,
+                    { color: isSelected ? 'white' : category.color },
+                  ]}
+                >
+                  {category.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+            <Pressable
+              onPressIn={() => setIsPressed(true)}
+              onPressOut={() => setIsPressed(false)}
+              onPress={onBtnPress}
+              disabled={errorState.error}
+              style={({ pressed }) => [
+                styles.inputButton,
+                {
+                  backgroundColor: errorState.error
+                    ? '#D3D3D3' // Gray color when disabled
+                    : pressed || isPressed
+                    ? '#E91E8E'
+                    : '#CB0C9F',
+                },
+            ]}
+            >
+      <Text style={styles.inputButtonText}>{buttonLabel}</Text>
+    </Pressable>
+      <Text testID='test-first-name-err-text' style={styles.errorText}>
+        {errorState.message}
+      </Text>
+    </Block>
+  );
+}
+
+
 
 function EventForm({ navigation }: EventFormScreenProps) {
   const userContext = useContext(UserContext);
@@ -73,6 +245,21 @@ function EventForm({ navigation }: EventFormScreenProps) {
     throw new Error('User does not exist! Please SignUp again');
   }
 
+  const eventFormInputRef = useRef<EventFormInputType>({
+    name: ``,
+    categories: {
+      eventPlanning: false,
+      eventCoordination: false,
+      venue: false,
+      catering: false,
+      photography: false,
+      videography: false,
+    },
+    date: new Date(),
+    guests: 0,
+    budget: 0,
+  })
+
   const [step, setStep] = useState(1);
   const [description, setDescription] = useState(
     'Please select the date of your event'
@@ -81,13 +268,14 @@ function EventForm({ navigation }: EventFormScreenProps) {
   const [submitErrMessage, setSubmitErrMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
+
   const {
     control,
     register,
     handleSubmit,
     trigger,
     resetField,
-    formState: { errors, isValid },
+    formState: { errors, isValid, },
   } = useForm<EventFormInput, unknown>({
     mode: 'onChange',
     reValidateMode: 'onChange',
@@ -108,15 +296,18 @@ function EventForm({ navigation }: EventFormScreenProps) {
     }
     switch (step) {
       case 0:
-        resetField('date');
+        resetField('name');
         break;
       case 1:
-        resetField('date');
+        resetField('categories');
         break;
       case 2:
-        resetField('guests');
+        resetField('date');
         break;
       case 3:
+        resetField('guests');
+        break;
+      case 4:
         resetField('budget');
         break;
     }
@@ -142,14 +333,18 @@ function EventForm({ navigation }: EventFormScreenProps) {
         setDescription('Please enter the name of your event');
         break;
       case 1:
+        setTitle('What type of vendors are you looking for?');
+        setDescription('Please select at least one');
+        break;
+      case 2:
         setTitle('When is the date of your event?');
         setDescription('Please select the date of your event');
         break;
-      case 2:
+      case 3:
         setTitle('How many will attend?');
         setDescription('Please enter the number of people that will attend.');
         break;
-      case 3:
+      case 4:
         setTitle('How much is your budget?');
         setDescription('Please enter your budget for the event.');
         break;
@@ -183,67 +378,6 @@ function EventForm({ navigation }: EventFormScreenProps) {
       />
     );
   };
-
-  type Category = {
-    label: string;
-    icon: string;
-    color: string;
-  };
-
-  const EventCategorySelect = () => {
-    const categories: Category[] = [
-      { label: "Event Planning", icon: "calendar", color: "#FF6347" },
-      { label: "Event Coordination", icon: "handshake-o", color: "#4682B4" },
-      { label: "Venue", icon: "building", color: "#32CD32" },
-      { label: "Catering", icon: "cutlery", color: "#FFD700" },
-      { label: "Photography", icon: "camera", color: "#FF69B4" },
-      { label: "Videography", icon: "video-camera", color: "#8A2BE2" },
-    ];
-  
-    const [selectedCategories, setSelectedCategories] = useState<boolean[]>(new Array(categories.length).fill(false));
-  
-    const handlePress = (index: number) => {
-      const updatedSelection = [...selectedCategories];
-      updatedSelection[index] = !updatedSelection[index];
-      setSelectedCategories(updatedSelection);
-    };
-  
-    return (
-      <View style={styles.eventCategorySelectContainer}>
-        {categories.map((category, index) => {
-          const isSelected = selectedCategories[index];
-          return (
-            <Pressable
-              key={index}
-              onPress={() => handlePress(index)}
-              style={[
-                styles.eventCategorySelectButton,
-                {
-                  backgroundColor: isSelected ? category.color : 'transparent',
-                  borderColor: category.color,
-                },
-              ]}
-            >
-              <FontAwesome
-                name={category.icon}
-                size={20}
-                color={isSelected ? 'white' : category.color}
-                style={styles.eventCategorySelectIcon}
-              />
-              <Text
-                style={[
-                  styles.eventCategorySelectLabel,
-                  { color: isSelected ? 'white' : category.color },
-                ]}
-              >
-                {category.label}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </View>
-    );
-  }
 
   const EventDateInput = () => {
     return (
@@ -332,7 +466,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
       case 0:
         return <EventNameInput />;
       case 1:
-        return <EventCategorySelect />;
+        return <EventCategorySelect title="What type of vendors are you looking for?"  description="Please select at least one" buttonLabel='NEXT' onBtnPress={onNextBtnPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef} />;
       case 2:
         return <EventDateInput />;
       case 3:
@@ -462,13 +596,19 @@ function EventForm({ navigation }: EventFormScreenProps) {
         break;
     }
 
-    if (isValid) {
-      if (step > 3) {
-        setStep(0);
-      } else {
-        setStep(step => step + 1);
-      }
+    if (step > 4) {
+      setStep(0);
+    } else {
+      setStep(step => step + 1);
     }
+
+    // if (isValid) {
+    //   if (step > 4) {
+    //     setStep(0);
+    //   } else {
+    //     setStep(step => step + 1);
+    //   }
+    // }
   };
 
   if (loading) {
@@ -512,7 +652,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
       contentContainerStyle={{ paddingBottom: sizes.xxl }}
     >
       <Stepper />
-      <Block card paddingVertical={sizes.md} paddingHorizontal={sizes.md}>
+      {/* <Block card paddingVertical={sizes.md} paddingHorizontal={sizes.md}>
         <Pressable onPress={backAction}>
           <Block className='flex flex-row mb-2'>
             <AntDesign name='back' size={20} color={'#CB0C9F'} />
@@ -525,12 +665,12 @@ function EventForm({ navigation }: EventFormScreenProps) {
         <EventButton />
         <Text testID='test-first-name-err-text' style={styles.errorText}>
           {step === 0 && errors['name']?.message}
-          {/* {step === 1 && errors['categories']?.message} */}
           {step === 2 && errors['date']?.message}
           {step === 3 && errors['guests']?.message}
           {step === 4 && errors['budget']?.message}
         </Text>
-      </Block>
+      </Block> */}
+      <EventInput/>
     </Block>
   );
 }
@@ -578,6 +718,19 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontSize: 16,
+  },
+  inputButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  inputButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
   errorText: {
     fontSize: 16,
