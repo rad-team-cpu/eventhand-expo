@@ -501,14 +501,14 @@ const EventGuestsInput = (props: EventInputProps) => {
 
 
   const onValueChange = (text: string) => {
-    const numericValue = text.replace(/[^0-9]/g, '');
+    const numericValue = parseInt(text);
 
-    if(numericValue === ''){
+    if(text === ''){
       setErrorState({
         error: true,
         message: "Please enter the number of guests that will be attending your event"
       })
-    } else if ( parseInt(numericValue) < 0){
+    } else if ( numericValue < 0){
       setErrorState({
         error: true,
         message: "Please enter the number not less than 0"
@@ -518,12 +518,13 @@ const EventGuestsInput = (props: EventInputProps) => {
         error: false,
         message: ""
       })
+      
+      eventFormValuesRef.current = {
+      ...eventFormValuesRef.current,
+        guests: numericValue
+      }
     }
 
-    eventFormValuesRef.current = {
-      ...eventFormValuesRef.current,
-      guests: parseInt(numericValue)
-    }
 
   }
 
@@ -826,11 +827,11 @@ function EventForm({ navigation }: EventFormScreenProps) {
         case 1:
           return <EventNameInput title='What is the name for your event?'  description='Please enter the name of your event' buttonLabel='NEXT' onBtnPress={onNextBtnPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef} user={user}/>;
         case 2:
-          return <EventCategorySelect title="What type of vendors are you looking for?"  description="Please select at least one" buttonLabel='NEXT' onBtnPress={onNextBtnPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef} />;
+          return <EventGuestsInput title='How many will attend?'  description='Please enter the number of people that will attend. (0 will be considered as undetermined)' buttonLabel='NEXT' onBtnPress={onNextBtnPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef}/>;
         case 3:
-          return <EventAddressInput title='Where will your event be held?'  description='Please enter the address of your event venue' buttonLabel='NEXT' onBtnPress={onNextBtnPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef} />;
+          return <EventCategorySelect title="What type of vendors are you looking for?"  description="Please select at least one" buttonLabel='NEXT' onBtnPress={onNextBtnPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef} />;
         case 4:
-          return <EventGuestsInput title='How many will attend?'  description='Please enter the number of people that will attend.'buttonLabel='NEXT' onBtnPress={onNextBtnPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef}/>;
+          return <EventAddressInput title='Where will your event be held?'  description='Please enter the address of your event venue' buttonLabel='NEXT' onBtnPress={onNextBtnPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef} />;
         case 5: 
           return <EventBudgetInput title='How much is your budget?'  description='Please enter the budget for each category.' buttonLabel='SUBMIT' onBtnPress={onSubmitPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef} />;
         default:
@@ -843,9 +844,9 @@ function EventForm({ navigation }: EventFormScreenProps) {
         case 1:
           return <EventNameInput title='What is the name for your event?'  description='Please enter the name of your event' buttonLabel='NEXT' onBtnPress={onNextBtnPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef} user={user}/>;
         case 2:
-          return <EventCategorySelect title="What type of vendors are you looking for?"  description="Please select at least one" buttonLabel='NEXT' onBtnPress={onNextBtnPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef} />;
+          return <EventGuestsInput title='How many will attend?'  description='Please enter the number of people that will attend. (0 will be considered as undetermined)'buttonLabel='NEXT' onBtnPress={onNextBtnPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef}/>;
         case 3:
-          return <EventGuestsInput title='How many will attend?'  description='Please enter the number of people that will attend.'buttonLabel='NEXT' onBtnPress={onNextBtnPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef}/>;
+          return <EventCategorySelect title="What type of vendors are you looking for?"  description="Please select at least one" buttonLabel='NEXT' onBtnPress={onNextBtnPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef} />;
         case 4:
           return <EventBudgetInput title='How much is your budget?'  description='Please enter the budget for each category.' buttonLabel='SUBMIT' onBtnPress={onSubmitPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef} />;
         default:
