@@ -25,7 +25,7 @@ import {
   Pressable,
 } from 'react-native';
 import Loading from 'screens/Loading';
-import { EventFormScreenProps, EventInfo, ScreenProps } from 'types/types';
+import { EventFormScreenProps, EventInfo, ScreenProps, UserProfile } from 'types/types';
 import { array, boolean, date, number, object, string } from 'yup';
 import Block from 'Components/Ui/Block';
 import useTheme from 'src/core/theme';
@@ -87,12 +87,95 @@ interface EventInputProps  {
   onBackBtnPress: () => boolean;
   onBtnPress: () => void;
   eventFormValuesRef:  React.MutableRefObject<EventFormInputType>;
-}
+};
 
 interface FormError {
   error: boolean;
   message: string;
+};
+
+interface EventNameInputProps extends EventInputProps {
+  user: UserProfile
 }
+
+const EventNameInput = (props: EventNameInputProps) => {
+  const { assets, colors, sizes, gradients } = useTheme();
+  const [errorState, setErrorState] = useState<FormError>({
+    error: true,
+    message: ""
+  })
+  const [isPressed, setIsPressed] = useState(false);
+
+  const {title, description, buttonLabel, onBackBtnPress, onBtnPress, eventFormValuesRef, user} = props;
+
+  const defaultName = eventFormValuesRef.current.name;
+
+  const onValueChange = (text: string) => {
+    if(text === ""){
+      setErrorState({
+        error: true,
+        message: "Please enter a name for your event"
+      })
+    } else{
+      setErrorState({
+        error: false,
+        message: ""
+      })
+    }
+
+    eventFormValuesRef.current = {
+      ...eventFormValuesRef.current,
+      name: text
+    }
+
+  }
+
+  return (
+    <Block card paddingVertical={sizes.md} paddingHorizontal={sizes.md}>
+      <Pressable onPress={onBackBtnPress}>
+        <Block className='flex flex-row mb-2'>
+          <AntDesign name='back' size={20} color={'#CB0C9F'} />
+          <Text className='ml-1 text-primary'>Go back</Text>
+        </Block>
+      </Pressable>
+      <Text style={styles.title}>{title}</Text>
+      <Text style={styles.description}>{description}</Text>
+      <TextInput
+      id='event-name-input'
+      testID='test-event-name-input'
+      placeholder={`ex. ${user.firstName}'s event`}
+      defaultValue={defaultName}
+      onChangeText={onValueChange}
+      autoCapitalize='none'
+      returnKeyType='done'
+      className='my-4 p-2 rounded-lg border-gold border-2'
+    />            
+    <Pressable
+    onPressIn={() => setIsPressed(true)}
+    onPressOut={() => setIsPressed(false)}
+    onPress={onBtnPress}
+    disabled={errorState.error}
+    style={({ pressed }) => [
+      styles.inputButton,
+      {
+        backgroundColor: errorState.error
+          ? '#D3D3D3' // Gray color when disabled
+          : pressed || isPressed
+          ? '#E91E8E'
+          : '#CB0C9F',
+      },
+  ]}
+  >
+  <Text style={styles.inputButtonText}>{buttonLabel}</Text>
+  </Pressable>
+      <Text testID='test-first-name-err-text' style={styles.errorText}>
+        {errorState.message}
+      </Text>
+    </Block>
+  );
+
+
+};
 
 const EventCategorySelect = (props: EventInputProps) => {
   const { assets, colors, sizes, gradients } = useTheme();
@@ -114,7 +197,6 @@ const EventCategorySelect = (props: EventInputProps) => {
     photography: false,
     videography: false,
   });
-  const [ selected, setSelected ] = useState<number>(0);
   const [errorState, setErrorState] = useState<FormError>({
     error: true,
     message: ""
@@ -123,7 +205,7 @@ const EventCategorySelect = (props: EventInputProps) => {
 
   const {  title, description, buttonLabel, onBackBtnPress, onBtnPress, eventFormValuesRef } = props;
 
-          const handlePress = (index: number, name: keyof SelectedCategories) => {
+    const handlePress = (index: number, name: keyof SelectedCategories) => {
           const updatedSelection = {...selectedCategories};
           updatedSelection[name] = !updatedSelection[name];
           const selected = Object.values(updatedSelection).filter(value => value)
@@ -152,7 +234,7 @@ const EventCategorySelect = (props: EventInputProps) => {
               ...updatedSelection
             }
           }
-                  
+
         };
 
   return (
@@ -260,7 +342,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
     budget: 0,
   })
 
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0);
   const [description, setDescription] = useState(
     'Please select the date of your event'
   );
@@ -328,14 +410,6 @@ function EventForm({ navigation }: EventFormScreenProps) {
 
   useEffect(() => {
     switch (step) {
-      case 0:
-        setTitle('What is the name for your event?');
-        setDescription('Please enter the name of your event');
-        break;
-      case 1:
-        setTitle('What type of vendors are you looking for?');
-        setDescription('Please select at least one');
-        break;
       case 2:
         setTitle('When is the date of your event?');
         setDescription('Please select the date of your event');
@@ -351,33 +425,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
     }
   }, [step]);
 
-  const EventNameInput = () => {
-    return (
-      <Controller
-        name='name'
-        control={control}
-        render={({ field: { onChange, onBlur, value } }) => {
-          const onValueChange = (input: string) => {
-            onChange(input);
-          };
 
-          return (
-            <TextInput
-              id='event-name-input'
-              testID='test-event-name-input'
-              onBlur={onBlur}
-              placeholder={`ex. ${user.firstName}'s event`}
-              defaultValue={value}
-              onChangeText={onValueChange}
-              autoCapitalize='none'
-              returnKeyType='done'
-              className='my-4 p-2 rounded-lg border-gold border-2'
-            />
-          );
-        }}
-      />
-    );
-  };
 
   const EventDateInput = () => {
     return (
@@ -464,7 +512,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
   const EventInput = () => {
     switch (step) {
       case 0:
-        return <EventNameInput />;
+        return <EventNameInput title='What is the name for your event?'  description='Please enter the name of your event' buttonLabel='NEXT' onBtnPress={onNextBtnPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef} user={user}/>;
       case 1:
         return <EventCategorySelect title="What type of vendors are you looking for?"  description="Please select at least one" buttonLabel='NEXT' onBtnPress={onNextBtnPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef} />;
       case 2:
@@ -579,12 +627,6 @@ function EventForm({ navigation }: EventFormScreenProps) {
 
   const onNextBtnPress = () => {
     switch (step) {
-      case 0:
-        trigger('name');
-        break;
-      case 1:
-        trigger('categories');
-        break;
       case 2:
         trigger('date');
         break;
@@ -595,6 +637,8 @@ function EventForm({ navigation }: EventFormScreenProps) {
         trigger('budget');
         break;
     }
+
+    console.log(eventFormInputRef.current)
 
     if (step > 4) {
       setStep(0);
