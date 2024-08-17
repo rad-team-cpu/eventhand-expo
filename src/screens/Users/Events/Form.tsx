@@ -46,6 +46,7 @@ type SelectedCategories = {
 type EventFormInputType = {
   name: string;
   categories: SelectedCategories;
+  address?: string;
   date: Date;
   guests: number;
   budget: number;
@@ -178,7 +179,6 @@ const EventNameInput = (props: EventNameInputProps) => {
       </Text>
     </Block>
   );
-
 
 };
 
@@ -399,6 +399,85 @@ const EventDateInput = (props: EventInputProps) => {
   );
 }
 
+const EventAddressInput = (props: EventInputProps) => {
+  const {title, description, buttonLabel, onBackBtnPress, onBtnPress, eventFormValuesRef} = props;
+  const { assets, colors, sizes, gradients } = useTheme();
+
+  const defaultAddress = (eventFormValuesRef.current.address)? eventFormValuesRef.current.address: "";
+
+  const [errorState, setErrorState] = useState<FormError>({
+    error: defaultAddress === undefined || defaultAddress === "",
+    message: ""
+  })
+  const [isPressed, setIsPressed] = useState(false);
+
+
+  const onValueChange = (text: string) => {
+    if(text === ""){
+      setErrorState({
+        error: true,
+        message: "Please enter an address for your event"
+      })
+    } else{
+      setErrorState({
+        error: false,
+        message: ""
+      })
+    }
+
+    eventFormValuesRef.current = {
+      ...eventFormValuesRef.current,
+      address: text
+    }
+
+  }
+
+  return (
+    <Block card paddingVertical={sizes.md} paddingHorizontal={sizes.md}>
+      <Pressable onPress={onBackBtnPress}>
+        <Block className='flex flex-row mb-2'>
+          <AntDesign name='back' size={20} color={'#CB0C9F'} />
+          <Text className='ml-1 text-primary'>Go back</Text>
+        </Block>
+      </Pressable>
+      <Text style={styles.title}>{title}</Text>
+      <Text style={styles.description}>{description}</Text>
+      <TextInput
+      id='event-name-input'
+      testID='test-event-name-input'
+      placeholder={`Event Address`}
+      defaultValue={defaultAddress}
+      onChangeText={onValueChange}
+      autoCapitalize='none'
+      returnKeyType='done'
+      className='my-4 p-2 rounded-lg border-gold border-2'
+    />            
+    <Pressable
+    onPressIn={() => setIsPressed(true)}
+    onPressOut={() => setIsPressed(false)}
+    onPress={onBtnPress}
+    disabled={errorState.error}
+    style={({ pressed }) => [
+      styles.inputButton,
+      {
+        backgroundColor: errorState.error
+          ? '#D3D3D3' // Gray color when disabled
+          : pressed || isPressed
+          ? '#E91E8E'
+          : '#CB0C9F',
+      },
+  ]}
+  >
+  <Text style={styles.inputButtonText}>{buttonLabel}</Text>
+  </Pressable>
+      <Text testID='test-first-name-err-text' style={styles.errorText}>
+        {errorState.message}
+      </Text>
+    </Block>
+  );
+
+};
+
 
 function EventForm({ navigation }: EventFormScreenProps) {
   const userContext = useContext(UserContext);
@@ -564,20 +643,38 @@ function EventForm({ navigation }: EventFormScreenProps) {
   };
 
   const EventInput = () => {
-    switch (step) {
-      case 0:
-        return <EventDateInput title='When is the date of your event?'  description='Please select the date of your event' buttonLabel='NEXT' onBtnPress={onNextBtnPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef} />;
-      case 1:
-        return <EventNameInput title='What is the name for your event?'  description='Please enter the name of your event' buttonLabel='NEXT' onBtnPress={onNextBtnPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef} user={user}/>;
-      case 2:
-        return <EventCategorySelect title="What type of vendors are you looking for?"  description="Please select at least one" buttonLabel='NEXT' onBtnPress={onNextBtnPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef} />;
-      case 3:
-        return <EventGuestsInput />;
-      case 4:
-        return <EventBudgetInput />;
-      default:
-        return null;
+    if(eventFormInputRef.current.categories.venue){
+      switch (step) {
+        case 0:
+          return <EventDateInput title='When is the date of your event?'  description='Please select the date of your event' buttonLabel='NEXT' onBtnPress={onNextBtnPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef} />;
+        case 1:
+          return <EventNameInput title='What is the name for your event?'  description='Please enter the name of your event' buttonLabel='NEXT' onBtnPress={onNextBtnPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef} user={user}/>;
+        case 2:
+          return <EventCategorySelect title="What type of vendors are you looking for?"  description="Please select at least one" buttonLabel='NEXT' onBtnPress={onNextBtnPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef} />;
+        case 3:
+          return <EventAddressInput title='Where will your event be held?'  description='Please enter the address of your event venue' buttonLabel='NEXT' onBtnPress={onNextBtnPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef} />;
+        case 4:
+          return <EventBudgetInput />;
+        default:
+          return null;
+      }
+    } else { 
+      switch (step) {
+        case 0:
+          return <EventDateInput title='When is the date of your event?'  description='Please select the date of your event' buttonLabel='NEXT' onBtnPress={onNextBtnPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef} />;
+        case 1:
+          return <EventNameInput title='What is the name for your event?'  description='Please enter the name of your event' buttonLabel='NEXT' onBtnPress={onNextBtnPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef} user={user}/>;
+        case 2:
+          return <EventCategorySelect title="What type of vendors are you looking for?"  description="Please select at least one" buttonLabel='NEXT' onBtnPress={onNextBtnPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef} />;
+        case 3:
+          return <EventGuestsInput />;
+        case 4:
+          return <EventBudgetInput />;
+        default:
+          return null;
+      }
     }
+
   };
 
   const submitEventInput = async (input: EventFormInput) => {
@@ -680,17 +777,6 @@ function EventForm({ navigation }: EventFormScreenProps) {
   };
 
   const onNextBtnPress = () => {
-    switch (step) {
-      case 2:
-        trigger('date');
-        break;
-      case 3:
-        trigger('guests');
-        break;
-      case 4:
-        trigger('budget');
-        break;
-    }
 
     console.log(eventFormInputRef.current)
 
