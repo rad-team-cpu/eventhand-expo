@@ -693,7 +693,7 @@ const EventBudgetInput = (props: EventInputProps) => {
                       keyboardType="numeric"
                       placeholder="Enter amount"
                     />
-                    {errorState && <Text style={styles.budgetInputError}>{errorState.messages[name as keyof EventBudgetError["messages"]]}</Text>}
+                    {errorState.messages[name as keyof EventBudgetError["messages"]] !== "" && <Text style={styles.budgetInputError}>{errorState.messages[name as keyof EventBudgetError["messages"]]}</Text>}
                   </View>
                   )
                 }
