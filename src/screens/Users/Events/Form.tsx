@@ -191,13 +191,14 @@ const EventCategorySelect = (props: EventInputProps) => {
 
   const defaultCategories = eventFormValuesRef.current.categories
 
+
   const [isPressed, setIsPressed] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<SelectedCategories>(defaultCategories);
+  const defaultSelected = Object.values(selectedCategories).filter(value => value)
   const [errorState, setErrorState] = useState<FormError>({
-    error: true,
+    error: defaultSelected.length < 0,
     message: ""
   })
-
 
 
     const handlePress = (index: number, name: keyof SelectedCategories) => {
@@ -244,6 +245,7 @@ const EventCategorySelect = (props: EventInputProps) => {
           {categories.map((category, index) => {
             const categoryName = categories[index]["name"] as keyof SelectedCategories;
             const isSelected = selectedCategories[categoryName];
+
             return (
               <Pressable
                 key={index}
