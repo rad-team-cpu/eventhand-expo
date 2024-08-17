@@ -43,13 +43,22 @@ type SelectedCategories = {
   videography: boolean;
 }
 
+type EventBudget = {
+  eventPlanning: number;
+  eventCoordination: number;
+  venue: number;
+  catering: number;
+  photography: number;
+  videography: number;
+}
+
 type EventFormInputType = {
   name: string;
   categories: SelectedCategories;
   address?: string;
   date: Date;
   guests: number;
-  budget: number;
+  budget: EventBudget;
 }
 
 interface EventFormInput extends FieldValues {
@@ -74,8 +83,6 @@ const EventFormInputValidation = object().shape({
     .moreThan(-1, 'Input must be a positive number')
     .integer('Input must be an integer'),
 });
-
-const totalSteps = 5;
 
 type Category = {
   name: string;
@@ -179,19 +186,20 @@ const EventNameInput = (props: EventNameInputProps) => {
       </Text>
     </Block>
   );
-
 };
+
+const categories: Category[] = [
+  { name: "eventPlanning", label: "Event Planning", icon: "calendar", color: "#FF6347" },
+  { name: "eventCoordination", label: "Event Coordination", icon: "handshake-o", color: "#4682B4" },
+  { name: "venue", label: "Venue", icon: "building", color: "#32CD32" },
+  { name: "catering", label: "Catering", icon: "cutlery", color: "#FFD700" },
+  { name: "photography", label: "Photography", icon: "camera", color: "#FF69B4" },
+  { name: "videography", label: "Videography", icon: "video-camera", color: "#8A2BE2" },
+];
 
 const EventCategorySelect = (props: EventInputProps) => {
   const { assets, colors, sizes, gradients } = useTheme();
-  const categories: Category[] = [
-    { name: "eventPlanning", label: "Event Planning", icon: "calendar", color: "#FF6347" },
-    { name: "eventCoordination", label: "Event Coordination", icon: "handshake-o", color: "#4682B4" },
-    { name: "venue", label: "Venue", icon: "building", color: "#32CD32" },
-    { name: "catering", label: "Catering", icon: "cutlery", color: "#FFD700" },
-    { name: "photography", label: "Photography", icon: "camera", color: "#FF69B4" },
-    { name: "videography", label: "Videography", icon: "video-camera", color: "#8A2BE2" },
-  ];
+
   const {  title, description, buttonLabel, onBackBtnPress, onBtnPress, eventFormValuesRef } = props;
 
   const defaultCategories = eventFormValuesRef.current.categories
@@ -566,6 +574,156 @@ const EventGuestsInput = (props: EventInputProps) => {
 
 }
 
+interface EventBudgetError extends FormError {
+  messages: {
+    eventPlanning: string;
+    eventCoordination: string;
+    venue: string;
+    catering: string;
+    photography: string;
+    videography: string;
+  }
+}
+
+const EventBudgetInput = (props: EventInputProps) => {
+  const {title, description, buttonLabel, onBackBtnPress, onBtnPress, eventFormValuesRef} = props;
+  const { sizes, } = useTheme();
+  const selectedCategories = eventFormValuesRef.current.categories;
+  const defaultBudget = eventFormValuesRef.current.budget;
+  const [errorState, setErrorState] = useState<EventBudgetError>({
+    error: false,
+    message: "",
+    messages: {
+      eventPlanning: "",
+      eventCoordination: "",
+      venue: "",
+      catering: "",
+      photography: "",
+      videography: "",
+    }
+  })
+  const [isPressed, setIsPressed] = useState(false);
+
+
+  const handleInputChange = (name: keyof EventBudgetError["messages"] | keyof EventBudget, value: string) => {
+    const numericValue = Number(value);
+
+    if(Number.isNaN(numericValue)){
+      setErrorState( prevState => {
+        return{
+          ...prevState,
+          error: true,
+          messages: {
+            ...prevState.messages,
+            [name]: 'Must be a valid number'
+          }
+        }
+      })
+    } else if (numericValue <= 0) {
+      setErrorState( prevState => {
+        return{
+          ...prevState,
+          error: true,
+          messages: {
+            ...prevState.messages,
+            [name]: 'Must be above 0'
+          }
+        }
+      })
+    } else if (numericValue < 1000) {
+      setErrorState( prevState => {
+        return{
+          ...prevState,
+          error: true,
+          messages: {
+            ...prevState.messages,
+            [name]: 'Must not be less than 1000'
+          }
+        }
+      })
+    } else{
+      setErrorState( prevState => {
+        return{
+          ...prevState,
+          error: false,
+          messages: {
+            ...prevState.messages,
+            [name]: ""
+          }
+        }
+      })
+
+      
+    eventFormValuesRef.current.budget = {
+      ...eventFormValuesRef.current.budget,
+      [name]: numericValue
+    }
+    }
+
+    
+  };
+  
+
+  return (
+    <Block card paddingVertical={sizes.md} paddingHorizontal={sizes.md}>
+      <Pressable onPress={onBackBtnPress}>
+        <Block className='flex flex-row mb-2'>
+          <AntDesign name='back' size={20} color={'#CB0C9F'} />
+          <Text className='ml-1 text-primary'>Go back</Text>
+        </Block>
+      </Pressable>
+      <Text style={styles.title}>{title}</Text>
+      <Text style={styles.description}>{description}</Text>
+      <View style={styles.budgetInputContainer}>
+      {categories.map((category) => {
+                const {name, icon, color, label} = category
+                if(selectedCategories[name as keyof SelectedCategories]){
+                  const hasValue = defaultBudget[name as keyof EventBudget] !== 0
+                  return (
+                    <View key={name} style={styles.budgetInputWrapper}>
+                    <View style={styles.budgetInputLabelContainer}>
+                      <FontAwesome name={icon} size={20} color={color} style={styles.budgetInputIcon} />
+                      <Text style={[styles.budgetInputLabel, { color: color }]}>{label}</Text>
+                    </View>
+                    <TextInput
+                      style={[styles.budgetInputField, { borderColor: category.color }]}
+                      defaultValue={hasValue? String(defaultBudget[name as keyof EventBudget]) : undefined}
+                      onChangeText={(text) => handleInputChange(name as keyof EventBudgetError["messages"] | keyof EventBudget, text)}
+                      keyboardType="numeric"
+                      placeholder="Enter amount"
+                    />
+                    {errorState && <Text style={styles.budgetInputError}>{errorState.messages[name as keyof EventBudgetError["messages"]]}</Text>}
+                  </View>
+                  )
+                }
+        }
+      )}
+    </View>
+    <Pressable
+    onPressIn={() => setIsPressed(true)}
+    onPressOut={() => setIsPressed(false)}
+    onPress={onBtnPress}
+    disabled={errorState.error}
+    style={({ pressed }) => [
+      styles.inputButton,
+      {
+        backgroundColor: errorState.error
+          ? '#D3D3D3' // Gray color when disabled
+          : pressed || isPressed
+          ? '#E91E8E'
+          : '#CB0C9F',
+      },
+  ]}
+  >
+  <Text style={styles.inputButtonText}>{buttonLabel}</Text>
+  </Pressable>
+      <Text testID='test-first-name-err-text' style={styles.errorText}>
+        {errorState.message}
+      </Text>
+    </Block>
+  );
+
+}
 
 function EventForm({ navigation }: EventFormScreenProps) {
   const userContext = useContext(UserContext);
@@ -598,8 +756,18 @@ function EventForm({ navigation }: EventFormScreenProps) {
     },
     date: new Date(),
     guests: 0,
-    budget: 0,
+    budget: {
+      eventPlanning: 0,
+      eventCoordination: 0,
+      venue: 0,
+      catering: 0,
+      photography: 0,
+      videography: 0,
+    },
   })
+
+  const totalSteps = (eventFormInputRef.current.categories.venue)? 6 : 5;
+
 
   const [step, setStep] = useState(0);
   const [description, setDescription] = useState(
@@ -650,86 +818,6 @@ function EventForm({ navigation }: EventFormScreenProps) {
     }, [step])
   );
 
-  useEffect(() => {
-    switch (step) {
-      case 3:
-        setTitle('How many will attend?');
-        setDescription('Please enter the number of people that will attend.');
-        break;
-      case 4:
-        setTitle('How much is your budget?');
-        setDescription('Please enter your budget for the event.');
-        break;
-    }
-  }, [step]);
-
-  // const EventGuestsInput = () => {
-  //   return (
-  //     <Controller
-  //       name='guests'
-  //       control={control}
-  //       render={({ field: { onChange, onBlur, value } }) => {
-  //         const onValueChange = (input: string) => {
-  //           const convertedInput = Number.isNaN(Number(input))
-  //             ? 0
-  //             : Number(input);
-
-  //           onChange(convertedInput);
-  //         };
-
-  //         return (
-  //           <TextInput
-  //             id='event-attendee-input'
-  //             testID='test-event-attendee-input'
-  //             onBlur={onBlur}
-  //             value={String(value)}
-  //             defaultValue={String(value)}
-  //             onChangeText={onValueChange}
-  //             autoCapitalize='none'
-  //             inputMode='numeric'
-  //             keyboardType='numeric'
-  //             returnKeyType='done'
-  //             className='my-4 p-2 rounded-lg border-gold border-2'
-  //           />
-  //         );
-  //       }}
-  //     />
-  //   );
-  // };
-
-  const EventBudgetInput = () => {
-    return (
-      <Controller
-        name='budget'
-        control={control}
-        render={({ field: { onChange, onBlur, value } }) => {
-          const onValueChange = (input: string) => {
-            const convertedInput = Number.isNaN(Number(input))
-              ? 0
-              : Number(input);
-
-            onChange(convertedInput);
-          };
-          return (
-            <TextInput
-              id='event-budget-input'
-              testID='test-event-budget-input'
-              onBlur={onBlur}
-              value={String(value)}
-              defaultValue={String(value)}
-              onChangeText={onValueChange}
-              autoCapitalize='none'
-              inputMode='numeric'
-              keyboardType='numeric'
-              returnKeyType='done'
-              className='my-4 p-2 rounded-lg border-gold border-2'
-            />
-          );
-        }}
-      />
-    );
-  };
-
   const EventInput = () => {
     if(eventFormInputRef.current.categories.venue){
       switch (step) {
@@ -743,6 +831,8 @@ function EventForm({ navigation }: EventFormScreenProps) {
           return <EventAddressInput title='Where will your event be held?'  description='Please enter the address of your event venue' buttonLabel='NEXT' onBtnPress={onNextBtnPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef} />;
         case 4:
           return <EventGuestsInput title='How many will attend?'  description='Please enter the number of people that will attend.'buttonLabel='NEXT' onBtnPress={onNextBtnPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef}/>;
+        case 5: 
+          return <EventBudgetInput title='How much is your budget?'  description='Please enter the budget for each category.' buttonLabel='SUBMIT' onBtnPress={onSubmitPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef} />;
         default:
           return null;
       }
@@ -757,7 +847,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
         case 3:
           return <EventGuestsInput title='How many will attend?'  description='Please enter the number of people that will attend.'buttonLabel='NEXT' onBtnPress={onNextBtnPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef}/>;
         case 4:
-          return <EventBudgetInput />;
+          return <EventBudgetInput title='How much is your budget?'  description='Please enter the budget for each category.' buttonLabel='SUBMIT' onBtnPress={onSubmitPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef} />;
         default:
           return null;
       }
@@ -765,9 +855,9 @@ function EventForm({ navigation }: EventFormScreenProps) {
 
   };
 
-  const submitEventInput = async (input: EventFormInput) => {
+  const onSubmitPress = async () => {
     setLoading(true);
-    console.log(input);
+    console.log(eventFormInputRef.current);
     setLoading(false);
 
     // const navigateToSuccessError = (props: ScreenProps['SuccessError']) => {
@@ -844,43 +934,16 @@ function EventForm({ navigation }: EventFormScreenProps) {
     //     status: 'error',
     //   });
     // }
-  };
-
-  const onSubmitPress = handleSubmit(submitEventInput);
-
-  const EventButton = () => {
-    if (step === 4) {
-      return <Button title='SUBMIT' color='#CB0C9F' onPress={onSubmitPress} />;
-    } else {
-      return (
-        <Pressable
-          style={styles.button}
-          android_ripple={{ radius: 60 }}
-          onPress={onNextBtnPress}
-        >
-          <Feather name='chevrons-right' size={24} color='white' />
-        </Pressable>
-      );
-    }
-  };
+  };;
 
   const onNextBtnPress = () => {
 
     console.log(eventFormInputRef.current)
 
-    if (step > 4) {
-      setStep(0);
-    } else {
+    if (step < totalSteps - 1) {
       setStep(step => step + 1);
-    }
+    } 
 
-    // if (isValid) {
-    //   if (step > 4) {
-    //     setStep(0);
-    //   } else {
-    //     setStep(step => step + 1);
-    //   }
-    // }
   };
 
   if (loading) {
@@ -1072,6 +1135,35 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
   },
+  
+    budgetInputContainer: {
+      padding: 10,
+    },
+    budgetInputWrapper: {
+      marginBottom: 20,
+    },
+    budgetInputLabelContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 5,
+    },
+    budgetInputIcon: {
+      marginRight: 8,
+    },
+    budgetInputLabel: {
+      fontSize: 16,
+      fontWeight: 'bold',
+    },
+    budgetInputField: {
+      borderWidth: 1,
+      borderRadius: 5,
+      padding: 10,
+      fontSize: 16,
+    },
+    budgetInputError: {
+      color: 'red',
+      marginTop: 5,
+    },
 });
 
 export default EventForm;
