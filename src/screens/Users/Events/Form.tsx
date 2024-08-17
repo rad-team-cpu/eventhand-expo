@@ -2,6 +2,10 @@ import { useAuth } from '@clerk/clerk-expo';
 import { Feather, AntDesign, FontAwesome } from '@expo/vector-icons';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useFocusEffect } from '@react-navigation/native';
+import {
+  DateTimePickerAndroid,
+  DateTimePickerEvent,
+} from "@react-native-community/datetimepicker";
 import DatePicker from 'src/Components/Input/DatePicker';
 import { UserContext } from 'Contexts/UserContext';
 import { format } from 'date-fns/format';
@@ -99,16 +103,17 @@ interface EventNameInputProps extends EventInputProps {
 }
 
 const EventNameInput = (props: EventNameInputProps) => {
+  const {title, description, buttonLabel, onBackBtnPress, onBtnPress, eventFormValuesRef, user} = props;
   const { assets, colors, sizes, gradients } = useTheme();
+
+  const defaultName = eventFormValuesRef.current.name;
+
   const [errorState, setErrorState] = useState<FormError>({
-    error: true,
+    error: defaultName === "",
     message: ""
   })
   const [isPressed, setIsPressed] = useState(false);
 
-  const {title, description, buttonLabel, onBackBtnPress, onBtnPress, eventFormValuesRef, user} = props;
-
-  const defaultName = eventFormValuesRef.current.name;
 
   const onValueChange = (text: string) => {
     if(text === ""){
@@ -196,7 +201,7 @@ const EventCategorySelect = (props: EventInputProps) => {
   const [selectedCategories, setSelectedCategories] = useState<SelectedCategories>(defaultCategories);
   const defaultSelected = Object.values(selectedCategories).filter(value => value)
   const [errorState, setErrorState] = useState<FormError>({
-    error: defaultSelected.length < 0,
+    error: defaultSelected.length < 1,
     message: ""
   })
 
@@ -301,6 +306,99 @@ const EventCategorySelect = (props: EventInputProps) => {
   );
 }
 
+const EventDateInput = (props: EventInputProps) => {
+  const {title, description, buttonLabel, onBackBtnPress, onBtnPress, eventFormValuesRef} = props;
+  const currentDate = eventFormValuesRef.current.date;
+  const { assets, colors, sizes, gradients } = useTheme();
+  const [errorState, setErrorState] = useState<FormError>({
+    error: false,
+    message: ""
+  })
+  const [isPressed, setIsPressed] = useState(false);
+  const [selected, setSelected] = useState<string>(format(currentDate, 'MMMM dd, yyyy'));
+
+  const datePickerDate = {
+    selectDate: (date: Date | undefined) => {
+      return date;
+    },
+    selectStringDate: (date: Date | undefined) =>
+      date ? format(date, 'MMMM dd, yyyy') : "",
+  };
+
+  const onDateChange = (
+    event: DateTimePickerEvent,
+    selectedDate?: Date,
+  ) => {
+    const currentDate = selectedDate;
+    setSelected(datePickerDate.selectStringDate(currentDate));
+
+    if(currentDate){
+      eventFormValuesRef.current = {
+        ...eventFormValuesRef.current,
+        date: currentDate
+      }
+    };
+
+  };
+
+  const showMode = () => {
+    DateTimePickerAndroid.open({
+      value: currentDate, 
+      onChange: onDateChange,
+      mode: "date",
+      display: 'spinner',
+      minimumDate: new Date(),
+      testID: "test-date-picker",
+    });
+  };
+
+  const showDatepicker = () => {
+    showMode();
+  };
+
+  return (
+    <Block card paddingVertical={sizes.md} paddingHorizontal={sizes.md}>
+      <Pressable onPress={onBackBtnPress}>
+        <Block className='flex flex-row mb-2'>
+          <AntDesign name='back' size={20} color={'#CB0C9F'} />
+          <Text className='ml-1 text-primary'>Go back</Text>
+        </Block>
+      </Pressable>
+      <Text style={styles.title}>{title}</Text>
+      <Text style={styles.description}>{description}</Text>
+      <Pressable
+              style={styles.eventDateButton}
+              onPress={showDatepicker}
+            >
+              <Text style={styles.eventDateButtonText}>
+                {selected !== "" ? selected : currentDate.toLocaleDateString()}
+              </Text>
+      </Pressable>          
+    <Pressable
+    onPressIn={() => setIsPressed(true)}
+    onPressOut={() => setIsPressed(false)}
+    onPress={onBtnPress}
+    disabled={errorState.error}
+    style={({ pressed }) => [
+      styles.inputButton,
+      {
+        backgroundColor: errorState.error
+          ? '#D3D3D3' // Gray color when disabled
+          : pressed || isPressed
+          ? '#E91E8E'
+          : '#CB0C9F',
+      },
+  ]}
+  >
+  <Text style={styles.inputButtonText}>{buttonLabel}</Text>
+  </Pressable>
+      <Text testID='test-first-name-err-text' style={styles.errorText}>
+        {errorState.message}
+      </Text>
+    </Block>
+  );
+}
+
 
 function EventForm({ navigation }: EventFormScreenProps) {
   const userContext = useContext(UserContext);
@@ -370,23 +468,6 @@ function EventForm({ navigation }: EventFormScreenProps) {
     } else {
       navigation.goBack();
     }
-    switch (step) {
-      case 0:
-        resetField('name');
-        break;
-      case 1:
-        resetField('categories');
-        break;
-      case 2:
-        resetField('date');
-        break;
-      case 3:
-        resetField('guests');
-        break;
-      case 4:
-        resetField('budget');
-        break;
-    }
 
     return true;
   };
@@ -404,10 +485,6 @@ function EventForm({ navigation }: EventFormScreenProps) {
 
   useEffect(() => {
     switch (step) {
-      case 2:
-        setTitle('When is the date of your event?');
-        setDescription('Please select the date of your event');
-        break;
       case 3:
         setTitle('How many will attend?');
         setDescription('Please enter the number of people that will attend.');
@@ -418,23 +495,6 @@ function EventForm({ navigation }: EventFormScreenProps) {
         break;
     }
   }, [step]);
-
-
-
-  const EventDateInput = () => {
-    return (
-      <>
-        <DatePicker
-          name='date'
-          label={new Date().toLocaleDateString()}
-          display='spinner'
-          minimumDate={new Date()}
-          control={control as unknown as Control<FieldValues, unknown>}
-          register={register as unknown as UseFormRegister<FieldValues>}
-        />
-      </>
-    );
-  };
 
   const EventGuestsInput = () => {
     return (
@@ -506,11 +566,11 @@ function EventForm({ navigation }: EventFormScreenProps) {
   const EventInput = () => {
     switch (step) {
       case 0:
-        return <EventNameInput title='What is the name for your event?'  description='Please enter the name of your event' buttonLabel='NEXT' onBtnPress={onNextBtnPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef} user={user}/>;
+        return <EventDateInput title='When is the date of your event?'  description='Please select the date of your event' buttonLabel='NEXT' onBtnPress={onNextBtnPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef} />;
       case 1:
-        return <EventCategorySelect title="What type of vendors are you looking for?"  description="Please select at least one" buttonLabel='NEXT' onBtnPress={onNextBtnPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef} />;
+        return <EventNameInput title='What is the name for your event?'  description='Please enter the name of your event' buttonLabel='NEXT' onBtnPress={onNextBtnPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef} user={user}/>;
       case 2:
-        return <EventDateInput />;
+        return <EventCategorySelect title="What type of vendors are you looking for?"  description="Please select at least one" buttonLabel='NEXT' onBtnPress={onNextBtnPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef} />;
       case 3:
         return <EventGuestsInput />;
       case 4:
@@ -822,6 +882,20 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },
   eventCategorySelectLabel: {
+    fontSize: 16,
+  },
+  eventDateButton: {
+    margin: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderWidth: 2.5,
+    borderRadius: 5,
+    borderColor: "#E8AE4C",
+  },
+  eventDateButtonText: {
+    textAlign: "center",
+    color: "#6495ed",
+    fontWeight: "bold",
     fontSize: 16,
   },
 });
