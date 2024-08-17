@@ -478,6 +478,94 @@ const EventAddressInput = (props: EventInputProps) => {
 
 };
 
+const EventGuestsInput = (props: EventInputProps) => {
+  const {title, description, buttonLabel, onBackBtnPress, onBtnPress, eventFormValuesRef} = props;
+  const { assets, colors, sizes, gradients } = useTheme();
+
+  const defaultGuests = eventFormValuesRef.current.guests;
+
+  const [touched, setTouched] = useState(false);
+  const [errorState, setErrorState] = useState<FormError>({
+    error: defaultGuests < 0,
+    message: ""
+  })
+  const [isPressed, setIsPressed] = useState(false);
+
+
+  const onValueChange = (text: string) => {
+    const numericValue = text.replace(/[^0-9]/g, '');
+
+    if(numericValue === ''){
+      setErrorState({
+        error: true,
+        message: "Please enter the number of guests that will be attending your event"
+      })
+    } else if ( parseInt(numericValue) < 0){
+      setErrorState({
+        error: true,
+        message: "Please enter the number not less than 0"
+      })
+    } else {
+      setErrorState({
+        error: false,
+        message: ""
+      })
+    }
+
+    eventFormValuesRef.current = {
+      ...eventFormValuesRef.current,
+      guests: parseInt(numericValue)
+    }
+
+  }
+
+  return (
+    <Block card paddingVertical={sizes.md} paddingHorizontal={sizes.md}>
+      <Pressable onPress={onBackBtnPress}>
+        <Block className='flex flex-row mb-2'>
+          <AntDesign name='back' size={20} color={'#CB0C9F'} />
+          <Text className='ml-1 text-primary'>Go back</Text>
+        </Block>
+      </Pressable>
+      <Text style={styles.title}>{title}</Text>
+      <Text style={styles.description}>{description}</Text>
+      <TextInput
+              id='event-attendee-input'
+              testID='test-event-attendee-input'
+              defaultValue={String(defaultGuests)}
+              onChangeText={onValueChange}
+              autoCapitalize='none'
+              inputMode='numeric'
+              keyboardType='numeric'
+              returnKeyType='done'
+              className='my-4 p-2 rounded-lg border-gold border-2'
+            />           
+    <Pressable
+    onPressIn={() => setIsPressed(true)}
+    onPressOut={() => setIsPressed(false)}
+    onPress={onBtnPress}
+    disabled={errorState.error}
+    style={({ pressed }) => [
+      styles.inputButton,
+      {
+        backgroundColor: errorState.error
+          ? '#D3D3D3' // Gray color when disabled
+          : pressed || isPressed
+          ? '#E91E8E'
+          : '#CB0C9F',
+      },
+  ]}
+  >
+  <Text style={styles.inputButtonText}>{buttonLabel}</Text>
+  </Pressable>
+      <Text testID='test-first-name-err-text' style={styles.errorText}>
+        {errorState.message}
+      </Text>
+    </Block>
+  );
+
+}
+
 
 function EventForm({ navigation }: EventFormScreenProps) {
   const userContext = useContext(UserContext);
@@ -575,39 +663,39 @@ function EventForm({ navigation }: EventFormScreenProps) {
     }
   }, [step]);
 
-  const EventGuestsInput = () => {
-    return (
-      <Controller
-        name='guests'
-        control={control}
-        render={({ field: { onChange, onBlur, value } }) => {
-          const onValueChange = (input: string) => {
-            const convertedInput = Number.isNaN(Number(input))
-              ? 0
-              : Number(input);
+  // const EventGuestsInput = () => {
+  //   return (
+  //     <Controller
+  //       name='guests'
+  //       control={control}
+  //       render={({ field: { onChange, onBlur, value } }) => {
+  //         const onValueChange = (input: string) => {
+  //           const convertedInput = Number.isNaN(Number(input))
+  //             ? 0
+  //             : Number(input);
 
-            onChange(convertedInput);
-          };
+  //           onChange(convertedInput);
+  //         };
 
-          return (
-            <TextInput
-              id='event-attendee-input'
-              testID='test-event-attendee-input'
-              onBlur={onBlur}
-              value={String(value)}
-              defaultValue={String(value)}
-              onChangeText={onValueChange}
-              autoCapitalize='none'
-              inputMode='numeric'
-              keyboardType='numeric'
-              returnKeyType='done'
-              className='my-4 p-2 rounded-lg border-gold border-2'
-            />
-          );
-        }}
-      />
-    );
-  };
+  //         return (
+  //           <TextInput
+  //             id='event-attendee-input'
+  //             testID='test-event-attendee-input'
+  //             onBlur={onBlur}
+  //             value={String(value)}
+  //             defaultValue={String(value)}
+  //             onChangeText={onValueChange}
+  //             autoCapitalize='none'
+  //             inputMode='numeric'
+  //             keyboardType='numeric'
+  //             returnKeyType='done'
+  //             className='my-4 p-2 rounded-lg border-gold border-2'
+  //           />
+  //         );
+  //       }}
+  //     />
+  //   );
+  // };
 
   const EventBudgetInput = () => {
     return (
@@ -654,7 +742,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
         case 3:
           return <EventAddressInput title='Where will your event be held?'  description='Please enter the address of your event venue' buttonLabel='NEXT' onBtnPress={onNextBtnPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef} />;
         case 4:
-          return <EventBudgetInput />;
+          return <EventGuestsInput title='How many will attend?'  description='Please enter the number of people that will attend.'buttonLabel='NEXT' onBtnPress={onNextBtnPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef}/>;
         default:
           return null;
       }
@@ -667,7 +755,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
         case 2:
           return <EventCategorySelect title="What type of vendors are you looking for?"  description="Please select at least one" buttonLabel='NEXT' onBtnPress={onNextBtnPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef} />;
         case 3:
-          return <EventGuestsInput />;
+          return <EventGuestsInput title='How many will attend?'  description='Please enter the number of people that will attend.'buttonLabel='NEXT' onBtnPress={onNextBtnPress} onBackBtnPress={backAction} eventFormValuesRef={eventFormInputRef}/>;
         case 4:
           return <EventBudgetInput />;
         default:
