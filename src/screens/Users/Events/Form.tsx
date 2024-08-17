@@ -73,7 +73,7 @@ const EventFormInputValidation = object().shape({
 const totalSteps = 5;
 
 type Category = {
-  name: string
+  name: string;
   label: string;
   icon: string;
   color: string;
@@ -86,7 +86,7 @@ interface EventInputProps  {
   buttonLabel: string;
   onBackBtnPress: () => boolean;
   onBtnPress: () => void;
-  eventFormValuesRef:  React.MutableRefObject<EventFormInputType>;
+  eventFormValuesRef: React.MutableRefObject<EventFormInputType>;
 };
 
 interface FormError {
@@ -187,23 +187,18 @@ const EventCategorySelect = (props: EventInputProps) => {
     { name: "photography", label: "Photography", icon: "camera", color: "#FF69B4" },
     { name: "videography", label: "Videography", icon: "video-camera", color: "#8A2BE2" },
   ];
+  const {  title, description, buttonLabel, onBackBtnPress, onBtnPress, eventFormValuesRef } = props;
+
+  const defaultCategories = eventFormValuesRef.current.categories
 
   const [isPressed, setIsPressed] = useState(false);
-  const [selectedCategories, setSelectedCategories] = useState<SelectedCategories>({
-    eventPlanning: false,
-    eventCoordination: false,
-    venue: false,
-    catering: false,
-    photography: false,
-    videography: false,
-  });
+  const [selectedCategories, setSelectedCategories] = useState<SelectedCategories>(defaultCategories);
   const [errorState, setErrorState] = useState<FormError>({
     error: true,
     message: ""
   })
 
 
-  const {  title, description, buttonLabel, onBackBtnPress, onBtnPress, eventFormValuesRef } = props;
 
     const handlePress = (index: number, name: keyof SelectedCategories) => {
           const updatedSelection = {...selectedCategories};
@@ -218,11 +213,9 @@ const EventCategorySelect = (props: EventInputProps) => {
               }
             })
           } else{
-            setErrorState( prevState => {
-              return {
-                ...prevState,
-                error: true
-              }
+            setErrorState({
+              error: true,
+              message: "Must select at least 1 category"
             })
           }
 
@@ -305,7 +298,6 @@ const EventCategorySelect = (props: EventInputProps) => {
     </Block>
   );
 }
-
 
 
 function EventForm({ navigation }: EventFormScreenProps) {
