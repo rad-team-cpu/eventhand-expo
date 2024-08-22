@@ -109,50 +109,63 @@ function EventView({ route, navigation }: EventViewScreenProps) {
   );
 
   const PendingVendors = () => (
-    <View style={styles.listContainer}>
-      {eventBookings
-        .filter((booking) => booking.bookingStatus === BookingStatus.Pending)
-        .map((booking) => (
-          <View
-            key={booking._id}
-            style={styles.vendorContainer}
-            className='bg-white rounded-lg justify-between'
+<View style={styles.listContainer}>
+  {eventBookings
+    .filter((booking) => booking.bookingStatus === BookingStatus.Pending)
+    .map((booking) => (
+      <View
+        key={booking._id}
+        style={styles.vendorContainer}
+        className='bg-white rounded-lg justify-between flex p-2'
+      >
+        <Image
+          radius={sizes.s}
+          width={sizes.xl}
+          height={sizes.xl}
+          src={booking.package?.pictureURL}
+          style={{ backgroundColor: colors.gray }}
+        />
+        <View>
+          <Text
+            className='text-xs text-center font-semibold w-24'
+            numberOfLines={1} 
+            ellipsizeMode='tail' 
           >
-            <Image
-              radius={sizes.s}
-              width={sizes.xl}
-              height={sizes.xl}
-              src={booking.package?.pictureURL}
-              style={{ backgroundColor: colors.gray }}
-            />
-            <View>
-              <Text className='text-xs text-center font-semibold'>
-                {(booking.package as PackageType).name.length > 12
-                  ? `${(booking.package as PackageType).name.substring(0, 10)}...`
-                  : (booking.package as PackageType).name}
-              </Text>
-            </View>
-            <View className='flex-col'>
-              {(booking.package as PackageType).inclusions.map(
-                (inclusion: Product) => (
-                  <View className='flex-row space-x-1'>
-                    <Text className='text-xs text-center font-semibold'>
-                      {inclusion.name}
-                    </Text>
-                    <Text className='text-xs text-center font-semibold'>
-                      x {inclusion.quantity}
-                    </Text>
-                  </View>
-                )
-              )}
-            </View>
+            {(booking.package as PackageType).name}
+          </Text>
+        </View>
+        <View className='flex-col'>
+          {(booking.package as PackageType).inclusions.map(
+            (inclusion: Product) => (
+              <View className='flex-row space-x-1' key={inclusion.id}>
+                <Text
+                  className='text-xs text-center font-semibold flex'
+                  numberOfLines={1}
+                  ellipsizeMode='tail'
+                  style={{ maxWidth: 80 }} 
+                >
+                  {inclusion.name}
+                </Text>
+                <Text className='text-xs text-center font-semibold flex'>
+                  x {inclusion.quantity}
+                </Text>
+              </View>
+            )
+          )}
+        </View>
 
-            <Text className='text-s font-semibold' style={styles.vendorName}>
-              ₱{(booking.package as PackageType).price}
-            </Text>
-          </View>
-        ))}
-    </View>
+        <Text
+          className='text-s font-semibold'
+          numberOfLines={1}
+          ellipsizeMode='tail'
+          style={[styles.vendorName, { maxWidth: 100 }]} // Prevent price overflow
+        >
+          ₱{(booking.package as PackageType).price.toFixed(2)}
+        </Text>
+      </View>
+    ))}
+</View>
+
   );
 
   const renderScene = SceneMap({
@@ -199,9 +212,9 @@ function EventView({ route, navigation }: EventViewScreenProps) {
         <Text style={listStyles.dateText}>{dateString}</Text>
         <View style={listStyles.separator} />
         <View style={listStyles.row}>
-          <Text style={listStyles.budgetText}>
+          {/* <Text style={listStyles.budgetText}>
             Budget: {budget !== 0 ? `₱${budget}` : '∞'}
-          </Text>
+          </Text> */}
           <Text style={listStyles.capacityText}>
             Capacity: {attendees !== 0 ? `${attendees}` : '∞'}
           </Text>

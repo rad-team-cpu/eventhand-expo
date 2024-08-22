@@ -287,7 +287,13 @@ const BookingDetails = () => {
             Total: ₱{vendorPackage?.price.toFixed(2)}
           </Text>
         </Block>
-        <Button gradient={gradients.primary} onPress={onPressConfirm}>
+        <Button
+          gradient={
+            selectedEvents.length > 0 ? gradients.primary : gradients.dark
+          }
+          onPress={onPressConfirm}
+          disabled={selectedEvents.length === 0}
+        >
           <Text className='text-white uppercase'>Confirm</Text>
         </Button>
       </Block>
