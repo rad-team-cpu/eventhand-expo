@@ -44,12 +44,12 @@ type SelectedCategories = {
 }
 
 type EventBudget = {
-  eventPlanning: number;
-  eventCoordination: number;
-  venue: number;
-  catering: number;
-  photography: number;
-  videography: number;
+  eventPlanning: number | null;
+  eventCoordination: number | null;
+  venue: number | null;
+  catering: number | null;
+  photography: number | null;
+  videography: number | null;
 }
 
 type EventFormInputType = {
@@ -592,7 +592,7 @@ const EventBudgetInput = (props: EventInputProps) => {
   const selectedCategories = eventFormValuesRef.current.categories;
   const defaultBudget = eventFormValuesRef.current.budget;
   const [errorState, setErrorState] = useState<EventBudgetError>({
-    error: false,
+    error: true,
     message: "",
     messages: {
       eventPlanning: "",
@@ -679,7 +679,9 @@ const EventBudgetInput = (props: EventInputProps) => {
       {categories.map((category) => {
                 const {name, icon, color, label} = category
                 if(selectedCategories[name as keyof SelectedCategories]){
-                  const hasValue = defaultBudget[name as keyof EventBudget] !== 0
+                  const hasValue = defaultBudget[name as keyof EventBudget] !== null && defaultBudget[name as keyof EventBudget] !== 0
+
+            
                   return (
                     <View key={name} style={styles.budgetInputWrapper}>
                     <View style={styles.budgetInputLabelContainer}>
@@ -758,12 +760,12 @@ function EventForm({ navigation }: EventFormScreenProps) {
     date: new Date(),
     guests: 0,
     budget: {
-      eventPlanning: 0,
-      eventCoordination: 0,
-      venue: 0,
-      catering: 0,
-      photography: 0,
-      videography: 0,
+      eventPlanning: null,
+      eventCoordination:  null,
+      venue:  null,
+      catering:  null,
+      photography:  null,
+      videography:  null,
     },
   })
 
@@ -860,6 +862,31 @@ function EventForm({ navigation }: EventFormScreenProps) {
     setLoading(true);
     console.log(eventFormInputRef.current);
     setLoading(false);
+
+    const { name, address, guests, budget, date } = eventFormInputRef.current
+
+    const input = {
+      name,
+      address,
+      guests,
+      budget,
+      date
+    }
+
+    //       if (user.events) {
+    //         setUser({ ...user, events: [...user.events, event] });
+    //       } else {
+    //         setUser({ ...user, events: [event] });
+    //       }
+
+    navigation.replace('EventView', {
+            _id: "1",
+            name: name,
+            date: format(date, 'MMMM dd, yyyy'),
+            address: address,
+            budget: budget,
+            attendees: guests,
+      });
 
     // const navigateToSuccessError = (props: ScreenProps['SuccessError']) => {
     //   if (props.status === 'error') {

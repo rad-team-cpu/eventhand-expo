@@ -22,7 +22,7 @@ import { AntDesign } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
 function EventView({ route, navigation }: EventViewScreenProps) {
-  const { _id, attendees, budget, date, bookings } = route.params;
+  const { _id, attendees, budget, date, bookings, address} = route.params;
   const dateString =
   typeof date == 'string' ? date : format(date, 'MMMM dd, yyyy');
   const { colors, sizes } = useTheme();
@@ -160,10 +160,10 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     pending: PendingVendors,
   });
 
-  useEffect(() => {
-    const eventId = _id;
-    fetchBookings(eventId);
-  }, []);
+  // useEffect(() => {
+  //   const eventId = _id;
+  //   fetchBookings(eventId);
+  // }, []);
 
   return (
     <>
@@ -197,11 +197,31 @@ function EventView({ route, navigation }: EventViewScreenProps) {
         </View>
 
         <Text style={listStyles.dateText}>{dateString}</Text>
+        {address && (
+          <>
+            <View style={listStyles.separator} />
+              <Text style={listStyles.capacityText}>
+                 Address: {address}
+             </Text>
+          </>
+        )}
         <View style={listStyles.separator} />
         <View style={listStyles.row}>
-          <Text style={listStyles.budgetText}>
-            Budget: {budget !== 0 ? `₱${budget}` : '∞'}
-          </Text>
+        <Pressable
+  style={({ pressed }) => [
+    {
+      backgroundColor: pressed ? '#6200EE': 'transparent',
+      padding: 5,
+      borderRadius: 5,
+      alignItems: 'center',
+      justifyContent: 'center',
+    }
+  ]}
+>
+  <Text style={listStyles.budgetText}>
+    View Budget
+  </Text>
+</Pressable>
           <Text style={listStyles.capacityText}>
             Capacity: {attendees !== 0 ? `${attendees}` : '∞'}
           </Text>
@@ -329,6 +349,7 @@ const listStyles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   budgetText: {
+    color: 'white',
     fontSize: 16,
   },
   capacityText: {

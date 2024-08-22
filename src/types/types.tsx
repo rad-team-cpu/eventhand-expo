@@ -22,10 +22,21 @@ type PaginationInfo = {
   totalPages: number;
 };
 
+type EventBudget = {
+  eventPlanning: number | null;
+  eventCoordination: number | null;
+  venue: number | null;
+  catering: number | null;
+  photography: number | null;
+  videography: number | null;
+}
+
 interface EventInfo {
   _id: string;
+  name: string;
   attendees: number;
-  budget: number;
+  address?: string;
+  budget: EventBudget;
   date: Date | string;
   bookings?: BookingDetailsProps[];
 }
