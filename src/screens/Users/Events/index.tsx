@@ -1,10 +1,11 @@
 import { FontAwesome } from '@expo/vector-icons';
 import axios from 'axios';
 import { format } from 'date-fns/format';
+import Entypo from '@expo/vector-icons/Entypo';
 import ExpoStatusBar from 'expo-status-bar/build/ExpoStatusBar';
 import React, { useEffect, useState } from 'react';
 import Image from 'Components/Ui/Image';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import useTheme from 'src/core/theme';
 import {
@@ -24,7 +25,7 @@ import { useNavigation } from '@react-navigation/native';
 function EventView({ route, navigation }: EventViewScreenProps) {
   const { _id, attendees, budget, date, bookings } = route.params;
   const dateString =
-  typeof date == 'string' ? date : format(date, 'MMMM dd, yyyy');
+    typeof date == 'string' ? date : format(date, 'MMMM dd, yyyy');
   const { colors, sizes } = useTheme();
   const [index, setIndex] = useState(0);
   const [routes] = useState([
@@ -57,6 +58,37 @@ function EventView({ route, navigation }: EventViewScreenProps) {
 
   const handleFindSupplier = () => {
     navigation.navigate('Home', { initialTab: 'Vendors' });
+  };
+
+  const handleRemoveBooking = (id: string) => {
+    Alert.alert(
+      'Confirm Cancellation',
+      'Are you sure you want to cancel this request to book?',
+      [
+        {
+          text: 'NO',
+          style: 'cancel',
+        },
+        {
+          text: 'YES',
+          onPress: async () => {
+            try {
+              await axios.delete(
+                `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking/${id}`,
+                {
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                }
+              );
+              fetchBookings(_id);
+            } catch (error: any) {
+              console.error('Error removing booking:', error.message);
+            }
+          },
+        },
+      ]
+    );
   };
 
   const ConfirmedVendors = () => (
@@ -116,8 +148,16 @@ function EventView({ route, navigation }: EventViewScreenProps) {
           <View
             key={booking._id}
             style={styles.vendorContainer}
-            className='bg-white rounded-lg justify-between'
+            className='bg-white rounded-lg justify-between flex p-2'
           >
+            {booking._id && (
+              <Pressable
+                onPress={() => handleRemoveBooking(booking._id as string)}
+                style={styles.floatingRemoveButton}
+              >
+                <Entypo name='cross' size={24} color='red' />
+              </Pressable>
+            )}
             <Image
               radius={sizes.s}
               width={sizes.xl}
@@ -125,21 +165,30 @@ function EventView({ route, navigation }: EventViewScreenProps) {
               src={booking.package?.pictureURL}
               style={{ backgroundColor: colors.gray }}
             />
+
             <View>
-              <Text className='text-xs text-center font-semibold'>
-                {(booking.package as PackageType).name.length > 12
-                  ? `${(booking.package as PackageType).name.substring(0, 10)}...`
-                  : (booking.package as PackageType).name}
+              <Text
+                className='text-xs text-center font-semibold w-24'
+                numberOfLines={1}
+                ellipsizeMode='tail'
+              >
+                {(booking.package as PackageType).name}
               </Text>
             </View>
+
             <View className='flex-col'>
               {(booking.package as PackageType).inclusions.map(
                 (inclusion: Product) => (
-                  <View className='flex-row space-x-1'>
-                    <Text className='text-xs text-center font-semibold'>
+                  <View className='flex-row space-x-1' key={inclusion.id}>
+                    <Text
+                      className='text-xs text-center font-semibold flex'
+                      numberOfLines={1}
+                      ellipsizeMode='tail'
+                      style={{ maxWidth: 80 }}
+                    >
                       {inclusion.name}
                     </Text>
-                    <Text className='text-xs text-center font-semibold'>
+                    <Text className='text-xs text-center font-semibold flex'>
                       x {inclusion.quantity}
                     </Text>
                   </View>
@@ -147,8 +196,13 @@ function EventView({ route, navigation }: EventViewScreenProps) {
               )}
             </View>
 
-            <Text className='text-s font-semibold' style={styles.vendorName}>
-              ₱{(booking.package as PackageType).price}
+            <Text
+              className='text-s font-semibold'
+              numberOfLines={1}
+              ellipsizeMode='tail'
+              style={[styles.vendorName, { maxWidth: 100 }]}
+            >
+              ₱{(booking.package as PackageType).price.toFixed(2)}
             </Text>
           </View>
         ))}
@@ -199,9 +253,9 @@ function EventView({ route, navigation }: EventViewScreenProps) {
         <Text style={listStyles.dateText}>{dateString}</Text>
         <View style={listStyles.separator} />
         <View style={listStyles.row}>
-          <Text style={listStyles.budgetText}>
+          {/* <Text style={listStyles.budgetText}>
             Budget: {budget !== 0 ? `₱${budget}` : '∞'}
-          </Text>
+          </Text> */}
           <Text style={listStyles.capacityText}>
             Capacity: {attendees !== 0 ? `${attendees}` : '∞'}
           </Text>
@@ -265,6 +319,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 10,
     padding: 10,
+    position: 'relative',
+  },
+  floatingRemoveButton: {
+    position: 'absolute',
+    top: -10,
+    right: -10,
+    backgroundColor: 'white',
+    borderRadius: 50,
+    padding: 1,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
   vendorLogo: {
     width: 50,
