@@ -15,6 +15,7 @@ import VendorProfileForm from 'screens/Vendor/Profile/Form';
 import { ScreenProps } from 'types/types';
 import BookingConfirmation from 'screens/Users/BookingConfirmation';
 import BookingDetails from 'screens/Users/BookingDetails';
+import BookingView from 'screens/Vendor/Bookings';
 
 const SignedInStack = createNativeStackNavigator<ScreenProps>();
 
@@ -44,6 +45,10 @@ const eventViewHeaderOptions: NativeStackNavigationOptions = {
 
 const chatOptions: NativeStackNavigationOptions = {
   headerBackVisible: false,
+};
+
+const bookingView: NativeStackNavigationOptions = {
+  headerShown: false,
 };
 
 const SignedInNav = () => {
@@ -105,6 +110,11 @@ const SignedInNav = () => {
         component={VendorHome}
         options={{ headerShown: false }}
         initialParams={vendorHomeInitialParams}
+      />
+      <SignedInStack.Screen
+        name='BookingView'
+        component={BookingView}
+        options={{ headerShown: false }}
       />
       <SignedInStack.Screen
         name='VendorProfileForm'
