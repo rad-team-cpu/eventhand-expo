@@ -182,6 +182,10 @@ interface BookingDetailsProps {
   bookingStatus?: BookingStatus;
 }
 
+interface BookingViewProps {
+  _id: string;
+}
+
 type ScreenProps = {
   SignUp: undefined;
   Login: undefined;
@@ -189,6 +193,7 @@ type ScreenProps = {
   ProfileForm: undefined;
   EventForm: undefined;
   EventView: EventInfo;
+  BookingView: BookingViewProps;
   VendorList: undefined;
   VendorMenu: VendorMenuProps;
   BookingConfirmation: BookingConfirmationProps;
@@ -216,6 +221,8 @@ type ProfileFormScreenProps = NativeStackScreenProps<
 type EventFormScreenProps = NativeStackScreenProps<ScreenProps, 'EventForm'>;
 
 type EventViewScreenProps = NativeStackScreenProps<ScreenProps, 'EventView'>;
+
+type BookingViewScreenProps = NativeStackScreenProps<ScreenProps, 'BookingView'>;
 
 type ChatScreenProps = NativeStackScreenProps<ScreenProps, 'Chat'>;
 
@@ -318,6 +325,7 @@ export {
   EventListScreenProps,
   EventListNavigationProps,
   EventViewScreenProps,
+  BookingViewScreenProps,
   ChatScreenProps,
   ChatNavigationProps,
   VendorListScreenProps,
