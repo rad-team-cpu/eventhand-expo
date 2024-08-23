@@ -16,20 +16,17 @@ import {
   PackageType,
   Product,
   HomeScreenBottomTabsProps,
+  VendorHomeScreenProps,
   HomeScreenNavigationProp,
 } from 'types/types';
 import Button from 'Components/Ui/Button';
 import { AntDesign } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
-function BookingView({ route, navigation }: BookingViewScreenProps) {
-  const { _id } = route.params;
-  const { colors, sizes } = useTheme();
-  const [index, setIndex] = useState(0);
-  const [routes] = useState([
-    { key: 'confirmed', title: 'Confirmed' },
-    { key: 'pending', title: 'Pending' },
-  ]);
+function BookingView() {
+  const route = useRoute();
+  const navigation = useNavigation<HomeScreenNavigationProp>();
+  const { _id } = route.params as { _id: string };
   const [booking, setBooking] = useState<BookingDetailsProps>();
 
   const fetchBooking = async (_id: string) => {
@@ -54,10 +51,6 @@ function BookingView({ route, navigation }: BookingViewScreenProps) {
     }
   };
 
-  // const handleFindSupplier = () => {
-  //   navigation.navigate('Home', { initialTab: 'Vendors' });
-  // };
-
   const handleDeclineBooking = (id: string) => {
     Alert.alert(
       'Confirm Decline',
@@ -74,7 +67,7 @@ function BookingView({ route, navigation }: BookingViewScreenProps) {
               await axios.patch(
                 `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking/${id}`,
                 {
-                  bookingStatus: 'Cancelled', // Add bookingStatus to the request body
+                  bookingStatus: 'Cancelled',
                 },
                 {
                   headers: {
@@ -93,6 +86,7 @@ function BookingView({ route, navigation }: BookingViewScreenProps) {
   };
 
   useEffect(() => {
+    console.log(_id)
     fetchBooking(_id);
   }, []);
 
@@ -110,32 +104,16 @@ function BookingView({ route, navigation }: BookingViewScreenProps) {
             <AntDesign name='back' size={24} color='#CB0C9F' />
             <Text className='text-primary ml-1'>Go back</Text>
           </Button>
-          {/* <View style={styles.container}>
-            <Pressable
-              style={styles.button}
-              android_ripple={{ color: '#c0c0c0' }}
-              onPress={() => handleFindSupplier()}
-            >
-              <FontAwesome
-                name='search'
-                size={10}
-                color='white'
-                style={styles.icon}
-              />
-              <Text style={styles.buttonText}>Find Supplier</Text>
-            </Pressable>
-          </View> */}
         </View>
-
         {/* <Text style={listStyles.dateText}>{dateString}</Text> */}
         <View style={listStyles.separator} />
         <View style={listStyles.row}>
-          {/* <Text style={listStyles.budgetText}>
-            Budget: {budget !== 0 ? `₱${budget}` : '∞'}
-          </Text> */}
-          {/* <Text style={listStyles.capacityText}>
-            Capacity: {attendees !== 0 ? `${attendees}` : '∞'}
-          </Text> */}
+          <Text style={listStyles.budgetText}>
+            {booking?.client?.toString()}
+          </Text>
+          <Text style={listStyles.capacityText}>
+            {booking?.client?.toString()}
+          </Text>
         </View>
       </View>
     </>
