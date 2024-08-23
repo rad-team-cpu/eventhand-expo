@@ -252,6 +252,7 @@ type HomeScreenBottomTabsProps = {
 
 type VendorHomeScreenBottomTabsProps = {
   Home: NavigatorScreenParams<ScreenProps>;
+  Requests: undefined;
   Bookings: undefined;
   ChatList: ChatListProps;
   Profile: undefined;
