@@ -111,13 +111,13 @@ function EventView({ route, navigation }: EventViewScreenProps) {
               src={booking.package?.pictureURL}
               style={{ backgroundColor: colors.gray }}
             />
-            {/* <View>
+            <View>
               <Text className='text-xs text-center font-semibold'>
-                {(booking.packages as PackageType).name.length > 12
-                  ? `${(booking.packages as PackageType).name.substring(0, 10)}...`
-                  : (booking.packages as PackageType).name}
+                {(booking.package as PackageType).name.length > 12
+                  ? `${(booking.package as PackageType).name.substring(0, 10)}...`
+                  : (booking.package as PackageType).name}
               </Text>
-            </View> */}
+            </View>
             <View className='flex-col'>
               {(booking.package as PackageType).inclusions.map(
                 (inclusion: Product) => (
