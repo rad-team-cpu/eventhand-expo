@@ -10,6 +10,7 @@ import {
   BookingDetailsProps,
   EventInfo,
   HomeScreenNavigationProp,
+  ScreenProps,
 } from 'types/types';
 import { VendorContext } from 'Contexts/VendorContext';
 
@@ -22,32 +23,32 @@ const getRandomColor = () => {
   return color;
 };
 
-const BookingListItem = ({
-  _id,
-  client,
-  event,
-}: BookingDetailsProps) => {
+const BookingListItem = ({ _id, client, event }: BookingDetailsProps) => {
   const borderColor = useMemo(() => getRandomColor(), []);
   const navigation = useNavigation<HomeScreenNavigationProp>();
 
-  const onPress = () =>
-    navigation.navigate('BookingView', { _id: _id ?? '' });
+  const onPress = (_id: string) => {
+    const BookingViewProps: ScreenProps['BookingView'] = {
+      _id,
+    };
+    console.log(_id)
+
+    navigation.navigate('BookingView', BookingViewProps);
+  };
 
   return (
     <Pressable
       key={_id}
       style={[styles.itemContainer, { borderLeftColor: borderColor }]}
       android_ripple={{ color: '#c0c0c0' }}
-      onPress={onPress}
+      onPress={() => onPress(_id ?? '')}
     >
       <Text style={styles.dateText}>{event?.toString()}</Text>
       <View style={styles.separator} />
       <View style={styles.row}>
         {/* <Text style={styles.dateText}>{?._id}</Text> */}
         <Text style={styles.capacityText}>
-          <Text style={styles.dateText}>
-            {event?.toString()}
-          </Text>
+          <Text style={styles.dateText}>{event?.toString()}</Text>
         </Text>
       </View>
     </Pressable>
@@ -62,14 +63,7 @@ const Bookings = ({ bookings }: BookingsProps) => (
   <FlatList
     contentContainerStyle={styles.listContainer}
     data={bookings}
-    renderItem={({ item }) => (
-      <BookingListItem
-        _id={item._id}
-        package={item.package}
-        client={item.client}
-        event={item.event}
-      />
-    )}
+    renderItem={({ item }) => <BookingListItem _id={item._id} />}
   />
 );
 
@@ -77,10 +71,8 @@ function BookingList() {
   const vendorContext = useContext(VendorContext);
   const { assets, colors, sizes, gradients } = useTheme();
 
-  const navigation = useNavigation<HomeScreenNavigationProp>();
-
   if (!vendorContext) {
-    throw new Error('UserInfo must be used within a UserProvider');
+    throw new Error('VendorInfo must be used within a VendorProvider');
   }
 
   const { vendor } = vendorContext;
