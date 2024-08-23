@@ -24,7 +24,6 @@ const getRandomColor = () => {
 
 const BookingListItem = ({
   _id,
-  packages,
   client,
   event,
 }: BookingDetailsProps) => {
@@ -47,10 +46,10 @@ const BookingListItem = ({
       android_ripple={{ color: '#c0c0c0' }}
       // onPress={onPress}
     >
-      <Text style={styles.dateText}>{packages?.name}</Text>
+      <Text style={styles.dateText}>{event?.name}</Text>
       <View style={styles.separator} />
       <View style={styles.row}>
-        <Text style={styles.dateText}>{event?._id}</Text>
+        {/* <Text style={styles.dateText}>{?._id}</Text> */}
         <Text style={styles.capacityText}>
           <Text style={styles.dateText}>
             {client?.firstName}' '{client?.firstName}
@@ -72,7 +71,7 @@ const Bookings = ({ bookings }: BookingsProps) => (
     renderItem={({ item }) => (
       <BookingListItem
         _id={item._id}
-        packages={item.packages}
+        package={item.package}
         client={item.client}
         event={item.event}
       />
