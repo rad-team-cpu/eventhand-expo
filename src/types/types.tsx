@@ -24,6 +24,7 @@ type PaginationInfo = {
 
 interface EventInfo {
   _id: string;
+  name?: string;
   attendees: number;
   budget: number;
   date: Date | string;
@@ -170,7 +171,7 @@ interface BookingConfirmationProps {
 
 interface BookingDetailsProps {
   _id?: string;
-  package?: PackageType;
+  packages?: PackageType;
   packageId?: string;
   vendor?: Vendor;
   vendorId?: string;
