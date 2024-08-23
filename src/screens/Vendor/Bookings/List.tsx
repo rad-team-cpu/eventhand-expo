@@ -87,7 +87,6 @@ function BookingList() {
   const { bookings } = vendor;
 
   if (bookings && bookings.length > 0) {
-    console.log(bookings)
     return (
       <Block safe>
         <StatusBar style='auto' />
