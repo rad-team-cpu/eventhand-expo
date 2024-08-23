@@ -139,6 +139,7 @@ const VendorHome = ({ navigation, route }: VendorHomeScreenProps) => {
           address: data.address,
           email: data.email,
           contactNumber: data.contactNumber,
+          bookings: data.bookings
         };
         setVendor({ ...vendor });
         const getChatListInput: GetChatListInput = {
