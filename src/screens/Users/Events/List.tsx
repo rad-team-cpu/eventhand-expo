@@ -38,7 +38,7 @@ const getRandomColor = () => {
   return color;
 };
 
-const EventListItem = ({ _id, date, budget, attendees }: EventInfo) => {
+const EventListItem = ({ _id, date, budget, attendees, name }: EventInfo) => {
   const borderColor = useMemo(() => getRandomColor(), []);
   const dateString = format(date, 'MMMM dd, yyyy');
   const navigation = useNavigation<HomeScreenNavigationProp>();
@@ -49,6 +49,7 @@ const EventListItem = ({ _id, date, budget, attendees }: EventInfo) => {
       date: dateString,
       budget,
       attendees,
+      name
     });
 
   return (
@@ -87,6 +88,7 @@ const Events = ({ events }: EventsProps) => (
     renderItem={({ item }) => (
       <EventListItem
         _id={item._id}
+        name={item.name}
         date={item.date}
         budget={item.budget}
         attendees={item.attendees}
