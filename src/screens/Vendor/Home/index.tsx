@@ -10,13 +10,13 @@ import { StyleSheet } from "react-native";
 import { VendorContext } from "../../../Contexts/VendorContext";
 import { Vendor, VendorHomeScreenBottomTabsProps, VendorHomeScreenProps } from "../../../types/types";
 import Loading from "../../Loading";
-import VendorBooking from "../Bookings";
 import VendorProfile from "../Profile";
 import ChatList from "screens/Chat/List";
 import { GetChatListInput, SocketSwitchInput, WebSocketContext } from "Contexts/WebSocket";
 import ErrorScreen from "Components/Error";
 import ConfirmationDialog from "Components/ConfirmationDialog";
 import { UserContext } from "Contexts/UserContext";
+import BookingList from "../Bookings/List";
 
 interface VendorHomeNavProps {
   initialTab?: keyof VendorHomeScreenBottomTabsProps;
@@ -55,7 +55,7 @@ const VendorHomeNav = ({ initialTab }: VendorHomeNavProps) => {
     <Tab.Navigator initialRouteName={!initialTab ? "Profile" : initialTab}>
       <Tab.Screen
         name="Bookings"
-        component={VendorBooking}
+        component={BookingList}
         options={bookingIconOptions}
       />
       <Tab.Screen
