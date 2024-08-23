@@ -92,57 +92,58 @@ function EventView({ route, navigation }: EventViewScreenProps) {
   };
 
   const ConfirmedVendors = () => (
-    <View style={styles.listContainer}>
-      {eventBookings
-        .filter(
-          (eventBooking) =>
-            eventBooking.bookingStatus === BookingStatus.Confirmed
-        )
-        .map((booking) => (
-          <View
-            key={booking._id}
-            style={styles.vendorContainer}
-            className='bg-white rounded-lg justify-between'
-          >
-            <Image
-              radius={sizes.s}
-              width={sizes.xl}
-              height={sizes.xl}
-              src={booking.package?.pictureURL}
-              style={{ backgroundColor: colors.gray }}
-            />
-            <View>
-              <Text className='text-xs text-center font-semibold'>
-                {(booking.package as PackageType).name.length > 12
-                  ? `${(booking.package as PackageType).name.substring(0, 10)}...`
-                  : (booking.package as PackageType).name}
-              </Text>
-            </View>
-            <View className='flex-col'>
-              {(booking.package as PackageType).inclusions.map(
-                (inclusion: Product) => (
-                  <View className='flex-row space-x-1'>
-                    <Text className='text-xs text-center font-semibold'>
-                      {inclusion.name}
-                    </Text>
-                    <Text className='text-xs text-center font-semibold'>
-                      x {inclusion.quantity}
-                    </Text>
-                  </View>
-                )
-              )}
-            </View>
-            <Text className='text-xs font-semibold' style={styles.vendorName}>
-              ₱{(booking.package as PackageType).price}
-            </Text>
-          </View>
-        ))}
-    </View>
+    <View></View>
+    // <View style={styles.listContainer}>
+    //   {eventBookings
+    //     .filter(
+    //       (eventBooking) =>
+    //         eventBooking.bookingStatus === BookingStatus.Confirmed
+    //     )
+    //     .map((booking) => (
+    //       <View
+    //         key={booking._id}
+    //         style={styles.vendorContainer}
+    //         className='bg-white rounded-lg justify-between'
+    //       >
+    //         <Image
+    //           radius={sizes.s}
+    //           width={sizes.xl}
+    //           height={sizes.xl}
+    //           src={booking.packages?.pictureURL}
+    //           style={{ backgroundColor: colors.gray }}
+    //         />
+    //         {/* <View>
+    //           <Text className='text-xs text-center font-semibold'>
+    //             {(booking.packages as PackageType).name.length > 12
+    //               ? `${(booking.packages as PackageType).name.substring(0, 10)}...`
+    //               : (booking.packages as PackageType).name}
+    //           </Text>
+    //         </View> */}
+    //         <View className='flex-col'>
+    //           {(booking.packages as PackageType).inclusions.map(
+    //             (inclusion: Product) => (
+    //               <View className='flex-row space-x-1'>
+    //                 <Text className='text-xs text-center font-semibold'>
+    //                   {inclusion.name}
+    //                 </Text>
+    //                 <Text className='text-xs text-center font-semibold'>
+    //                   x {inclusion.quantity}
+    //                 </Text>
+    //               </View>
+    //             )
+    //           )}
+    //         </View>
+    //         <Text className='text-xs font-semibold' style={styles.vendorName}>
+    //           ₱{(booking.packages as PackageType).price}
+    //         </Text>
+    //       </View>
+    //     ))}
+    // </View>
   );
 
   const PendingVendors = () => (
     <View style={styles.listContainer}>
-      {eventBookings
+      {/* {eventBookings
         .filter((booking) => booking.bookingStatus === BookingStatus.Pending)
         .map((booking) => (
           <View
@@ -162,7 +163,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
               radius={sizes.s}
               width={sizes.xl}
               height={sizes.xl}
-              src={booking.package?.pictureURL}
+              src={booking.packages?.pictureURL}
               style={{ backgroundColor: colors.gray }}
             />
 
@@ -172,12 +173,12 @@ function EventView({ route, navigation }: EventViewScreenProps) {
                 numberOfLines={1}
                 ellipsizeMode='tail'
               >
-                {(booking.package as PackageType).name}
+                {(booking.packages as PackageType).name}
               </Text>
             </View>
 
             <View className='flex-col'>
-              {(booking.package as PackageType).inclusions.map(
+              {(booking.packages as PackageType).inclusions.map(
                 (inclusion: Product) => (
                   <View className='flex-row space-x-1' key={inclusion.id}>
                     <Text
@@ -202,10 +203,10 @@ function EventView({ route, navigation }: EventViewScreenProps) {
               ellipsizeMode='tail'
               style={[styles.vendorName, { maxWidth: 100 }]}
             >
-              ₱{(booking.package as PackageType).price.toFixed(2)}
+              ₱{(booking.packages as PackageType).price.toFixed(2)}
             </Text>
           </View>
-        ))}
+        ))} */}
     </View>
   );
 
