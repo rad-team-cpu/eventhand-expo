@@ -171,7 +171,7 @@ interface BookingConfirmationProps {
 
 interface BookingDetailsProps {
   _id?: string;
-  packages?: PackageType;
+  package?: PackageType;
   packageId?: string;
   vendor?: Vendor;
   vendorId?: string;
