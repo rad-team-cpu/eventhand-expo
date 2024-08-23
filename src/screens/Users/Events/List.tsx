@@ -131,19 +131,6 @@ function EventList() {
   return (
     <Block safe>
       <View testID='test-events' style={styles.container}>
-        {/* <Pressable
-        style={styles.button}
-        android_ripple={{ color: "#c0c0c0" }}
-        onPress={onCreatePress}
-      >
-        <MaterialIcons
-          name="create"
-          size={24}
-          color="#ffff"
-          style={styles.icon}
-        />
-        <Text style={styles.buttonText}>Create Event</Text>
-      </Pressable> */}
         <Image
           background
           resizeMode='cover'
@@ -157,9 +144,6 @@ function EventList() {
       <FloatingCreateButton onPress={onCreatePress} />
     </Block>
   );
-
-  // return <FloatingCreateButton onPress={() => {}}/>
-  // return <EventForm/>;
 }
 
 const styles = StyleSheet.create({
