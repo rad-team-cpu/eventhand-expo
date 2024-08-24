@@ -29,9 +29,10 @@ const BookingListItem = ({ _id, client, event }: BookingDetailsProps) => {
   const dateString = event?.date ? format(event.date, 'MMMM dd, yyyy') : '';
   const navigation = useNavigation<HomeScreenNavigationProp>();
 
-  const onPress = (_id: string) => {
+  const onPress = (_id: string, fromPending: boolean) => {
     const BookingViewProps: ScreenProps['BookingView'] = {
       _id,
+      fromPending,
     };
     navigation.navigate('BookingView', BookingViewProps);
   };
@@ -41,7 +42,7 @@ const BookingListItem = ({ _id, client, event }: BookingDetailsProps) => {
       key={_id}
       style={[styles.itemContainer, { borderLeftColor: borderColor }]}
       android_ripple={{ color: '#c0c0c0' }}
-      onPress={() => onPress(_id ?? '')}
+      onPress={() => onPress(_id ?? '', true)}
     >
       <Text style={styles.dateText}>{event?.name}</Text>
 
@@ -74,6 +75,7 @@ const Bookings = ({ bookings }: BookingsProps) => (
 
 function BookingList() {
   const vendorContext = useContext(VendorContext);
+  const navigation = useNavigation<HomeScreenNavigationProp>();
   const [bookings, setBookings] = useState<BookingDetailsProps[]>([]);
   const { assets, colors, sizes, gradients } = useTheme();
 
@@ -86,11 +88,12 @@ function BookingList() {
   const fetchBookings = async (vendorId: string) => {
     try {
       const response = await axios.get(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking?vendor=${vendorId}`,
+        `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking?vendor=${vendorId}&bookingStatus=PENDING`,
         {
           headers: {
             'Content-Type': 'application/json',
-          },        }
+          },
+        }
       );
       setBookings(response.data);
     } catch (error: any) {
@@ -103,9 +106,18 @@ function BookingList() {
       }
     }
   };
+
   useEffect(() => {
     fetchBookings(vendor.id);
   }, []);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      fetchBookings(vendor.id);
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   if (bookings && bookings.length > 0) {
     return (
@@ -119,23 +131,25 @@ function BookingList() {
         </Block>
       </Block>
     );
+  } else {
+    return (
+      <Block safe>
+        <View testID='test-events' style={styles.container}>
+          <Image
+            background
+            resizeMode='cover'
+            padding={sizes.md}
+            source={assets.noEvents}
+            rounded
+            className='rounded-xl h-72 w-72'
+          ></Image>
+          <Text className='font-bold'>
+            You have no pending booking requests!
+          </Text>
+        </View>
+      </Block>
+    );
   }
-
-  return (
-    <Block safe>
-      <View testID='test-events' style={styles.container}>
-        <Image
-          background
-          resizeMode='cover'
-          padding={sizes.md}
-          source={assets.noEvents}
-          rounded
-          className='rounded-xl h-72 w-72'
-        ></Image>
-        <Text className='font-bold'>You have no bookings!</Text>
-      </View>
-    </Block>
-  );
 }
 
 const styles = StyleSheet.create({
