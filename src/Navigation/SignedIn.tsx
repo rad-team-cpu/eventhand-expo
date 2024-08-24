@@ -4,7 +4,7 @@ import {
 } from '@react-navigation/native-stack';
 import Confirmation from 'screens/Confirmation';
 import SuccessError from 'screens/SuccessError';
-import Chat from "screens/Chat";
+import Chat from 'screens/Chat';
 import EventView from 'screens/Users/Events';
 import EventForm from 'screens/Users/Events/Form';
 import Home from 'screens/Users/Home';
@@ -16,6 +16,8 @@ import { ScreenProps } from 'types/types';
 import BookingConfirmation from 'screens/Users/BookingConfirmation';
 import BookingDetails from 'screens/Users/BookingDetails';
 import BookingView from 'screens/Vendor/Bookings';
+import UpcomingBookingList from 'screens/Vendor/Bookings/UpcomingBookings';
+import BookingList from 'screens/Vendor/Bookings/List';
 
 const SignedInStack = createNativeStackNavigator<ScreenProps>();
 
@@ -27,12 +29,12 @@ const homeHeaderOptions: NativeStackNavigationOptions = {
   headerShown: false,
 };
 
-const homeInitialParams: ScreenProps["Home"] = {
-  initialTab: "EventList",
+const homeInitialParams: ScreenProps['Home'] = {
+  initialTab: 'EventList',
 };
 
-const vendorHomeInitialParams: ScreenProps["Home"] = {
-  initialTab: "Bookings",
+const vendorHomeInitialParams: ScreenProps['Home'] = {
+  initialTab: 'Bookings',
 };
 
 const eventFormHeaderOptions: NativeStackNavigationOptions = {
@@ -45,10 +47,6 @@ const eventViewHeaderOptions: NativeStackNavigationOptions = {
 
 const chatOptions: NativeStackNavigationOptions = {
   headerBackVisible: false,
-};
-
-const bookingView: NativeStackNavigationOptions = {
-  headerShown: false,
 };
 
 const SignedInNav = () => {
@@ -76,7 +74,7 @@ const SignedInNav = () => {
         options={{ headerShown: false }}
       />
       <SignedInStack.Screen
-        name="Chat"
+        name='Chat'
         component={Chat}
         options={chatOptions}
       />
@@ -86,17 +84,17 @@ const SignedInNav = () => {
         options={{ headerShown: false }}
       />
       <SignedInStack.Screen
-        name="BookingConfirmation"
+        name='BookingConfirmation'
         component={BookingConfirmation}
         options={{ headerShown: false }}
       />
       <SignedInStack.Screen
-        name="BookingDetails"
+        name='BookingDetails'
         component={BookingDetails}
         options={{ headerShown: false }}
       />
       <SignedInStack.Screen
-        name="SuccessError"
+        name='SuccessError'
         component={SuccessError}
         options={{ headerShown: false }}
       />
@@ -121,9 +119,18 @@ const SignedInNav = () => {
         component={VendorProfileForm}
         options={{ headerShown: false }}
       />
+      <SignedInStack.Screen
+        name='UpcomingBookingList'
+        component={UpcomingBookingList}
+        options={{ headerShown: false }}
+      />
+      <SignedInStack.Screen
+        name='BookingList'
+        component={BookingList}
+        options={{ headerShown: false }}
+      />
     </SignedInStack.Navigator>
   );
 };
-
 
 export default SignedInNav;
