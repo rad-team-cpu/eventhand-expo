@@ -5,7 +5,7 @@ import Image from 'Components/Ui/Image';
 import useTheme from 'src/core/theme';
 import Button from 'Components/Ui/Button';
 import { ScrollView, Text, TouchableOpacity } from 'react-native';
-import { AntDesign, Entypo } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
 import axios from 'axios';
 import {
   Vendor,
@@ -20,7 +20,7 @@ import { UserContext } from 'Contexts/UserContext';
 import formatDate from 'src/core/helpers';
 import Loading from 'screens/Loading';
 import SuccessScreen from 'Components/Success';
-import { format } from 'date-fns/format';
+import { format } from 'date-fns';
 
 const BookingDetails = () => {
   const userContext = useContext(UserContext);
@@ -31,8 +31,7 @@ const BookingDetails = () => {
   const [vendor, setVendor] = useState<Vendor | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [submitErrMessage, setSubmitErrMessage] = useState('');
-  const [selectedEvent, setSelectedEvent] = useState<EventInfo>();
+  const [selectedEvents, setSelectedEvents] = useState<EventInfo[]>([]);
   const [success, setSuccess] = useState(false);
 
   if (!userContext) {
@@ -80,6 +79,22 @@ const BookingDetails = () => {
     }
   }, []);
 
+  const handleEventSelect = (eventInfo: EventInfo) => {
+    setSelectedEvents((prevSelectedEvents) => {
+      const isSelected = prevSelectedEvents.some(
+        (event) => event._id === eventInfo._id
+      );
+
+      if (isSelected) {
+        return prevSelectedEvents.filter(
+          (event) => event._id !== eventInfo._id
+        );
+      } else {
+        return [...prevSelectedEvents, eventInfo];
+      }
+    });
+  };
+
   useEffect(() => {
     const loadPackage = async () => {
       setLoading(true);
@@ -96,29 +111,30 @@ const BookingDetails = () => {
     loadPackage();
   }, [fetchPackage]);
 
-  const onPressConfirm = async (
-    packageId: string,
-    vendorId: string,
-    eventId: string,
-    userId: string
-  ) => {
+  const onPressConfirm = async () => {
+    if (!selectedEvents.length) {
+      setError('Please select at least one event');
+      return;
+    }
+
     try {
-      const response = await axios.post(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking`,
-        {
-          package: packageId,
-          vendor: vendorId,
-          event: eventId,
-          client: userId,
-          bookingStatus: BookingStatus.Pending,
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
+      for (const event of selectedEvents) {
+        await axios.post(
+          `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking`,
+          {
+            package: packageId,
+            vendor: vendorId,
+            event: event._id,
+            client: user._id,
+            bookingStatus: BookingStatus.Pending,
           },
-        }
-      );
-      console.log('Booking confirmed:', response.data);
+          {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+      }
       setSuccess(true);
     } catch (error: any) {
       console.error('Error confirming booking:', error.message);
@@ -133,10 +149,11 @@ const BookingDetails = () => {
   }, [vendorPackage, fetchVendor]);
 
   const onSuccessPress = () => {
-    if (selectedEvent) {
+    if (selectedEvents.length) {
+      const selectedEvent = selectedEvents[0]; // Get the first selected event
       const eventViewProps: ScreenProps['EventView'] = {
         _id: selectedEvent._id,
-        date: format(selectedEvent.date, 'MMMM dd, yyyy'),
+        date: format(new Date(selectedEvent.date), 'MMMM dd, yyyy'),
         budget: selectedEvent.budget,
         attendees: selectedEvent.attendees,
         bookings: [
@@ -149,6 +166,7 @@ const BookingDetails = () => {
           },
         ],
       };
+
       navigation.navigate('EventView', eventViewProps);
     } else {
       setError('No event selected');
@@ -190,47 +208,46 @@ const BookingDetails = () => {
           <AntDesign name='back' size={24} color='#ec4899' />
           <Text className='text-primary ml-1'>Go back</Text>
         </Button>
-        <Text className='font-bold p-2'>Booking Details:</Text>
+        <Text className='font-bold text-lg p-2'>1. Choose event/s:</Text>
         <Block>
-          {events?.map((eventInfo: EventInfo) => (
-            <TouchableOpacity
-              key={eventInfo._id}
-              onPress={() => setSelectedEvent(eventInfo)}
-            >
-              <Block
-                className={`${
-                  selectedEvent?._id === eventInfo._id
-                    ? 'bg-primary text-white'
-                    : 'bg-white text-black'
-                } p-2 my-1 rounded-lg border border-gold`}
+          {events?.map((eventInfo: EventInfo) => {
+            const isSelected = selectedEvents.some(
+              (event) => event._id === eventInfo._id
+            );
+
+            return (
+              <TouchableOpacity
+                key={eventInfo._id}
+                onPress={() => handleEventSelect(eventInfo)}
               >
-                {/* <Text>{event?.name}</Text> */}
-                <Text
+                <Block
                   className={`${
-                    selectedEvent?._id === eventInfo._id
-                      ? ' text-white'
-                      : ' text-black'
-                  }`}
+                    isSelected ? 'bg-primary text-white' : 'bg-white text-black'
+                  } p-2 my-1 rounded-lg border border-gold`}
                 >
-                  {format(eventInfo?.date, 'MMMM dd, yyyy')}
-                </Text>
-                <Text
-                  className={`${
-                    selectedEvent?._id === eventInfo._id
-                      ? ' text-white'
-                      : ' text-black'
-                  }`}
-                >
-                  {eventInfo?.attendees} pax
-                </Text>
-              </Block>
-            </TouchableOpacity>
-          ))}
+                  <Text
+                    className={`${isSelected ? 'text-white' : 'text-black'}`}
+                  >
+                    {format(eventInfo?.date, 'MMMM dd, yyyy')}
+                  </Text>
+                  <Text
+                    className={`${isSelected ? 'text-white' : 'text-black'}`}
+                  >
+                    {eventInfo?.attendees} pax
+                  </Text>
+                </Block>
+              </TouchableOpacity>
+            );
+          })}
         </Block>
+        <Text className='font-bold text-lg p-2'>
+          2. Confirm Booking Details:
+        </Text>
+
         {vendorPackage?.inclusions.map((inclusion: Product) => (
           <Block
             key={inclusion.id}
-            className=' h-18 w-full rounded-xl flex flex-row my-5'
+            className='h-18 w-full rounded-xl flex flex-row my-5'
           >
             <Image
               background
@@ -263,20 +280,19 @@ const BookingDetails = () => {
           justify='space-between'
           marginVertical={sizes.sm}
         >
-          <Text className='font-bold text-xl'>{vendorPackage?.name}</Text>
+          <Text className='font-bold text-xl flex-1'>
+            {vendorPackage?.name}
+          </Text>
           <Text className='font-bold text-primary'>
             Total: ₱{vendorPackage?.price.toFixed(2)}
           </Text>
         </Block>
         <Button
-          gradient={gradients.primary}
-          onPress={() => {
-            if (packageId && vendorId && selectedEvent?._id && user?._id) {
-              onPressConfirm(packageId, vendorId, selectedEvent?._id, user._id);
-            } else {
-              setError('Please select an event');
-            }
-          }}
+          gradient={
+            selectedEvents.length > 0 ? gradients.primary : gradients.dark
+          }
+          onPress={onPressConfirm}
+          disabled={selectedEvents.length === 0}
         >
           <Text className='text-white uppercase'>Confirm</Text>
         </Button>

@@ -66,14 +66,14 @@ const HomeNav = ({ initialRouteName = 'Events' }: HomeNavProps) => {
   return (
     <Tab.Navigator initialRouteName={initialRouteName}>
       <Tab.Screen
-        name='Vendors'
-        component={VendorList}
-        options={vendorIconOptions}
-      />
-      <Tab.Screen
         name='Events'
         component={EventList}
         options={eventsIconOptions}
+      />
+      <Tab.Screen
+        name='Vendors'
+        component={VendorList}
+        options={vendorIconOptions}
       />
       <Tab.Screen
         name='ChatList'

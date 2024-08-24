@@ -61,12 +61,12 @@ const EventListItem = ({ _id, date, budget, attendees }: EventInfo) => {
       <Text style={styles.dateText}>{dateString}</Text>
       <View style={styles.separator} />
       <View style={styles.row}>
-        <Text style={styles.budgetText}>
+        {/* <Text style={styles.budgetText}>
           Budget:{' '}
           {budget !== 0
             ? `₱${budget.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
             : '∞'}
-        </Text>
+        </Text> */}
         <Text style={styles.capacityText}>
           Capacity: {attendees !== 0 ? `${attendees} pax` : '∞'}
         </Text>

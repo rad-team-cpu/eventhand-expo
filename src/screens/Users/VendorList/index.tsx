@@ -131,7 +131,7 @@ export default function VendorList() {
                 key={vendor._id}
                 onPress={() => onPressVendor(vendor._id)}
               >
-                <View className='bg-slate-500/30 h-24 w-40 flex items-center justify-center rounded-xl mr-4 relative '>
+                <View className='bg-slate-500/30 h-32 w-40 flex items-center justify-center rounded-xl mr-4 relative '>
                   <Image
                     background
                     resizeMode='cover'
@@ -139,7 +139,7 @@ export default function VendorList() {
                     src={vendor.banner}
                     rounded
                     blurRadius={2}
-                    className='h-24 w-40 rounded-xl'
+                    className='h-32 w-40 rounded-xl'
                   ></Image>
                   <View className='absolute inset-0 flex items-center justify-center'>
                     <View className=' bg-black/30 px-2 py-1 rounded'>
@@ -248,17 +248,17 @@ export default function VendorList() {
               {planningVendors.slice(0, 7).map((vendor) => (
                 <TouchableOpacity
                   key={vendor._id}
-                  className='w-20 h-26 rounded-xl mr-4'
+                  className='w-24 h-28 rounded-xl mr-4'
                   onPress={() => onPressVendor(vendor._id)}
                 >
-                  <View className='bg-slate-500/30 w-20 h-14 rounded-xl align-middle '>
+                  <View className='bg-slate-500/30 w-24 h-20 rounded-xl align-middle '>
                     <Image
                       background
                       resizeMode='cover'
                       padding={sizes.md}
                       src={vendor.banner}
                       rounded
-                      className='h-14 w-20 rounded-xl'
+                      className='h-20 w-24 rounded-xl'
                     ></Image>
                   </View>
                   <Text className='text-xs text-center'>
