@@ -38,10 +38,9 @@ const getRandomColor = () => {
   return color;
 };
 
-const events: EventInfo[] = [
+const data: EventInfo[] = [
   {
-    id: "60d21b4667d0d8992e610c85",
-    clientId: "60d21b4667d0d8992e610c86",
+    _id: "60d21b4667d0d8992e610c85",
     name: "Corporate Annual Gala",
     attendees: 200,
     date: new Date("2024-12-15"),
@@ -55,13 +54,10 @@ const events: EventInfo[] = [
       photography: 1500,
       videography: 2000,
     },
-    bookings: ["60d21b4667d0d8992e610c87", "60d21b4667d0d8992e610c88"],
-    createdAt: new Date("2024-08-01"),
-    updatedAt: new Date("2024-08-10"),
+
   },
   {
-    id: "60d21b4667d0d8992e610c89",
-    clientId: "60d21b4667d0d8992e610c90",
+    _id: "60d21b4667d0d8992e610c89",
     name: "Wedding Reception",
     attendees: 150,
     date: new Date("2024-10-20"),
@@ -75,13 +71,9 @@ const events: EventInfo[] = [
       photography: 2000,
       videography: 2500,
     },
-    bookings: ["60d21b4667d0d8992e610c91"],
-    createdAt: new Date("2024-07-15"),
-    updatedAt: new Date("2024-08-05"),
   },
   {
-    id: "60d21b4667d0d8992e610c92",
-    clientId: "60d21b4667d0d8992e610c93",
+    _id: "60d21b4667d0d8992e610c92",
     name: "Charity Fundraiser",
     attendees: 500,
     date: new Date("2025-02-05"),
@@ -95,14 +87,11 @@ const events: EventInfo[] = [
       photography: 2500,
       videography: 3000,
     },
-    bookings: ["60d21b4667d0d8992e610c94", "60d21b4667d0d8992e610c95", "60d21b4667d0d8992e610c96"],
-    createdAt: new Date("2024-09-01"),
-    updatedAt: new Date("2024-09-10"),
   }
 ];
 
 
-const EventListItem = ({ _id, date, budget, attendees }: EventInfo) => {
+const EventListItem = ({ _id, name, address, date, budget, attendees }: EventInfo) => {
   const borderColor = useMemo(() => getRandomColor(), []);
   const dateString = format(date, 'MMMM dd, yyyy');
   const navigation = useNavigation<HomeScreenNavigationProp>();
@@ -110,6 +99,8 @@ const EventListItem = ({ _id, date, budget, attendees }: EventInfo) => {
   const onPress = () =>
     navigation.navigate('EventView', {
       _id,
+      name,
+      address,
       date: dateString,
       budget,
       attendees,
@@ -122,7 +113,15 @@ const EventListItem = ({ _id, date, budget, attendees }: EventInfo) => {
       android_ripple={{ color: '#c0c0c0' }}
       onPress={onPress}
     >
-      <Text style={styles.dateText}>{dateString}</Text>
+      <Text style={styles.dateText}>{name}</Text>
+      {address && (
+          <>
+            <View style={styles.separator} />
+              <Text style={styles.capacityText}  numberOfLines={2} ellipsizeMode='tail'>
+                {address}
+             </Text>
+          </>
+        )}
       <View style={styles.separator} />
       <View style={styles.row}>
         {/* <Text style={styles.budgetText}>
@@ -131,6 +130,7 @@ const EventListItem = ({ _id, date, budget, attendees }: EventInfo) => {
             ? `₱${budget.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
             : '∞'}
         </Text> */}
+        <Text style={styles.budgetText}>{dateString}</Text>
         <Text style={styles.capacityText}>
           Capacity: {attendees !== 0 ? `${attendees} pax` : '∞'}
         </Text>
@@ -151,6 +151,8 @@ const Events = ({ events }: EventsProps) => (
     renderItem={({ item }) => (
       <EventListItem
         _id={item._id}
+        name={item.name}
+        address={item.address}
         date={item.date}
         budget={item.budget}
         attendees={item.attendees}
@@ -172,8 +174,8 @@ function EventList() {
   const onCreatePress = () => navigation.navigate('EventForm');
 
   const { user } = userContext;
-  const { events } = user;
-  // const events = data; // test data;
+  // const { events } = user;
+  const events = data; // test data;
 
   if (events && events.length > 0) {
     return (
