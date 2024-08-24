@@ -25,6 +25,7 @@ import ErrorScreen from 'Components/Error';
 import ConfirmationDialog from 'Components/ConfirmationDialog';
 import { UserContext } from 'Contexts/UserContext';
 import BookingList from '../Bookings/List';
+import UpcomingBookingList from '../Bookings/UpcomingBookings';
 
 interface VendorHomeNavProps {
   initialTab?: keyof VendorHomeScreenBottomTabsProps;
@@ -77,7 +78,7 @@ const VendorHomeNav = ({ initialTab }: VendorHomeNavProps) => {
       />
       <Tab.Screen
         name='Bookings'
-        component={BookingList}
+        component={UpcomingBookingList}
         options={bookingsIconOptions}
       />
       <Tab.Screen
