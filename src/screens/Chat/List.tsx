@@ -142,7 +142,7 @@ function ChatList({ route }: ChatListScreenPropsList) {
   const getChatList = useCallback(() => {
     setPage((prevPage) => prevPage + 1);
     const getChatListInput: GetChatListInput = {
-      senderId: user._id,
+      senderId: mode === "CLIENT"? user._id: vendor.id,
       senderType: mode,
       pageNumber: page,
       pageSize: 10,
