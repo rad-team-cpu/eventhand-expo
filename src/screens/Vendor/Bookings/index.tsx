@@ -27,6 +27,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 function BookingView() {
   const route = useRoute();
   const navigation = useNavigation<HomeScreenNavigationProp>();
+  const { assets, colors, sizes, gradients } = useTheme();
   const { _id } = route.params as { _id: string };
 
   const [booking, setBooking] = useState<BookingDetailsProps>();
@@ -55,7 +56,7 @@ function BookingView() {
     }
   };
 
-  const handleDeclineBooking = (id: string) => {
+  const handleDeclineBooking = (id: string | undefined) => {
     Alert.alert(
       'Confirm Decline',
       'Are you sure you want to decline this request to book?',
@@ -89,6 +90,41 @@ function BookingView() {
     );
   };
 
+  const handleAcceptBooking = (id: string | undefined) => {
+    console.log(id)
+    Alert.alert(
+      'Accept Booking',
+      'Are you sure you want to accept this request to book?',
+      [
+        {
+          text: 'NO',
+          style: 'cancel',
+        },
+        {
+          text: 'YES',
+          onPress: async () => {
+            try {
+              await axios.patch(
+                `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking/${id}`,
+                {
+                  bookingStatus: 'Confirmed',
+                },
+                {
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                }
+              );
+              fetchBooking(_id);
+            } catch (error: any) {
+              console.error('Error accepting booking:', error.message);
+            }
+          },
+        },
+      ]
+    );
+  };
+
   useEffect(() => {
     fetchBooking(_id);
   }, []);
@@ -110,26 +146,74 @@ function BookingView() {
         </View>
         <Text style={listStyles.dateText}>{dateString}</Text>
         <View style={listStyles.separator} />
-        <View style={listStyles.row}>
-          <Text style={listStyles.budgetText}>
-            {booking?.event?.name ?? 'No event name'}
-          </Text>
-          <Text style={listStyles.capacityText}>
-            {booking?.client?.firstName} {booking?.client?.lastName}
-          </Text>
+        <View className='flex flex-row justify-between'>
+          <View className='flex flex-row'>
+            {booking?.client?.profilePicture ? (
+              <Image
+                background
+                padding={sizes.md}
+                rounded
+                className='rounded-xl h-18 w-18 mr-2'
+                src={booking?.client?.profilePicture}
+              />
+            ) : (
+              <View className='bg-slate-500/30 w-10 h-10 rounded-xl align-middle '></View>
+            )}
+            <View className='justify-center ml-2'>
+              <Text className='justify-center'>
+                {booking?.client?.firstName} {booking?.client?.lastName}
+              </Text>
+            </View>
+          </View>
+          <View className='justify-center'>
+            <Text>{booking?.event?.name ?? 'No event name'}</Text>
+          </View>
         </View>
         <Text className='text-primary mt-3 text-lg font-bold'>
           Booking Request Details:
         </Text>
         <View className='ml-2 mt-2'>
-          <Text className='flex font-semibold'>{booking?.package?.name}</Text>
+          <View className='h-18 w-full rounded-xl flex flex-row mb-2'>
+            <View className='justify-center'>
+              <Text className='font-semibold'>{booking?.package?.name}:</Text>
+            </View>
+          </View>
           {booking?.package?.inclusions.map((inclusion, index) => (
-            <View key={index}>
-              <Text className='font-semibold'>
-                {inclusion.name} x {inclusion.quantity}
-              </Text>
+            <View
+              key={index}
+              className=' h-18 w-full rounded-xl flex flex-row mb-2'
+            >
+              <Image
+                background
+                padding={sizes.md}
+                src={inclusion.imageURL}
+                rounded
+                className='rounded-xl h-18 w-18 mr-2'
+              ></Image>
+              <View className='justify-center'>
+                <Text className='font-semibold'>
+                  {inclusion.name} x {inclusion.quantity}
+                </Text>
+              </View>
             </View>
           ))}
+        </View>
+        <View className='flex flex-row space-x-1'>
+          <Button
+            onPress={() => handleDeclineBooking(booking?._id)}
+            gradient={gradients.danger}
+            className='flex-1'
+          >
+            <Text className='text-white uppercase'>Decline</Text>
+          </Button>
+
+          <Button
+            onPress={() => handleAcceptBooking(booking?._id)}
+            gradient={gradients.primary}
+            className='flex-1'
+          >
+            <Text className='text-white uppercase'>Accept</Text>
+          </Button>
         </View>
       </View>
     </>
