@@ -29,9 +29,10 @@ const BookingListItem = ({ _id, client, event }: BookingDetailsProps) => {
   const dateString = event?.date ? format(event.date, 'MMMM dd, yyyy') : '';
   const navigation = useNavigation<HomeScreenNavigationProp>();
 
-  const onPress = (_id: string) => {
+  const onPress = (_id: string, fromPending: boolean) => {
     const BookingViewProps: ScreenProps['BookingView'] = {
       _id,
+      fromPending
     };
     navigation.navigate('BookingView', BookingViewProps);
   };
@@ -41,7 +42,7 @@ const BookingListItem = ({ _id, client, event }: BookingDetailsProps) => {
       key={_id}
       style={[styles.itemContainer, { borderLeftColor: borderColor }]}
       android_ripple={{ color: '#c0c0c0' }}
-      onPress={() => onPress(_id ?? '')}
+      onPress={() => onPress(_id ?? '', false)}
     >
       <Text style={styles.dateText}>{event?.name}</Text>
 
@@ -86,7 +87,7 @@ function UpcomingBookingList() {
   const fetchBookings = async (vendorId: string) => {
     try {
       const response = await axios.get(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking?vendor=${vendorId}`,
+        `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking?vendor=${vendorId}&bookingStatus=CONFIRMED`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -133,7 +134,7 @@ function UpcomingBookingList() {
           rounded
           className='rounded-xl h-72 w-72'
         ></Image>
-        <Text className='font-bold'>You have no bookings!</Text>
+        <Text className='font-bold'>You have no upcoming bookings!</Text>
       </View>
     </Block>
   );
