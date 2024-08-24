@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import { format } from 'date-fns/format';
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import Block from 'Components/Ui/Block';
 import Image from 'Components/Ui/Image';
@@ -13,6 +13,7 @@ import {
   ScreenProps,
 } from 'types/types';
 import { VendorContext } from 'Contexts/VendorContext';
+import axios from 'axios';
 
 const getRandomColor = () => {
   const letters = '0123456789ABCDEF';
@@ -25,14 +26,13 @@ const getRandomColor = () => {
 
 const BookingListItem = ({ _id, client, event }: BookingDetailsProps) => {
   const borderColor = useMemo(() => getRandomColor(), []);
+  const dateString = event?.date ? format(event.date, 'MMMM dd, yyyy') : '';
   const navigation = useNavigation<HomeScreenNavigationProp>();
 
   const onPress = (_id: string) => {
     const BookingViewProps: ScreenProps['BookingView'] = {
       _id,
     };
-    console.log(_id)
-
     navigation.navigate('BookingView', BookingViewProps);
   };
 
@@ -43,12 +43,15 @@ const BookingListItem = ({ _id, client, event }: BookingDetailsProps) => {
       android_ripple={{ color: '#c0c0c0' }}
       onPress={() => onPress(_id ?? '')}
     >
-      <Text style={styles.dateText}>{event?.toString()}</Text>
+      <Text style={styles.dateText}>{event?.name}</Text>
+
       <View style={styles.separator} />
+
       <View style={styles.row}>
-        {/* <Text style={styles.dateText}>{?._id}</Text> */}
+        <Text style={styles.dateText}>{dateString}</Text>
+
         <Text style={styles.capacityText}>
-          <Text style={styles.dateText}>{event?.toString()}</Text>
+          <Text style={styles.dateText}>{client?.firstName}</Text>
         </Text>
       </View>
     </Pressable>
@@ -63,12 +66,15 @@ const Bookings = ({ bookings }: BookingsProps) => (
   <FlatList
     contentContainerStyle={styles.listContainer}
     data={bookings}
-    renderItem={({ item }) => <BookingListItem _id={item._id} />}
+    renderItem={({ item }) => (
+      <BookingListItem _id={item._id} event={item.event} client={item.client} />
+    )}
   />
 );
 
 function BookingList() {
   const vendorContext = useContext(VendorContext);
+  const [bookings, setBookings] = useState<BookingDetailsProps[]>([]);
   const { assets, colors, sizes, gradients } = useTheme();
 
   if (!vendorContext) {
@@ -76,7 +82,30 @@ function BookingList() {
   }
 
   const { vendor } = vendorContext;
-  const { bookings } = vendor;
+
+  const fetchBookings = async (vendorId: string) => {
+    try {
+      const response = await axios.get(
+        `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking?vendor=${vendorId}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },        }
+      );
+      setBookings(response.data);
+    } catch (error: any) {
+      if (error instanceof TypeError) {
+        console.error(
+          'Network request failed. Possible causes: CORS issues, network issues, or incorrect URL.'
+        );
+      } else {
+        console.error('Error fetching bookings:', error.message);
+      }
+    }
+  };
+  useEffect(() => {
+    fetchBookings(vendor.id);
+  }, []);
 
   if (bookings && bookings.length > 0) {
     return (
