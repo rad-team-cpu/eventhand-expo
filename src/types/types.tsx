@@ -30,6 +30,7 @@ type EventBudget = {
   catering: number | null;
   photography: number | null;
   videography: number | null;
+  total?: number
 }
 
 interface EventInfo {

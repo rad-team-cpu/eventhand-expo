@@ -2,7 +2,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import axios from 'axios';
 import { format } from 'date-fns/format';
 import ExpoStatusBar from 'expo-status-bar/build/ExpoStatusBar';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Image from 'Components/Ui/Image';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
@@ -16,10 +16,101 @@ import {
   Product,
   HomeScreenBottomTabsProps,
   HomeScreenNavigationProp,
+  EventBudget
 } from 'types/types';
 import Button from 'Components/Ui/Button';
 import { AntDesign } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import Block from 'Components/Ui/Block';
+
+type Category = {
+  name: string;
+  label: string;
+  icon: string;
+  color: string;
+};
+
+
+const categories: Category[] = [
+  { name: "eventPlanning", label: "Event Planning", icon: "calendar", color: "#FF6347" },
+  { name: "eventCoordination", label: "Event Coordination", icon: "handshake-o", color: "#4682B4" },
+  { name: "venue", label: "Venue", icon: "building", color: "#32CD32" },
+  { name: "decorations", label: "Decorations", icon: "paint-brush", color: "#FF4500" },
+  { name: "catering", label: "Catering", icon: "cutlery", color: "#FFD700" },
+  { name: "photography", label: "Photography", icon: "camera", color: "#FF69B4" },
+  { name: "videography", label: "Videography", icon: "video-camera", color: "#8A2BE2" },
+  { name: "total", label: "Total", icon: "calculator", color: "#4CAF50" }
+];
+
+interface BudgetScreenProps {
+  budget: EventBudget
+  onBackBtnPress: () => void
+}
+
+const BudgetScreen = (props: BudgetScreenProps) => {
+  const [isPressed, setIsPressed] = useState(false)
+  const { assets, colors, sizes, gradients } = useTheme();
+  const { budget, onBackBtnPress } = props
+
+  return (
+    <> 
+      <Block
+      scroll
+      padding={sizes.padding}
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={{ paddingBottom: sizes.xxl }}
+    >
+       <Block card paddingVertical={sizes.md} paddingHorizontal={sizes.md}>
+      <Pressable onPress={onBackBtnPress}>
+        <Block className='flex flex-row mb-2'>
+          <AntDesign name='back' size={20} color={'#CB0C9F'} />
+          <Text className='ml-1 text-primary'>Go back</Text>
+        </Block>
+      </Pressable>
+      <Text style={styles.budgetTitle}>Budget Breakdown</Text>
+      <Text style={styles.budgetDescription}>A breakdown of the event's budget</Text>
+      <View style={styles.budgetInputContainer}>
+      {categories.map((category) => {
+                const {name, icon, color, label} = category
+                const budgetValue = budget[name as keyof EventBudget]
+                if( budgetValue !== null || !budgetValue){
+                  return (
+                    <View key={name} style={styles.budgetInputWrapper}>
+                    <View style={styles.budgetInputLabelContainer}>
+                      <FontAwesome name={icon} size={20} color={color} style={styles.budgetInputIcon} />
+                      <Text style={[styles.budgetInputLabel, { color: color }]}>
+                        {label}
+                      </Text>
+                    </View>
+                    <Text style={[styles.budgetInputField, { borderColor: category.color }]}>
+                    P{budget[name as keyof EventBudget]}
+                    </Text>
+                  </View>
+                  )
+                }
+        }
+      )}
+    </View>
+    <Pressable
+    onPressIn={() => setIsPressed(true)}
+    onPressOut={() => setIsPressed(false)}
+    style={({ pressed }) => [
+      styles.inputButton,
+      {
+        backgroundColor: pressed || isPressed
+          ? '#E91E8E'
+          : '#CB0C9F',
+      },
+  ]}
+  >
+  <Text style={styles.inputButtonText}>Add Budget</Text>
+  </Pressable>
+    </Block>
+    </Block>
+    </>
+  )
+
+}
 
 function EventView({ route, navigation }: EventViewScreenProps) {
   const { _id, attendees, budget, date, bookings, address} = route.params;
@@ -27,6 +118,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
   typeof date == 'string' ? date : format(date, 'MMMM dd, yyyy');
   const { colors, sizes } = useTheme();
   const [index, setIndex] = useState(0);
+  const [openBudget, setOpenBudget] = useState(true);
   const [routes] = useState([
     { key: 'confirmed', title: 'Confirmed' },
     { key: 'pending', title: 'Pending' },
@@ -165,6 +257,12 @@ function EventView({ route, navigation }: EventViewScreenProps) {
   //   fetchBookings(eventId);
   // }, []);
 
+  const onBackBtnPress = () => setOpenBudget(false)
+
+  if (openBudget){
+    return <BudgetScreen budget={budget} onBackBtnPress={onBackBtnPress}/>
+  }
+
   return (
     <>
       <ExpoStatusBar />
@@ -210,13 +308,14 @@ function EventView({ route, navigation }: EventViewScreenProps) {
         <Pressable
   style={({ pressed }) => [
     {
-      backgroundColor: pressed ? '#6200EE': '#6200EE',
+      backgroundColor: pressed ? '#9B47FF': '#6200EE',
       padding: 5,
       borderRadius: 5,
       alignItems: 'center',
       justifyContent: 'center',
     }
   ]}
+  onPress={() => setOpenBudget(true)}
 >
   <Text style={listStyles.budgetText}>
     View Budget
@@ -310,6 +409,57 @@ const styles = StyleSheet.create({
   },
   label: {
     color: '#CB0C9F',
+  },
+
+  budgetInputContainer: {
+    padding: 10,
+  },
+  budgetInputWrapper: {
+    marginBottom: 20,
+  },
+  budgetInputLabelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 5,
+  },
+  budgetInputIcon: {
+    marginRight: 8,
+  },
+  budgetInputLabel: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  budgetInputField: {
+    borderWidth: 1,
+    borderRadius: 5,
+    padding: 10,
+    fontSize: 16,
+  },
+  budgetInputError: {
+    color: 'red',
+    marginTop: 5,
+  },
+  budgetTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  budgetDescription: {
+    fontSize: 16,
+    marginBottom: 20,
+  },
+  inputButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  inputButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
 
