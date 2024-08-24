@@ -17,6 +17,7 @@ import {
   Product,
   HomeScreenBottomTabsProps,
   VendorHomeScreenProps,
+  EventInfo,
   HomeScreenNavigationProp,
 } from 'types/types';
 import Button from 'Components/Ui/Button';
@@ -27,12 +28,15 @@ function BookingView() {
   const route = useRoute();
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const { _id } = route.params as { _id: string };
-  const [booking, setBooking] = useState<BookingDetailsProps>();
 
+  const [booking, setBooking] = useState<BookingDetailsProps>();
+  const dateString = booking?.event?.date
+    ? format(booking?.event?.date, 'MMMM dd, yyyy')
+    : '';
   const fetchBooking = async (_id: string) => {
     try {
       const response = await axios.get(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking?_id=${_id}`,
+        `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking/${_id}`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -86,7 +90,6 @@ function BookingView() {
   };
 
   useEffect(() => {
-    console.log(_id)
     fetchBooking(_id);
   }, []);
 
@@ -105,16 +108,22 @@ function BookingView() {
             <Text className='text-primary ml-1'>Go back</Text>
           </Button>
         </View>
-        {/* <Text style={listStyles.dateText}>{dateString}</Text> */}
-        <View style={listStyles.separator} />
-        <View style={listStyles.row}>
-          <Text style={listStyles.budgetText}>
-            {booking?.client?.toString()}
-          </Text>
-          <Text style={listStyles.capacityText}>
-            {booking?.client?.toString()}
-          </Text>
-        </View>
+        {booking ? (
+          <>
+            <Text style={listStyles.dateText}>{dateString}</Text>
+            <View style={listStyles.separator} />
+            <View style={listStyles.row}>
+              <Text style={listStyles.budgetText}>
+                {booking.event?.name ?? 'No event name'}
+              </Text>
+              <Text style={listStyles.capacityText}>
+                {booking._id ?? 'No booking ID'}
+              </Text>
+            </View>
+          </>
+        ) : (
+          <Text>Loading booking details...</Text>
+        )}
       </View>
     </>
   );
