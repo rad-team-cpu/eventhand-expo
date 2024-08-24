@@ -107,7 +107,7 @@ interface UserChat {
 
 interface UserProfile {
   _id: string;
-  profilePicture?: string | null;
+  profilePicture?: string;
   email: string;
   lastName: string;
   firstName: string;
@@ -184,6 +184,7 @@ interface BookingDetailsProps {
 
 interface BookingViewProps {
   _id: string;
+  fromPending: boolean;
 }
 
 type ScreenProps = {
@@ -203,6 +204,8 @@ type ScreenProps = {
   Chat: Chat;
   VendorHome: HomeProps;
   VendorProfileForm: undefined;
+  UpcomingBookingList: undefined;
+  BookingList: undefined;
 };
 
 type SignUpScreenProps = NativeStackScreenProps<ScreenProps, 'SignUp'>;
@@ -222,7 +225,10 @@ type EventFormScreenProps = NativeStackScreenProps<ScreenProps, 'EventForm'>;
 
 type EventViewScreenProps = NativeStackScreenProps<ScreenProps, 'EventView'>;
 
-type BookingViewScreenProps = NativeStackScreenProps<ScreenProps, 'BookingView'>;
+type BookingViewScreenProps = NativeStackScreenProps<
+  ScreenProps,
+  'BookingView'
+>;
 
 type ChatScreenProps = NativeStackScreenProps<ScreenProps, 'Chat'>;
 
