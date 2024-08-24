@@ -108,22 +108,29 @@ function BookingView() {
             <Text className='text-primary ml-1'>Go back</Text>
           </Button>
         </View>
-        {booking ? (
-          <>
-            <Text style={listStyles.dateText}>{dateString}</Text>
-            <View style={listStyles.separator} />
-            <View style={listStyles.row}>
-              <Text style={listStyles.budgetText}>
-                {booking.event?.name ?? 'No event name'}
-              </Text>
-              <Text style={listStyles.capacityText}>
-                {booking._id ?? 'No booking ID'}
+        <Text style={listStyles.dateText}>{dateString}</Text>
+        <View style={listStyles.separator} />
+        <View style={listStyles.row}>
+          <Text style={listStyles.budgetText}>
+            {booking?.event?.name ?? 'No event name'}
+          </Text>
+          <Text style={listStyles.capacityText}>
+            {booking?.client?.firstName} {booking?.client?.lastName}
+          </Text>
+        </View>
+        <Text className='text-primary mt-3 text-lg font-bold'>
+          Booking Request Details:
+        </Text>
+        <View className='ml-2 mt-2'>
+          <Text className='flex font-semibold'>{booking?.package?.name}</Text>
+          {booking?.package?.inclusions.map((inclusion, index) => (
+            <View key={index}>
+              <Text className='font-semibold'>
+                {inclusion.name} x {inclusion.quantity}
               </Text>
             </View>
-          </>
-        ) : (
-          <Text>Loading booking details...</Text>
-        )}
+          ))}
+        </View>
       </View>
     </>
   );
@@ -249,6 +256,22 @@ const listStyles = StyleSheet.create({
   },
   capacityText: {
     fontSize: 16,
+  },
+  inclusionContainer: {
+    marginTop: 10,
+  },
+  inclusionItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 5,
+  },
+  inclusionText: {
+    fontSize: 16,
+  },
+  noInclusionsText: {
+    fontSize: 16,
+    fontStyle: 'italic',
+    color: 'gray',
   },
 });
 
