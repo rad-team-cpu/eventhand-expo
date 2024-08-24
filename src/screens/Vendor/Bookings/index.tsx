@@ -3,7 +3,7 @@ import axios from 'axios';
 import { format } from 'date-fns/format';
 import Entypo from '@expo/vector-icons/Entypo';
 import ExpoStatusBar from 'expo-status-bar/build/ExpoStatusBar';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Image from 'Components/Ui/Image';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
@@ -19,21 +19,51 @@ import {
   VendorHomeScreenProps,
   EventInfo,
   HomeScreenNavigationProp,
+  Vendor,
 } from 'types/types';
 import Button from 'Components/Ui/Button';
 import { AntDesign } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { UserContext } from 'Contexts/UserContext';
+import { GetMessagesInput, WebSocketContext } from 'Contexts/WebSocket';
+import { ObjectId } from 'bson';
+import { VendorContext } from 'Contexts/VendorContext';
 
 function BookingView() {
   const route = useRoute();
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const { assets, colors, sizes, gradients } = useTheme();
-  const { _id } = route.params as { _id: string };
+  const userContext = useContext(UserContext);
+  const vendorContext = useContext(VendorContext);
+  const webSocket = useContext(WebSocketContext);
+  const [success, setSuccess] = useState(false);
+
+  if (!userContext) {
+    throw new Error('Component must be under User Provider!!!');
+  }
+  if (!vendorContext) {
+    throw new Error('Component must be under User Provider!!!');
+  }
+
+  if (!webSocket) {
+    throw new Error('Component must be under Websocket Provider!!');
+  }
+
+  const { sendMessage } = webSocket;
+
+  const { user } = userContext;
+  const { vendor } = vendorContext;
+
+  const { _id, fromPending } = route.params as {
+    _id: string;
+    fromPending: boolean;
+  };
 
   const [booking, setBooking] = useState<BookingDetailsProps>();
   const dateString = booking?.event?.date
     ? format(booking?.event?.date, 'MMMM dd, yyyy')
     : '';
+
   const fetchBooking = async (_id: string) => {
     try {
       const response = await axios.get(
@@ -72,7 +102,7 @@ function BookingView() {
               await axios.patch(
                 `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking/${id}`,
                 {
-                  bookingStatus: 'Cancelled',
+                  bookingStatus: 'CANCELLED',
                 },
                 {
                   headers: {
@@ -81,6 +111,10 @@ function BookingView() {
                 }
               );
               fetchBooking(_id);
+              navigation.navigate({
+                name: 'VendorHome',
+                params: { initialTab: 'BookingList' },
+              });
             } catch (error: any) {
               console.error('Error declining booking:', error.message);
             }
@@ -91,7 +125,6 @@ function BookingView() {
   };
 
   const handleAcceptBooking = (id: string | undefined) => {
-    console.log(id)
     Alert.alert(
       'Accept Booking',
       'Are you sure you want to accept this request to book?',
@@ -107,7 +140,7 @@ function BookingView() {
               await axios.patch(
                 `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking/${id}`,
                 {
-                  bookingStatus: 'Confirmed',
+                  bookingStatus: 'CONFIRMED',
                 },
                 {
                   headers: {
@@ -116,6 +149,8 @@ function BookingView() {
                 }
               );
               fetchBooking(_id);
+
+              navigation.navigate('UpcomingBookingList');
             } catch (error: any) {
               console.error('Error accepting booking:', error.message);
             }
@@ -123,6 +158,33 @@ function BookingView() {
         },
       ]
     );
+  };
+
+  const onMessagePress = () => {
+    if (!user) {
+      throw new Error('Choose a recipient');
+    }
+    if (!vendor) {
+      throw new Error('Vendor information is missing');
+    }
+    const getMessagesInput: GetMessagesInput = {
+      senderId: vendor.id,
+      senderType: 'VENDOR',
+      receiverId: user._id,
+      pageNumber: 1,
+      pageSize: 15,
+      inputType: 'GET_MESSAGES',
+    };
+
+    sendMessage(getMessagesInput);
+    if (user) {
+      navigation.navigate('Chat', {
+        _id: new ObjectId().toString(),
+        senderId: user._id,
+        senderName: user.firstName,
+        senderImage: user.profilePicture,
+      });
+    }
   };
 
   useEffect(() => {
@@ -144,7 +206,11 @@ function BookingView() {
             <Text className='text-primary ml-1'>Go back</Text>
           </Button>
         </View>
+
         <Text style={listStyles.dateText}>{dateString}</Text>
+        <View className='mb-2'>
+          <Text>{booking?.event?.name ?? 'No event name'}</Text>
+        </View>
         <View style={listStyles.separator} />
         <View className='flex flex-row justify-between'>
           <View className='flex flex-row'>
@@ -166,12 +232,25 @@ function BookingView() {
             </View>
           </View>
           <View className='justify-center'>
-            <Text>{booking?.event?.name ?? 'No event name'}</Text>
+            <Button
+              round
+              height={18}
+              gradient={gradients.dark}
+              onPress={onMessagePress}
+            >
+              <AntDesign name='message1' color='white' size={20} />
+            </Button>
           </View>
         </View>
-        <Text className='text-primary mt-3 text-lg font-bold'>
-          Booking Request Details:
-        </Text>
+        {fromPending ? (
+          <Text className='text-primary mt-3 text-lg font-bold'>
+            Booking Request Details:
+          </Text>
+        ) : (
+          <Text className='text-primary mt-3 text-lg font-bold'>
+            Booking Details:
+          </Text>
+        )}
         <View className='ml-2 mt-2'>
           <View className='h-18 w-full rounded-xl flex flex-row mb-2'>
             <View className='justify-center'>
@@ -197,24 +276,30 @@ function BookingView() {
               </View>
             </View>
           ))}
+          <View style={listStyles.separator} className='mt-3' />
+          <Text className='font-bold text-lg text-primary self-end p-2'>
+            Total: ₱{booking?.package?.price.toFixed(2)}
+          </Text>
         </View>
-        <View className='flex flex-row space-x-1'>
-          <Button
-            onPress={() => handleDeclineBooking(booking?._id)}
-            gradient={gradients.danger}
-            className='flex-1'
-          >
-            <Text className='text-white uppercase'>Decline</Text>
-          </Button>
+        {fromPending && (
+          <View className='flex flex-row space-x-1'>
+            <Button
+              onPress={() => handleDeclineBooking(booking?._id)}
+              gradient={gradients.danger}
+              className='flex-1'
+            >
+              <Text className='text-white uppercase'>Decline</Text>
+            </Button>
 
-          <Button
-            onPress={() => handleAcceptBooking(booking?._id)}
-            gradient={gradients.primary}
-            className='flex-1'
-          >
-            <Text className='text-white uppercase'>Accept</Text>
-          </Button>
-        </View>
+            <Button
+              onPress={() => handleAcceptBooking(booking?._id)}
+              gradient={gradients.primary}
+              className='flex-1'
+            >
+              <Text className='text-white uppercase'>Accept</Text>
+            </Button>
+          </View>
+        )}
       </View>
     </>
   );
@@ -303,8 +388,8 @@ const styles = StyleSheet.create({
 const listStyles = StyleSheet.create({
   eventContainer: {
     paddingHorizontal: 16,
-    paddingVertical: 10,
-    marginTop: 30,
+    paddingVertical: 30,
+    marginTop: 80,
     marginHorizontal: 5,
     backgroundColor: '#fff',
     borderLeftWidth: 8,
