@@ -35,7 +35,7 @@ type EventBudget = {
 interface EventInfo {
   _id: string;
   name: string,
-  address: string,
+  address?: string,
   attendees: number;
   budget: EventBudget;
   date: Date | string;
