@@ -8,7 +8,7 @@ interface VendorProfile {
   email: string;
   address?: string;
   contactNumber: string;
-  bookings: BookingDetailsProps[]
+  bookings?: BookingDetailsProps[]
 }
 
 interface VendorContextType {
