@@ -26,6 +26,7 @@ type EventBudget = {
   eventPlanning: number | null;
   eventCoordination: number | null;
   venue: number | null;
+  decorations: number | null;
   catering: number | null;
   photography: number | null;
   videography: number | null;
@@ -33,9 +34,9 @@ type EventBudget = {
 
 interface EventInfo {
   _id: string;
-  name: string;
+  name: string,
+  address: string,
   attendees: number;
-  address?: string;
   budget: EventBudget;
   date: Date | string;
   bookings?: BookingDetailsProps[];
@@ -305,6 +306,7 @@ type VendorProfileFormScreenProps = NativeStackScreenProps<
 export {
   BookingStatus,
   BookingDetailsProps,
+  EventBudget,
   EventInfo,
   UserProfile,
   Chat,

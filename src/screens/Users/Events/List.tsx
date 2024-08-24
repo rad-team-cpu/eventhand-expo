@@ -38,6 +38,70 @@ const getRandomColor = () => {
   return color;
 };
 
+const events: EventInfo[] = [
+  {
+    id: "60d21b4667d0d8992e610c85",
+    clientId: "60d21b4667d0d8992e610c86",
+    name: "Corporate Annual Gala",
+    attendees: 200,
+    date: new Date("2024-12-15"),
+    address: "1234 Event Plaza, Cityville, Region",
+    budget: {
+      eventPlanning: 5000,
+      eventCoordination: 3000,
+      venue: 12000,
+      catering: 8000,
+      decorations: 2000,
+      photography: 1500,
+      videography: 2000,
+    },
+    bookings: ["60d21b4667d0d8992e610c87", "60d21b4667d0d8992e610c88"],
+    createdAt: new Date("2024-08-01"),
+    updatedAt: new Date("2024-08-10"),
+  },
+  {
+    id: "60d21b4667d0d8992e610c89",
+    clientId: "60d21b4667d0d8992e610c90",
+    name: "Wedding Reception",
+    attendees: 150,
+    date: new Date("2024-10-20"),
+    address: "5678 Wedding Street, Townsville, Region",
+    budget: {
+      eventPlanning: 4000,
+      eventCoordination: 2500,
+      venue: 10000,
+      catering: 7000,
+      decorations: 3000,
+      photography: 2000,
+      videography: 2500,
+    },
+    bookings: ["60d21b4667d0d8992e610c91"],
+    createdAt: new Date("2024-07-15"),
+    updatedAt: new Date("2024-08-05"),
+  },
+  {
+    id: "60d21b4667d0d8992e610c92",
+    clientId: "60d21b4667d0d8992e610c93",
+    name: "Charity Fundraiser",
+    attendees: 500,
+    date: new Date("2025-02-05"),
+    address: "9012 Charity Avenue, Metropolis, Region",
+    budget: {
+      eventPlanning: 6000,
+      eventCoordination: 4000,
+      venue: 15000,
+      catering: 10000,
+      decorations: 5000,
+      photography: 2500,
+      videography: 3000,
+    },
+    bookings: ["60d21b4667d0d8992e610c94", "60d21b4667d0d8992e610c95", "60d21b4667d0d8992e610c96"],
+    createdAt: new Date("2024-09-01"),
+    updatedAt: new Date("2024-09-10"),
+  }
+];
+
+
 const EventListItem = ({ _id, date, budget, attendees }: EventInfo) => {
   const borderColor = useMemo(() => getRandomColor(), []);
   const dateString = format(date, 'MMMM dd, yyyy');

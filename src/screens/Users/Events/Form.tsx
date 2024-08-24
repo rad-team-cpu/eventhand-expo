@@ -29,7 +29,7 @@ import {
   Pressable,
 } from 'react-native';
 import Loading from 'screens/Loading';
-import { EventFormScreenProps, EventInfo, ScreenProps, UserProfile } from 'types/types';
+import { EventFormScreenProps, EventInfo, ScreenProps, UserProfile, EventBudget } from 'types/types';
 import { array, boolean, date, number, object, string } from 'yup';
 import Block from 'Components/Ui/Block';
 import useTheme from 'src/core/theme';
@@ -38,18 +38,10 @@ type SelectedCategories = {
   eventPlanning: boolean;
   eventCoordination: boolean;
   venue: boolean;
+  decorations: boolean;
   catering: boolean;
   photography: boolean;
   videography: boolean;
-}
-
-type EventBudget = {
-  eventPlanning: number | null;
-  eventCoordination: number | null;
-  venue: number | null;
-  catering: number | null;
-  photography: number | null;
-  videography: number | null;
 }
 
 type EventFormInputType = {
@@ -192,6 +184,7 @@ const categories: Category[] = [
   { name: "eventPlanning", label: "Event Planning", icon: "calendar", color: "#FF6347" },
   { name: "eventCoordination", label: "Event Coordination", icon: "handshake-o", color: "#4682B4" },
   { name: "venue", label: "Venue", icon: "building", color: "#32CD32" },
+  { name: "decorations", label: "Decorations", icon: "paint-brush", color: "#FF4500" },
   { name: "catering", label: "Catering", icon: "cutlery", color: "#FFD700" },
   { name: "photography", label: "Photography", icon: "camera", color: "#FF69B4" },
   { name: "videography", label: "Videography", icon: "video-camera", color: "#8A2BE2" },
@@ -753,6 +746,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
       eventPlanning: false,
       eventCoordination: false,
       venue: false,
+      decorations: false,
       catering: false,
       photography: false,
       videography: false,
@@ -763,6 +757,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
       eventPlanning: null,
       eventCoordination:  null,
       venue:  null,
+      decorations: null,
       catering:  null,
       photography:  null,
       videography:  null,
