@@ -346,7 +346,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
             <Text style={listStyles.budgetText}>View Budget</Text>
           </Pressable>
           <Text style={listStyles.capacityText}>
-            Capacity: {attendees !== 0 ? `${attendees}` : "∞"}
+            Capacity: {attendees !== 0 ? `${attendees}` : "TBD"}
           </Text>
         </View>
       </View>
