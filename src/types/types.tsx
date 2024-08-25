@@ -126,7 +126,7 @@ interface UserChat {
 
 interface UserProfile {
   _id: string;
-  profilePicture?: string | null;
+  profilePicture?: string;
   email: string;
   lastName: string;
   firstName: string;
@@ -200,6 +200,11 @@ interface BookingDetailsProps {
   bookingStatus?: BookingStatus;
 }
 
+interface BookingViewProps {
+  _id: string;
+  fromPending: boolean;
+}
+
 type ScreenProps = {
   SignUp: undefined;
   Login: undefined;
@@ -207,6 +212,7 @@ type ScreenProps = {
   ProfileForm: undefined;
   EventForm: undefined;
   EventView: EventInfo;
+  BookingView: BookingViewProps;
   VendorList: undefined;
   VendorMenu: VendorMenuProps;
   BookingConfirmation: BookingConfirmationProps;
@@ -216,6 +222,9 @@ type ScreenProps = {
   Chat: Chat;
   VendorHome: HomeProps;
   VendorProfileForm: undefined;
+  UpcomingBookingList: undefined;
+  BookingList: undefined;
+  AboutForm: undefined;
 };
 
 type SignUpScreenProps = NativeStackScreenProps<ScreenProps, 'SignUp'>;
@@ -230,10 +239,19 @@ type ProfileFormScreenProps = NativeStackScreenProps<
   ScreenProps,
   'ProfileForm'
 >;
+type AboutFormScreenProps = NativeStackScreenProps<
+  ScreenProps,
+  'AboutForm'
+>;
 
 type EventFormScreenProps = NativeStackScreenProps<ScreenProps, 'EventForm'>;
 
 type EventViewScreenProps = NativeStackScreenProps<ScreenProps, 'EventView'>;
+
+type BookingViewScreenProps = NativeStackScreenProps<
+  ScreenProps,
+  'BookingView'
+>;
 
 type ChatScreenProps = NativeStackScreenProps<ScreenProps, 'Chat'>;
 
@@ -263,6 +281,7 @@ type HomeScreenBottomTabsProps = {
 
 type VendorHomeScreenBottomTabsProps = {
   Home: NavigatorScreenParams<ScreenProps>;
+  Requests: undefined;
   Bookings: undefined;
   ChatList: ChatListProps;
   Profile: undefined;
@@ -335,9 +354,11 @@ export {
   SuccessErrorScreenProps,
   ConfirmationScreenProps,
   ProfileFormScreenProps,
+  AboutFormScreenProps,
   EventListScreenProps,
   EventListNavigationProps,
   EventViewScreenProps,
+  BookingViewScreenProps,
   ChatScreenProps,
   ChatNavigationProps,
   VendorListScreenProps,

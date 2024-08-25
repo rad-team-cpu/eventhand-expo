@@ -1,5 +1,5 @@
 import React, { createContext, useState, ReactNode } from "react";
-import { Vendor } from "types/types";
+import { BookingDetailsProps, Vendor } from "types/types";
 
 interface VendorProfile {
   id: string;
@@ -8,6 +8,7 @@ interface VendorProfile {
   email: string;
   address?: string;
   contactNumber: string;
+  bookings?: BookingDetailsProps[]
 }
 
 interface VendorContextType {
@@ -31,6 +32,7 @@ const VendorProvider = (props: VendorProviderProps) => {
     address: "",
     email: "",
     contactNumber: "",
+    bookings: [],
   });
   const { children } = props;
 
