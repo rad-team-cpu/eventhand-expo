@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
   button: {
     position: "absolute",
     bottom: 40,
-    backgroundColor: "#CB0C9F", // Bluish color for the button
+    backgroundColor: "#EA0606", // Bluish color for the button
     paddingVertical: 0.02 * Dimensions.get("window").height, // Adjust padding based on window height
     paddingHorizontal: 0.25 * Dimensions.get("window").width, // Adjust padding based on window width
     borderRadius: 20,

@@ -1,5 +1,5 @@
 import React, { createContext, useState, ReactNode } from "react";
-import { UserProfile, UserMode } from "types/types";
+import { UserProfile, UserMode, EventInfo, EventList } from "types/types";
 
 interface UserContextType {
   user: UserProfile;
@@ -8,6 +8,8 @@ interface UserContextType {
   setSwitching: React.Dispatch<React.SetStateAction<boolean>>;
   mode: UserMode
   setMode: React.Dispatch<React.SetStateAction<UserMode>>;
+  eventList: EventList,
+  setEventList: React.Dispatch<React.SetStateAction<EventList>>;
 }
 
 interface UserProviderProps {
@@ -25,12 +27,14 @@ const UserProvider = (props: UserProviderProps) => {
     lastName: "",
     firstName: "",
     contactNumber: "",
-    events: [],
   });
+  const [ eventList, setEventList ] = useState<EventInfo[]>([]);
+
+
   const { children } = props;
 
   return (
-    <UserContext.Provider value={{ user, setUser, switching, setSwitching, mode, setMode }}>
+    <UserContext.Provider value={{ user, setUser, switching, setSwitching, mode, setMode, eventList, setEventList }}>
       {children}
     </UserContext.Provider>
   );

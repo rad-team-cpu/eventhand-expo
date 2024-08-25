@@ -22,13 +22,32 @@ type PaginationInfo = {
   totalPages: number;
 };
 
+type EventBudget = {
+  eventPlanning: number | null;
+  eventCoordination: number | null;
+  venue: number | null;
+  decorations: number | null;
+  catering: number | null;
+  photography: number | null;
+  videography: number | null;
+  total?: number
+}
+
 interface EventInfo {
   _id: string;
-  name?: string;
+  name: string,
+  address?: string,
   attendees: number;
-  budget: number;
+  budget: EventBudget;
   date: Date | string;
-  bookings?: BookingDetailsProps[];
+  pending?: BookingDetailsProps[];
+  confirmed?: BookingDetailsProps[];
+}
+interface EventList {
+  events: EventInfo[]
+  totalPages: number,
+  currentPage: number,
+  hasMore: boolean
 }
 
 interface Tag {
@@ -112,7 +131,6 @@ interface UserProfile {
   lastName: string;
   firstName: string;
   contactNumber: string;
-  events?: EventInfo[];
 }
 
 interface ImageInfo {
@@ -314,7 +332,9 @@ type VendorProfileFormScreenProps = NativeStackScreenProps<
 export {
   BookingStatus,
   BookingDetailsProps,
+  EventBudget,
   EventInfo,
+  EventList,
   UserProfile,
   Chat,
   ChatMessage,
