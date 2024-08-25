@@ -141,7 +141,7 @@ const EventListItem = ({
         </Text> */}
         <Text style={styles.budgetText}>{dateString}</Text>
         <Text style={styles.capacityText}>
-          Capacity: {attendees !== 0 ? `${attendees} pax` : "∞"}
+          Capacity: {attendees !== 0 ? `${attendees} pax` : "TBD"}
         </Text>
       </View>
     </Pressable>
