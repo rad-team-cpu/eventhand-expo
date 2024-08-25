@@ -18,6 +18,7 @@ import BookingDetails from 'screens/Users/BookingDetails';
 import BookingView from 'screens/Vendor/Bookings';
 import UpcomingBookingList from 'screens/Vendor/Bookings/UpcomingBookings';
 import BookingList from 'screens/Vendor/Bookings/List';
+import AboutForm from 'screens/Vendor/Profile/AboutForm';
 
 const SignedInStack = createNativeStackNavigator<ScreenProps>();
 
@@ -129,6 +130,12 @@ const SignedInNav = () => {
         component={BookingList}
         options={{ headerShown: false }}
       />
+      <SignedInStack.Screen
+        name='AboutForm'
+        component={AboutForm}
+        options={{ headerShown: false }}
+      />
+      
     </SignedInStack.Navigator>
   );
 };
