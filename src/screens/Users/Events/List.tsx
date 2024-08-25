@@ -104,7 +104,6 @@ const EventListItem = ({ _id, name, address, date, budget, attendees }: EventInf
       date: dateString,
       budget,
       attendees,
-      name
     });
 
   return (

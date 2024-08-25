@@ -55,29 +55,6 @@ type EventFormInputType = {
   budget: EventBudget;
 }
 
-interface EventFormInput extends FieldValues {
-  name: string;
-  date: Date;
-  guests: number;
-  budget: number;
-}
-
-
-const EventFormInputValidation = object().shape({
-  name: string().required("Please enter a name for your event"),
-  date: date()
-    .required('Please enter the date of your event')
-    .min(sub({ days: 1 }, new Date())),
-  guests: number()
-    .required('Please enter number of your guests')
-    .moreThan(-1, 'Input must be a positive number')
-    .integer('Input must be an integer'),
-  budget: number()
-    .required('Please enter your budget')
-    .moreThan(-1, 'Input must be a positive number')
-    .integer('Input must be an integer'),
-});
-
 type Category = {
   name: string;
   label: string;
@@ -768,7 +745,6 @@ function EventForm({ navigation }: EventFormScreenProps) {
 
   const totalSteps = (eventFormInputRef.current.categories.venue)? 6 : 5;
 
-
   const [step, setStep] = useState(0);
   const [result, setResult] = useState<EventInfo>({
     _id: "",
@@ -787,32 +763,9 @@ function EventForm({ navigation }: EventFormScreenProps) {
   })
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(false);
-  const [description, setDescription] = useState(
-    'Please select the date of your event'
-  );
-  const [title, setTitle] = useState('When is the date of your event?');
   const [submitErrMessage, setSubmitErrMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
-
-  const {
-    control,
-    register,
-    handleSubmit,
-    trigger,
-    resetField,
-    formState: { errors, isValid, },
-  } = useForm<EventFormInput, unknown>({
-    mode: 'onChange',
-    reValidateMode: 'onChange',
-    defaultValues: {
-      name: ``,
-      date: new Date(),
-      guests: 0,
-      budget: 0,
-    },
-    resolver: yupResolver(EventFormInputValidation),
-  });
 
   const backAction = () => {
     if (step !== 0) {
@@ -901,7 +854,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
       };
 
       const response = await fetch(url, request);
-      console.log(response.status)
+      
       switch (response.status) {
         case 201:
           const data = await response.json();
@@ -937,7 +890,6 @@ function EventForm({ navigation }: EventFormScreenProps) {
 
   const onNextBtnPress = () => {
 
-    console.log(eventFormInputRef.current)
 
     if (step < totalSteps - 1) {
       setStep(step => step + 1);
