@@ -206,6 +206,7 @@ type ScreenProps = {
   VendorProfileForm: undefined;
   UpcomingBookingList: undefined;
   BookingList: undefined;
+  AboutForm: undefined;
 };
 
 type SignUpScreenProps = NativeStackScreenProps<ScreenProps, 'SignUp'>;
@@ -219,6 +220,10 @@ type HomeScreenNavigationProp = NativeStackNavigationProp<ScreenProps, 'Home'>;
 type ProfileFormScreenProps = NativeStackScreenProps<
   ScreenProps,
   'ProfileForm'
+>;
+type AboutFormScreenProps = NativeStackScreenProps<
+  ScreenProps,
+  'AboutForm'
 >;
 
 type EventFormScreenProps = NativeStackScreenProps<ScreenProps, 'EventForm'>;
@@ -329,6 +334,7 @@ export {
   SuccessErrorScreenProps,
   ConfirmationScreenProps,
   ProfileFormScreenProps,
+  AboutFormScreenProps,
   EventListScreenProps,
   EventListNavigationProps,
   EventViewScreenProps,
