@@ -2,7 +2,7 @@ import { useAuth, useUser } from '@clerk/clerk-expo';
 import { useNavigation } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet, View, TextStyle } from 'react-native';
+import { StyleSheet, View, TextStyle, Pressable } from 'react-native';
 import Avatar from 'Components/Avatar';
 import Block from 'Components/Ui/Block';
 import Button from 'Components/Ui/Button';
@@ -84,6 +84,9 @@ function VendorProfile() {
               <Block flex={0} align='center' marginVertical={sizes.sm}>
                 <Avatar uri={avatarImage} label={name} />
               </Block>
+              <Pressable onPress={()=> navigation.navigate("AboutForm") }>
+                <Text>Edit</Text>
+              </Pressable>
             </Image>
           </Block>
           <Block
