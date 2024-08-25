@@ -73,7 +73,7 @@ const BudgetScreen = (props: BudgetScreenProps) => {
       {categories.map((category) => {
                 const {name, icon, color, label} = category
                 const budgetValue = budget[name as keyof EventBudget]
-                if( budgetValue !== null || !budgetValue){
+                if( budgetValue !== null && budgetValue !== undefined){
                   return (
                     <View key={name} style={styles.budgetInputWrapper}>
                     <View style={styles.budgetInputLabelContainer}>
@@ -83,11 +83,11 @@ const BudgetScreen = (props: BudgetScreenProps) => {
                       </Text>
                     </View>
                     <Text style={[styles.budgetInputField, { borderColor: category.color }]}>
-                    P{budget[name as keyof EventBudget]}
+                    ₱{budget[name as keyof EventBudget]}
                     </Text>
                   </View>
                   )
-                }
+               }
         }
       )}
     </View>
@@ -113,12 +113,11 @@ const BudgetScreen = (props: BudgetScreenProps) => {
 }
 
 function EventView({ route, navigation }: EventViewScreenProps) {
-  const { _id, attendees, budget, date, bookings, address} = route.params;
-  const dateString =
-  typeof date == 'string' ? date : format(date, 'MMMM dd, yyyy');
+  const { _id, attendees, budget, date, address, pending, confirmed} = route.params;
+  const dateString = date instanceof Date ? format(date, 'MMMM dd, yyyy'): date;
   const { colors, sizes } = useTheme();
   const [index, setIndex] = useState(0);
-  const [openBudget, setOpenBudget] = useState(true);
+  const [openBudget, setOpenBudget] = useState(false);
   const [routes] = useState([
     { key: 'confirmed', title: 'Confirmed' },
     { key: 'pending', title: 'Pending' },
@@ -153,12 +152,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
 
   const ConfirmedVendors = () => (
     <View style={styles.listContainer}>
-      {eventBookings
-        .filter(
-          (eventBooking) =>
-            eventBooking.bookingStatus === BookingStatus.Confirmed
-        )
-        .map((booking) => (
+      {confirmed && (eventBookings.map((booking) => (
           <View
             key={booking._id}
             style={styles.vendorContainer}
@@ -196,15 +190,13 @@ function EventView({ route, navigation }: EventViewScreenProps) {
               ₱{(booking.package as PackageType).price}
             </Text>
           </View>
-        ))}
+        )))}
     </View>
   );
 
   const PendingVendors = () => (
     <View style={styles.listContainer}>
-      {eventBookings
-        .filter((booking) => booking.bookingStatus === BookingStatus.Pending)
-        .map((booking) => (
+      {pending && (eventBookings.map((booking) => (
           <View
             key={booking._id}
             style={styles.vendorContainer}
@@ -243,7 +235,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
               ₱{(booking.package as PackageType).price}
             </Text>
           </View>
-        ))}
+        )))}
     </View>
   );
 

@@ -121,11 +121,11 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
     throw new Error('Failed to load clerk');
   }
 
-  const { user, setUser, setSwitching, switching, setMode, mode } = userContext;
+  const { user, setUser, setSwitching, switching, setMode, mode, setEventList } = userContext;
   const { connectionTimeout, isConnected, reconnect, sendMessage } = webSocket;
 
   const fetchUserId = async () => {
-    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/${userId}`;
+    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/users?clerkId=${userId}`;
 
     const token = getToken({ template: 'event-hand-jwt' });
 
@@ -143,7 +143,8 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
       const data = await res.json();
 
       if (res.status === 200) {
-        setUser({ ...data });
+        setUser({ ...data.user });
+        setEventList({...data.events})
         const getChatListInput: GetChatListInput = {
           senderId: data._id,
           senderType: 'CLIENT',

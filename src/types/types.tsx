@@ -40,7 +40,14 @@ interface EventInfo {
   attendees: number;
   budget: EventBudget;
   date: Date | string;
-  bookings?: BookingDetailsProps[];
+  pending?: BookingDetailsProps[];
+  confirmed?: BookingDetailsProps[];
+}
+interface EventList {
+  events: EventInfo[]
+  totalPages: number,
+  currentPage: number,
+  hasMore: boolean
 }
 
 interface Tag {
@@ -124,7 +131,6 @@ interface UserProfile {
   lastName: string;
   firstName: string;
   contactNumber: string;
-  events?: EventInfo[];
 }
 
 interface ImageInfo {
@@ -309,6 +315,7 @@ export {
   BookingDetailsProps,
   EventBudget,
   EventInfo,
+  EventList,
   UserProfile,
   Chat,
   ChatMessage,

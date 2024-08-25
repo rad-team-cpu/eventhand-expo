@@ -33,6 +33,8 @@ import { EventFormScreenProps, EventInfo, ScreenProps, UserProfile, EventBudget 
 import { array, boolean, date, number, object, string } from 'yup';
 import Block from 'Components/Ui/Block';
 import useTheme from 'src/core/theme';
+import SuccessScreen from 'Components/Success';
+import ErrorScreen from 'Components/Error';
 
 type SelectedCategories = {
   eventPlanning: boolean;
@@ -734,7 +736,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
     throw new Error('Profile must be used within a UserProvider');
   }
 
-  const { user, setUser } = userContext;
+  const { user, setEventList} = userContext;
 
   if (!userId) {
     throw new Error('User does not exist! Please SignUp again');
@@ -768,6 +770,23 @@ function EventForm({ navigation }: EventFormScreenProps) {
 
 
   const [step, setStep] = useState(0);
+  const [result, setResult] = useState<EventInfo>({
+    _id: "",
+    name: ``,
+    date: new Date(),
+    attendees: 0,
+    budget: {
+      eventPlanning: null,
+      eventCoordination:  null,
+      venue:  null,
+      decorations: null,
+      catering:  null,
+      photography:  null,
+      videography:  null,
+    },
+  })
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState(false);
   const [description, setDescription] = useState(
     'Please select the date of your event'
   );
@@ -855,108 +874,65 @@ function EventForm({ navigation }: EventFormScreenProps) {
 
   const onSubmitPress = async () => {
     setLoading(true);
-    console.log(eventFormInputRef.current);
-    setLoading(false);
 
     const { name, address, guests, budget, date } = eventFormInputRef.current
 
     const input = {
+      clientId: user._id, 
       name,
       address,
-      guests,
+      attendees: guests,
       budget,
       date
     }
 
-    //       if (user.events) {
-    //         setUser({ ...user, events: [...user.events, event] });
-    //       } else {
-    //         setUser({ ...user, events: [event] });
-    //       }
+    try {
+      const token = await getToken({ template: 'event-hand-jwt' });
 
-    navigation.replace('EventView', {
-            _id: "1",
-            name: name,
-            date: format(date, 'MMMM dd, yyyy'),
-            address: address,
-            budget: budget,
-            attendees: guests,
-      });
+      const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events`;
 
-    // const navigateToSuccessError = (props: ScreenProps['SuccessError']) => {
-    //   if (props.status === 'error') {
-    //     navigation.navigate('SuccessError', { ...props });
-    //   } else {
-    //     navigation.replace('SuccessError', { ...props });
-    //   }
-    // };
+      const request = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(input),
+      };
 
-    // try {
-    //   const token = await getToken({ template: 'event-hand-jwt' });
+      const response = await fetch(url, request);
+      console.log(response.status)
+      switch (response.status) {
+        case 201:
+          const data = await response.json();
 
-    //   const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events`;
-
-    //   const request = {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //       Authorization: `Bearer ${token}`,
-    //     },
-    //     body: JSON.stringify({
-    //       clerkId: userId,
-    //       attendees: input.guests,
-    //       date: input.date,
-    //       budget: input.budget,
-    //     }),
-    //   };
-
-    //   const response = await fetch(url, request);
-    //   console.log(response.status)
-    //   switch (response.status) {
-    //     case 201:
-    //       const data = await response.json();
+          setResult({...data})
+          setEventList(prevEventList => {
+            return {
+              ...prevEventList,
+              events: [...prevEventList.events, {...data}]
+            }
+          });
           
-    //       const event: EventInfo = {
-    //         _id: data._id as string,
-    //         attendees: input.guests,
-    //         ...input,
-    //       };
+          setLoading(false);
+          setSuccess(true);
 
-    //       if (user.events) {
-    //         setUser({ ...user, events: [...user.events, event] });
-    //       } else {
-    //         setUser({ ...user, events: [event] });
-    //       }
-    //       const dateString = format(event.date, 'MMMM dd, yyyy');
-
-    //       setLoading(false);
-    //       navigation.replace('EventView', {
-    //         _id: event._id,
-    //         date: dateString,
-    //         budget: event.budget,
-    //         attendees: event.attendees,
-    //       });
-
-    //       break;
-    //     case 403:
-    //       setSubmitErrMessage('Forbidden - Access denied.');
-    //       throw new Error('Forbidden - Access denied.'); // Forbidden
-    //     case 404:
-    //       setSubmitErrMessage('Server is unreachable.');
-    //       throw new Error('Server is unreachable.'); // Not Found
-    //     default:
-    //       setSubmitErrMessage('Unexpected error occurred.');
-    //       throw new Error('Unexpected error occurred.'); // Other status codes
-    //   }
-    // } catch (error) {
-    //   console.error(error);
-    //   setLoading(false);
-    //   navigateToSuccessError({
-    //     description: submitErrMessage,
-    //     buttonText: 'Continue',
-    //     status: 'error',
-    //   });
-    // }
+          break;
+        case 403:
+          setSubmitErrMessage('Forbidden - Access denied.');
+          throw new Error('Forbidden - Access denied.'); // Forbidden
+        case 404:
+          setSubmitErrMessage('Server is unreachable.');
+          throw new Error('Server is unreachable.'); // Not Found
+        default:
+          setSubmitErrMessage('Unexpected error occurred.');
+          throw new Error('Unexpected error occurred.'); // Other status codes
+      }
+    } catch (error) {
+      console.error(error);
+      setLoading(false);
+      setError(true);
+    }
   };;
 
   const onNextBtnPress = () => {
@@ -968,6 +944,18 @@ function EventForm({ navigation }: EventFormScreenProps) {
     } 
 
   };
+
+  const onSuccessPress = () => navigation.replace('EventView', {...result, date: format(result.date, 'MMMM dd, yyyy')});
+
+  const onErrorPress = () => setError(false)
+
+  if(success){
+    return <SuccessScreen onPress={onSuccessPress} description='You event has been successfully Saved' buttonText="Confirm"/>
+  }
+
+  if(error){
+    return <ErrorScreen onPress={onErrorPress} description={submitErrMessage} buttonText="Try Again"/>
+  }
 
   if (loading) {
     return <Loading />;

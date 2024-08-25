@@ -83,8 +83,8 @@ const data: EventInfo[] = [
       eventCoordination: 4000,
       venue: 15000,
       catering: 10000,
-      decorations: 5000,
-      photography: 2500,
+      decorations: null,
+      photography: null,
       videography: 3000,
     },
   }
@@ -173,9 +173,9 @@ function EventList() {
 
   const onCreatePress = () => navigation.navigate('EventForm');
 
-  const { user } = userContext;
+  const { eventList } = userContext;
   // const { events } = user;
-  const events = data; // test data;
+  const events = eventList.events; // test data;
 
   if (events && events.length > 0) {
     return (
