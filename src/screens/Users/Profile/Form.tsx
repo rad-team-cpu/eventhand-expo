@@ -1,5 +1,3 @@
-/* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useAuth, useUser } from '@clerk/clerk-expo';
 import { AntDesign } from '@expo/vector-icons';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -395,92 +393,6 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
             </Button>
           </Block>
         </Block>
-        {/* <Block>
-            <Text>First Name</Text>
-            <Controller
-              name="firstName"
-              control={control}
-              render={({ field: { onChange, onBlur, value } }) => {
-                const onValueChange = (text: string) => onChange(text);
-
-                return (
-                  <TextInput
-                    id="first-name-text-input"
-                    testID="test-first-name-input"
-                    placeholder="First Name"
-                    onBlur={onBlur}
-                    value={value}
-                    onChangeText={onValueChange}
-                    autoCapitalize="none"
-                    returnKeyType="next"
-                  />
-                );
-              }}
-            />
-            <Text testID="test-first-name-err-text">
-              {errors["firstName"]?.message}
-            </Text>
-            <Text>Last Name</Text>
-            <Controller
-              name="lastName"
-              control={control}
-              render={({ field: { onChange, onBlur, value } }) => {
-                const onValueChange = (text: string) => onChange(text);
-
-                return (
-                  <TextInput
-                    id="last-name-text-input"
-                    testID="test-last-name-input"
-                    placeholder="Last Name"
-                    value={value}
-                    onBlur={onBlur}
-                    onChangeText={onValueChange}
-                    autoCapitalize="none"
-                    returnKeyType="next"
-                  />
-                );
-              }}
-            />
-            <Text testID="test-last-name-err-text">
-              {errors["lastName"]?.message}
-            </Text>
-            <Text>Contact No.</Text>
-            <Controller
-              name="contactNumber"
-              control={control}
-              render={({ field: { onChange, onBlur, value } }) => {
-                const onValueChange = (text: string) => onChange(text);
-
-                return (
-                  <TextInput
-                    id="contact-number-input"
-                    testID="test-contact-number-input"
-                    placeholder="Contact No."
-                    onBlur={onBlur}
-                    onChangeText={onValueChange}
-                    value={value}
-                    autoCapitalize="none"
-                    returnKeyType="next"
-                    keyboardType="number-pad"
-                    maxLength={11}
-                    textContentType="telephoneNumber"
-                    inputMode="tel"
-                  />
-                );
-              }}
-            />
-            <Text testID="test-contact-number-err-text" danger>
-              {errors["contactNumber"]?.message}
-            </Text>
-            <GenderPicker
-              control={control as unknown as Control<FieldValues, unknown>}
-              register={register as unknown as UseFormRegister<FieldValues>}
-              errors={errors}
-              triggerValidation={trigger}
-              showLabel
-            />
-            <Button testID="next-btn" onPress={onNextBtnPress} />
-          </Block> */}
       </Block>
     );
   };
@@ -597,34 +509,6 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
           </Block>
         </Block>
       </Block>
-
-      // <Block id="profile-form-confirm" testID="test-profile-form-confirm">
-      //   {/* <Text style={styles.title}>CONFIRM DETAILS</Text> */}
-      //   <Avatar uri={avatarUri} label="CONFIRM DETAILS" />
-      //   <Text>FIRST NAME:</Text>
-      //   <Text id="fist-name" testID="test-first-name">
-      //     {getValues("firstName")}
-      //   </Text>
-      //   <Text>LAST NAME:</Text>
-      // <Text id="last-name" testID="test-last-name">
-      //   {getValues("lastName")}
-      // </Text>
-      //   <Text>CONTACT NO.</Text>
-      // //   <Text id="contact-num" testID="test-contact-num">
-      // //     {getValues("contactNumber")}
-      // //   </Text>
-      //   <Text>GENDER</Text>
-      //   <Text id="gender" testID="gender">
-      //     {getValues("gender")}
-      //   </Text>
-      //   <Button
-      //     testID="test-save-btn"
-      //     onPress={onSubmitPress}
-      //     disabled={!isValid}
-      //   />
-      //   <Text testID="save-err-text" danger>
-      //     {submitErrMessage}
-      //   </Text>
     );
   };
 
@@ -633,58 +517,9 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
   return (
     <Block>
       {loading && <Loading />}
-      {/* {!loading && <FormFields />} */}
       {!loading && <Form />}
     </Block>
   );
 };
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     justifyContent: "center",
-//     paddingHorizontal: 20,
-//   },
-//   title: {
-//     fontFamily: "Arial",
-//     fontSize: 24,
-//     fontWeight: "bold",
-//     color: "#333",
-//     textAlign: "center",
-//     marginVertical: 20,
-//     textTransform: "uppercase",
-//     letterSpacing: 1.5,
-//   },
-//   label: {
-//     fontSize: 16,
-//     fontWeight: "500",
-//     marginBottom: 5,
-//   },
-//   details: {
-//     textAlign: "center",
-//     paddingVertical: 10,
-//     fontSize: 16,
-//     borderBottomWidth: 1,
-//     marginBottom: 20,
-//   },
-//   input: {
-//     height: 40,
-//     borderColor: "gray",
-//     borderWidth: 1,
-//     marginBottom: 10,
-//     padding: 10,
-//   },
-//   loading: {
-//     transform: [
-//       {
-//         scale: 2.0,
-//       },
-//     ],
-//   },
-//   errorText: {
-//     color: "red",
-//     marginBottom: 10,
-//   },
-// });
 
 export default ProfileForm;

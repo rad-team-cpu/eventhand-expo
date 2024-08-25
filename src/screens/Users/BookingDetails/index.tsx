@@ -156,6 +156,7 @@ const BookingDetails = () => {
         date: format(new Date(selectedEvent.date), 'MMMM dd, yyyy'),
         budget: selectedEvent.budget,
         attendees: selectedEvent.attendees,
+        name: '',
         bookings: [
           {
             packageId: packageId,

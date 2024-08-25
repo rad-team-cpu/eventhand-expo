@@ -1,33 +1,19 @@
-import { MaterialIcons, AntDesign } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { UserContext } from 'Contexts/UserContext';
 import { format } from 'date-fns/format';
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import Block from 'Components/Ui/Block';
 import Image from 'Components/Ui/Image';
 import useTheme from '../../../core/theme';
 import { StatusBar } from 'expo-status-bar';
-
-import { EventInfo, HomeScreenNavigationProp } from 'types/types';
-
-interface FloatingCreateButtonProps {
-  onPress: () => void;
-}
-
-const FloatingCreateButton = ({ onPress }: FloatingCreateButtonProps) => {
-  return (
-    <View testID='test-events' style={styles.floatingBtnContainer}>
-      <Pressable
-        style={styles.floatingbutton}
-        onPress={onPress}
-        android_ripple={{ radius: 60 }}
-      >
-        <MaterialIcons name='add' size={24} color='white' />
-      </Pressable>
-    </View>
-  );
-};
+import {
+  BookingDetailsProps,
+  EventInfo,
+  HomeScreenNavigationProp,
+  ScreenProps,
+} from 'types/types';
+import { VendorContext } from 'Contexts/VendorContext';
+import axios from 'axios';
 
 const getRandomColor = () => {
   const letters = '0123456789ABCDEF';
@@ -38,92 +24,101 @@ const getRandomColor = () => {
   return color;
 };
 
-const EventListItem = ({ _id, date, budget, attendees, name }: EventInfo) => {
+const BookingListItem = ({ _id, client, event }: BookingDetailsProps) => {
   const borderColor = useMemo(() => getRandomColor(), []);
-  const dateString = format(date, 'MMMM dd, yyyy');
+  const dateString = event?.date ? format(event.date, 'MMMM dd, yyyy') : '';
   const navigation = useNavigation<HomeScreenNavigationProp>();
 
-  const onPress = () =>
-    navigation.navigate('EventView', {
+  const onPress = (_id: string, fromPending: boolean) => {
+    const BookingViewProps: ScreenProps['BookingView'] = {
       _id,
-      date: dateString,
-      budget,
-      attendees,
-      name
-    });
+      fromPending
+    };
+    navigation.navigate('BookingView', BookingViewProps);
+  };
 
   return (
     <Pressable
       key={_id}
       style={[styles.itemContainer, { borderLeftColor: borderColor }]}
       android_ripple={{ color: '#c0c0c0' }}
-      onPress={onPress}
+      onPress={() => onPress(_id ?? '', false)}
     >
-      <Text style={styles.dateText}>{dateString}</Text>
+      <Text style={styles.dateText}>{event?.name}</Text>
+
       <View style={styles.separator} />
+
       <View style={styles.row}>
-        {/* <Text style={styles.budgetText}>
-          Budget:{' '}
-          {budget !== 0
-            ? `₱${budget.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-            : '∞'}
-        </Text> */}
+        <Text style={styles.dateText}>{dateString}</Text>
+
         <Text style={styles.capacityText}>
-          Capacity: {attendees !== 0 ? `${attendees} pax` : '∞'}
+          <Text style={styles.dateText}>{client?.firstName}</Text>
         </Text>
       </View>
     </Pressable>
   );
 };
 
-interface EventsProps {
-  events: EventInfo[];
+interface BookingsProps {
+  bookings: BookingDetailsProps[];
 }
 
-const Events = ({ events }: EventsProps) => (
+const Bookings = ({ bookings }: BookingsProps) => (
   <FlatList
-    keyExtractor={(item) => item._id}
     contentContainerStyle={styles.listContainer}
-    data={events}
+    data={bookings}
     renderItem={({ item }) => (
-      <EventListItem
-        _id={item._id}
-        name={item.name}
-        date={item.date}
-        budget={item.budget}
-        attendees={item.attendees}
-      />
+      <BookingListItem _id={item._id} event={item.event} client={item.client} />
     )}
   />
 );
 
-function EventList() {
-  const userContext = useContext(UserContext);
+function UpcomingBookingList() {
+  const vendorContext = useContext(VendorContext);
+  const [bookings, setBookings] = useState<BookingDetailsProps[]>([]);
   const { assets, colors, sizes, gradients } = useTheme();
 
-  const navigation = useNavigation<HomeScreenNavigationProp>();
-
-  if (!userContext) {
-    throw new Error('UserInfo must be used within a UserProvider');
+  if (!vendorContext) {
+    throw new Error('VendorInfo must be used within a VendorProvider');
   }
 
-  const onCreatePress = () => navigation.navigate('EventForm');
+  const { vendor } = vendorContext;
 
-  const { user } = userContext;
-  const { events } = user;
-  // const events = data; // test data;
+  const fetchBookings = async (vendorId: string) => {
+    try {
+      const response = await axios.get(
+        `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking?vendor=${vendorId}&bookingStatus=CONFIRMED`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      setBookings(response.data);
+    } catch (error: any) {
+      if (error instanceof TypeError) {
+        console.error(
+          'Network request failed. Possible causes: CORS issues, network issues, or incorrect URL.'
+        );
+      } else {
+        console.error('Error fetching bookings:', error.message);
+      }
+    }
+  };
+  useEffect(() => {
+    fetchBookings(vendor.id);
+  }, []);
 
-  if (events && events.length > 0) {
+  if (bookings && bookings.length > 0) {
     return (
       <Block safe>
         <StatusBar style='auto' />
         <Block flex={0} style={{ zIndex: 0 }}>
           <Text className='pt-10 pl-6 font-bold text-2xl text-pink-600'>
-            Upcoming Events
+            Upcoming Bookings
           </Text>
-          <Events events={events} />
+          <Bookings bookings={bookings} />
         </Block>
-        <FloatingCreateButton onPress={onCreatePress} />
       </Block>
     );
   }
@@ -139,9 +134,8 @@ function EventList() {
           rounded
           className='rounded-xl h-72 w-72'
         ></Image>
-        <Text className='font-bold'>You have no events!</Text>
+        <Text className='font-bold'>You have no upcoming bookings!</Text>
       </View>
-      <FloatingCreateButton onPress={onCreatePress} />
     </Block>
   );
 }
@@ -225,4 +219,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EventList;
+export default UpcomingBookingList;
