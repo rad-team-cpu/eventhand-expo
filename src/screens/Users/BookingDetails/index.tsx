@@ -37,8 +37,8 @@ const BookingDetails = () => {
   if (!userContext) {
     throw new Error('UserInfo must be used within a UserProvider');
   }
-  const { user } = userContext;
-  const { events } = user;
+  const { user, eventList } = userContext;
+  const events = eventList.events
 
   const { packageId, vendorId } = route.params as {
     packageId: string;
@@ -157,7 +157,7 @@ const BookingDetails = () => {
         budget: selectedEvent.budget,
         attendees: selectedEvent.attendees,
         name: '',
-        bookings: [
+        pending: [
           {
             packageId: packageId,
             vendorId: vendorId,
