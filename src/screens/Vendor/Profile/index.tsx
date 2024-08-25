@@ -84,8 +84,16 @@ function VendorProfile() {
               <Block flex={0} align='center' marginVertical={sizes.sm}>
                 <Avatar uri={avatarImage} label={name} />
               </Block>
-              <Pressable onPress={()=> navigation.navigate("AboutForm") }>
-                <Text>Edit</Text>
+              <Pressable
+                onPress={() => navigation.navigate('VerificationForm')}
+              >
+                <Text>Verify Account</Text>
+              </Pressable>
+              <Pressable onPress={() => navigation.navigate('AboutForm')}>
+                <Text>Add bio</Text>
+              </Pressable>
+              <Pressable onPress={() => navigation.navigate('MenuForm')}>
+                <Text>Add Menu</Text>
               </Pressable>
             </Image>
           </Block>
