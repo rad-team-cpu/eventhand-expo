@@ -40,8 +40,9 @@ export default function VendorList() {
   if (!userContext) {
     throw new Error('UserInfo must be used within a UserProvider');
   }
-  const { user } = userContext;
-  const { events } = user;
+  const { user, eventList } = userContext;
+  const events = eventList.events
+
 
   const onPressVendor = (vendorId: string) => {
     const vendorMenuProps: ScreenProps['VendorMenu'] = {
