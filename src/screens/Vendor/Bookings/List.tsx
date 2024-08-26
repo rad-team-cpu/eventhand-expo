@@ -45,9 +45,18 @@ const BookingListItem = ({ _id, client, event }: BookingDetailsProps) => {
       onPress={() => onPress(_id ?? '', true)}
     >
       <Text style={styles.dateText}>{event?.name}</Text>
-
+      {event?.address && (
+        <>
+          <Text
+            style={styles.capacityText}
+            numberOfLines={2}
+            ellipsizeMode='tail'
+          >
+            {event.address}
+          </Text>
+        </>
+      )}
       <View style={styles.separator} />
-
       <View style={styles.row}>
         <Text style={styles.dateText}>{dateString}</Text>
 
@@ -210,9 +219,8 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   dateText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 8,
+    fontSize: 14,
+    marginBottom: 2,
   },
   separator: {
     borderBottomWidth: 1,

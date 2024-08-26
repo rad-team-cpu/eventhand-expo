@@ -225,6 +225,8 @@ type ScreenProps = {
   UpcomingBookingList: undefined;
   BookingList: undefined;
   AboutForm: undefined;
+  VerificationForm: undefined;
+  MenuForm: undefined;
 };
 
 type SignUpScreenProps = NativeStackScreenProps<ScreenProps, 'SignUp'>;
@@ -239,9 +241,11 @@ type ProfileFormScreenProps = NativeStackScreenProps<
   ScreenProps,
   'ProfileForm'
 >;
-type AboutFormScreenProps = NativeStackScreenProps<
+type AboutFormScreenProps = NativeStackScreenProps<ScreenProps, 'AboutForm'>;
+type MenuFormScreenProps = NativeStackScreenProps<ScreenProps, 'MenuForm'>;
+type VerificationFormScreenProps = NativeStackScreenProps<
   ScreenProps,
-  'AboutForm'
+  'VerificationForm'
 >;
 
 type EventFormScreenProps = NativeStackScreenProps<ScreenProps, 'EventForm'>;
@@ -355,6 +359,8 @@ export {
   ConfirmationScreenProps,
   ProfileFormScreenProps,
   AboutFormScreenProps,
+  MenuFormScreenProps,
+  VerificationFormScreenProps,
   EventListScreenProps,
   EventListNavigationProps,
   EventViewScreenProps,
