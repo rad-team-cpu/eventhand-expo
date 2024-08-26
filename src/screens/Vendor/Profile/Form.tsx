@@ -521,8 +521,8 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
   const Form = () => {
     const onSuccessPress = () => {
       setLoading(false);
-      navigation.navigate('VerificationForm');
-      // navigation.replace("VendorHome", {initialTab: "Profile"})
+      // navigation.navigate('VerificationForm');
+      navigation.replace("VendorHome", {initialTab: "Profile"})
     };
 
     const onErrorPress = () => {
