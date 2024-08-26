@@ -81,7 +81,8 @@ class FirebaseService {
 
   async uploadID(
     vendorId: string,
-    image: ImageInfo
+    image: ImageInfo,
+    idType: string
   ): Promise<UploadResult | undefined> {
     let fileName: string = '';
 
@@ -89,7 +90,7 @@ class FirebaseService {
       throw new Error('Invalid Uri');
     }
 
-    fileName = `images/${vendorId}/profile/vendor/credentials.${image.fileExtension}`;
+    fileName = `images/${vendorId}/profile/vendor/credentials/${idType}.${image.fileExtension}`;
 
     const result = await this.uploadFile(fileName, image.uri);
 
