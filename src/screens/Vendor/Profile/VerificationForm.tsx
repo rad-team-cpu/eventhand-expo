@@ -2,7 +2,6 @@ import { useAuth, useUser } from '@clerk/clerk-expo';
 import { AntDesign } from '@expo/vector-icons';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import Avatar from 'Components/Avatar';
 import { UploadResult } from 'firebase/storage';
 import React, { useState, useContext, useCallback } from 'react';
 import {
@@ -12,33 +11,45 @@ import {
   Control,
   UseFormRegister,
 } from 'react-hook-form';
-import { BackHandler, TextInput, GestureResponderEvent } from 'react-native';
 import FirebaseService from 'service/firebase';
 import { object, string, number } from 'yup';
-
-// import DatePicker from "../../Components/Input/DatePicker";
-import { UserContext } from '../../../Contexts/UserContext';
-import ProfileUpload from 'Components/Input/ProfileUpload';
 import Block from 'Components/Ui/Block';
 import Button from 'Components/Ui/Button';
 import Image from 'Components/Ui/Image';
 import Text from 'Components/Ui/Text';
 import useTheme from '../../../core/theme';
 import {
-  AboutFormScreenProps,
   ScreenProps,
   VerificationFormScreenProps,
 } from '../../../types/types';
 import Loading from '../../Loading';
 import { VendorContext } from 'Contexts/VendorContext';
 import axios from 'axios';
-
-interface AboutInput extends FieldValues {
-  bio: string;
+import IDUpload from 'Components/Input/IdUpload';
+interface ImageInfo {
+  fileSize?: number;
+  uri?: string;
+  mimeType?: string;
+  fileExtension?: string;
 }
 
-const aboutFormValidationSchema = object().shape({
-  bio: string().required('Enter bio'),
+interface VerificationInput extends FieldValues {
+  credentials: ImageInfo | null;
+}
+
+const verificationFormValidationSchema = object().shape({
+  credentials: object({
+    fileSize: number().max(5242880, 'File size too large, must be below 5mb'),
+    uri: string(),
+    mimeType: string().matches(/^image\/(png|jpeg)$/, {
+      message: 'File must be a png or jpeg',
+      excludeEmptyString: true,
+    }),
+    fileExtension: string().matches(/^(png|jpe?g)$/, {
+      message: 'File must be a png or jpeg',
+      excludeEmptyString: true,
+    }),
+  }).nullable(),
 });
 
 const VerificationForm = ({ navigation }: VerificationFormScreenProps) => {
@@ -49,13 +60,13 @@ const VerificationForm = ({ navigation }: VerificationFormScreenProps) => {
     getValues,
     trigger,
     formState: { errors, isValid },
-  } = useForm<AboutInput, unknown>({
+  } = useForm<VerificationInput, unknown>({
     mode: 'onBlur',
     reValidateMode: 'onChange',
     defaultValues: {
-      bio: '',
+      credentials: null,
     },
-    resolver: yupResolver(aboutFormValidationSchema),
+    resolver: yupResolver(verificationFormValidationSchema),
   });
 
   const [submitErrMessage, setSubmitErrMessage] = useState('');
@@ -70,9 +81,12 @@ const VerificationForm = ({ navigation }: VerificationFormScreenProps) => {
 
   const { vendor } = vendorContext;
 
-  const createAbout = async (input: AboutInput) => {
+  const createCredentials = async (input: VerificationInput) => {
     setLoading(true);
+    let uploadPath: string | null = null;
     const vendorId = vendor?.id;
+    const { credentials } = input;
+
     console.log(input);
 
     const navigateToSuccessError = (props: ScreenProps['SuccessError']) => {
@@ -80,6 +94,18 @@ const VerificationForm = ({ navigation }: VerificationFormScreenProps) => {
     };
 
     try {
+      if (credentials !== null) {
+        const firebaseService = FirebaseService.getInstance();
+
+        const uploadResult = await firebaseService.uploadID(
+          vendorId,
+          credentials
+        );
+
+        uploadPath = uploadResult
+          ? (uploadResult as unknown as UploadResult).metadata.fullPath
+          : null;
+      }
       const token = getToken({ template: 'event-hand-jwt' });
 
       const response = await axios.patch(
@@ -105,13 +131,13 @@ const VerificationForm = ({ navigation }: VerificationFormScreenProps) => {
           break;
         case 403:
           setSubmitErrMessage('Forbidden - Access denied.');
-          throw new Error('Forbidden - Access denied.'); // Forbidden
+          throw new Error('Forbidden - Access denied.');
         case 404:
           setSubmitErrMessage('Server is unreachable.');
-          throw new Error('Server is unreachable.'); // Not Found
+          throw new Error('Server is unreachable.'); 
         default:
           setSubmitErrMessage('Unexpected error occurred.');
-          throw new Error('Unexpected error occurred.'); // Other status codes
+          throw new Error('Unexpected error occurred.'); 
       }
     } catch (error) {
       console.error(error);
@@ -124,7 +150,7 @@ const VerificationForm = ({ navigation }: VerificationFormScreenProps) => {
     }
   };
 
-  const onSubmitPress = handleSubmit(createAbout);
+  const onSubmitPress = handleSubmit(createCredentials);
 
   const FormFields = () => {
     return (
@@ -145,7 +171,19 @@ const VerificationForm = ({ navigation }: VerificationFormScreenProps) => {
               paddingBottom={sizes.l}
               radius={sizes.cardRadius}
               source={assets.background}
-            ></Image>
+            >
+              <Button
+                row
+                flex={0}
+                justify='flex-start'
+                onPress={() => navigation.goBack()}
+              >
+                <AntDesign name='back' size={24} color='white' />
+                <Text p white marginLeft={sizes.s}>
+                  Go back
+                </Text>
+              </Button>
+            </Image>
           </Block>
           <Block
             flex={0}
@@ -154,146 +192,45 @@ const VerificationForm = ({ navigation }: VerificationFormScreenProps) => {
             marginHorizontal='8%'
             color='rgba(255,255,255,1)'
           >
-            <Block align='flex-start' className='pl-4 pt-4'>
-              <Text transform='uppercase' marginBottom={sizes.s}>
-                Verification
+            <Block>
+              <Block align='flex-start' className='m-3'>
+                <Text transform='uppercase'>Verification:</Text>
+              </Block>
+              <Text p className='capitalize ml-3'>
+                Upload 1 Valid ID
               </Text>
-              <Text p className='capitalize'>
-                Upload 1 valid ID
-              </Text>
-              <Controller
-                name='bio'
-                control={control}
-                render={({ field: { onChange, onBlur, value } }) => {
-                  const onValueChange = (text: string) => onChange(text);
-
-                  return (
-                    <TextInput
-                      id='bio-text-input'
-                      testID='test-bio-input'
-                      placeholder='Bio'
-                      onBlur={onBlur}
-                      value={value}
-                      onChangeText={onValueChange}
-                      autoCapitalize='none'
-                      returnKeyType='next'
-                      className='border p-1 rounded-lg border-purple-700 w-11/12'
-                    />
-                  );
-                }}
-              />
+              <Block flex={0} align='center' marginTop={sizes.md}>
+                <IDUpload
+                  name='credentials'
+                  label='Upload your Id photo'
+                  control={control as unknown as Control<FieldValues, unknown>}
+                  register={register as unknown as UseFormRegister<FieldValues>}
+                  errors={errors}
+                />
+              </Block>
               <Text testID='test-first-name-err-text' danger>
-                {errors['bio']?.message}
+                {errors['credentials']?.message}
               </Text>
+              <Button
+                testID='next-btn'
+                onPress={onSubmitPress}
+                primary
+                outlined
+                marginHorizontal={sizes.sm}
+                marginBottom={sizes.sm}
+                shadow={false}
+                disabled={!isValid}
+              >
+                <Text bold primary transform='uppercase'>
+                  Verify
+                </Text>
+              </Button>
             </Block>
-            <Button
-              testID='next-btn'
-              onPress={onSubmitPress}
-              primary
-              outlined
-              marginBottom={sizes.s}
-              marginHorizontal={sizes.sm}
-              shadow={false}
-              disabled={!isValid}
-            >
-              <Text bold primary transform='uppercase'>
-                Update Bio
-              </Text>
-            </Button>
           </Block>
         </Block>
       </Block>
     );
   };
-
-  //   useFocusEffect(
-  //     useCallback(() => {
-  //       const backAction = () => {
-  //         setConfirmDetails(false);
-  //         return true;
-  //       };
-
-  //       const backHandler = BackHandler.addEventListener(
-  //         'hardwareBackPress',
-  //         backAction
-  //       );
-
-  //       return () => backHandler.remove();
-  //     }, [confirmDetails])
-  //   );
-
-  //   const Confirmation = () => {
-  //     return (
-  //       <Block safe marginTop={sizes.md}>
-  //         <Block
-  //           id='profile-form-field'
-  //           testID='test-profile-form-field'
-  //           scroll
-  //           paddingHorizontal={sizes.s}
-  //           showsVerticalScrollIndicator={false}
-  //           contentContainerStyle={{ paddingBottom: sizes.padding }}
-  //         >
-  //           <Block flex={0} style={{ zIndex: 0 }}>
-  //             <Image
-  //               background
-  //               resizeMode='cover'
-  //               padding={sizes.sm}
-  //               paddingBottom={sizes.l}
-  //               radius={sizes.cardRadius}
-  //               source={assets.background}
-  //             >
-  //               <Button
-  //                 row
-  //                 flex={0}
-  //                 justify='flex-start'
-  //                 onPress={() => setConfirmDetails(false)}
-  //               >
-  //                 <AntDesign name='back' size={24} color='white' />
-  //                 <Text p white marginLeft={sizes.s}>
-  //                   Go back
-  //                 </Text>
-  //               </Button>
-  //             </Image>
-  //           </Block>
-  //           <Block
-  //             flex={0}
-  //             radius={sizes.sm}
-  //             marginTop={-sizes.l}
-  //             marginHorizontal='8%'
-  //             color='rgba(255,255,255,1)'
-  //           >
-  //             <Block align='flex-start' className='pl-4 pt-4'>
-  //               <Text p>Bio:</Text>
-  //               <Text
-  //                 id='bio'
-  //                 testID='test-bio'
-  //                 className='capitalize font-bold'
-  //               >
-  //                 {getValues('bio')}
-  //               </Text>
-  //             </Block>
-  //             <Button
-  //               testID='test-save-btn'
-  //               onPress={onSubmitPress}
-  //               disabled={!isValid}
-  //               primary
-  //               outlined
-  //               marginBottom={sizes.s}
-  //               marginHorizontal={sizes.sm}
-  //               shadow={false}
-  //             >
-  //               <Text bold primary transform='uppercase'>
-  //                 Confirm
-  //               </Text>
-  //             </Button>
-  //             <Text testID='save-err-text' danger>
-  //               {submitErrMessage}
-  //             </Text>
-  //           </Block>
-  //         </Block>
-  //       </Block>
-  //     );
-  //   };
 
   return (
     <Block>
