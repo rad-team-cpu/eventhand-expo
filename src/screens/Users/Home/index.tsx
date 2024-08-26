@@ -125,7 +125,7 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
   const { connectionTimeout, isConnected, reconnect, sendMessage } = webSocket;
 
   const fetchUserId = async () => {
-    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/users?clerkId=${userId}`;
+    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/${userId}/events`;
 
     const token = getToken({ template: 'event-hand-jwt' });
 
