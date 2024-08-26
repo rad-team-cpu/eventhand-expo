@@ -126,7 +126,7 @@ const BudgetScreen = (props: BudgetScreenProps) => {
               }
             })}
           </View>
-          <Pressable
+          {/* <Pressable
             onPressIn={() => setIsPressed(true)}
             onPressOut={() => setIsPressed(false)}
             style={({ pressed }) => [
@@ -137,7 +137,7 @@ const BudgetScreen = (props: BudgetScreenProps) => {
             ]}
           >
             <Text style={styles.inputButtonText}>Add Budget</Text>
-          </Pressable>
+          </Pressable> */}
         </Block>
       </Block>
     </>
