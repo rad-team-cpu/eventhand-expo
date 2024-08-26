@@ -126,7 +126,7 @@ const BudgetScreen = (props: BudgetScreenProps) => {
               }
             })}
           </View>
-          <Pressable
+          {/* <Pressable
             onPressIn={() => setIsPressed(true)}
             onPressOut={() => setIsPressed(false)}
             style={({ pressed }) => [
@@ -137,7 +137,7 @@ const BudgetScreen = (props: BudgetScreenProps) => {
             ]}
           >
             <Text style={styles.inputButtonText}>Add Budget</Text>
-          </Pressable>
+          </Pressable> */}
         </Block>
       </Block>
     </>
@@ -145,7 +145,7 @@ const BudgetScreen = (props: BudgetScreenProps) => {
 };
 
 function EventView({ route, navigation }: EventViewScreenProps) {
-  const { _id, attendees, budget, date, address, pending, confirmed } =
+  const { _id, name, attendees, budget, date, address, pending, confirmed } =
     route.params;
   const dateString =
     date instanceof Date ? format(date, "MMMM dd, yyyy") : date;
@@ -322,7 +322,9 @@ function EventView({ route, navigation }: EventViewScreenProps) {
           </View>
         </View>
 
-        <Text style={listStyles.dateText}>{dateString}</Text>
+        <Text style={listStyles.nameText}>{name}</Text>
+        <View style={listStyles.separator} />
+        <Text style={listStyles.dateText}>Date: {dateString}</Text>
         {address && (
           <>
             <View style={listStyles.separator} />
@@ -508,9 +510,13 @@ const listStyles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 10,
   },
-  dateText: {
+  nameText: {
     fontSize: 24,
     fontWeight: "bold",
+    marginBottom: 8,
+  },
+  dateText: {
+    fontSize: 18,
     marginBottom: 8,
   },
   separator: {
