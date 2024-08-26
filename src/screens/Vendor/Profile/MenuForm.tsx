@@ -24,7 +24,11 @@ import Button from 'Components/Ui/Button';
 import Image from 'Components/Ui/Image';
 import Text from 'Components/Ui/Text';
 import useTheme from '../../../core/theme';
-import { AboutFormScreenProps, MenuFormScreenProps, ScreenProps } from '../../../types/types';
+import {
+  AboutFormScreenProps,
+  MenuFormScreenProps,
+  ScreenProps,
+} from '../../../types/types';
 import Loading from '../../Loading';
 import { VendorContext } from 'Contexts/VendorContext';
 import axios from 'axios';
@@ -141,7 +145,19 @@ const MenuForm = ({ navigation }: MenuFormScreenProps) => {
               paddingBottom={sizes.l}
               radius={sizes.cardRadius}
               source={assets.background}
-            ></Image>
+            >
+              <Button
+                row
+                flex={0}
+                justify='flex-start'
+                onPress={() => navigation.goBack()}
+              >
+                <AntDesign name='back' size={24} color='white' />
+                <Text p white marginLeft={sizes.s}>
+                  Go back
+                </Text>
+              </Button>
+            </Image>
           </Block>
           <Block
             flex={0}
@@ -152,12 +168,12 @@ const MenuForm = ({ navigation }: MenuFormScreenProps) => {
           >
             <Block align='flex-start' className='pl-4 pt-4'>
               <Text transform='uppercase' marginBottom={sizes.s}>
-                Set up your Bio:
+                Set up your Packages
               </Text>
               <Text p className='capitalize'>
-                Tell us about your business!
+                WIP
               </Text>
-              <Controller
+              {/* <Controller
                 name='bio'
                 control={control}
                 render={({ field: { onChange, onBlur, value } }) => {
@@ -177,7 +193,7 @@ const MenuForm = ({ navigation }: MenuFormScreenProps) => {
                     />
                   );
                 }}
-              />
+              /> */}
               <Text testID='test-first-name-err-text' danger>
                 {errors['bio']?.message}
               </Text>
@@ -193,7 +209,7 @@ const MenuForm = ({ navigation }: MenuFormScreenProps) => {
               disabled={!isValid}
             >
               <Text bold primary transform='uppercase'>
-                Update Bio
+                Publish 
               </Text>
             </Button>
           </Block>
