@@ -325,7 +325,6 @@ function EventView({ route, navigation }: EventViewScreenProps) {
         <Text style={listStyles.dateText}>{dateString}</Text>
         {address && (
           <>
-            <View style={listStyles.separator} />
             <Text style={listStyles.capacityText}>Address: {address}</Text>
           </>
         )}
