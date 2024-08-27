@@ -256,7 +256,7 @@ const EventCategorySelect = (props: EventInputProps) => {
     }
 
     if (name === "venue") {
-      !updatedSelection[name]
+      updatedSelection[name]
         ? (eventFormValuesRef.current = {
             ...eventFormValuesRef.current,
             address: undefined,
