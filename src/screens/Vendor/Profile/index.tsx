@@ -1,6 +1,9 @@
 import { useAuth, useUser } from '@clerk/clerk-expo';
 import { useNavigation } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
+import AntDesign from '@expo/vector-icons/AntDesign';
+import Entypo from '@expo/vector-icons/Entypo';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, View, TextStyle, Pressable } from 'react-native';
 import Avatar from 'Components/Avatar';
@@ -84,9 +87,35 @@ function VendorProfile() {
               <Block flex={0} align='center' marginVertical={sizes.sm}>
                 <Avatar uri={avatarImage} label={name} />
               </Block>
-              <Pressable onPress={()=> navigation.navigate("AboutForm") }>
-                <Text>Edit</Text>
-              </Pressable>
+              <Block className='flex flex-row justify-center items-center mb-5'>
+                <Block className='items-center'>
+                  <Pressable
+                    onPress={() => navigation.navigate('VerificationForm')}
+                  >
+                    <Block className='items-center'>
+                      <AntDesign name='idcard' size={24} color='white' />
+                    </Block>
+                    <Text white>Verify Account</Text>
+                  </Pressable>
+                </Block>
+                <Block className='items-center'>
+                  <Pressable onPress={() => navigation.navigate('AboutForm')}>
+                    <Block className='items-center'>
+                      <Entypo name='news' size={24} color='white' />
+                    </Block>
+                    <Text white>Add bio</Text>
+                  </Pressable>
+                </Block>
+                <Block className='items-center'>
+                  <Pressable onPress={() => navigation.navigate('MenuForm')}>
+                    <Block className='items-center'>
+                      <MaterialIcons name='menu-book' size={24} color='white' />
+                    </Block>
+
+                    <Text white>Add Menu</Text>
+                  </Pressable>
+                </Block>
+              </Block>
             </Image>
           </Block>
           <Block

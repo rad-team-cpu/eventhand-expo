@@ -24,7 +24,11 @@ import Button from 'Components/Ui/Button';
 import Image from 'Components/Ui/Image';
 import Text from 'Components/Ui/Text';
 import useTheme from '../../../core/theme';
-import { AboutFormScreenProps, ScreenProps } from '../../../types/types';
+import {
+  AboutFormScreenProps,
+  MenuFormScreenProps,
+  ScreenProps,
+} from '../../../types/types';
 import Loading from '../../Loading';
 import { VendorContext } from 'Contexts/VendorContext';
 import axios from 'axios';
@@ -37,7 +41,7 @@ const aboutFormValidationSchema = object().shape({
   bio: string().required('Enter bio'),
 });
 
-const AboutForm = ({ navigation }: AboutFormScreenProps) => {
+const MenuForm = ({ navigation }: MenuFormScreenProps) => {
   const {
     control,
     register,
@@ -91,15 +95,6 @@ const AboutForm = ({ navigation }: AboutFormScreenProps) => {
       );
       switch (response.status) {
         case 200:
-          setLoading(false);
-          navigateToSuccessError({
-            description: 'Your information was saved successfully.',
-            buttonText: 'Continue',
-            navigateTo: 'VendorHome',
-            status: 'success',
-          });
-          break;
-        case 201:
           setLoading(false);
           navigateToSuccessError({
             description: 'Your information was saved successfully.',
@@ -171,14 +166,14 @@ const AboutForm = ({ navigation }: AboutFormScreenProps) => {
             marginHorizontal='8%'
             color='rgba(255,255,255,1)'
           >
-            <Block>
-              <Block align='flex-start' className='m-3'>
-                <Text transform='uppercase'>Set up your Bio:</Text>
-              </Block>
-              <Text p className='capitalize ml-3'>
-                Tell us about your business!
+            <Block align='flex-start' className='pl-4 pt-4'>
+              <Text transform='uppercase' marginBottom={sizes.s}>
+                Set up your Packages
               </Text>
-              <Controller
+              <Text p className='capitalize'>
+                WIP
+              </Text>
+              {/* <Controller
                 name='bio'
                 control={control}
                 render={({ field: { onChange, onBlur, value } }) => {
@@ -186,8 +181,6 @@ const AboutForm = ({ navigation }: AboutFormScreenProps) => {
 
                   return (
                     <TextInput
-                      multiline={true}
-                      numberOfLines={5}
                       id='bio-text-input'
                       testID='test-bio-input'
                       placeholder='Bio'
@@ -196,29 +189,29 @@ const AboutForm = ({ navigation }: AboutFormScreenProps) => {
                       onChangeText={onValueChange}
                       autoCapitalize='none'
                       returnKeyType='next'
-                      className='border rounded-lg border-purple-700 flex-1 m-3'
+                      className='border p-1 rounded-lg border-purple-700 w-11/12'
                     />
                   );
                 }}
-              />
+              /> */}
               <Text testID='test-first-name-err-text' danger>
                 {errors['bio']?.message}
               </Text>
-              <Button
-                testID='next-btn'
-                onPress={onSubmitPress}
-                primary
-                outlined
-                marginHorizontal={sizes.sm}
-                marginBottom={sizes.sm}
-                shadow={false}
-                disabled={!isValid}
-              >
-                <Text bold primary transform='uppercase'>
-                  Update Bio
-                </Text>
-              </Button>
             </Block>
+            <Button
+              testID='next-btn'
+              onPress={onSubmitPress}
+              primary
+              outlined
+              marginBottom={sizes.s}
+              marginHorizontal={sizes.sm}
+              shadow={false}
+              disabled={!isValid}
+            >
+              <Text bold primary transform='uppercase'>
+                Publish 
+              </Text>
+            </Button>
           </Block>
         </Block>
       </Block>
@@ -322,4 +315,4 @@ const AboutForm = ({ navigation }: AboutFormScreenProps) => {
   );
 };
 
-export default AboutForm;
+export default MenuForm;

@@ -1,4 +1,4 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp } from 'firebase/app';
 import {
   FirebaseStorage,
   UploadResult,
@@ -6,8 +6,8 @@ import {
   getStorage,
   ref,
   uploadBytes,
-} from "firebase/storage";
-import { ImageInfo } from "types/types";
+} from 'firebase/storage';
+import { ImageInfo } from 'types/types';
 
 // Initialize Firebase
 class FirebaseService {
@@ -50,7 +50,7 @@ class FirebaseService {
 
       return result; // Return the file path or URL for further use
     } catch (error) {
-      console.error("Error uploading file:", error);
+      console.error('Error uploading file:', error);
       throw error;
     }
   }
@@ -58,21 +58,39 @@ class FirebaseService {
   async uploadProfileAvatar(
     userId: string,
     image: ImageInfo,
-    userType: "Client" | "Vendor" | undefined = "Client",
+    userType: 'Client' | 'Vendor' | undefined = 'Client'
   ): Promise<UploadResult | undefined> {
-    let fileName: string = "";
+    let fileName: string = '';
 
-    if (!image.uri || image.uri == "") {
-      throw new Error("Invalid Uri");
+    if (!image.uri || image.uri == '') {
+      throw new Error('Invalid Uri');
     }
 
-    if (userType === "Vendor") {
+    if (userType === 'Vendor') {
       fileName = `images/${userId}/profile/vendor/logo.${image.fileExtension}`;
     }
 
-    if (userType === "Client") {
+    if (userType === 'Client') {
       fileName = `images/${userId}/profile/avatar.${image.fileExtension}`;
     }
+
+    const result = await this.uploadFile(fileName, image.uri);
+
+    return result;
+  }
+
+  async uploadID(
+    vendorId: string,
+    image: ImageInfo,
+    idType: string
+  ): Promise<UploadResult | undefined> {
+    let fileName: string = '';
+
+    if (!image.uri || image.uri == '') {
+      throw new Error('Invalid Uri');
+    }
+
+    fileName = `images/${vendorId}/profile/vendor/credentials/${idType}.${image.fileExtension}`;
 
     const result = await this.uploadFile(fileName, image.uri);
 
@@ -82,10 +100,10 @@ class FirebaseService {
   async uploadMessageImage(
     chatId: string,
     messageId: string,
-    image: ImageInfo,
+    image: ImageInfo
   ) {
-    if (!image.uri || image.uri == "") {
-      throw new Error("Invalid Uri");
+    if (!image.uri || image.uri == '') {
+      throw new Error('Invalid Uri');
     }
 
     const fileName = `images/chat/${chatId}/${messageId}.${image.fileExtension}`;

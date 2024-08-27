@@ -19,6 +19,8 @@ import BookingView from 'screens/Vendor/Bookings';
 import UpcomingBookingList from 'screens/Vendor/Bookings/UpcomingBookings';
 import BookingList from 'screens/Vendor/Bookings/List';
 import AboutForm from 'screens/Vendor/Profile/AboutForm';
+import MenuForm from 'screens/Vendor/Profile/MenuForm';
+import VerificationForm from 'screens/Vendor/Profile/VerificationForm';
 
 const SignedInStack = createNativeStackNavigator<ScreenProps>();
 
@@ -135,7 +137,16 @@ const SignedInNav = () => {
         component={AboutForm}
         options={{ headerShown: false }}
       />
-      
+      <SignedInStack.Screen
+        name='MenuForm'
+        component={MenuForm}
+        options={{ headerShown: false }}
+      />
+      <SignedInStack.Screen
+        name='VerificationForm'
+        component={VerificationForm}
+        options={{ headerShown: false }}
+      />
     </SignedInStack.Navigator>
   );
 };
