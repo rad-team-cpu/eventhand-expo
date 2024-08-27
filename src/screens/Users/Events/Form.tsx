@@ -255,6 +255,15 @@ const EventCategorySelect = (props: EventInputProps) => {
       });
     }
 
+    if (name === "venue") {
+      !updatedSelection[name]
+        ? (eventFormValuesRef.current = {
+            ...eventFormValuesRef.current,
+            address: undefined,
+          })
+        : null;
+    }
+
     setSelectedCategories(updatedSelection);
 
     eventFormValuesRef.current = {
@@ -841,7 +850,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
     },
   });
 
-  const totalSteps = eventFormInputRef.current.categories.venue ? 6 : 5;
+  const totalSteps = eventFormInputRef.current.categories.venue ? 5 : 6;
 
   const [step, setStep] = useState(0);
   const [result, setResult] = useState<EventInfo>({
@@ -935,17 +944,6 @@ function EventForm({ navigation }: EventFormScreenProps) {
           );
         case 4:
           return (
-            <EventAddressInput
-              title="Where will your event be held?"
-              description="Please enter the address of your event venue"
-              buttonLabel="NEXT"
-              onBtnPress={onNextBtnPress}
-              onBackBtnPress={backAction}
-              eventFormValuesRef={eventFormInputRef}
-            />
-          );
-        case 5:
-          return (
             <EventBudgetInput
               title="How much is your budget?"
               description="Please enter the budget for each category."
@@ -1006,6 +1004,17 @@ function EventForm({ navigation }: EventFormScreenProps) {
             />
           );
         case 4:
+          return (
+            <EventAddressInput
+              title="Where will your event be held?"
+              description="Please enter the address of your event venue"
+              buttonLabel="NEXT"
+              onBtnPress={onNextBtnPress}
+              onBackBtnPress={backAction}
+              eventFormValuesRef={eventFormInputRef}
+            />
+          );
+        case 5:
           return (
             <EventBudgetInput
               title="How much is your budget?"
@@ -1089,6 +1098,8 @@ function EventForm({ navigation }: EventFormScreenProps) {
     if (step < totalSteps - 1) {
       setStep((step) => step + 1);
     }
+    console.log(step)
+    console.log(eventFormInputRef);
   };
 
   const onSuccessPress = () =>
