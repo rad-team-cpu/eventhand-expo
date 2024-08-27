@@ -30,13 +30,13 @@ type EventBudget = {
   catering: number | null;
   photography: number | null;
   videography: number | null;
-  total?: number
-}
+  total?: number;
+};
 
 interface EventInfo {
   _id: string;
-  name: string,
-  address?: string,
+  name: string;
+  address?: string;
   attendees: number;
   budget: EventBudget;
   date: Date | string;
@@ -44,10 +44,10 @@ interface EventInfo {
   confirmed?: BookingDetailsProps[];
 }
 interface EventList {
-  events: EventInfo[]
-  totalPages: number,
-  currentPage: number,
-  hasMore: boolean
+  events: EventInfo[];
+  totalPages: number;
+  currentPage: number;
+  hasMore: boolean;
 }
 
 interface Tag {
@@ -227,6 +227,7 @@ type ScreenProps = {
   AboutForm: undefined;
   VerificationForm: undefined;
   MenuForm: undefined;
+  Rating: undefined;
 };
 
 type SignUpScreenProps = NativeStackScreenProps<ScreenProps, 'SignUp'>;
@@ -247,7 +248,7 @@ type VerificationFormScreenProps = NativeStackScreenProps<
   ScreenProps,
   'VerificationForm'
 >;
-
+type RatingScreenProps = NativeStackScreenProps<ScreenProps, 'Rating'>;
 type EventFormScreenProps = NativeStackScreenProps<ScreenProps, 'EventForm'>;
 
 type EventViewScreenProps = NativeStackScreenProps<ScreenProps, 'EventView'>;
@@ -360,6 +361,7 @@ export {
   ProfileFormScreenProps,
   AboutFormScreenProps,
   MenuFormScreenProps,
+  RatingScreenProps,
   VerificationFormScreenProps,
   EventListScreenProps,
   EventListNavigationProps,
