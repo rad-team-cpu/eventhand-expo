@@ -33,6 +33,22 @@ type EventBudget = {
   total?: number;
 };
 
+interface BookingType {
+  _id: string;
+  vendor: {
+    id: string,
+    name: string
+  },
+  package: {
+    name: string,
+    capacity: number,
+    orderType: string,
+    description: string,
+  }
+  date: Date,
+  status: string
+}
+
 interface EventInfo {
   _id: string;
   name: string;
@@ -70,8 +86,8 @@ interface Vendor {
   email: string;
   address?: string;
   contactNumber: string;
-  tags: [];
-  credibilityFactors: CredibilityFactorsType;
+  tags: Tag[];
+  credibilityFactors?: CredibilityFactorsType;
   packages: PackageType[];
   bookings?: BookingDetailsProps[];
 }
@@ -388,4 +404,5 @@ export {
   ChatListScreenPropsList,
   UserMode,
   PaginationInfo,
+  BookingType,
 };

@@ -144,8 +144,54 @@ const BudgetScreen = (props: BudgetScreenProps) => {
   );
 };
 
+interface BookingListProps {
+
+}
+
+const SortTabBar = () => {
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  const handlePress = (name: string) => {
+    setSelectedCategory((prev) => (prev === name ? null : name));
+  };
+
+  return (
+    <View style={styles.sortTabContainer}>
+      {categories.map((category) => {
+
+        if(category.name !== "total"){
+          return (
+            <Pressable
+              key={category.name}
+              style={({ pressed }) => [
+                styles.sortTabButton,
+                {
+                  backgroundColor:
+                    selectedCategory === category.name
+                      ? category.color
+                      : pressed
+                      ? category.color + '80' // Adding transparency on press
+                      : '#fff',
+                  borderColor: category.color,
+                },
+              ]}
+              onPress={() => handlePress(category.name)}
+            >
+              <FontAwesome
+                name={category.icon}
+                size={15}
+                color={selectedCategory === category.name ? '#fff' : category.color}
+              />
+            </Pressable>
+          )
+        }
+      })}
+    </View>
+  );
+};
+
 function EventView({ route, navigation }: EventViewScreenProps) {
-  const { _id, name, attendees, budget, date, address, pending, confirmed } =
+  const { _id, name, attendees, budget, date, address, pending  } =
     route.params;
   const dateString =
     date instanceof Date ? format(date, 'MMMM dd, yyyy') : date;
@@ -157,6 +203,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     { key: 'pending', title: 'Pending' },
   ]);
   const [eventBookings, setEventBookings] = useState<BookingDetailsProps[]>([]);
+  // console.log()
 
   const fetchBookings = async (eventId: string) => {
     try {
@@ -169,6 +216,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
         }
       );
       setEventBookings(response.data);
+      console.log(eventBookings)
     } catch (error: any) {
       if (error instanceof TypeError) {
         console.error(
@@ -184,10 +232,189 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     navigation.navigate('Home', { initialTab: 'Vendors' });
   };
 
+  const bookingDetailsArray: BookingDetailsProps[] = [
+    {
+      _id: "booking1",
+      package: {
+        _id: "package1",
+        name: "Wedding Package",
+        vendor: {
+          _id: "vendor1",
+          logo: "vendor1-logo.jpg",
+          banner: "vendor1-banner.jpg",
+          name: "Amazing Events",
+          bio: "We create unforgettable events.",
+          email: "contact@amazingevents.com",
+          address: "123 Event St, Party City",
+          contactNumber: "123-456-7890",
+          tags: [
+            { _id: "tag1", name: "wedding" },
+            { _id: "tag2", name: "luxury" },
+          ],
+          packages: [], // Nested packages will go here if needed
+        },
+        vendorId: "vendor1",
+        price: 5000,
+        pictureURL: "wedding-package.jpg",
+        capacity: 200,
+        inclusions: [
+          {
+            id: "product1",
+            name: "Flower Arrangement",
+            imageURL: "flower-arrangement.jpg",
+            description: "Beautiful floral decorations.",
+            quantity: 20,
+          },
+          {
+            id: "product2",
+            name: "Wedding Cake",
+            imageURL: "wedding-cake.jpg",
+            description: "Three-tiered custom cake.",
+            quantity: 1,
+          },
+        ],
+      },
+      packageId: "package1",
+      vendor: {
+        _id: "vendor1",
+        logo: "vendor1-logo.jpg",
+        banner: "vendor1-banner.jpg",
+        name: "Amazing Events",
+        bio: "We create unforgettable events.",
+        email: "contact@amazingevents.com",
+        address: "123 Event St, Party City",
+        contactNumber: "123-456-7890",
+        tags: [
+          { _id: "tag1", name: "wedding" },
+          { _id: "tag2", name: "luxury" },
+        ],
+        packages: [], // Nested packages will go here if needed
+      },
+      vendorId: "vendor1",
+      client: {
+        _id: "client1",
+        profilePicture: "client1-profile.jpg",
+        email: "johndoe@example.com",
+        lastName: "Doe",
+        firstName: "John",
+        contactNumber: "555-123-4567",
+      },
+      clientId: "client1",
+      event: {
+        _id: "event1",
+        attendees: 500,
+        name: "John and Jane's Wedding",
+        date: new Date("2024-10-15"),
+        address: "123 Wedding Lane, Love City",
+        budget: {
+          eventPlanning: 2000,
+          eventCoordination: 1500,
+          venue: 3000,
+          decorations: 1000,
+          catering: 5000,
+          photography: 2000,
+          videography: 1500,
+          total: 16000,
+        },
+      },
+      eventId: "event1",
+      bookingStatus: BookingStatus.Confirmed,
+    },
+    {
+      _id: "booking2",
+      package: {
+        _id: "package2",
+        name: "Corporate Event Package",
+        vendor: {
+          _id: "vendor2",
+          logo: "vendor2-logo.jpg",
+          banner: "vendor2-banner.jpg",
+          name: "Business Events Co.",
+          bio: "Experts in corporate events.",
+          email: "contact@businessevents.com",
+          address: "456 Corporate Ave, Business City",
+          contactNumber: "987-654-3210",
+          tags: [
+            { _id: "tag3", name: "corporate" },
+            { _id: "tag4", name: "professional" },
+          ],
+          packages: [], // Nested packages will go here if needed
+        },
+        vendorId: "vendor2",
+        price: 8000,
+        pictureURL: "corporate-package.jpg",
+        capacity: 500,
+        inclusions: [
+          {
+            id: "product3",
+            name: "Audio-Visual Setup",
+            imageURL: "av-setup.jpg",
+            description: "State-of-the-art AV equipment.",
+            quantity: 1,
+          },
+          {
+            id: "product4",
+            name: "Catering",
+            imageURL: "catering.jpg",
+            description: "Full-service catering.",
+            quantity: 500,
+          },
+        ],
+      },
+      packageId: "package2",
+      vendor: {
+        _id: "vendor2",
+        logo: "vendor2-logo.jpg",
+        banner: "vendor2-banner.jpg",
+        name: "Business Events Co.",
+        bio: "Experts in corporate events.",
+        email: "contact@businessevents.com",
+        address: "456 Corporate Ave, Business City",
+        contactNumber: "987-654-3210",
+        tags: [
+          { _id: "tag3", name: "corporate" },
+          { _id: "tag4", name: "professional" },
+        ],
+        packages: [], // Nested packages will go here if needed
+      },
+      vendorId: "vendor2",
+      client: {
+        _id: "client2",
+        profilePicture: "client2-profile.jpg",
+        email: "janesmith@example.com",
+        lastName: "Smith",
+        firstName: "Jane",
+        contactNumber: "555-987-6543",
+      },
+      clientId: "client2",
+      event: {
+        _id: "event2",
+        name: "Company Annual Meeting",
+        attendees: 500,
+        date: new Date("2024-11-20"),
+        address: "789 Conference Rd, Business City",
+        budget: {
+          eventPlanning: 4000,
+          eventCoordination: 3000,
+          venue: 10000,
+          decorations: 2000,
+          catering: 15000,
+          photography: 5000,
+          videography: 4000,
+          total: 43000,
+        },
+      },
+      eventId: "event2",
+      bookingStatus: BookingStatus.Pending,
+    },
+  ];
+
+
+
   const ConfirmedVendors = () => (
     <View style={styles.listContainer}>
-      {confirmed &&
-        eventBookings.map((booking) => (
+      {eventBookings && eventBookings.filter(booking => booking.bookingStatus === BookingStatus.Confirmed).map((booking) => { 
+          return (
           <View
             key={booking._id}
             style={styles.vendorContainer}
@@ -225,54 +452,57 @@ function EventView({ route, navigation }: EventViewScreenProps) {
               ₱{(booking.package as PackageType).price}
             </Text>
           </View>
-        ))}
+        )})}
     </View>
   );
 
   const PendingVendors = () => (
     <View style={styles.listContainer}>
-      {pending &&
-        eventBookings.map((booking) => (
-          <View
-            key={booking._id}
-            style={styles.vendorContainer}
-            className='bg-white rounded-lg justify-between'
-          >
-            <Image
-              radius={sizes.s}
-              width={sizes.xl}
-              height={sizes.xl}
-              src={booking.package?.pictureURL}
-              style={{ backgroundColor: colors.gray }}
-            />
-            <View>
-              <Text className='text-xs text-center font-semibold'>
-                {(booking.package as PackageType).name.length > 12
-                  ? `${(booking.package as PackageType).name.substring(0, 10)}...`
-                  : (booking.package as PackageType).name}
+    <SortTabBar/>
+    {eventBookings && eventBookings.filter(booking => booking.bookingStatus === BookingStatus.Pending).map((booking) => {
+      console.log(booking)
+          return (
+            <View
+              key={booking._id}
+              style={styles.vendorContainer}
+              className='bg-white rounded-lg justify-between'
+            >
+              <Image
+                radius={sizes.s}
+                width={sizes.xl}
+                height={sizes.xl}
+                src={booking.package?.pictureURL}
+                style={{ backgroundColor: colors.gray }}
+              />
+              <View>
+                <Text className='text-xs text-center font-semibold'>
+                  {(booking.package as PackageType).name.length > 12
+                    ? `${(booking.package as PackageType).name.substring(0, 10)}...`
+                    : (booking.package as PackageType).name}
+                </Text>
+              </View>
+              <View className='flex-col'>
+                {(booking.package as PackageType).inclusions.map(
+                  (inclusion: Product) => (
+                    <View className='flex-row space-x-1'>
+                      <Text className='text-xs text-center font-semibold'>
+                        {inclusion.name}
+                      </Text>
+                      <Text className='text-xs text-center font-semibold'>
+                        x {inclusion.quantity}
+                      </Text>
+                    </View>
+                  )
+                )}
+              </View>
+              <Text className='text-xs font-semibold' style={styles.vendorName}>
+                ₱{(booking.package as PackageType).price}
               </Text>
             </View>
-            <View className='flex-col'>
-              {(booking.package as PackageType).inclusions.map(
-                (inclusion: Product) => (
-                  <View className='flex-row space-x-1'>
-                    <Text className='text-xs text-center font-semibold'>
-                      {inclusion.name}
-                    </Text>
-                    <Text className='text-xs text-center font-semibold'>
-                      x {inclusion.quantity}
-                    </Text>
-                  </View>
-                )
-              )}
-            </View>
-
-            <Text className='text-s font-semibold' style={styles.vendorName}>
-              ₱{(booking.package as PackageType).price}
-            </Text>
-          </View>
-        ))}
-    </View>
+          )
+        
+})}
+  </View>
   );
 
   const renderScene = SceneMap({
@@ -280,10 +510,11 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     pending: PendingVendors,
   });
 
-  // useEffect(() => {
-  //   const eventId = _id;
-  //   fetchBookings(eventId);
-  // }, []);
+  useEffect(() => {
+    const eventId = _id;
+    console.log(eventId)
+    fetchBookings(eventId);
+  }, []);
 
   const onBackBtnPress = () => setOpenBudget(false);
 
@@ -487,6 +718,19 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
+  sortTabContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingVertical: 10,
+    backgroundColor: '#f5f5f5',
+  },
+  sortTabButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 10,
+    borderWidth: 2,
+    borderRadius: 50,
+  },
 });
 
 const listStyles = StyleSheet.create({
@@ -535,6 +779,7 @@ const listStyles = StyleSheet.create({
   capacityText: {
     fontSize: 14,
   },
+
 });
 
 export default EventView;

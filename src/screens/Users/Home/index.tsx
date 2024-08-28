@@ -141,7 +141,8 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
     try {
       const res = await fetch(url, request);
       const data = await res.json();
-
+      
+   
       if (res.status === 200) {
         setUser({ ...data.user });
         setEventList({...data.events})
