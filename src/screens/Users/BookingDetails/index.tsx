@@ -123,9 +123,9 @@ const BookingDetails = () => {
           `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking`,
           {
             package: packageId,
-            vendor: vendorId,
+            vendorId: vendorId,
             event: event._id,
-            client: user._id,
+            clientId: user._id,
             bookingStatus: BookingStatus.Pending,
           },
           {
