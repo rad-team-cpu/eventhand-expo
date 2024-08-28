@@ -32,7 +32,7 @@ const BookingListItem = ({ _id, client, event }: BookingDetailsProps) => {
   const onPress = (_id: string, fromPending: boolean) => {
     const BookingViewProps: ScreenProps['BookingView'] = {
       _id,
-      fromPending
+      fromPending,
     };
     navigation.navigate('BookingView', BookingViewProps);
   };
@@ -87,7 +87,7 @@ function UpcomingBookingList() {
   const fetchBookings = async (vendorId: string) => {
     try {
       const response = await axios.get(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking?vendor=${vendorId}&bookingStatus=CONFIRMED`,
+        `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking?vendorId=${vendorId}&bookingStatus=CONFIRMED`,
         {
           headers: {
             'Content-Type': 'application/json',
