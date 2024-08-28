@@ -18,7 +18,7 @@ const StarRating: React.FC<StarRatingProps> = ({ starColor = '#FAAA33', rating }
       <MaterialIcons
         key={i}
         name={i < validRating ? 'star' : 'star-outline'}
-        size={15}
+        size={10}
         color={starColor}
       />,
     );

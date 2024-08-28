@@ -20,17 +20,21 @@ import {
   ScreenProps,
   HomeScreenNavigationProp,
   Tag,
+  Review,
 } from 'types/types';
 import Loading from 'screens/Loading';
 
 import { GetMessagesInput, WebSocketContext } from 'Contexts/WebSocket';
 import { UserContext } from 'Contexts/UserContext';
+import StarRating from 'Components/Ui/StarRating';
 
 const VendorMenu = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const route = useRoute();
   const { assets, colors, sizes, gradients } = useTheme();
   const [vendor, setVendor] = useState<Vendor>();
+  const [reviews, setReviews] = useState<Review[]>([]);
+
   const userContext = useContext(UserContext);
   const webSocket = useContext(WebSocketContext);
 
@@ -54,6 +58,29 @@ const VendorMenu = () => {
   const IMAGE_VERTICAL_MARGIN =
     (sizes.width - (IMAGE_VERTICAL_SIZE + sizes.sm) * 2) / 2;
 
+  const fetchReviews = useCallback(async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.EXPO_PUBLIC_BACKEND_URL}/reviews?vendorId=${vendorId}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      setReviews(response.data);
+    } catch (error: any) {
+      if (error instanceof TypeError) {
+        console.error(error);
+        console.error(
+          'Network request failed. Possible causes: CORS issues, network issues, or incorrect URL.'
+        );
+      } else {
+        console.error('Error fetching vendors:', error.message);
+      }
+    }
+  }, []);
+
   const fetchVendor = useCallback(async () => {
     try {
       const response = await axios.get(
@@ -67,7 +94,7 @@ const VendorMenu = () => {
       setVendor(response.data);
     } catch (error: any) {
       if (error instanceof TypeError) {
-        console.error(error)
+        console.error(error);
         console.error(
           'Network request failed. Possible causes: CORS issues, network issues, or incorrect URL.'
         );
@@ -108,6 +135,7 @@ const VendorMenu = () => {
 
   useEffect(() => {
     fetchVendor();
+    fetchReviews();
   }, []);
 
   if (!vendor) {
@@ -201,9 +229,7 @@ const VendorMenu = () => {
                 <Text>Bookings</Text>
               </Block>
               <Block align='center'>
-                <Text className='text-sm font-bold'>
-                  {vendor?.credibilityFactors?.reviews || 0}
-                </Text>
+                <Text className='text-sm font-bold'>{reviews.length || 0}</Text>
                 <Text>Reviews</Text>
               </Block>
               <Block align='center'>
@@ -216,6 +242,68 @@ const VendorMenu = () => {
           </Block>
           {/* profile: about me */}
           <Block paddingHorizontal={sizes.sm} marginTop={sizes.m} className=''>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {reviews?.length > 0 && (
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                  {reviews.slice(0, 11).map((review, index) => (
+                    <View
+                      key={index}
+                      style={{
+                        backgroundColor: 'white',
+                        height: 80,
+                        width: 128,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        borderRadius: 12,
+                        marginRight: 16,
+                        position: 'relative',
+                        padding: 8, // Add padding for internal spacing
+                      }}
+                    >
+                      <View
+                        style={{
+                          flex: 1,
+                          justifyContent: 'space-between',
+                          alignItems: 'flex-start',
+                          width: '100%',
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontSize: 10,
+                            color: 'black',
+                            textAlign: 'left',
+                          }}
+                          numberOfLines={4}
+                          ellipsizeMode='tail'
+                        >
+                          {review.comment}
+                        </Text>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'flex-end',
+                            width: '100%',
+                          }}
+                        >
+                          <Text
+                            style={{
+                              fontSize: 10,
+                              color: 'black',
+                              textAlign: 'left',
+                            }}
+                          >
+                            {review.rating.toFixed(1)}
+                          </Text>
+                          <StarRating rating={review.rating} />
+                        </View>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              )}
+            </ScrollView>
             <Text className='text-xl text-black font-bold mb-1'>About</Text>
             <Text className='font-normal text-justify leading-5'>
               {vendor.bio}
