@@ -21,6 +21,7 @@ import BookingList from 'screens/Vendor/Bookings/List';
 import AboutForm from 'screens/Vendor/Profile/AboutForm';
 import MenuForm from 'screens/Vendor/Profile/MenuForm';
 import VerificationForm from 'screens/Vendor/Profile/VerificationForm';
+import Rating from 'Components/Ratings/Rating';
 
 const SignedInStack = createNativeStackNavigator<ScreenProps>();
 
@@ -145,6 +146,11 @@ const SignedInNav = () => {
       <SignedInStack.Screen
         name='VerificationForm'
         component={VerificationForm}
+        options={{ headerShown: false }}
+      />
+      <SignedInStack.Screen
+        name='Rating'
+        component={Rating}
         options={{ headerShown: false }}
       />
     </SignedInStack.Navigator>

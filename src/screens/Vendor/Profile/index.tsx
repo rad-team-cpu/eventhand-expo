@@ -115,6 +115,15 @@ function VendorProfile() {
                     <Text white>Add Menu</Text>
                   </Pressable>
                 </Block>
+                <Block className='items-center'>
+                  <Pressable onPress={() => navigation.navigate('Rating')}>
+                    <Block className='items-center'>
+                      <MaterialIcons name='menu-book' size={24} color='white' />
+                    </Block>
+
+                    <Text white>Rating</Text>
+                  </Pressable>
+                </Block>
               </Block>
             </Image>
           </Block>
