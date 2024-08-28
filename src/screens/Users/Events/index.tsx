@@ -458,7 +458,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
 
   const PendingVendors = () => (
     <View style={styles.listContainer}>
-    <SortTabBar/>
+    {/* <SortTabBar/> */}
     {eventBookings && eventBookings.filter(booking => booking.bookingStatus === BookingStatus.Pending).map((booking) => {
       console.log(booking)
           return (
