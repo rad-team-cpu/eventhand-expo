@@ -97,7 +97,7 @@ function BookingList() {
   const fetchBookings = async (vendorId: string) => {
     try {
       const response = await axios.get(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking?vendor=${vendorId}&bookingStatus=PENDING`,
+        `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking?vendorId=${vendorId}&bookingStatus=PENDING`,
         {
           headers: {
             'Content-Type': 'application/json',
