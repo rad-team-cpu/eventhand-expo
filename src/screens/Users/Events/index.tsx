@@ -4,7 +4,8 @@ import { format } from 'date-fns/format';
 import ExpoStatusBar from 'expo-status-bar/build/ExpoStatusBar';
 import React, { useEffect, useRef, useState } from 'react';
 import Image from 'Components/Ui/Image';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import Entypo from '@expo/vector-icons/Entypo';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import useTheme from 'src/core/theme';
 import {
@@ -202,6 +203,37 @@ function EventView({ route, navigation }: EventViewScreenProps) {
   ]);
   const [eventBookings, setEventBookings] = useState<BookingDetailsProps[]>([]);
   // console.log()
+
+  const handleRemoveBooking = (id: string) => {
+    Alert.alert(
+      'Confirm Cancellation',
+      'Are you sure you want to cancel this request to book?',
+      [
+        {
+          text: 'NO',
+          style: 'cancel',
+        },
+        {
+          text: 'YES',
+          onPress: async () => {
+            try {
+              await axios.delete(
+                `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking/${id}`,
+                {
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                }
+              );
+              fetchBookings(_id);
+            } catch (error: any) {
+              console.error('Error removing booking:', error.message);
+            }
+          },
+        },
+      ]
+    );
+  };
 
   const fetchBookings = async (eventId: string) => {
     try {
@@ -419,7 +451,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
               <View
                 key={booking._id}
                 style={styles.vendorContainer}
-                className='bg-white rounded-lg justify-between'
+                className='bg-white rounded-lg justify-between flex p-2'
               >
                 <Image
                   radius={sizes.s}
@@ -429,22 +461,27 @@ function EventView({ route, navigation }: EventViewScreenProps) {
                   style={{ backgroundColor: colors.gray }}
                 />
                 <View>
-                  <Text className='text-xs text-center font-semibold'>
-                    {(booking.package as PackageType).name.length > 12
-                      ? `${(booking.package as PackageType).name.substring(0, 10)}...`
-                      : (booking.package as PackageType).name}
+                  <Text
+                    className='text-xs text-center font-semibold w-24'
+                    numberOfLines={1}
+                    ellipsizeMode='tail'
+                  >
+                    {(booking.package as PackageType).name}
                   </Text>
                 </View>
                 <View className='flex-col'>
                   {(booking.package as PackageType).inclusions.map(
                     (inclusion: Product) => (
-                      <View className='flex-row space-x-1'>
-                        <Text className='text-xs text-center font-semibold'>
-                          {inclusion.name.length > 12
-                            ? `${inclusion.name.substring(0, 10)}...`
-                            : inclusion.name}
+                      <View className='flex-row space-x-1' key={inclusion.id}>
+                        <Text
+                          className='text-xs text-center font-semibold flex'
+                          numberOfLines={1}
+                          ellipsizeMode='tail'
+                          style={{ maxWidth: 80 }}
+                        >
+                          {inclusion.name}
                         </Text>
-                        <Text className='text-xs text-center font-semibold'>
+                        <Text className='text-xs text-center font-semibold flex'>
                           x {inclusion.quantity}
                         </Text>
                       </View>
@@ -470,13 +507,20 @@ function EventView({ route, navigation }: EventViewScreenProps) {
         eventBookings
           .filter((booking) => booking.bookingStatus === BookingStatus.Pending)
           .map((booking) => {
-            console.log(booking);
             return (
               <View
                 key={booking._id}
                 style={styles.vendorContainer}
-                className='bg-white rounded-lg justify-between'
+                className='bg-white rounded-lg justify-between flex p-2'
               >
+                {booking._id && (
+                  <Pressable
+                    onPress={() => handleRemoveBooking(booking._id as string)}
+                    style={styles.floatingRemoveButton}
+                  >
+                    <Entypo name='cross' size={24} color='red' />
+                  </Pressable>
+                )}
                 <Image
                   radius={sizes.s}
                   width={sizes.xl}
@@ -484,34 +528,44 @@ function EventView({ route, navigation }: EventViewScreenProps) {
                   src={booking.package?.pictureURL}
                   style={{ backgroundColor: colors.gray }}
                 />
+
                 <View>
-                  <Text className='text-xs text-center font-semibold'>
-                    {(booking.package as PackageType).name.length > 12
-                      ? `${(booking.package as PackageType).name.substring(0, 10)}...`
-                      : (booking.package as PackageType).name}
+                  <Text
+                    className='text-xs text-center font-semibold w-24'
+                    numberOfLines={1}
+                    ellipsizeMode='tail'
+                  >
+                    {(booking.package as PackageType).name}
                   </Text>
                 </View>
+
                 <View className='flex-col'>
                   {(booking.package as PackageType).inclusions.map(
                     (inclusion: Product) => (
-                      <View className='flex-row space-x-1'>
-                        <Text className='text-xs text-center font-semibold'>
-                          {inclusion.name.length > 12
-                            ? `${inclusion.name.substring(0, 10)}...`
-                            : inclusion.name}
+                      <View className='flex-row space-x-1' key={inclusion.id}>
+                        <Text
+                          className='text-xs text-center font-semibold flex'
+                          numberOfLines={1}
+                          ellipsizeMode='tail'
+                          style={{ maxWidth: 80 }}
+                        >
+                          {inclusion.name}
                         </Text>
-                        <Text className='text-xs text-center font-semibold'>
+                        <Text className='text-xs text-center font-semibold flex'>
                           x {inclusion.quantity}
                         </Text>
                       </View>
                     )
                   )}
                 </View>
+
                 <Text
-                  className='text-xs font-semibold'
-                  style={styles.vendorName}
+                  className='text-s font-semibold'
+                  numberOfLines={1}
+                  ellipsizeMode='tail'
+                  style={[styles.vendorName, { maxWidth: 100 }]}
                 >
-                  ₱{(booking.package as PackageType).price}
+                  ₱{(booking.package as PackageType).price.toFixed(2)}
                 </Text>
               </View>
             );
@@ -654,7 +708,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 10,
-    padding: 10,
+    position: 'relative',
+  },
+  floatingRemoveButton: {
+    position: 'absolute',
+    top: -10,
+    right: -10,
+    backgroundColor: 'white',
+    borderRadius: 50,
+    padding: 1,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
   vendorLogo: {
     width: 50,
