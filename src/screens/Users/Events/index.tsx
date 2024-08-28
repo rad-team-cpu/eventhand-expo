@@ -4,7 +4,8 @@ import { format } from 'date-fns/format';
 import ExpoStatusBar from 'expo-status-bar/build/ExpoStatusBar';
 import React, { useEffect, useRef, useState } from 'react';
 import Image from 'Components/Ui/Image';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import Entypo from '@expo/vector-icons/Entypo';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import useTheme from 'src/core/theme';
 import {
@@ -144,9 +145,7 @@ const BudgetScreen = (props: BudgetScreenProps) => {
   );
 };
 
-interface BookingListProps {
-
-}
+interface BookingListProps {}
 
 const SortTabBar = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -158,8 +157,7 @@ const SortTabBar = () => {
   return (
     <View style={styles.sortTabContainer}>
       {categories.map((category) => {
-
-        if(category.name !== "total"){
+        if (category.name !== 'total') {
           return (
             <Pressable
               key={category.name}
@@ -170,8 +168,8 @@ const SortTabBar = () => {
                     selectedCategory === category.name
                       ? category.color
                       : pressed
-                      ? category.color + '80' // Adding transparency on press
-                      : '#fff',
+                        ? category.color + '80' // Adding transparency on press
+                        : '#fff',
                   borderColor: category.color,
                 },
               ]}
@@ -180,10 +178,12 @@ const SortTabBar = () => {
               <FontAwesome
                 name={category.icon}
                 size={15}
-                color={selectedCategory === category.name ? '#fff' : category.color}
+                color={
+                  selectedCategory === category.name ? '#fff' : category.color
+                }
               />
             </Pressable>
-          )
+          );
         }
       })}
     </View>
@@ -191,8 +191,7 @@ const SortTabBar = () => {
 };
 
 function EventView({ route, navigation }: EventViewScreenProps) {
-  const { _id, name, attendees, budget, date, address, pending  } =
-    route.params;
+  const { _id, name, attendees, budget, date, address, pending } = route.params;
   const dateString =
     date instanceof Date ? format(date, 'MMMM dd, yyyy') : date;
   const { colors, sizes } = useTheme();
@@ -205,6 +204,37 @@ function EventView({ route, navigation }: EventViewScreenProps) {
   const [eventBookings, setEventBookings] = useState<BookingDetailsProps[]>([]);
   // console.log()
 
+  const handleRemoveBooking = (id: string) => {
+    Alert.alert(
+      'Confirm Cancellation',
+      'Are you sure you want to cancel this request to book?',
+      [
+        {
+          text: 'NO',
+          style: 'cancel',
+        },
+        {
+          text: 'YES',
+          onPress: async () => {
+            try {
+              await axios.delete(
+                `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking/${id}`,
+                {
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                }
+              );
+              fetchBookings(_id);
+            } catch (error: any) {
+              console.error('Error removing booking:', error.message);
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const fetchBookings = async (eventId: string) => {
     try {
       const response = await axios.get(
@@ -216,7 +246,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
         }
       );
       setEventBookings(response.data);
-      console.log(eventBookings)
+      console.log(eventBookings);
     } catch (error: any) {
       if (error instanceof TypeError) {
         console.error(
@@ -234,78 +264,78 @@ function EventView({ route, navigation }: EventViewScreenProps) {
 
   const bookingDetailsArray: BookingDetailsProps[] = [
     {
-      _id: "booking1",
+      _id: 'booking1',
       package: {
-        _id: "package1",
-        name: "Wedding Package",
+        _id: 'package1',
+        name: 'Wedding Package',
         vendor: {
-          _id: "vendor1",
-          logo: "vendor1-logo.jpg",
-          banner: "vendor1-banner.jpg",
-          name: "Amazing Events",
-          bio: "We create unforgettable events.",
-          email: "contact@amazingevents.com",
-          address: "123 Event St, Party City",
-          contactNumber: "123-456-7890",
+          _id: 'vendor1',
+          logo: 'vendor1-logo.jpg',
+          banner: 'vendor1-banner.jpg',
+          name: 'Amazing Events',
+          bio: 'We create unforgettable events.',
+          email: 'contact@amazingevents.com',
+          address: '123 Event St, Party City',
+          contactNumber: '123-456-7890',
           tags: [
-            { _id: "tag1", name: "wedding" },
-            { _id: "tag2", name: "luxury" },
+            { _id: 'tag1', name: 'wedding' },
+            { _id: 'tag2', name: 'luxury' },
           ],
           packages: [], // Nested packages will go here if needed
         },
-        vendorId: "vendor1",
+        vendorId: 'vendor1',
         price: 5000,
-        pictureURL: "wedding-package.jpg",
+        pictureURL: 'wedding-package.jpg',
         capacity: 200,
         inclusions: [
           {
-            id: "product1",
-            name: "Flower Arrangement",
-            imageURL: "flower-arrangement.jpg",
-            description: "Beautiful floral decorations.",
+            id: 'product1',
+            name: 'Flower Arrangement',
+            imageURL: 'flower-arrangement.jpg',
+            description: 'Beautiful floral decorations.',
             quantity: 20,
           },
           {
-            id: "product2",
-            name: "Wedding Cake",
-            imageURL: "wedding-cake.jpg",
-            description: "Three-tiered custom cake.",
+            id: 'product2',
+            name: 'Wedding Cake',
+            imageURL: 'wedding-cake.jpg',
+            description: 'Three-tiered custom cake.',
             quantity: 1,
           },
         ],
       },
-      packageId: "package1",
+      packageId: 'package1',
       vendor: {
-        _id: "vendor1",
-        logo: "vendor1-logo.jpg",
-        banner: "vendor1-banner.jpg",
-        name: "Amazing Events",
-        bio: "We create unforgettable events.",
-        email: "contact@amazingevents.com",
-        address: "123 Event St, Party City",
-        contactNumber: "123-456-7890",
+        _id: 'vendor1',
+        logo: 'vendor1-logo.jpg',
+        banner: 'vendor1-banner.jpg',
+        name: 'Amazing Events',
+        bio: 'We create unforgettable events.',
+        email: 'contact@amazingevents.com',
+        address: '123 Event St, Party City',
+        contactNumber: '123-456-7890',
         tags: [
-          { _id: "tag1", name: "wedding" },
-          { _id: "tag2", name: "luxury" },
+          { _id: 'tag1', name: 'wedding' },
+          { _id: 'tag2', name: 'luxury' },
         ],
         packages: [], // Nested packages will go here if needed
       },
-      vendorId: "vendor1",
+      vendorId: 'vendor1',
       client: {
-        _id: "client1",
-        profilePicture: "client1-profile.jpg",
-        email: "johndoe@example.com",
-        lastName: "Doe",
-        firstName: "John",
-        contactNumber: "555-123-4567",
+        _id: 'client1',
+        profilePicture: 'client1-profile.jpg',
+        email: 'johndoe@example.com',
+        lastName: 'Doe',
+        firstName: 'John',
+        contactNumber: '555-123-4567',
       },
-      clientId: "client1",
+      clientId: 'client1',
       event: {
-        _id: "event1",
+        _id: 'event1',
         attendees: 500,
         name: "John and Jane's Wedding",
-        date: new Date("2024-10-15"),
-        address: "123 Wedding Lane, Love City",
+        date: new Date('2024-10-15'),
+        address: '123 Wedding Lane, Love City',
         budget: {
           eventPlanning: 2000,
           eventCoordination: 1500,
@@ -317,82 +347,82 @@ function EventView({ route, navigation }: EventViewScreenProps) {
           total: 16000,
         },
       },
-      eventId: "event1",
+      eventId: 'event1',
       bookingStatus: BookingStatus.Confirmed,
     },
     {
-      _id: "booking2",
+      _id: 'booking2',
       package: {
-        _id: "package2",
-        name: "Corporate Event Package",
+        _id: 'package2',
+        name: 'Corporate Event Package',
         vendor: {
-          _id: "vendor2",
-          logo: "vendor2-logo.jpg",
-          banner: "vendor2-banner.jpg",
-          name: "Business Events Co.",
-          bio: "Experts in corporate events.",
-          email: "contact@businessevents.com",
-          address: "456 Corporate Ave, Business City",
-          contactNumber: "987-654-3210",
+          _id: 'vendor2',
+          logo: 'vendor2-logo.jpg',
+          banner: 'vendor2-banner.jpg',
+          name: 'Business Events Co.',
+          bio: 'Experts in corporate events.',
+          email: 'contact@businessevents.com',
+          address: '456 Corporate Ave, Business City',
+          contactNumber: '987-654-3210',
           tags: [
-            { _id: "tag3", name: "corporate" },
-            { _id: "tag4", name: "professional" },
+            { _id: 'tag3', name: 'corporate' },
+            { _id: 'tag4', name: 'professional' },
           ],
           packages: [], // Nested packages will go here if needed
         },
-        vendorId: "vendor2",
+        vendorId: 'vendor2',
         price: 8000,
-        pictureURL: "corporate-package.jpg",
+        pictureURL: 'corporate-package.jpg',
         capacity: 500,
         inclusions: [
           {
-            id: "product3",
-            name: "Audio-Visual Setup",
-            imageURL: "av-setup.jpg",
-            description: "State-of-the-art AV equipment.",
+            id: 'product3',
+            name: 'Audio-Visual Setup',
+            imageURL: 'av-setup.jpg',
+            description: 'State-of-the-art AV equipment.',
             quantity: 1,
           },
           {
-            id: "product4",
-            name: "Catering",
-            imageURL: "catering.jpg",
-            description: "Full-service catering.",
+            id: 'product4',
+            name: 'Catering',
+            imageURL: 'catering.jpg',
+            description: 'Full-service catering.',
             quantity: 500,
           },
         ],
       },
-      packageId: "package2",
+      packageId: 'package2',
       vendor: {
-        _id: "vendor2",
-        logo: "vendor2-logo.jpg",
-        banner: "vendor2-banner.jpg",
-        name: "Business Events Co.",
-        bio: "Experts in corporate events.",
-        email: "contact@businessevents.com",
-        address: "456 Corporate Ave, Business City",
-        contactNumber: "987-654-3210",
+        _id: 'vendor2',
+        logo: 'vendor2-logo.jpg',
+        banner: 'vendor2-banner.jpg',
+        name: 'Business Events Co.',
+        bio: 'Experts in corporate events.',
+        email: 'contact@businessevents.com',
+        address: '456 Corporate Ave, Business City',
+        contactNumber: '987-654-3210',
         tags: [
-          { _id: "tag3", name: "corporate" },
-          { _id: "tag4", name: "professional" },
+          { _id: 'tag3', name: 'corporate' },
+          { _id: 'tag4', name: 'professional' },
         ],
         packages: [], // Nested packages will go here if needed
       },
-      vendorId: "vendor2",
+      vendorId: 'vendor2',
       client: {
-        _id: "client2",
-        profilePicture: "client2-profile.jpg",
-        email: "janesmith@example.com",
-        lastName: "Smith",
-        firstName: "Jane",
-        contactNumber: "555-987-6543",
+        _id: 'client2',
+        profilePicture: 'client2-profile.jpg',
+        email: 'janesmith@example.com',
+        lastName: 'Smith',
+        firstName: 'Jane',
+        contactNumber: '555-987-6543',
       },
-      clientId: "client2",
+      clientId: 'client2',
       event: {
-        _id: "event2",
-        name: "Company Annual Meeting",
+        _id: 'event2',
+        name: 'Company Annual Meeting',
         attendees: 500,
-        date: new Date("2024-11-20"),
-        address: "789 Conference Rd, Business City",
+        date: new Date('2024-11-20'),
+        address: '789 Conference Rd, Business City',
         budget: {
           eventPlanning: 4000,
           eventCoordination: 3000,
@@ -404,105 +434,143 @@ function EventView({ route, navigation }: EventViewScreenProps) {
           total: 43000,
         },
       },
-      eventId: "event2",
+      eventId: 'event2',
       bookingStatus: BookingStatus.Pending,
     },
   ];
 
-
-
   const ConfirmedVendors = () => (
     <View style={styles.listContainer}>
-      {eventBookings && eventBookings.filter(booking => booking.bookingStatus === BookingStatus.Confirmed).map((booking) => { 
-          return (
-          <View
-            key={booking._id}
-            style={styles.vendorContainer}
-            className='bg-white rounded-lg justify-between'
-          >
-            <Image
-              radius={sizes.s}
-              width={sizes.xl}
-              height={sizes.xl}
-              src={booking.package?.pictureURL}
-              style={{ backgroundColor: colors.gray }}
-            />
-            <View>
-              <Text className='text-xs text-center font-semibold'>
-                {(booking.package as PackageType).name.length > 12
-                  ? `${(booking.package as PackageType).name.substring(0, 10)}...`
-                  : (booking.package as PackageType).name}
-              </Text>
-            </View>
-            <View className='flex-col'>
-              {(booking.package as PackageType).inclusions.map(
-                (inclusion: Product) => (
-                  <View className='flex-row space-x-1'>
-                    <Text className='text-xs text-center font-semibold'>
-                      {inclusion.name}
-                    </Text>
-                    <Text className='text-xs text-center font-semibold'>
-                      x {inclusion.quantity}
-                    </Text>
-                  </View>
-                )
-              )}
-            </View>
-            <Text className='text-xs font-semibold' style={styles.vendorName}>
-              ₱{(booking.package as PackageType).price}
-            </Text>
-          </View>
-        )})}
+      {eventBookings &&
+        eventBookings
+          .filter(
+            (booking) => booking.bookingStatus === BookingStatus.Confirmed
+          )
+          .map((booking) => {
+            return (
+              <View
+                key={booking._id}
+                style={styles.vendorContainer}
+                className='bg-white rounded-lg justify-between flex p-2'
+              >
+                <Image
+                  radius={sizes.s}
+                  width={sizes.xl}
+                  height={sizes.xl}
+                  src={booking.package?.pictureURL}
+                  style={{ backgroundColor: colors.gray }}
+                />
+                <View>
+                  <Text
+                    className='text-xs text-center font-semibold w-24'
+                    numberOfLines={1}
+                    ellipsizeMode='tail'
+                  >
+                    {(booking.package as PackageType).name}
+                  </Text>
+                </View>
+                <View className='flex-col'>
+                  {(booking.package as PackageType).inclusions.map(
+                    (inclusion: Product) => (
+                      <View className='flex-row space-x-1' key={inclusion.id}>
+                        <Text
+                          className='text-xs text-center font-semibold flex'
+                          numberOfLines={1}
+                          ellipsizeMode='tail'
+                          style={{ maxWidth: 80 }}
+                        >
+                          {inclusion.name}
+                        </Text>
+                        <Text className='text-xs text-center font-semibold flex'>
+                          x {inclusion.quantity}
+                        </Text>
+                      </View>
+                    )
+                  )}
+                </View>
+                <Text
+                  className='text-xs font-semibold'
+                  style={styles.vendorName}
+                >
+                  ₱{(booking.package as PackageType).price}
+                </Text>
+              </View>
+            );
+          })}
     </View>
   );
 
   const PendingVendors = () => (
     <View style={styles.listContainer}>
-    <SortTabBar/>
-    {eventBookings && eventBookings.filter(booking => booking.bookingStatus === BookingStatus.Pending).map((booking) => {
-      console.log(booking)
-          return (
-            <View
-              key={booking._id}
-              style={styles.vendorContainer}
-              className='bg-white rounded-lg justify-between'
-            >
-              <Image
-                radius={sizes.s}
-                width={sizes.xl}
-                height={sizes.xl}
-                src={booking.package?.pictureURL}
-                style={{ backgroundColor: colors.gray }}
-              />
-              <View>
-                <Text className='text-xs text-center font-semibold'>
-                  {(booking.package as PackageType).name.length > 12
-                    ? `${(booking.package as PackageType).name.substring(0, 10)}...`
-                    : (booking.package as PackageType).name}
+      <SortTabBar />
+      {eventBookings &&
+        eventBookings
+          .filter((booking) => booking.bookingStatus === BookingStatus.Pending)
+          .map((booking) => {
+            return (
+              <View
+                key={booking._id}
+                style={styles.vendorContainer}
+                className='bg-white rounded-lg justify-between flex p-2'
+              >
+                {booking._id && (
+                  <Pressable
+                    onPress={() => handleRemoveBooking(booking._id as string)}
+                    style={styles.floatingRemoveButton}
+                  >
+                    <Entypo name='cross' size={24} color='red' />
+                  </Pressable>
+                )}
+                <Image
+                  radius={sizes.s}
+                  width={sizes.xl}
+                  height={sizes.xl}
+                  src={booking.package?.pictureURL}
+                  style={{ backgroundColor: colors.gray }}
+                />
+
+                <View>
+                  <Text
+                    className='text-xs text-center font-semibold w-24'
+                    numberOfLines={1}
+                    ellipsizeMode='tail'
+                  >
+                    {(booking.package as PackageType).name}
+                  </Text>
+                </View>
+
+                <View className='flex-col'>
+                  {(booking.package as PackageType).inclusions.map(
+                    (inclusion: Product) => (
+                      <View className='flex-row space-x-1' key={inclusion.id}>
+                        <Text
+                          className='text-xs text-center font-semibold flex'
+                          numberOfLines={1}
+                          ellipsizeMode='tail'
+                          style={{ maxWidth: 80 }}
+                        >
+                          {inclusion.name}
+                        </Text>
+                        <Text className='text-xs text-center font-semibold flex'>
+                          x {inclusion.quantity}
+                        </Text>
+                      </View>
+                    )
+                  )}
+                </View>
+
+                <Text
+                  className='text-s font-semibold'
+                  numberOfLines={1}
+                  ellipsizeMode='tail'
+                  style={[styles.vendorName, { maxWidth: 100 }]}
+                >
+                  ₱{(booking.package as PackageType).price.toFixed(2)}
                 </Text>
               </View>
-              <View className='flex-col'>
-                {(booking.package as PackageType).inclusions.map(
-                  (inclusion: Product) => (
-                    <View className='flex-row space-x-1'>
-                      <Text className='text-xs text-center font-semibold'>
-                        {inclusion.name}
-                      </Text>
-                      <Text className='text-xs text-center font-semibold'>
-                        x {inclusion.quantity}
-                      </Text>
-                    </View>
-                  )
-                )}
-              </View>
-              <Text className='text-xs font-semibold' style={styles.vendorName}>
-                ₱{(booking.package as PackageType).price}
-              </Text>
-            </View>
-          )
-        
-})}
-  </View>
+            );
+          })}
+    </View>
   );
 
   const renderScene = SceneMap({
@@ -512,7 +580,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
 
   useEffect(() => {
     const eventId = _id;
-    console.log(eventId)
+    console.log(eventId);
     fetchBookings(eventId);
   }, []);
 
@@ -640,7 +708,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 10,
-    padding: 10,
+    position: 'relative',
+  },
+  floatingRemoveButton: {
+    position: 'absolute',
+    top: -10,
+    right: -10,
+    backgroundColor: 'white',
+    borderRadius: 50,
+    padding: 1,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
   vendorLogo: {
     width: 50,
@@ -779,7 +860,6 @@ const listStyles = StyleSheet.create({
   capacityText: {
     fontSize: 14,
   },
-
 });
 
 export default EventView;
