@@ -217,7 +217,7 @@ interface BookingDetailsProps {
   vendor?: Vendor;
   vendorId?: string;
   client?: UserProfile;
-  clientId?: string;
+  clientId?: string | UserProfile;
   event?: EventInfo;
   eventId?: string;
   bookingStatus?: BookingStatus;
