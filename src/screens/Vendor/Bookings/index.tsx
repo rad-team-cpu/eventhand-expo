@@ -20,6 +20,7 @@ import {
   EventInfo,
   HomeScreenNavigationProp,
   Vendor,
+  UserProfile,
 } from 'types/types';
 import Button from 'Components/Ui/Button';
 import { AntDesign } from '@expo/vector-icons';
@@ -214,20 +215,21 @@ function BookingView() {
         <View style={listStyles.separator} />
         <View className='flex flex-row justify-between'>
           <View className='flex flex-row'>
-            {booking?.client?.profilePicture ? (
+            {/* {(booking?.clientId as UserProfile)?.profilePicture ? (
               <Image
                 background
                 padding={sizes.md}
                 rounded
                 className='rounded-xl h-18 w-18 mr-2'
-                src={booking?.client?.profilePicture}
+                src={(booking?.clientId as UserProfile).profilePicture}
               />
-            ) : (
+            ) : ( */}
               <View className='bg-slate-500/30 w-10 h-10 rounded-xl align-middle '></View>
-            )}
+            {/* )} */}
             <View className='justify-center ml-2'>
               <Text className='justify-center'>
-                {booking?.client?.firstName} {booking?.client?.lastName}
+                {(booking?.clientId as UserProfile)?.firstName}{' '}
+                {(booking?.clientId as UserProfile)?.lastName}
               </Text>
             </View>
           </View>
