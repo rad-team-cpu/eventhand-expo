@@ -1,316 +1,418 @@
-import { useAuth, useUser } from '@clerk/clerk-expo';
-import { AntDesign } from '@expo/vector-icons';
+import React from 'react';
+import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import Avatar from 'Components/Avatar';
-import { UploadResult } from 'firebase/storage';
-import React, { useState, useContext, useCallback } from 'react';
-import {
-  useForm,
-  FieldValues,
-  Controller,
-  Control,
-  UseFormRegister,
-} from 'react-hook-form';
-import { BackHandler, TextInput, GestureResponderEvent } from 'react-native';
-import FirebaseService from 'service/firebase';
-import { object, string, number } from 'yup';
-
-// import DatePicker from "../../Components/Input/DatePicker";
-import { UserContext } from '../../../Contexts/UserContext';
-import ProfileUpload from 'Components/Input/ProfileUpload';
+import * as yup from 'yup';
+import { ScrollView, TextInput, View, TouchableOpacity } from 'react-native';
 import Block from 'Components/Ui/Block';
 import Button from 'Components/Ui/Button';
+import { AntDesign } from '@expo/vector-icons';
 import Image from 'Components/Ui/Image';
 import Text from 'Components/Ui/Text';
 import useTheme from '../../../core/theme';
-import {
-  AboutFormScreenProps,
-  MenuFormScreenProps,
-  ScreenProps,
-} from '../../../types/types';
-import Loading from '../../Loading';
-import { VendorContext } from 'Contexts/VendorContext';
-import axios from 'axios';
+import { MenuFormScreenProps } from 'types/types';
 
-interface AboutInput extends FieldValues {
-  bio: string;
+interface InclusionInput {
+  name: string;
+  description: string;
+  quantity: number;
 }
 
-const aboutFormValidationSchema = object().shape({
-  bio: string().required('Enter bio'),
+interface PackageInput {
+  name: string;
+  picture: string;
+  price: number;
+  inclusions: InclusionInput[];
+}
+
+interface FormValues {
+  packages: PackageInput[];
+}
+
+const inclusionSchema: yup.ObjectSchema<InclusionInput> = yup.object().shape({
+  name: yup.string().required('Inclusion name is required'),
+  description: yup.string().required('Description is required'),
+  quantity: yup.number().required('Quantity is required').min(1),
+});
+
+const packageSchema: yup.ObjectSchema<PackageInput> = yup.object().shape({
+  name: yup.string().required('Package name is required'),
+  picture: yup.string().required('Package picture is required'),
+  price: yup.number().required('Price is required').min(1),
+  inclusions: yup
+    .array()
+    .of(inclusionSchema)
+    .required()
+    .min(1, 'At least one inclusion is required'),
+});
+
+const formSchema: yup.ObjectSchema<FormValues> = yup.object().shape({
+  packages: yup
+    .array()
+    .of(packageSchema)
+    .required()
+    .min(1, 'At least one package is required'),
 });
 
 const MenuForm = ({ navigation }: MenuFormScreenProps) => {
   const {
     control,
-    register,
     handleSubmit,
-    getValues,
-    trigger,
-    formState: { errors, isValid },
-  } = useForm<AboutInput, unknown>({
+    formState: { errors },
+  } = useForm<FormValues>({
     mode: 'onBlur',
-    reValidateMode: 'onChange',
+    resolver: yupResolver(formSchema),
     defaultValues: {
-      bio: '',
+      packages: [
+        {
+          name: '',
+          picture: '',
+          price: 0,
+          inclusions: [{ name: '', description: '', quantity: 1 }],
+        },
+      ],
     },
-    resolver: yupResolver(aboutFormValidationSchema),
   });
 
-  const [submitErrMessage, setSubmitErrMessage] = useState('');
-  const { getToken } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const { assets, colors, sizes, gradients } = useTheme();
-  const vendorContext = useContext(VendorContext);
+  const { sizes, assets } = useTheme();
 
-  if (!vendorContext) {
-    throw new Error('Component must be under User Provider!!!');
-  }
+  const {
+    fields: packageFields,
+    append: appendPackage,
+    remove: removePackage,
+  } = useFieldArray({
+    control,
+    name: 'packages',
+  });
 
-  const { vendor } = vendorContext;
-
-  const createAbout = async (input: AboutInput) => {
-    setLoading(true);
-    const vendorId = vendor?.id;
-    console.log(input);
-
-    const navigateToSuccessError = (props: ScreenProps['SuccessError']) => {
-      navigation.navigate('SuccessError', { ...props });
-    };
-
-    try {
-      const token = getToken({ template: 'event-hand-jwt' });
-
-      const response = await axios.patch(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors/${vendorId}`,
-        {
-          ...input,
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-      switch (response.status) {
-        case 200:
-          setLoading(false);
-          navigateToSuccessError({
-            description: 'Your information was saved successfully.',
-            buttonText: 'Continue',
-            navigateTo: 'VendorHome',
-            status: 'success',
-          });
-          break;
-        case 403:
-          setSubmitErrMessage('Forbidden - Access denied.');
-          throw new Error('Forbidden - Access denied.'); // Forbidden
-        case 404:
-          setSubmitErrMessage('Server is unreachable.');
-          throw new Error('Server is unreachable.'); // Not Found
-        default:
-          setSubmitErrMessage('Unexpected error occurred.');
-          throw new Error('Unexpected error occurred.'); // Other status codes
-      }
-    } catch (error) {
-      console.error(error);
-      setLoading(false);
-      navigateToSuccessError({
-        description: submitErrMessage,
-        buttonText: 'Continue',
-        status: 'error',
-      });
-    }
+  const onSubmit = (data: FormValues) => {
+    console.log('Submitted Data:', data);
+    // Submit the data to the backend
   };
 
-  const onSubmitPress = handleSubmit(createAbout);
-
-  const FormFields = () => {
-    return (
-      <Block safe marginTop={sizes.md}>
-        <Block
-          id='about-form-field'
-          testID='test-about-field'
-          scroll
-          paddingHorizontal={sizes.s}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: sizes.padding }}
-        >
-          <Block flex={0} style={{ zIndex: 0 }}>
-            <Image
-              background
-              resizeMode='cover'
-              padding={sizes.sm}
-              paddingBottom={sizes.l}
-              radius={sizes.cardRadius}
-              source={assets.background}
-            >
-              <Button
-                row
-                flex={0}
-                justify='flex-start'
-                onPress={() => navigation.goBack()}
-              >
-                <AntDesign name='back' size={24} color='white' />
-                <Text p white marginLeft={sizes.s}>
-                  Go back
-                </Text>
-              </Button>
-            </Image>
-          </Block>
-          <Block
-            flex={0}
-            radius={sizes.sm}
-            marginTop={-sizes.l}
-            marginHorizontal='8%'
-            color='rgba(255,255,255,1)'
+  return (
+    <Block safe marginTop={sizes.md}>
+      <ScrollView
+        contentContainerStyle={{
+          paddingBottom: sizes.padding,
+          paddingHorizontal: sizes.s,
+        }}
+        showsVerticalScrollIndicator={false}
+      >
+        <Block flex={0} style={{ zIndex: 0 }}>
+          <Image
+            background
+            resizeMode='cover'
+            padding={sizes.sm}
+            paddingBottom={sizes.l}
+            radius={sizes.cardRadius}
+            source={assets.background}
           >
-            <Block align='flex-start' className='pl-4 pt-4'>
-              <Text transform='uppercase' marginBottom={sizes.s}>
-                Set up your Packages
-              </Text>
-              <Text p className='capitalize'>
-                WIP
-              </Text>
-              {/* <Controller
-                name='bio'
-                control={control}
-                render={({ field: { onChange, onBlur, value } }) => {
-                  const onValueChange = (text: string) => onChange(text);
-
-                  return (
-                    <TextInput
-                      id='bio-text-input'
-                      testID='test-bio-input'
-                      placeholder='Bio'
-                      onBlur={onBlur}
-                      value={value}
-                      onChangeText={onValueChange}
-                      autoCapitalize='none'
-                      returnKeyType='next'
-                      className='border p-1 rounded-lg border-purple-700 w-11/12'
-                    />
-                  );
-                }}
-              /> */}
-              <Text testID='test-first-name-err-text' danger>
-                {errors['bio']?.message}
-              </Text>
-            </Block>
             <Button
-              testID='next-btn'
-              onPress={onSubmitPress}
-              primary
-              outlined
-              marginBottom={sizes.s}
-              marginHorizontal={sizes.sm}
-              shadow={false}
-              disabled={!isValid}
+              row
+              flex={0}
+              justify='flex-start'
+              onPress={() => navigation.goBack()}
             >
-              <Text bold primary transform='uppercase'>
-                Publish 
+              <AntDesign name='back' size={24} color='white' />
+              <Text p white marginLeft={sizes.s}>
+                Go back
               </Text>
             </Button>
-          </Block>
+          </Image>
         </Block>
-      </Block>
-    );
-  };
 
-  //   useFocusEffect(
-  //     useCallback(() => {
-  //       const backAction = () => {
-  //         setConfirmDetails(false);
-  //         return true;
-  //       };
+        {packageFields.map((packageItem, packageIndex) => (
+          <Block
+            key={packageItem.id}
+            padding={sizes.sm}
+            radius={sizes.sm}
+            marginHorizontal={sizes.sm}
+            marginTop={-sizes.md}
+            marginBottom={sizes.md}
+            color='rgba(255,255,255,1)'
+            shadow
+            style={{ flexDirection: 'column' }}
+          >
+            <Text bold marginBottom={sizes.xs} primary>
+              Package {packageIndex + 1}
+            </Text>
+            <Text>Name:</Text>
 
-  //       const backHandler = BackHandler.addEventListener(
-  //         'hardwareBackPress',
-  //         backAction
-  //       );
+            <Controller
+              name={`packages.${packageIndex}.name`}
+              control={control}
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  placeholder='Package Name'
+                  value={value}
+                  onChangeText={onChange}
+                  style={{
+                    borderWidth: 1,
+                    borderColor: 'gray',
+                    padding: sizes.s,
+                    marginVertical: sizes.xs,
+                    borderRadius: sizes.sm,
+                  }}
+                />
+              )}
+            />
+            {errors.packages?.[packageIndex]?.name && (
+              <Text danger>{errors.packages[packageIndex].name?.message}</Text>
+            )}
 
-  //       return () => backHandler.remove();
-  //     }, [confirmDetails])
-  //   );
+            {/* 
+            <Controller
+              name={`packages.${packageIndex}.picture`}
+              control={control}
+              render={({ field: { onChange, value } }) => (
+                <ProfileUpload value={value} onChange={onChange} />
+              )}
+            /> */}
+            {errors.packages?.[packageIndex]?.picture && (
+              <Text danger>
+                {errors.packages[packageIndex].picture?.message}
+              </Text>
+            )}
 
-  //   const Confirmation = () => {
-  //     return (
-  //       <Block safe marginTop={sizes.md}>
-  //         <Block
-  //           id='profile-form-field'
-  //           testID='test-profile-form-field'
-  //           scroll
-  //           paddingHorizontal={sizes.s}
-  //           showsVerticalScrollIndicator={false}
-  //           contentContainerStyle={{ paddingBottom: sizes.padding }}
-  //         >
-  //           <Block flex={0} style={{ zIndex: 0 }}>
-  //             <Image
-  //               background
-  //               resizeMode='cover'
-  //               padding={sizes.sm}
-  //               paddingBottom={sizes.l}
-  //               radius={sizes.cardRadius}
-  //               source={assets.background}
-  //             >
-  //               <Button
-  //                 row
-  //                 flex={0}
-  //                 justify='flex-start'
-  //                 onPress={() => setConfirmDetails(false)}
-  //               >
-  //                 <AntDesign name='back' size={24} color='white' />
-  //                 <Text p white marginLeft={sizes.s}>
-  //                   Go back
-  //                 </Text>
-  //               </Button>
-  //             </Image>
-  //           </Block>
-  //           <Block
-  //             flex={0}
-  //             radius={sizes.sm}
-  //             marginTop={-sizes.l}
-  //             marginHorizontal='8%'
-  //             color='rgba(255,255,255,1)'
-  //           >
-  //             <Block align='flex-start' className='pl-4 pt-4'>
-  //               <Text p>Bio:</Text>
-  //               <Text
-  //                 id='bio'
-  //                 testID='test-bio'
-  //                 className='capitalize font-bold'
-  //               >
-  //                 {getValues('bio')}
-  //               </Text>
-  //             </Block>
-  //             <Button
-  //               testID='test-save-btn'
-  //               onPress={onSubmitPress}
-  //               disabled={!isValid}
-  //               primary
-  //               outlined
-  //               marginBottom={sizes.s}
-  //               marginHorizontal={sizes.sm}
-  //               shadow={false}
-  //             >
-  //               <Text bold primary transform='uppercase'>
-  //                 Confirm
-  //               </Text>
-  //             </Button>
-  //             <Text testID='save-err-text' danger>
-  //               {submitErrMessage}
-  //             </Text>
-  //           </Block>
-  //         </Block>
-  //       </Block>
-  //     );
-  //   };
+            <Text>Price:</Text>
+            <Controller
+              name={`packages.${packageIndex}.price`}
+              control={control}
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  placeholder='Package Price'
+                  keyboardType='numeric'
+                  value={value.toString()}
+                  onChangeText={(text) => onChange(parseFloat(text) || 0)}
+                  style={{
+                    borderWidth: 1,
+                    borderColor: 'gray',
+                    padding: sizes.s,
+                    marginVertical: sizes.xs,
+                    borderRadius: sizes.sm,
+                  }}
+                />
+              )}
+            />
+            {errors.packages?.[packageIndex]?.price && (
+              <Text danger>{errors.packages[packageIndex].price?.message}</Text>
+            )}
+
+            <Text bold marginTop={sizes.xs} primary>
+              Inclusions:
+            </Text>
+            <InclusionFields
+              control={control}
+              packageIndex={packageIndex}
+              errors={errors}
+            />
+
+            <Button
+              onPress={() => removePackage(packageIndex)}
+              danger
+              outlined
+              marginTop={sizes.sm}
+              shadow={false}
+            >
+              <Text>Remove Package</Text>
+            </Button>
+          </Block>
+        ))}
+
+        <Button
+          onPress={() =>
+            appendPackage({
+              name: '',
+              picture: '',
+              price: 0,
+              inclusions: [{ name: '', description: '', quantity: 1 }],
+            })
+          }
+          marginVertical={sizes.sm}
+          shadow={false}
+          outlined
+          primary
+        >
+          <Text bold>Add Another Package</Text>
+        </Button>
+
+        <Button
+          primary
+          onPress={handleSubmit(onSubmit)}
+          marginVertical={sizes.sm}
+          shadow={false}
+        >
+          <Text bold>Submit</Text>
+        </Button>
+      </ScrollView>
+    </Block>
+  );
+};
+
+const InclusionFields = ({
+  control,
+  packageIndex,
+  errors,
+}: {
+  control: any;
+  packageIndex: number;
+  errors: any;
+}) => {
+  const {
+    fields: inclusionFields,
+    append: appendInclusion,
+    remove: removeInclusion,
+  } = useFieldArray({
+    control,
+    name: `packages.${packageIndex}.inclusions`,
+  });
+
+  const { sizes } = useTheme();
 
   return (
     <Block>
-      {loading && <Loading />}
-      {!loading && <FormFields />}
+      {inclusionFields.map((inclusion, inclusionIndex) => (
+        <Block
+          key={inclusion.id}
+          paddingVertical={sizes.s}
+          style={{ flexDirection: 'column' }}
+        >
+          <Text>Name:</Text>
+          <Controller
+            name={`packages.${packageIndex}.inclusions.${inclusionIndex}.name`}
+            control={control}
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                placeholder='Inclusion Name'
+                value={value}
+                onChangeText={onChange}
+                style={{
+                  borderWidth: 1,
+                  borderColor: 'gray',
+                  padding: sizes.s,
+                  marginVertical: sizes.xs,
+                  borderRadius: sizes.sm,
+                }}
+              />
+            )}
+          />
+          {errors.packages?.[packageIndex]?.inclusions?.[inclusionIndex]
+            ?.name && (
+            <Text danger>
+              {
+                errors.packages[packageIndex].inclusions[inclusionIndex].name
+                  ?.message
+              }
+            </Text>
+          )}
+          <Text>Description:</Text>
+          <Controller
+            name={`packages.${packageIndex}.inclusions.${inclusionIndex}.description`}
+            control={control}
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                placeholder='Inclusion Description'
+                value={value}
+                onChangeText={onChange}
+                style={{
+                  borderWidth: 1,
+                  borderColor: 'gray',
+                  padding: sizes.s,
+                  marginVertical: sizes.xs,
+                  borderRadius: sizes.sm,
+                }}
+              />
+            )}
+          />
+          {errors.packages?.[packageIndex]?.inclusions?.[inclusionIndex]
+            ?.description && (
+            <Text danger>
+              {
+                errors.packages[packageIndex].inclusions[inclusionIndex]
+                  .description?.message
+              }
+            </Text>
+          )}
+
+          <Text>Quantity:</Text>
+          <Controller
+            name={`packages.${packageIndex}.inclusions.${inclusionIndex}.quantity`}
+            control={control}
+            render={({ field: { onChange, value } }) => (
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <TouchableOpacity
+                  onPress={() => onChange(value - 1 >= 1 ? value - 1 : 1)}
+                  style={{
+                    borderWidth: 1,
+                    borderColor: 'gray',
+                    padding: sizes.s,
+                    borderRadius: sizes.sm,
+                    marginRight: sizes.xs,
+                  }}
+                >
+                  <Text>-</Text>
+                </TouchableOpacity>
+                <TextInput
+                  value={value.toString()}
+                  onChangeText={(text) => onChange(parseInt(text) || 1)}
+                  style={{
+                    borderWidth: 1,
+                    borderColor: 'gray',
+                    padding: sizes.s,
+                    textAlign: 'center',
+                    marginHorizontal: sizes.xs,
+                    borderRadius: sizes.sm,
+                    width: 60, 
+                  }}
+                  keyboardType='numeric'
+                />
+                <TouchableOpacity
+                  onPress={() => onChange(value + 1)}
+                  style={{
+                    borderWidth: 1,
+                    borderColor: 'gray',
+                    padding: sizes.s,
+                    borderRadius: sizes.sm,
+                    marginLeft: sizes.xs,
+                  }}
+                >
+                  <Text>+</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          />
+          {errors.packages?.[packageIndex]?.inclusions?.[inclusionIndex]
+            ?.quantity && (
+            <Text danger>
+              {
+                errors.packages[packageIndex].inclusions[inclusionIndex]
+                  .quantity?.message
+              }
+            </Text>
+          )}
+
+          <Button
+            onPress={() => removeInclusion(inclusionIndex)}
+            danger
+            outlined
+            marginTop={sizes.sm}
+            shadow={false}
+          >
+            <Text>Remove Inclusion</Text>
+          </Button>
+        </Block>
+      ))}
+
+      <Button
+        onPress={() =>
+          appendInclusion({ name: '', description: '', quantity: 1 })
+        }
+        shadow={false}
+        outlined
+        primary
+      >
+        <Text bold>Add Inclusion</Text>
+      </Button>
     </Block>
   );
 };
