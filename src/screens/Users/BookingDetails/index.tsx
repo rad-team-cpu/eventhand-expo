@@ -38,7 +38,7 @@ const BookingDetails = () => {
     throw new Error('UserInfo must be used within a UserProvider');
   }
   const { user, eventList } = userContext;
-  const events = eventList.events
+  const events = eventList.events;
 
   const { packageId, vendorId } = route.params as {
     packageId: string;
@@ -123,9 +123,9 @@ const BookingDetails = () => {
           `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking`,
           {
             package: packageId,
-            vendor: vendorId,
+            vendorId: vendorId,
             event: event._id,
-            client: user._id,
+            clientId: user._id,
             bookingStatus: BookingStatus.Pending,
           },
           {
