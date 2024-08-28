@@ -98,7 +98,14 @@ interface Product {
 interface CredibilityFactorsType {
   ratingsScore: number;
   bookings: number;
-  reviews: number;
+  ratings: number;
+  reviews: Review[];
+}
+
+interface Review {
+  user: UserProfile;
+  comment: string;
+  rating: number;
 }
 
 interface Chat {
@@ -349,6 +356,7 @@ export {
   PackageType,
   Product,
   Tag,
+  Review,
   CredibilityFactorsType,
   ScreenProps,
   SignUpScreenProps,
