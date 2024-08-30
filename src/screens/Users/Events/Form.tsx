@@ -623,6 +623,7 @@ interface EventBudgetError extends FormError {
   messages: {
     eventPlanning: string;
     eventCoordination: string;
+    decorations: string;
     venue: string;
     catering: string;
     photography: string;
@@ -649,18 +650,29 @@ const EventBudgetInput = (props: EventInputProps) => {
       eventPlanning: "",
       eventCoordination: "",
       venue: "",
+      decorations: "",
       catering: "",
       photography: "",
       videography: "",
     },
   });
   const [isPressed, setIsPressed] = useState(false);
+  console.log(eventFormValuesRef.current.budget)
+
+  function calculateTotal(budget: { [key: string]: number | null }): number {
+    return Object.keys(budget)
+      .filter(key => key !== 'total') // Exclude the total key
+      .reduce((sum, key) => sum + (budget[key] ?? 0), 0); // Sum up non-null values
+  }
 
   const handleInputChange = (
     name: keyof EventBudgetError["messages"] | keyof EventBudget,
     value: string
   ) => {
     const numericValue = Number(value);
+    const budget = eventFormValuesRef.current.budget;
+    const total = calculateTotal(budget);
+
 
     if (Number.isNaN(numericValue)) {
       setErrorState((prevState) => {
@@ -710,7 +722,10 @@ const EventBudgetInput = (props: EventInputProps) => {
       eventFormValuesRef.current.budget = {
         ...eventFormValuesRef.current.budget,
         [name]: numericValue,
+        total: total,
       };
+
+      console.log(eventFormValuesRef.current)
     }
   };
 
@@ -781,6 +796,27 @@ const EventBudgetInput = (props: EventInputProps) => {
             );
           }
         })}
+                          <View style={styles.budgetInputWrapper}>
+                    <View style={styles.budgetInputLabelContainer}>
+                      <FontAwesome
+                        name={"calculator"}
+                        size={20}
+                        color={"#4CAF50"}
+                        style={styles.budgetInputIcon}
+                      />
+                      <Text style={[styles.budgetInputLabel, { color: "#4CAF50" }]}>
+                        Total
+                      </Text>
+                    </View>
+                    <Text
+                      style={[
+                        styles.budgetInputField,
+                        { borderColor: "#4CAF50" },
+                      ]}
+                    >
+                      ₱{eventFormValuesRef.current.budget.total}
+                    </Text>
+                  </View>
       </View>
       <Pressable
         onPressIn={() => setIsPressed(true)}
@@ -847,6 +883,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
       catering: null,
       photography: null,
       videography: null,
+      total: 0
     },
   });
 
@@ -1035,14 +1072,24 @@ function EventForm({ navigation }: EventFormScreenProps) {
     setLoading(true);
 
     const { name, address, guests, budget, date } = eventFormInputRef.current;
+    const {eventPlanning, eventCoordination, decorations, venue, catering, photography, videography} = budget;
+
 
     const input = {
       clientId: user._id,
       name,
       address,
       attendees: guests,
-      budget,
       date,
+      budget:{
+        eventPlanning,
+        eventCoordination,
+        decorations,
+        venue,
+        catering,
+        photography,
+        videography
+      },
     };
 
     try {
@@ -1065,7 +1112,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
         case 201:
           const data = await response.json();
 
-          setResult({ ...data });
+          setResult({ ...data, budget: { ...data.budget, total: eventFormInputRef.current.budget.total} });
           setEventList((prevEventList) => {
             return {
               ...prevEventList,
