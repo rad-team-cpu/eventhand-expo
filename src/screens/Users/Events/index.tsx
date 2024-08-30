@@ -66,6 +66,12 @@ const categories: Category[] = [
   { name: 'total', label: 'Total', icon: 'calculator', color: '#4CAF50' },
 ];
 
+const calculateTotal = (budget: { [key: string]: number | null }): number =>  {
+  return Object.keys(budget)
+    .filter(key => key !== 'total') // Exclude the total key
+    .reduce((sum, key) => sum + (budget[key] ?? 0), 0); // Sum up non-null values
+}
+
 interface BudgetScreenProps {
   budget: EventBudget;
   onBackBtnPress: () => void;
@@ -75,6 +81,8 @@ const BudgetScreen = (props: BudgetScreenProps) => {
   const [isPressed, setIsPressed] = useState(false);
   const { assets, colors, sizes, gradients } = useTheme();
   const { budget, onBackBtnPress } = props;
+  const [budgetTotal, setBudgetTotal] = useState<number>(calculateTotal(budget))
+
 
   return (
     <>

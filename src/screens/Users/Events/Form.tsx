@@ -619,6 +619,7 @@ const EventGuestsInput = (props: EventInputProps) => {
   );
 };
 
+
 interface EventBudgetError extends FormError {
   messages: {
     eventPlanning: string;
@@ -629,6 +630,13 @@ interface EventBudgetError extends FormError {
     photography: string;
     videography: string;
   };
+}
+
+
+const calculateTotal = (budget: { [key: string]: number | null }): number =>  {
+  return Object.keys(budget)
+    .filter(key => key !== 'total') // Exclude the total key
+    .reduce((sum, key) => sum + (budget[key] ?? 0), 0); // Sum up non-null values
 }
 
 const EventBudgetInput = (props: EventInputProps) => {
@@ -657,13 +665,7 @@ const EventBudgetInput = (props: EventInputProps) => {
     },
   });
   const [isPressed, setIsPressed] = useState(false);
-  console.log(eventFormValuesRef.current.budget)
 
-  function calculateTotal(budget: { [key: string]: number | null }): number {
-    return Object.keys(budget)
-      .filter(key => key !== 'total') // Exclude the total key
-      .reduce((sum, key) => sum + (budget[key] ?? 0), 0); // Sum up non-null values
-  }
 
   const handleInputChange = (
     name: keyof EventBudgetError["messages"] | keyof EventBudget,
@@ -725,7 +727,6 @@ const EventBudgetInput = (props: EventInputProps) => {
         total: total,
       };
 
-      console.log(eventFormValuesRef.current)
     }
   };
 
@@ -1112,11 +1113,11 @@ function EventForm({ navigation }: EventFormScreenProps) {
         case 201:
           const data = await response.json();
 
-          setResult({ ...data, budget: { ...data.budget, total: eventFormInputRef.current.budget.total} });
+          setResult({ ...data, budget: { ...data.budget, total: data.total} });
           setEventList((prevEventList) => {
             return {
               ...prevEventList,
-              events: [...prevEventList.events, { ...data }],
+              events: [...prevEventList.events, { ...data, budget: { ...data.budget, total: data.total} }],
             };
           });
 
@@ -1145,8 +1146,6 @@ function EventForm({ navigation }: EventFormScreenProps) {
     if (step < totalSteps - 1) {
       setStep((step) => step + 1);
     }
-    console.log(step)
-    console.log(eventFormInputRef);
   };
 
   const onSuccessPress = () =>
