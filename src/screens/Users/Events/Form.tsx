@@ -541,7 +541,7 @@ const EventGuestsInput = (props: EventInputProps) => {
 
   const [touched, setTouched] = useState(false);
   const [errorState, setErrorState] = useState<FormError>({
-    error: defaultGuests < 0,
+    error: defaultGuests <= 0,
     message: "",
   });
   const [isPressed, setIsPressed] = useState(false);
@@ -555,10 +555,10 @@ const EventGuestsInput = (props: EventInputProps) => {
         message:
           "Please enter the number of guests that will be attending your event",
       });
-    } else if (numericValue < 0) {
+    } else if (numericValue <= 0) {
       setErrorState({
         error: true,
-        message: "Please enter the number not less than 0",
+        message: "Please enter a value above 0",
       });
     } else {
       setErrorState({
@@ -874,7 +874,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
       videography: false,
     },
     date: new Date(),
-    guests: 0,
+    guests: 1,
     budget: {
       eventPlanning: null,
       eventCoordination: null,
@@ -960,8 +960,8 @@ function EventForm({ navigation }: EventFormScreenProps) {
         case 2:
           return (
             <EventGuestsInput
-              title="How many will attend?"
-              description="Please enter the number of people that will attend. (0 will be considered as undetermined)"
+              title="How many do you think will attend?"
+              description="Please enter your estimated number of guests."
               buttonLabel="NEXT"
               onBtnPress={onNextBtnPress}
               onBackBtnPress={backAction}
@@ -1021,8 +1021,8 @@ function EventForm({ navigation }: EventFormScreenProps) {
         case 2:
           return (
             <EventGuestsInput
-              title="How many will attend?"
-              description="Please enter the number of people that will attend. (0 will be considered as undetermined)"
+              title="How many do you think will attend?"
+              description="Please enter your estimated number of guests."
               buttonLabel="NEXT"
               onBtnPress={onNextBtnPress}
               onBackBtnPress={backAction}
