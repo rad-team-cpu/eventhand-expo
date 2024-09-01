@@ -266,12 +266,28 @@ const EventCategorySelect = (props: EventInputProps) => {
 
     setSelectedCategories(updatedSelection);
 
-    eventFormValuesRef.current = {
-      ...eventFormValuesRef.current,
-      categories: {
-        ...updatedSelection,
-      },
-    };
+    if(updatedSelection[name] === false){
+      const budget = eventFormValuesRef.current.budget;
+      budget[name] = null
+      
+      eventFormValuesRef.current = {
+        ...eventFormValuesRef.current,
+        categories: {
+          ...updatedSelection,
+        },
+        budget: {
+          ...budget
+        }
+      };
+    } else{
+      eventFormValuesRef.current = {
+        ...eventFormValuesRef.current,
+        categories: {
+          ...updatedSelection,
+        },
+      };
+    }
+
   };
 
   return (
