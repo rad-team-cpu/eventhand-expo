@@ -679,6 +679,33 @@ const addCommasToNumber = (number: number) => {
   return parts.join(".");
 }
 
+function validateEventBudget(input: EventFormInputType): boolean {
+  const { categories, budget } = input;
+
+  // Mapping categories and their corresponding budget fields
+  const categoryBudgetMap: { [key in keyof SelectedCategories]: keyof EventBudget } = {
+    eventPlanning: 'eventPlanning',
+    eventCoordination: 'eventCoordination',
+    venue: 'venue',
+    decorations: 'decorations',
+    catering: 'catering',
+    photography: 'photography',
+    videography: 'videography',
+  };
+
+  // Iterate through each category
+  for (const category in categories) {
+    if (categories[category as keyof SelectedCategories]) {
+      const budgetValue = budget[categoryBudgetMap[category as keyof SelectedCategories]];
+      if (budgetValue === undefined || budgetValue === null || budgetValue < 1000) {
+        return false; // Invalid if the budget is null or below 1000
+      }
+    }
+  }
+
+  return true;
+}
+
 const EventBudgetInput = (props: EventInputProps) => {
   const {
     title,
@@ -692,7 +719,7 @@ const EventBudgetInput = (props: EventInputProps) => {
   const selectedCategories = eventFormValuesRef.current.categories;
   const defaultBudget = eventFormValuesRef.current.budget;
   const [errorState, setErrorState] = useState<EventBudgetError>({
-    error: true,
+    error: !validateEventBudget(eventFormValuesRef.current),
     message: "",
     messages: {
       eventPlanning: "",
@@ -772,6 +799,11 @@ const EventBudgetInput = (props: EventInputProps) => {
 
   useEffect(() => {
     setTotal(calculateTotal(eventFormValuesRef.current.budget))
+    
+    eventFormValuesRef.current.budget = {
+      ...eventFormValuesRef.current.budget,
+      total: total,
+    };
   },[eventFormValuesRef.current.budget])
 
   return (
@@ -888,6 +920,141 @@ const EventBudgetInput = (props: EventInputProps) => {
   );
 };
 
+
+const EventFormConfirmation = (props:EventInputProps ) => {
+  const [isPressed, setIsPressed] = useState(false);
+  const {
+    title,
+    description,
+    buttonLabel,
+    onBackBtnPress,
+    onBtnPress,
+    eventFormValuesRef,
+  } = props;
+
+  const input = eventFormValuesRef.current;
+  const budget = input.budget;
+
+  const { sizes, } = useTheme();
+
+  return (
+    <Block card paddingVertical={sizes.md} paddingHorizontal={sizes.md}>
+      <Pressable onPress={onBackBtnPress}>
+        <Block className="flex flex-row mb-2">
+          <AntDesign name="back" size={20} color={"#CB0C9F"} />
+          <Text className="ml-1 text-primary">Go back</Text>
+        </Block>
+      </Pressable>
+      <Text style={styles.title}>{title}</Text>
+      <Text style={styles.description}>{description}</Text>
+      <View style={listStyles.eventContainer}>
+        <View className='flex flex-row justify-between'>
+          <View style={styles.container}>
+          </View>
+        </View>
+
+        <Text style={listStyles.nameText}>{input.name}</Text>
+
+          <Text style={listStyles.dateText}>Date: {format(input.date, "MMMM dd, yyyy")}</Text>
+          {input.address && (
+            <>
+              <Text style={listStyles.capacityText}>Address: {input.address}</Text>
+            </>
+          )}
+          {/* <Pressable
+            style={({ pressed }) => [
+              {
+                backgroundColor: pressed ? '#9B47FF' : '#6200EE',
+                padding: 5,
+                borderRadius: 5,
+                alignItems: 'center',
+                justifyContent: 'center',
+              },
+            ]}
+            onPress={() => setOpenBudget(true)}
+          >
+            <Text style={listStyles.budgetText}>View Budget</Text>
+          </Pressable> */}
+          <Text style={listStyles.capacityText}>
+            Capacity: {input.guests}
+          </Text>
+          
+
+        <View style={listStyles.separator} />
+        <View style={styles.budgetInputContainer}>
+            {categories.map((category) => {
+              const { name, icon, color, label } = category;
+              const budgetValue = budget[name as keyof EventBudget];
+              if (budgetValue !== null && budgetValue !== undefined) {
+                return (
+                  <View key={name} style={styles.budgetInputWrapper}>
+                    <View style={styles.budgetInputLabelContainer}>
+                      <FontAwesome
+                        name={icon}
+                        size={20}
+                        color={color}
+                        style={styles.budgetInputIcon}
+                      />
+                      <Text style={[styles.budgetInputLabel, { color: color }]}>
+                        {label}
+                      </Text>
+                    </View>
+                    <Text
+                      style={[
+                        styles.budgetInputField,
+                        { borderColor: category.color },
+                      ]}
+                    >
+                      ₱{addCommasToNumber(budgetValue)}
+                    </Text>
+                  </View>
+                );
+              }
+            })}
+              {budget.total && (
+                                                      <View style={styles.budgetInputWrapper}>
+                                                      <View style={styles.budgetInputLabelContainer}>
+                                                        <FontAwesome
+                                                          name={"calculator"}
+                                                          size={20}
+                                                          color={"#4CAF50"}
+                                                          style={styles.budgetInputIcon}
+                                                        />
+                                                        <Text style={[styles.budgetInputLabel, { color: "#4CAF50" }]}>
+                                                          Total
+                                                        </Text>
+                                                      </View>
+                                                      <Text
+                                                        style={[
+                                                          styles.budgetInputField,
+                                                          { borderColor: "#4CAF50" },
+                                                        ]}
+                                                      >
+                                                        ₱{addCommasToNumber(budget.total)}
+                                                      </Text>
+                                                    </View>
+              )}
+          </View>
+      </View>
+      <Pressable
+        onPressIn={() => setIsPressed(true)}
+        onPressOut={() => setIsPressed(false)}
+        onPress={onBtnPress}
+        style={({ pressed }) => [
+          styles.inputButton,
+          {
+            backgroundColor: pressed || isPressed
+                ? "#E91E8E"
+                : "#CB0C9F",
+          },
+        ]}
+      >
+        <Text style={styles.inputButtonText}>{buttonLabel}</Text>
+      </Pressable>
+    </Block>
+  );
+}
+
 function EventForm({ navigation }: EventFormScreenProps) {
   const userContext = useContext(UserContext);
   const { userId, isLoaded, getToken } = useAuth();
@@ -932,7 +1099,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
     },
   });
 
-  const totalSteps = eventFormInputRef.current.categories.venue ? 5 : 6;
+  const totalSteps = eventFormInputRef.current.categories.venue ? 6 : 7;
 
   const [step, setStep] = useState(0);
   const [result, setResult] = useState<EventInfo>({
@@ -1029,12 +1196,23 @@ function EventForm({ navigation }: EventFormScreenProps) {
             <EventBudgetInput
               title="How much is your budget?"
               description="Please enter the budget for each category."
-              buttonLabel="SUBMIT"
-              onBtnPress={onSubmitPress}
+              buttonLabel="NEXT"
+              onBtnPress={onNextBtnPress}
               onBackBtnPress={backAction}
               eventFormValuesRef={eventFormInputRef}
             />
           );
+        case 5: 
+          return (
+            <EventFormConfirmation 
+            title="CONFIRMATION"
+            description="Please confirm your details."
+            buttonLabel="SUBMIT"
+            onBtnPress={onSubmitPress}
+            onBackBtnPress={backAction}
+            eventFormValuesRef={eventFormInputRef}
+          />
+          )
         default:
           return null;
       }
@@ -1101,12 +1279,23 @@ function EventForm({ navigation }: EventFormScreenProps) {
             <EventBudgetInput
               title="How much is your budget?"
               description="Please enter the budget for each category."
-              buttonLabel="SUBMIT"
-              onBtnPress={onSubmitPress}
+              buttonLabel="NEXT"
+              onBtnPress={onNextBtnPress}
               onBackBtnPress={backAction}
               eventFormValuesRef={eventFormInputRef}
             />
           );
+          case 6: 
+          return (
+            <EventFormConfirmation 
+            title="CONFIRMATION"
+            description="Please confirm your details."
+            buttonLabel="SUBMIT"
+            onBtnPress={onSubmitPress}
+            onBackBtnPress={backAction}
+            eventFormValuesRef={eventFormInputRef}
+          />
+          )
         default:
           return null;
       }
@@ -1114,78 +1303,77 @@ function EventForm({ navigation }: EventFormScreenProps) {
   };
 
   const onSubmitPress = async () => {
-    console.log(eventFormInputRef.current.budget)
-    // setLoading(true);
+    setLoading(true);
     
 
-    // const { name, address, guests, budget, date } = eventFormInputRef.current;
-    // const {eventPlanning, eventCoordination, decorations, venue, catering, photography, videography} = budget;
+    const { name, address, guests, budget, date } = eventFormInputRef.current;
+    const {eventPlanning, eventCoordination, decorations, venue, catering, photography, videography} = budget;
 
 
-    // const input = {
-    //   clientId: user._id,
-    //   name,
-    //   address,
-    //   attendees: guests,
-    //   date,
-    //   budget:{
-    //     eventPlanning,
-    //     eventCoordination,
-    //     decorations,
-    //     venue,
-    //     catering,
-    //     photography,
-    //     videography
-    //   },
-    // };
+    const input = {
+      clientId: user._id,
+      name,
+      address,
+      attendees: guests,
+      date,
+      budget:{
+        eventPlanning,
+        eventCoordination,
+        decorations,
+        venue,
+        catering,
+        photography,
+        videography
+      },
+    };
 
-    // try {
-    //   const token = await getToken({ template: "event-hand-jwt" });
+    try {
+      const token = await getToken({ template: "event-hand-jwt" });
 
-    //   const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events`;
+      const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events`;
 
-    //   const request = {
-    //     method: "POST",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //       Authorization: `Bearer ${token}`,
-    //     },
-    //     body: JSON.stringify(input),
-    //   };
+      const request = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(input),
+      };
 
-    //   const response = await fetch(url, request);
+      const response = await fetch(url, request);
 
-    //   switch (response.status) {
-    //     case 201:
-    //       const data = await response.json();
+      switch (response.status) {
+        case 201:
+          const data = await response.json();
 
-    //       setResult({ ...data, budget: { ...data.budget, total: data.total} });
-    //       setEventList((prevEventList) => {
-    //         return {
-    //           ...prevEventList,
-    //           events: [...prevEventList.events, { ...data, budget: { ...data.budget, total: data.total} }],
-    //         };
-    //       });
+          setResult({ ...data, budget: { ...data.budget, total: data.total} });
+          setEventList((prevEventList) => {
+            return {
+              ...prevEventList,
+              events: [...prevEventList.events, { ...data, budget: { ...data.budget, total: data.total} }],
+            };
+          });
 
-    //       setLoading(false);
-    //       setSuccess(true);
+          setLoading(false);
+          setSuccess(true);
 
-    //       break;
-    //     case 403:
-    //       setSubmitErrMessage("Forbidden - Access denied.");
-    //       throw new Error("Forbidden - Access denied."); // Forbidden
-    //     case 404:
-    //       setSubmitErrMessage("Server is unreachable.");
-    //       throw new Error("Server is unreachable."); // Not Found
-    //     default:
-    //       setSubmitErrMessage("Unexpected error occurred.");
-    //       throw new Error("Unexpected error occurred."); // Other status codes
-    //   }
-    // } catch (error) {
-    //   console.error(error);
-    //   setLoading(false);
-    //   setError(true);
-    // }
+          break;
+        case 403:
+          setSubmitErrMessage("Forbidden - Access denied.");
+          throw new Error("Forbidden - Access denied."); // Forbidden
+        case 404:
+          setSubmitErrMessage("Server is unreachable.");
+          throw new Error("Server is unreachable."); // Not Found
+        default:
+          setSubmitErrMessage("Unexpected error occurred.");
+          throw new Error("Unexpected error occurred."); // Other status codes
+      }
+    } catch (error) {
+      console.error(error);
+      setLoading(false);
+      setError(true);
+    }
   };
 
   const onNextBtnPress = () => {
@@ -1441,6 +1629,56 @@ const styles = StyleSheet.create({
     color: "red",
     marginTop: 5,
   },
+});
+
+const listStyles = StyleSheet.create({
+  eventContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    // marginTop: 30,
+    // marginHorizontal: 5,
+    backgroundColor: '#fff',
+    // borderLeftWidth: 8,
+    // borderTopLeftRadius: 16,
+    // borderBottomLeftRadius: 16,
+    // borderLeftColor: '#CB0C9F',
+    // borderRightWidth: 8,
+    // borderTopRightRadius: 16,
+    // borderBottomRightRadius: 16,
+    // borderRightColor: '#CB0C9F',
+    // elevation: 10, // Add shadow for floating effect
+    shadowColor: 'black',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+  },
+  nameText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  dateText: {
+    fontSize: 14,
+    marginBottom: 8,
+  },
+  separator: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    marginBottom: 8,
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  budgetText: {
+    color: 'white',
+    fontSize: 14,
+  },
+  capacityText: {
+    fontSize: 14,
+    marginBottom: 8,
+  },
+
 });
 
 export default EventForm;
