@@ -649,6 +649,20 @@ const calculateTotal = (budget: { [key: string]: number | null }): number =>  {
     .reduce((sum, key) => sum + (budget[key] ?? 0), 0); // Sum up non-null values
 }
 
+const addCommasToNumber = (number: number) => {
+  // Convert the number to a string with exactly two decimal places
+  let numberString = number.toFixed(2);
+
+  // Split the string into the integer and decimal parts
+  let parts = numberString.split(".");
+
+  // Format the integer part with commas
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+  // Join the parts back together
+  return parts.join(".");
+}
+
 const EventBudgetInput = (props: EventInputProps) => {
   const {
     title,
@@ -674,6 +688,7 @@ const EventBudgetInput = (props: EventInputProps) => {
       videography: "",
     },
   });
+  const [total, setTotal] = useState<number>(calculateTotal(defaultBudget))
   const [isPressed, setIsPressed] = useState(false);
 
 
@@ -682,9 +697,6 @@ const EventBudgetInput = (props: EventInputProps) => {
     value: string
   ) => {
     const numericValue = Number(value);
-    const budget = eventFormValuesRef.current.budget;
-    const total = calculateTotal(budget);
-
 
     if (Number.isNaN(numericValue)) {
       setErrorState((prevState) => {
@@ -731,6 +743,8 @@ const EventBudgetInput = (props: EventInputProps) => {
         };
       });
 
+      setTotal(calculateTotal(eventFormValuesRef.current.budget))
+
       eventFormValuesRef.current.budget = {
         ...eventFormValuesRef.current.budget,
         [name]: numericValue,
@@ -739,6 +753,10 @@ const EventBudgetInput = (props: EventInputProps) => {
 
     }
   };
+
+  useEffect(() => {
+    setTotal(calculateTotal(eventFormValuesRef.current.budget))
+  },[eventFormValuesRef.current.budget])
 
   return (
     <Block card paddingVertical={sizes.md} paddingHorizontal={sizes.md}>
@@ -825,7 +843,7 @@ const EventBudgetInput = (props: EventInputProps) => {
                         { borderColor: "#4CAF50" },
                       ]}
                     >
-                      ₱{eventFormValuesRef.current.budget.total}
+                      ₱{addCommasToNumber(total)}
                     </Text>
                   </View>
       </View>
@@ -1080,82 +1098,85 @@ function EventForm({ navigation }: EventFormScreenProps) {
   };
 
   const onSubmitPress = async () => {
-    setLoading(true);
+    console.log(eventFormInputRef.current.budget)
+    // setLoading(true);
+    
 
-    const { name, address, guests, budget, date } = eventFormInputRef.current;
-    const {eventPlanning, eventCoordination, decorations, venue, catering, photography, videography} = budget;
+    // const { name, address, guests, budget, date } = eventFormInputRef.current;
+    // const {eventPlanning, eventCoordination, decorations, venue, catering, photography, videography} = budget;
 
 
-    const input = {
-      clientId: user._id,
-      name,
-      address,
-      attendees: guests,
-      date,
-      budget:{
-        eventPlanning,
-        eventCoordination,
-        decorations,
-        venue,
-        catering,
-        photography,
-        videography
-      },
-    };
+    // const input = {
+    //   clientId: user._id,
+    //   name,
+    //   address,
+    //   attendees: guests,
+    //   date,
+    //   budget:{
+    //     eventPlanning,
+    //     eventCoordination,
+    //     decorations,
+    //     venue,
+    //     catering,
+    //     photography,
+    //     videography
+    //   },
+    // };
 
-    try {
-      const token = await getToken({ template: "event-hand-jwt" });
+    // try {
+    //   const token = await getToken({ template: "event-hand-jwt" });
 
-      const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events`;
+    //   const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events`;
 
-      const request = {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(input),
-      };
+    //   const request = {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //       Authorization: `Bearer ${token}`,
+    //     },
+    //     body: JSON.stringify(input),
+    //   };
 
-      const response = await fetch(url, request);
+    //   const response = await fetch(url, request);
 
-      switch (response.status) {
-        case 201:
-          const data = await response.json();
+    //   switch (response.status) {
+    //     case 201:
+    //       const data = await response.json();
 
-          setResult({ ...data, budget: { ...data.budget, total: data.total} });
-          setEventList((prevEventList) => {
-            return {
-              ...prevEventList,
-              events: [...prevEventList.events, { ...data, budget: { ...data.budget, total: data.total} }],
-            };
-          });
+    //       setResult({ ...data, budget: { ...data.budget, total: data.total} });
+    //       setEventList((prevEventList) => {
+    //         return {
+    //           ...prevEventList,
+    //           events: [...prevEventList.events, { ...data, budget: { ...data.budget, total: data.total} }],
+    //         };
+    //       });
 
-          setLoading(false);
-          setSuccess(true);
+    //       setLoading(false);
+    //       setSuccess(true);
 
-          break;
-        case 403:
-          setSubmitErrMessage("Forbidden - Access denied.");
-          throw new Error("Forbidden - Access denied."); // Forbidden
-        case 404:
-          setSubmitErrMessage("Server is unreachable.");
-          throw new Error("Server is unreachable."); // Not Found
-        default:
-          setSubmitErrMessage("Unexpected error occurred.");
-          throw new Error("Unexpected error occurred."); // Other status codes
-      }
-    } catch (error) {
-      console.error(error);
-      setLoading(false);
-      setError(true);
-    }
+    //       break;
+    //     case 403:
+    //       setSubmitErrMessage("Forbidden - Access denied.");
+    //       throw new Error("Forbidden - Access denied."); // Forbidden
+    //     case 404:
+    //       setSubmitErrMessage("Server is unreachable.");
+    //       throw new Error("Server is unreachable."); // Not Found
+    //     default:
+    //       setSubmitErrMessage("Unexpected error occurred.");
+    //       throw new Error("Unexpected error occurred."); // Other status codes
+    //   }
+    // } catch (error) {
+    //   console.error(error);
+    //   setLoading(false);
+    //   setError(true);
+    // }
   };
 
   const onNextBtnPress = () => {
     if (step < totalSteps - 1) {
       setStep((step) => step + 1);
     }
+
   };
 
   const onSuccessPress = () =>
