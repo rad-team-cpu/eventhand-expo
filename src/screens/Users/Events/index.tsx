@@ -1,12 +1,12 @@
-import { FontAwesome } from '@expo/vector-icons';
-import axios from 'axios';
-import { format } from 'date-fns/format';
-import ExpoStatusBar from 'expo-status-bar/build/ExpoStatusBar';
-import React, { useEffect, useRef, useState } from 'react';
-import Image from 'Components/Ui/Image';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
-import useTheme from 'src/core/theme';
+import { FontAwesome } from "@expo/vector-icons";
+import axios from "axios";
+import { format } from "date-fns/format";
+import ExpoStatusBar from "expo-status-bar/build/ExpoStatusBar";
+import React, { useEffect, useRef, useState } from "react";
+import Image from "Components/Ui/Image";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import { TabView, SceneMap, TabBar } from "react-native-tab-view";
+import useTheme from "src/core/theme";
 import {
   EventViewScreenProps,
   ScreenProps,
@@ -17,11 +17,11 @@ import {
   HomeScreenBottomTabsProps,
   HomeScreenNavigationProp,
   EventBudget,
-} from 'types/types';
-import Button from 'Components/Ui/Button';
-import { AntDesign } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import Block from 'Components/Ui/Block';
+} from "types/types";
+import Button from "Components/Ui/Button";
+import { AntDesign } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import Block from "Components/Ui/Block";
 
 type Category = {
   name: string;
@@ -32,45 +32,45 @@ type Category = {
 
 const categories: Category[] = [
   {
-    name: 'eventPlanning',
-    label: 'Event Planning',
-    icon: 'calendar',
-    color: '#FF6347',
+    name: "eventPlanning",
+    label: "Event Planning",
+    icon: "calendar",
+    color: "#FF6347",
   },
   {
-    name: 'eventCoordination',
-    label: 'Event Coordination',
-    icon: 'handshake-o',
-    color: '#4682B4',
+    name: "eventCoordination",
+    label: "Event Coordination",
+    icon: "handshake-o",
+    color: "#4682B4",
   },
-  { name: 'venue', label: 'Venue', icon: 'building', color: '#32CD32' },
+  { name: "venue", label: "Venue", icon: "building", color: "#32CD32" },
   {
-    name: 'decorations',
-    label: 'Decorations',
-    icon: 'paint-brush',
-    color: '#FF4500',
+    name: "decorations",
+    label: "Decorations",
+    icon: "paint-brush",
+    color: "#FF4500",
   },
-  { name: 'catering', label: 'Catering', icon: 'cutlery', color: '#FFD700' },
+  { name: "catering", label: "Catering", icon: "cutlery", color: "#FFD700" },
   {
-    name: 'photography',
-    label: 'Photography',
-    icon: 'camera',
-    color: '#FF69B4',
+    name: "photography",
+    label: "Photography",
+    icon: "camera",
+    color: "#FF69B4",
   },
   {
-    name: 'videography',
-    label: 'Videography',
-    icon: 'video-camera',
-    color: '#8A2BE2',
+    name: "videography",
+    label: "Videography",
+    icon: "video-camera",
+    color: "#8A2BE2",
   },
-  { name: 'total', label: 'Total', icon: 'calculator', color: '#4CAF50' },
+  { name: "total", label: "Total", icon: "calculator", color: "#4CAF50" },
 ];
 
-const calculateTotal = (budget: { [key: string]: number | null }): number =>  {
+const calculateTotal = (budget: { [key: string]: number | null }): number => {
   return Object.keys(budget)
-    .filter(key => key !== 'total') // Exclude the total key
+    .filter((key) => key !== "total") // Exclude the total key
     .reduce((sum, key) => sum + (budget[key] ?? 0), 0); // Sum up non-null values
-}
+};
 
 interface BudgetScreenProps {
   budget: EventBudget;
@@ -95,9 +95,9 @@ const BudgetScreen = (props: BudgetScreenProps) => {
   const [isPressed, setIsPressed] = useState(false);
   const { assets, colors, sizes, gradients } = useTheme();
   const { budget, onBackBtnPress } = props;
-  const [budgetTotal, setBudgetTotal] = useState<number>(calculateTotal(budget))
-
-
+  const [budgetTotal, setBudgetTotal] = useState<number>(
+    calculateTotal(budget)
+  );
 
   return (
     <>
@@ -109,9 +109,9 @@ const BudgetScreen = (props: BudgetScreenProps) => {
       >
         <Block card paddingVertical={sizes.md} paddingHorizontal={sizes.md}>
           <Pressable onPress={onBackBtnPress}>
-            <Block className='flex flex-row mb-2'>
-              <AntDesign name='back' size={20} color={'#CB0C9F'} />
-              <Text className='ml-1 text-primary'>Go back</Text>
+            <Block className="flex flex-row mb-2">
+              <AntDesign name="back" size={20} color={"#CB0C9F"} />
+              <Text className="ml-1 text-primary">Go back</Text>
             </Block>
           </Pressable>
           <Text style={styles.budgetTitle}>Budget Breakdown</Text>
@@ -167,9 +167,7 @@ const BudgetScreen = (props: BudgetScreenProps) => {
   );
 };
 
-interface BookingListProps {
-
-}
+interface BookingListProps {}
 
 const SortTabBar = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -181,8 +179,7 @@ const SortTabBar = () => {
   return (
     <View style={styles.sortTabContainer}>
       {categories.map((category) => {
-
-        if(category.name !== "total"){
+        if (category.name !== "total") {
           return (
             <Pressable
               key={category.name}
@@ -193,8 +190,8 @@ const SortTabBar = () => {
                     selectedCategory === category.name
                       ? category.color
                       : pressed
-                      ? category.color + '80' // Adding transparency on press
-                      : '#fff',
+                        ? category.color + "80" // Adding transparency on press
+                        : "#fff",
                   borderColor: category.color,
                 },
               ]}
@@ -203,10 +200,12 @@ const SortTabBar = () => {
               <FontAwesome
                 name={category.icon}
                 size={15}
-                color={selectedCategory === category.name ? '#fff' : category.color}
+                color={
+                  selectedCategory === category.name ? "#fff" : category.color
+                }
               />
             </Pressable>
-          )
+          );
         }
       })}
     </View>
@@ -214,16 +213,15 @@ const SortTabBar = () => {
 };
 
 function EventView({ route, navigation }: EventViewScreenProps) {
-  const { _id, name, attendees, budget, date, address, pending  } =
-    route.params;
+  const { _id, name, attendees, budget, date, address, pending } = route.params;
   const dateString =
-    date instanceof Date ? format(date, 'MMMM dd, yyyy') : date;
+    date instanceof Date ? format(date, "MMMM dd, yyyy") : date;
   const { colors, sizes } = useTheme();
   const [index, setIndex] = useState(0);
   const [openBudget, setOpenBudget] = useState(false);
   const [routes] = useState([
-    { key: 'confirmed', title: 'Confirmed' },
-    { key: 'pending', title: 'Pending' },
+    { key: "confirmed", title: "Confirmed" },
+    { key: "pending", title: "Pending" },
   ]);
   const [eventBookings, setEventBookings] = useState<BookingDetailsProps[]>([]);
   // console.log()
@@ -234,25 +232,25 @@ function EventView({ route, navigation }: EventViewScreenProps) {
         `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking?event=${eventId}`,
         {
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         }
       );
       setEventBookings(response.data);
-      console.log(eventBookings)
+      console.log(eventBookings);
     } catch (error: any) {
       if (error instanceof TypeError) {
         console.error(
-          'Network request failed. Possible causes: CORS issues, network issues, or incorrect URL.'
+          "Network request failed. Possible causes: CORS issues, network issues, or incorrect URL."
         );
       } else {
-        console.error('Error fetching bookings:', error.message);
+        console.error("Error fetching bookings:", error.message);
       }
     }
   };
 
   const handleFindSupplier = () => {
-    navigation.navigate('Home', { initialTab: 'Vendors' });
+    navigation.navigate("Home", { initialTab: "Vendors" });
   };
 
   const bookingDetailsArray: BookingDetailsProps[] = [
@@ -432,100 +430,112 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     },
   ];
 
-
-
   const ConfirmedVendors = () => (
     <View style={styles.listContainer}>
-      {eventBookings && eventBookings.filter(booking => booking.bookingStatus === BookingStatus.Confirmed).map((booking) => { 
-          return (
-          <View
-            key={booking._id}
-            style={styles.vendorContainer}
-            className='bg-white rounded-lg justify-between'
-          >
-            <Image
-              radius={sizes.s}
-              width={sizes.xl}
-              height={sizes.xl}
-              src={booking.package?.pictureURL}
-              style={{ backgroundColor: colors.gray }}
-            />
-            <View>
-              <Text className='text-xs text-center font-semibold'>
-                {(booking.package as PackageType).name.length > 12
-                  ? `${(booking.package as PackageType).name.substring(0, 10)}...`
-                  : (booking.package as PackageType).name}
-              </Text>
-            </View>
-            <View className='flex-col'>
-              {(booking.package as PackageType).inclusions.map(
-                (inclusion: Product) => (
-                  <View className='flex-row space-x-1'>
-                    <Text className='text-xs text-center font-semibold'>
-                      {inclusion.name}
-                    </Text>
-                    <Text className='text-xs text-center font-semibold'>
-                      x {inclusion.quantity}
-                    </Text>
-                  </View>
-                )
-              )}
-            </View>
-            <Text className='text-xs font-semibold' style={styles.vendorName}>
-              ₱{(booking.package as PackageType).price}
-            </Text>
-          </View>
-        )})}
+      {eventBookings &&
+        eventBookings
+          .filter(
+            (booking) => booking.bookingStatus === BookingStatus.Confirmed
+          )
+          .map((booking) => {
+            return (
+              <View
+                key={booking._id}
+                style={styles.vendorContainer}
+                className="bg-white rounded-lg justify-between"
+              >
+                <Image
+                  radius={sizes.s}
+                  width={sizes.xl}
+                  height={sizes.xl}
+                  src={booking.package?.pictureURL}
+                  style={{ backgroundColor: colors.gray }}
+                />
+                <View>
+                  <Text className="text-xs text-center font-semibold">
+                    {(booking.package as PackageType).name.length > 12
+                      ? `${(booking.package as PackageType).name.substring(0, 10)}...`
+                      : (booking.package as PackageType).name}
+                  </Text>
+                </View>
+                <View className="flex-col">
+                  {(booking.package as PackageType).inclusions.map(
+                    (inclusion: Product) => (
+                      <View className="flex-row space-x-1">
+                        <Text className="text-xs text-center font-semibold">
+                          {inclusion.name}
+                        </Text>
+                        <Text className="text-xs text-center font-semibold">
+                          x {inclusion.quantity}
+                        </Text>
+                      </View>
+                    )
+                  )}
+                </View>
+                <Text
+                  className="text-xs font-semibold"
+                  style={styles.vendorName}
+                >
+                  ₱{(booking.package as PackageType).price}
+                </Text>
+              </View>
+            );
+          })}
     </View>
   );
 
   const PendingVendors = () => (
     <View style={styles.listContainer}>
-    {/* <SortTabBar/> */}
-    {eventBookings && eventBookings.filter(booking => booking.bookingStatus === BookingStatus.Pending).map((booking) => {
-      console.log(booking)
-          return (
-            <View
-              key={booking._id}
-              style={styles.vendorContainer}
-              className='bg-white rounded-lg justify-between'
-            >
-              <Image
-                radius={sizes.s}
-                width={sizes.xl}
-                height={sizes.xl}
-                src={booking.package?.pictureURL}
-                style={{ backgroundColor: colors.gray }}
-              />
-              <View>
-                <Text className='text-xs text-center font-semibold'>
-                  {(booking.package as PackageType).name.length > 12
-                    ? `${(booking.package as PackageType).name.substring(0, 10)}...`
-                    : (booking.package as PackageType).name}
+      {/* <SortTabBar/> */}
+      {eventBookings &&
+        eventBookings
+          .filter((booking) => booking.bookingStatus === BookingStatus.Pending)
+          .map((booking) => {
+            console.log(booking);
+            return (
+              <View
+                key={booking._id}
+                style={styles.vendorContainer}
+                className="bg-white rounded-lg justify-between"
+              >
+                <Image
+                  radius={sizes.s}
+                  width={sizes.xl}
+                  height={sizes.xl}
+                  src={booking.package?.pictureURL}
+                  style={{ backgroundColor: colors.gray }}
+                />
+                <View>
+                  <Text className="text-xs text-center font-semibold">
+                    {(booking.package as PackageType).name.length > 12
+                      ? `${(booking.package as PackageType).name.substring(0, 10)}...`
+                      : (booking.package as PackageType).name}
+                  </Text>
+                </View>
+                <View className="flex-col">
+                  {(booking.package as PackageType).inclusions.map(
+                    (inclusion: Product) => (
+                      <View className="flex-row space-x-1">
+                        <Text className="text-xs text-center font-semibold">
+                          {inclusion.name}
+                        </Text>
+                        <Text className="text-xs text-center font-semibold">
+                          x {inclusion.quantity}
+                        </Text>
+                      </View>
+                    )
+                  )}
+                </View>
+                <Text
+                  className="text-xs font-semibold"
+                  style={styles.vendorName}
+                >
+                  ₱{(booking.package as PackageType).price}
                 </Text>
               </View>
-              <View className='flex-col'>
-                {(booking.package as PackageType).inclusions.map(
-                  (inclusion: Product) => (
-                    <View className='flex-row space-x-1'>
-                      <Text className='text-xs text-center font-semibold'>
-                        {inclusion.name}
-                      </Text>
-                      <Text className='text-xs text-center font-semibold'>
-                        x {inclusion.quantity}
-                      </Text>
-                    </View>
-                  )
-                )}
-              </View>
-              <Text className='text-xs font-semibold' style={styles.vendorName}>
-                ₱{(booking.package as PackageType).price}
-              </Text>
-            </View>
-          )
-        
-})}
-  </View>
+            );
+          })}
+    </View>
   );
 
   const renderScene = SceneMap({
@@ -535,7 +545,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
 
   useEffect(() => {
     const eventId = _id;
-    console.log(eventId)
+    console.log(eventId);
     fetchBookings(eventId);
   }, []);
 
@@ -549,26 +559,26 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     <>
       <ExpoStatusBar />
       <View style={listStyles.eventContainer}>
-        <View className='flex flex-row justify-between'>
+        <View className="flex flex-row justify-between">
           <Button
             row
             flex={0}
-            justify='flex-start'
+            justify="flex-start"
             onPress={() => navigation.goBack()}
           >
-            <AntDesign name='back' size={24} color='#CB0C9F' />
-            <Text className='text-primary ml-1'>Go back</Text>
+            <AntDesign name="back" size={24} color="#CB0C9F" />
+            <Text className="text-primary ml-1">Go back</Text>
           </Button>
           <View style={styles.container}>
             <Pressable
               style={styles.button}
-              android_ripple={{ color: '#c0c0c0' }}
+              android_ripple={{ color: "#c0c0c0" }}
               onPress={() => handleFindSupplier()}
             >
               <FontAwesome
-                name='search'
+                name="search"
                 size={10}
-                color='white'
+                color="white"
                 style={styles.icon}
               />
               <Text style={styles.buttonText}>Find Supplier</Text>
@@ -577,13 +587,13 @@ function EventView({ route, navigation }: EventViewScreenProps) {
         </View>
         <Text style={listStyles.dateText}>{dateString}</Text>
         <View style={listStyles.row}>
-        <Text style={listStyles.nameText}>{name}</Text>
+          <Text style={listStyles.nameText}>{name}</Text>
         </View>
         {address && (
-            <>
-              <Text style={listStyles.capacityText}>{address}</Text>
-            </>
-          )}
+          <>
+            <Text style={listStyles.capacityText}>{address}</Text>
+          </>
+        )}
         {/* <View style={listStyles.row}>
           <Text style={listStyles.dateText}>{dateString}</Text>
 
@@ -593,11 +603,11 @@ function EventView({ route, navigation }: EventViewScreenProps) {
           <Pressable
             style={({ pressed }) => [
               {
-                backgroundColor: pressed ? '#9B47FF' : '#6200EE',
+                backgroundColor: pressed ? "#9B47FF" : "#6200EE",
                 padding: 5,
                 borderRadius: 5,
-                alignItems: 'center',
-                justifyContent: 'center',
+                alignItems: "center",
+                justifyContent: "center",
               },
             ]}
             onPress={() => setOpenBudget(true)}
@@ -605,7 +615,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
             <Text style={listStyles.budgetText}>View Budget</Text>
           </Pressable>
           <Text style={listStyles.capacityText}>
-            Capacity: {attendees !== 0 ? `${attendees}` : 'TBD'}
+            Capacity: {attendees !== 0 ? `${attendees}` : "TBD"}
           </Text>
         </View>
       </View>
@@ -634,9 +644,9 @@ const styles = StyleSheet.create({
     marginVertical: 1,
   },
   button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#6200EE',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#6200EE",
     paddingVertical: 10,
     paddingHorizontal: 10,
     borderRadius: 5,
@@ -645,7 +655,7 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },
   buttonText: {
-    color: 'white',
+    color: "white",
     fontSize: 12,
   },
   listContainer: {
@@ -654,17 +664,17 @@ const styles = StyleSheet.create({
   },
   roundedContainer: {
     borderRadius: 10,
-    backgroundColor: '#fff',
-    overflow: 'hidden',
+    backgroundColor: "#fff",
+    overflow: "hidden",
     elevation: 5,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
   vendorContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 10,
     padding: 10,
   },
@@ -678,20 +688,20 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   tabBar: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     marginTop: 5, // Add margin top for TabBar
     marginHorizontal: 6,
     elevation: 4, // Optional shadow for TabBar on Android
-    shadowColor: '#000', // Optional shadow for TabBar on iOS
+    shadowColor: "#000", // Optional shadow for TabBar on iOS
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
   indicator: {
-    backgroundColor: '#CB0C9F',
+    backgroundColor: "#CB0C9F",
   },
   label: {
-    color: '#CB0C9F',
+    color: "#CB0C9F",
   },
 
   budgetInputContainer: {
@@ -701,8 +711,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   budgetInputLabelContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 5,
   },
   budgetInputIcon: {
@@ -710,7 +720,7 @@ const styles = StyleSheet.create({
   },
   budgetInputLabel: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   budgetInputField: {
     borderWidth: 1,
@@ -719,12 +729,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   budgetInputError: {
-    color: 'red',
+    color: "red",
     marginTop: 5,
   },
   budgetTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 10,
   },
   budgetDescription: {
@@ -735,24 +745,24 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   inputButtonText: {
-    color: 'white',
+    color: "white",
     fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
   },
   sortTabContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+    flexDirection: "row",
+    justifyContent: "space-around",
     paddingVertical: 10,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
   },
   sortTabButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     padding: 10,
     borderWidth: 2,
     borderRadius: 50,
@@ -765,47 +775,45 @@ const listStyles = StyleSheet.create({
     paddingVertical: 10,
     marginTop: 30,
     marginHorizontal: 5,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderLeftWidth: 8,
     borderTopLeftRadius: 16,
     borderBottomLeftRadius: 16,
-    borderLeftColor: '#CB0C9F',
+    borderLeftColor: "#CB0C9F",
     borderRightWidth: 8,
     borderTopRightRadius: 16,
     borderBottomRightRadius: 16,
-    borderRightColor: '#CB0C9F',
+    borderRightColor: "#CB0C9F",
     elevation: 10, // Add shadow for floating effect
-    shadowColor: 'black',
+    shadowColor: "black",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 10,
   },
   nameText: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   dateText: {
     fontSize: 14,
   },
   separator: {
     borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+    borderBottomColor: "#ccc",
     marginBottom: 8,
   },
   row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 12,
-
   },
   budgetText: {
-    color: 'white',
+    color: "white",
     fontSize: 14,
   },
   capacityText: {
     fontSize: 14,
   },
-
 });
 
 export default EventView;
