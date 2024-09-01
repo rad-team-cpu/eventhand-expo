@@ -77,11 +77,26 @@ interface BudgetScreenProps {
   onBackBtnPress: () => void;
 }
 
+const addCommasToNumber = (number: number) => {
+  // Convert the number to a string with exactly two decimal places
+  let numberString = number.toFixed(2);
+
+  // Split the string into the integer and decimal parts
+  let parts = numberString.split(".");
+
+  // Format the integer part with commas
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+  // Join the parts back together
+  return parts.join(".");
+};
+
 const BudgetScreen = (props: BudgetScreenProps) => {
   const [isPressed, setIsPressed] = useState(false);
   const { assets, colors, sizes, gradients } = useTheme();
   const { budget, onBackBtnPress } = props;
   const [budgetTotal, setBudgetTotal] = useState<number>(calculateTotal(budget))
+
 
 
   return (
@@ -127,7 +142,7 @@ const BudgetScreen = (props: BudgetScreenProps) => {
                         { borderColor: category.color },
                       ]}
                     >
-                      ₱{budget[name as keyof EventBudget]}
+                      ₱{addCommasToNumber(budgetValue)}
                     </Text>
                   </View>
                 );
@@ -560,16 +575,19 @@ function EventView({ route, navigation }: EventViewScreenProps) {
             </Pressable>
           </View>
         </View>
-
-        <Text style={listStyles.nameText}>{name}</Text>
+        <Text style={listStyles.dateText}>{dateString}</Text>
         <View style={listStyles.row}>
-          <Text style={listStyles.dateText}>{dateString}</Text>
-          {address && (
+        <Text style={listStyles.nameText}>{name}</Text>
+        </View>
+        {address && (
             <>
               <Text style={listStyles.capacityText}>{address}</Text>
             </>
           )}
-        </View>
+        {/* <View style={listStyles.row}>
+          <Text style={listStyles.dateText}>{dateString}</Text>
+
+        </View> */}
         <View style={listStyles.separator} />
         <View style={listStyles.row}>
           <Pressable
@@ -765,11 +783,9 @@ const listStyles = StyleSheet.create({
   nameText: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 8,
   },
   dateText: {
     fontSize: 14,
-    marginBottom: 8,
   },
   separator: {
     borderBottomWidth: 1,
@@ -779,6 +795,8 @@ const listStyles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginBottom: 12,
+
   },
   budgetText: {
     color: 'white',
