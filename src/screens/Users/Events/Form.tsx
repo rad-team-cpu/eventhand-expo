@@ -526,6 +526,11 @@ const EventAddressInput = (props: EventInputProps) => {
   );
 };
 
+const isPositiveWholeNumber = (input: string) => {
+  const regex = /^[1-9]\d*$/;
+  return regex.test(input);
+};
+
 const EventGuestsInput = (props: EventInputProps) => {
   const {
     title,
@@ -541,7 +546,7 @@ const EventGuestsInput = (props: EventInputProps) => {
 
   const [touched, setTouched] = useState(false);
   const [errorState, setErrorState] = useState<FormError>({
-    error: defaultGuests <= 0,
+    error: defaultGuests <= 1,
     message: "",
   });
   const [isPressed, setIsPressed] = useState(false);
@@ -555,10 +560,15 @@ const EventGuestsInput = (props: EventInputProps) => {
         message:
           "Please enter the number of guests that will be attending your event",
       });
-    } else if (numericValue <= 0) {
+    } else if (numericValue <= 1) {
       setErrorState({
         error: true,
-        message: "Please enter a value above 0",
+        message: "Please enter a value above 1",
+      });
+    } else if(!isPositiveWholeNumber(text)){
+      setErrorState({
+        error: true,
+        message: "Please enter a valid value",
       });
     } else {
       setErrorState({
@@ -586,7 +596,7 @@ const EventGuestsInput = (props: EventInputProps) => {
       <TextInput
         id="event-attendee-input"
         testID="test-event-attendee-input"
-        defaultValue={String(defaultGuests)}
+        defaultValue={""}
         onChangeText={onValueChange}
         autoCapitalize="none"
         inputMode="numeric"
@@ -875,7 +885,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
       videography: false,
     },
     date: new Date(),
-    guests: 1,
+    guests: 0,
     budget: {
       eventPlanning: null,
       eventCoordination: null,
