@@ -2,10 +2,10 @@ import { FontAwesome } from "@expo/vector-icons";
 import axios from "axios";
 import { format } from "date-fns/format";
 import ExpoStatusBar from "expo-status-bar/build/ExpoStatusBar";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Image from "Components/Ui/Image";
 import Entypo from '@expo/vector-icons/Entypo';
-import { Alert, GestureResponderEvent, Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, BackHandler, GestureResponderEvent, Pressable, StyleSheet, Text, View } from "react-native";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import useTheme from "src/core/theme";
 import {
@@ -21,7 +21,7 @@ import {
 } from "types/types";
 import Button from "Components/Ui/Button";
 import { AntDesign, Ionicons  } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import Block from "Components/Ui/Block";
 
 type Category = {
@@ -239,6 +239,70 @@ const Toolbar: React.FC<ToolbarProps> = ({ onBackPress, onDeletePress, onEditPre
   );
 };
 
+interface EventUpdateOption {
+  label: string;
+  icon: string;
+}
+
+interface EventUpdateMenuProps {
+  options: EventUpdateOption[];
+  onPress: (option: string) => void;
+  onBackPress: () => void
+}
+
+const EventUpdateMenu: React.FC<EventUpdateMenuProps> = ({ options, onPress, onBackPress }) => {
+  const backAction = () => {
+    onBackPress()
+
+    return true;
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      const backHandler = BackHandler.addEventListener(
+        "hardwareBackPress",
+        backAction
+      );
+
+      return () => backHandler.remove();
+    }, [])
+  );
+
+  return (
+    <>
+      <View style={styles.toolbarContainer}>
+      <Pressable onPress={() => {}} style={styles.toolbarButton}>
+        <Ionicons name="arrow-back" size={24} color="#CB0C9F" />
+      </Pressable>
+    </View>
+          <View style={styles.eventUpdateMenuContainer}>
+          <Text style={styles.budgetTitle}>EDIT EVENT</Text>
+          <Text style={styles.budgetDescription} >
+            Cannot edit events with confirmed or pending bookings
+          </Text>
+      {options.map((option) => (
+        <Pressable
+          key={option.label}
+          onPress={() => onPress(option.label)}
+          style={styles.eventUpdateMenuButton}
+        >
+          <Ionicons
+            name={option.icon}
+            size={20}
+            color="white"
+            style={styles.eventUpdateMenuIcon}
+          />
+          <Text style={styles.eventUpdateMenuLabel}>{option.label}</Text>
+        </Pressable>
+      ))}
+    </View>
+    </>
+
+  );
+};
+
+
+
 function EventView({ route, navigation }: EventViewScreenProps) {
   const { _id, name, attendees, budget, date, address, pending } = route.params;
   const dateString =
@@ -246,6 +310,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
   const { colors, sizes } = useTheme();
   const [index, setIndex] = useState(0);
   const [openBudget, setOpenBudget] = useState(false);
+  const [openEdit, setOpenEdit] = useState(false);
   const [routes] = useState([
     { key: "confirmed", title: "Confirmed" },
     { key: "pending", title: "Pending" },
@@ -607,18 +672,36 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     fetchBookings(eventId);
   }, []);
 
-  const onBackBtnPress = () => navigation.goBack();
-
   const onBudgetBackButtonPress = () => setOpenBudget(false)
+
 
   if (openBudget) {
     return <BudgetScreen budget={budget} onBackBtnPress={onBudgetBackButtonPress} />;
   }
 
+  const eventUpdateOptions = [
+    { label: 'EDIT NAME', icon: 'pencil-sharp' },
+    { label: 'EDIT DATE', icon: 'calendar' },
+    { label: 'EDIT ADDRESS', icon: 'location' },
+    { label: 'EDIT GUESTS', icon: 'people' },
+  ];
+
+  const onEditBackButtonPress = () => setOpenEdit(false);
+
+  if(openEdit){
+    return <EventUpdateMenu options={eventUpdateOptions} onPress={(option) => console.log(option)} onBackPress={onEditBackButtonPress} />
+  }
+
+  const onBackBtnPress = () => navigation.goBack();
+  const onEditButtonPress = () => setOpenEdit(true);
+
+
+
+
   return (
     <>
       <ExpoStatusBar />
-      <Toolbar onBackPress={onBackBtnPress} onDeletePress={() => {}} onEditPress={()=>{}}/>
+      <Toolbar onBackPress={onBackBtnPress} onDeletePress={() => {}} onEditPress={onEditButtonPress}/>
       <View style={listStyles.eventContainer}>
         <View className="flex flex-row justify-between">
         <Text style={listStyles.dateText}>{dateString}</Text>
@@ -814,6 +897,8 @@ const styles = StyleSheet.create({
   budgetDescription: {
     fontSize: 16,
     marginBottom: 20,
+    textAlign: "center",
+    paddingHorizontal: 2
   },
   inputButton: {
     paddingVertical: 10,
@@ -863,6 +948,29 @@ const styles = StyleSheet.create({
   },
   toolbarActions: {
     flexDirection: 'row',
+  },
+  eventUpdateMenuContainer: {
+    flex: 1,
+    // justifyContent: 'center', // Center vertically
+    alignItems: 'center', // Center horizontally
+    paddingVertical: 10,
+  },
+  eventUpdateMenuButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    marginVertical: 5,
+    backgroundColor: '#6200EE', // Example button background color
+    borderRadius: 5,
+    width: "65%", // Set a fixed width to prevent extending the whole width
+  },
+  eventUpdateMenuIcon: {
+    marginRight: 10,
+  },
+  eventUpdateMenuLabel: {
+    fontSize: 16,
+    color: 'white',
+    fontWeight: 'bold', // Make the text bold
   },
 });
 
