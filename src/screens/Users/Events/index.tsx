@@ -724,7 +724,13 @@ function EventView({ route, navigation }: EventViewScreenProps) {
         eventInfo: { ...updateEventFormValues },
         updateValue: "ADDRESS",
       }), },
-    // { label: 'EDIT GUESTS', icon: 'people' },
+    { label: 'EDIT GUESTS', icon: 'people',
+      onPress: () =>
+        navigation.navigate("UpdateEventForm", {
+          eventInfo: { ...updateEventFormValues },
+          updateValue: "GUEST",
+        }),
+     },
   ];
 
   const onEditBackButtonPress = () => setOpenEdit(false);

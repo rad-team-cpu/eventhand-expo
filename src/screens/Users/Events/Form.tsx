@@ -1567,6 +1567,17 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps) {
             eventFormValuesRef={eventFormInputRef}
           />
         ); 
+      case "GUEST":
+        return (
+          <EventGuestsInput
+            title="How many do you think will attend?"
+            description="Please enter your new estimated number of guests."
+            buttonLabel="SUBMIT"
+            onBtnPress={onSubmitPress}
+            onBackBtnPress={backAction}
+            eventFormValuesRef={eventFormInputRef}
+          />
+        );
       default:
         return <></>;
     }
