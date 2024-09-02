@@ -11,6 +11,7 @@ import {
   EventInfo,
   HomeScreenNavigationProp,
   ScreenProps,
+  UserProfile,
 } from 'types/types';
 import { VendorContext } from 'Contexts/VendorContext';
 import axios from 'axios';
@@ -24,7 +25,7 @@ const getRandomColor = () => {
   return color;
 };
 
-const BookingListItem = ({ _id, client, event }: BookingDetailsProps) => {
+const BookingListItem = ({ _id, clientId, event }: BookingDetailsProps) => {
   const borderColor = useMemo(() => getRandomColor(), []);
   const dateString = event?.date ? format(event.date, 'MMMM dd, yyyy') : '';
   const navigation = useNavigation<HomeScreenNavigationProp>();
@@ -61,7 +62,9 @@ const BookingListItem = ({ _id, client, event }: BookingDetailsProps) => {
         <Text style={styles.dateText}>{dateString}</Text>
 
         <Text style={styles.capacityText}>
-          <Text style={styles.dateText}>{client?.firstName}</Text>
+          <Text style={styles.dateText}>
+            {(clientId as UserProfile).firstName} {(clientId as UserProfile).lastName}
+          </Text>
         </Text>
       </View>
     </Pressable>
@@ -77,7 +80,7 @@ const Bookings = ({ bookings }: BookingsProps) => (
     contentContainerStyle={styles.listContainer}
     data={bookings}
     renderItem={({ item }) => (
-      <BookingListItem _id={item._id} event={item.event} client={item.client} />
+      <BookingListItem _id={item._id} event={item.event} clientId={item.clientId} />
     )}
   />
 );
