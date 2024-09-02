@@ -106,7 +106,7 @@ const EventListItem = ({
       _id,
       name,
       address,
-      date: dateString,
+      date: date,
       budget,
       attendees,
     });

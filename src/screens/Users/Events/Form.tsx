@@ -1521,7 +1521,7 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps) {
     },
     address,
     date: eventDate,
-    guests: attendees,
+    guests: 0,
     budget,
   });
 
@@ -1543,6 +1543,17 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps) {
             onBackBtnPress={backAction}
             eventFormValuesRef={eventFormInputRef}
             user={user}
+          />
+        );
+      case "DATE":
+        return (
+          <EventDateInput
+            title="When is the new date of your event?"
+            description="Please select the new date of your event."
+            buttonLabel="SUBMIT"
+            onBtnPress={onSubmitPress}
+            onBackBtnPress={backAction}
+            eventFormValuesRef={eventFormInputRef}
           />
         );
       case "ADDRESS":

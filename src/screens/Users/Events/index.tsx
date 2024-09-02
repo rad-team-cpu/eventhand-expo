@@ -224,7 +224,7 @@ const SortTabBar = () => {
 };
 
 interface ToolbarProps {
-  onBackPress: (event: GestureResponderEvent) => void;
+  onBackPress: (event: GestureResponderEvent) => void | Boolean;
   onDeletePress: (event: GestureResponderEvent) => void;
   onEditPress: (event: GestureResponderEvent) => void;
 }
@@ -289,7 +289,7 @@ const EventUpdateMenu: React.FC<EventUpdateMenuProps> = ({
   return (
     <>
       <View style={styles.toolbarContainer}>
-        <Pressable onPress={() => {}} style={styles.toolbarButton}>
+        <Pressable onPress={onBackPress} style={styles.toolbarButton}>
           <Ionicons name="arrow-back" size={24} color="#CB0C9F" />
         </Pressable>
       </View>
@@ -320,8 +320,8 @@ const EventUpdateMenu: React.FC<EventUpdateMenuProps> = ({
 
 function EventView({ route, navigation }: EventViewScreenProps) {
   const { _id, name, attendees, budget, date, address, pending } = route.params;
-  const dateString =
-    date instanceof Date ? format(date, "MMMM dd, yyyy") : date;
+  console.log(date)
+  const dateString = format(date, "MMMM dd, yyyy")
   const { colors, sizes } = useTheme();
   const [index, setIndex] = useState(0);
   const [openBudget, setOpenBudget] = useState(false);
@@ -714,7 +714,11 @@ function EventView({ route, navigation }: EventViewScreenProps) {
           updateValue: "NAME",
         }),
     },
-    // { label: 'EDIT DATE', icon: 'calendar' },
+    { label: 'EDIT DATE', icon: 'calendar',       onPress: () =>
+      navigation.navigate("UpdateEventForm", {
+        eventInfo: { ...updateEventFormValues },
+        updateValue: "DATE",
+      }),},
     { label: 'EDIT ADDRESS', icon: 'location',       onPress: () =>
       navigation.navigate("UpdateEventForm", {
         eventInfo: { ...updateEventFormValues },
