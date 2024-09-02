@@ -18,6 +18,7 @@ import {
   HomeScreenBottomTabsProps,
   HomeScreenNavigationProp,
   EventBudget,
+  EventInfo,
 } from "types/types";
 import Button from "Components/Ui/Button";
 import { AntDesign, Ionicons  } from "@expo/vector-icons";
@@ -242,6 +243,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ onBackPress, onDeletePress, onEditPre
 interface EventUpdateOption {
   label: string;
   icon: string;
+  onPress: () => void
 }
 
 interface EventUpdateMenuProps {
@@ -283,7 +285,7 @@ const EventUpdateMenu: React.FC<EventUpdateMenuProps> = ({ options, onPress, onB
       {options.map((option) => (
         <Pressable
           key={option.label}
-          onPress={() => onPress(option.label)}
+          onPress={option.onPress}
           style={styles.eventUpdateMenuButton}
         >
           <Ionicons
@@ -679,11 +681,20 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     return <BudgetScreen budget={budget} onBackBtnPress={onBudgetBackButtonPress} />;
   }
 
+  const updateEventFormValues: EventInfo = {
+    _id,
+    name,
+    address,
+    date,
+    attendees,
+    budget,
+  }
+
   const eventUpdateOptions = [
-    { label: 'EDIT NAME', icon: 'pencil-sharp' },
-    { label: 'EDIT DATE', icon: 'calendar' },
-    { label: 'EDIT ADDRESS', icon: 'location' },
-    { label: 'EDIT GUESTS', icon: 'people' },
+    { label: 'EDIT NAME', icon: 'pencil-sharp', onPress: () => navigation.navigate("UpdateEventForm", {eventInfo: {...updateEventFormValues}, updateValue: "NAME"}) },
+    // { label: 'EDIT DATE', icon: 'calendar' },
+    // { label: 'EDIT ADDRESS', icon: 'location' },
+    // { label: 'EDIT GUESTS', icon: 'people' },
   ];
 
   const onEditBackButtonPress = () => setOpenEdit(false);

@@ -228,12 +228,20 @@ interface BookingViewProps {
   fromPending: boolean;
 }
 
+type EventUpdateValueType = "NAME" | "ADDRESS" | "DATE" | "GUEST" | "BUDGET"
+
+interface UpdateEventFormProps {
+  eventInfo: EventInfo;
+  updateValue: EventUpdateValueType;
+}
+
 type ScreenProps = {
   SignUp: undefined;
   Login: undefined;
   Home: HomeProps;
   ProfileForm: undefined;
   EventForm: undefined;
+  UpdateEventForm: UpdateEventFormProps;
   EventView: EventInfo;
   BookingView: BookingViewProps;
   VendorList: undefined;
@@ -272,7 +280,10 @@ type VerificationFormScreenProps = NativeStackScreenProps<
   'VerificationForm'
 >;
 type RatingScreenProps = NativeStackScreenProps<ScreenProps, 'Rating'>;
+
 type EventFormScreenProps = NativeStackScreenProps<ScreenProps, 'EventForm'>;
+
+type UpdateEventFormScreenProps = NativeStackScreenProps<ScreenProps, "UpdateEventForm">;
 
 type EventViewScreenProps = NativeStackScreenProps<ScreenProps, 'EventView'>;
 
@@ -405,4 +416,5 @@ export {
   UserMode,
   PaginationInfo,
   BookingType,
+  UpdateEventFormScreenProps
 };

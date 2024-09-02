@@ -6,7 +6,7 @@ import Confirmation from 'screens/Confirmation';
 import SuccessError from 'screens/SuccessError';
 import Chat from 'screens/Chat';
 import EventView from 'screens/Users/Events';
-import EventForm from 'screens/Users/Events/Form';
+import {EventForm, UpdateEventForm} from 'screens/Users/Events/Form';
 import Home from 'screens/Users/Home';
 import VendorMenu from 'screens/Users/VendorMenu';
 import ProfileForm from 'screens/Users/Profile/Form';
@@ -65,6 +65,11 @@ const SignedInNav = () => {
       <SignedInStack.Screen
         name='EventForm'
         component={EventForm}
+        options={eventFormHeaderOptions}
+      />
+      <SignedInStack.Screen
+        name='UpdateEventForm'
+        component={UpdateEventForm}
         options={eventFormHeaderOptions}
       />
       <SignedInStack.Screen

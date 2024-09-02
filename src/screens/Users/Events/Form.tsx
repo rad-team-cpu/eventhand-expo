@@ -41,12 +41,14 @@ import {
   ScreenProps,
   UserProfile,
   EventBudget,
+  UpdateEventFormScreenProps,
 } from "types/types";
 import { array, boolean, date, number, object, string } from "yup";
 import Block from "Components/Ui/Block";
 import useTheme from "src/core/theme";
 import SuccessScreen from "Components/Success";
 import ErrorScreen from "Components/Error";
+import ExpoStatusBar from "expo-status-bar/build/ExpoStatusBar";
 
 type SelectedCategories = {
   eventPlanning: boolean;
@@ -78,7 +80,7 @@ interface EventInputProps {
   title: string;
   description: string;
   buttonLabel: string;
-  onBackBtnPress: () => boolean;
+  onBackBtnPress: () => boolean | void;
   onBtnPress: () => void;
   eventFormValuesRef: React.MutableRefObject<EventFormInputType>;
 }
@@ -1474,6 +1476,90 @@ function EventForm({ navigation }: EventFormScreenProps) {
   );
 }
 
+function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps){
+  const userContext = useContext(UserContext);
+  const { userId, isLoaded, getToken } = useAuth();
+  const { assets, colors, sizes, gradients } = useTheme();
+
+  if (!isLoaded) {
+    throw new Error("Clerk failed to load");
+  }
+
+  if (!userContext) {
+    throw new Error("Profile must be used within a UserProvider");
+  }
+
+  const { user, setEventList } = userContext;
+
+  if (!userId) {
+    throw new Error("User does not exist! Please SignUp again");
+  }
+  const { eventInfo, updateValue } = route.params;
+  const { _id, date, attendees, address, name, budget } = eventInfo;
+  const { eventPlanning, eventCoordination, venue, decorations, catering, photography, videography } = budget;
+
+  const eventDate = (typeof date === "string")? new Date(date): date;
+
+  const eventFormInputRef = useRef<EventFormInputType>({
+    name,
+    categories: {
+      eventPlanning: eventPlanning !== null,
+      eventCoordination: eventCoordination !== null,
+      venue: venue !== null,
+      decorations: decorations !== null,
+      catering: catering !== null,
+      photography: photography !== null,
+      videography: videography !== null,
+    },
+    address,
+    date: eventDate,
+    guests: attendees,
+    budget
+  });
+
+  const backAction = () => navigation.goBack();
+
+  const onSubmitPress = () => {
+    console.log(eventFormInputRef.current);
+  }
+
+
+  const EventInput = () => {
+    switch (updateValue) {
+      case "NAME":
+        return (
+          <EventNameInput
+            title="Edit Event Name"
+            description="Please enter the new name of your event"
+            buttonLabel="Submit"
+            onBtnPress={onSubmitPress}
+            onBackBtnPress={backAction}
+            eventFormValuesRef={eventFormInputRef}
+            user={user}
+          />
+        );
+      default:
+        return <></>
+     }
+  };
+
+   return(
+    <>
+      <ExpoStatusBar/>
+      <Block
+    scroll
+    marginTop={sizes.sm}
+    padding={sizes.padding}
+    showsVerticalScrollIndicator={false}
+    contentContainerStyle={{ paddingBottom: sizes.xxl }}
+  >
+    <EventInput />
+  </Block>
+    </>
+
+   )
+}
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -1679,4 +1765,4 @@ const listStyles = StyleSheet.create({
   },
 });
 
-export default EventForm;
+export  {EventForm, UpdateEventForm};
