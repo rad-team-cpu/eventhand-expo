@@ -4,8 +4,16 @@ import { format } from "date-fns/format";
 import ExpoStatusBar from "expo-status-bar/build/ExpoStatusBar";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import Image from "Components/Ui/Image";
-import Entypo from '@expo/vector-icons/Entypo';
-import { Alert, BackHandler, GestureResponderEvent, Pressable, StyleSheet, Text, View } from "react-native";
+import Entypo from "@expo/vector-icons/Entypo";
+import {
+  Alert,
+  BackHandler,
+  GestureResponderEvent,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import useTheme from "src/core/theme";
 import {
@@ -21,7 +29,7 @@ import {
   EventInfo,
 } from "types/types";
 import Button from "Components/Ui/Button";
-import { AntDesign, Ionicons  } from "@expo/vector-icons";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import Block from "Components/Ui/Block";
 
@@ -221,7 +229,11 @@ interface ToolbarProps {
   onEditPress: (event: GestureResponderEvent) => void;
 }
 
-const Toolbar: React.FC<ToolbarProps> = ({ onBackPress, onDeletePress, onEditPress }) => {
+const Toolbar: React.FC<ToolbarProps> = ({
+  onBackPress,
+  onDeletePress,
+  onEditPress,
+}) => {
   return (
     <View style={styles.toolbarContainer}>
       <Pressable onPress={onBackPress} style={styles.toolbarButton}>
@@ -243,18 +255,22 @@ const Toolbar: React.FC<ToolbarProps> = ({ onBackPress, onDeletePress, onEditPre
 interface EventUpdateOption {
   label: string;
   icon: string;
-  onPress: () => void
+  onPress: () => void;
 }
 
 interface EventUpdateMenuProps {
   options: EventUpdateOption[];
   onPress: (option: string) => void;
-  onBackPress: () => void
+  onBackPress: () => void;
 }
 
-const EventUpdateMenu: React.FC<EventUpdateMenuProps> = ({ options, onPress, onBackPress }) => {
+const EventUpdateMenu: React.FC<EventUpdateMenuProps> = ({
+  options,
+  onPress,
+  onBackPress,
+}) => {
   const backAction = () => {
-    onBackPress()
+    onBackPress();
 
     return true;
   };
@@ -273,37 +289,34 @@ const EventUpdateMenu: React.FC<EventUpdateMenuProps> = ({ options, onPress, onB
   return (
     <>
       <View style={styles.toolbarContainer}>
-      <Pressable onPress={() => {}} style={styles.toolbarButton}>
-        <Ionicons name="arrow-back" size={24} color="#CB0C9F" />
-      </Pressable>
-    </View>
-          <View style={styles.eventUpdateMenuContainer}>
-          <Text style={styles.budgetTitle}>EDIT EVENT</Text>
-          <Text style={styles.budgetDescription} >
-            Cannot edit events with confirmed or pending bookings
-          </Text>
-      {options.map((option) => (
-        <Pressable
-          key={option.label}
-          onPress={option.onPress}
-          style={styles.eventUpdateMenuButton}
-        >
-          <Ionicons
-            name={option.icon}
-            size={20}
-            color="white"
-            style={styles.eventUpdateMenuIcon}
-          />
-          <Text style={styles.eventUpdateMenuLabel}>{option.label}</Text>
+        <Pressable onPress={() => {}} style={styles.toolbarButton}>
+          <Ionicons name="arrow-back" size={24} color="#CB0C9F" />
         </Pressable>
-      ))}
-    </View>
+      </View>
+      <View style={styles.eventUpdateMenuContainer}>
+        <Text style={styles.budgetTitle}>EDIT EVENT</Text>
+        <Text style={styles.budgetDescription}>
+          Cannot edit events with confirmed or pending bookings
+        </Text>
+        {options.map((option) => (
+          <Pressable
+            key={option.label}
+            onPress={option.onPress}
+            style={styles.eventUpdateMenuButton}
+          >
+            <Ionicons
+              name={option.icon}
+              size={20}
+              color="white"
+              style={styles.eventUpdateMenuIcon}
+            />
+            <Text style={styles.eventUpdateMenuLabel}>{option.label}</Text>
+          </Pressable>
+        ))}
+      </View>
     </>
-
   );
 };
-
-
 
 function EventView({ route, navigation }: EventViewScreenProps) {
   const { _id, name, attendees, budget, date, address, pending } = route.params;
@@ -322,28 +335,28 @@ function EventView({ route, navigation }: EventViewScreenProps) {
 
   const handleRemoveBooking = (id: string) => {
     Alert.alert(
-      'Confirm Cancellation',
-      'Are you sure you want to cancel this request to book?',
+      "Confirm Cancellation",
+      "Are you sure you want to cancel this request to book?",
       [
         {
-          text: 'NO',
-          style: 'cancel',
+          text: "NO",
+          style: "cancel",
         },
         {
-          text: 'YES',
+          text: "YES",
           onPress: async () => {
             try {
               await axios.delete(
                 `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking/${id}`,
                 {
                   headers: {
-                    'Content-Type': 'application/json',
+                    "Content-Type": "application/json",
                   },
                 }
               );
               fetchBookings(_id);
             } catch (error: any) {
-              console.error('Error removing booking:', error.message);
+              console.error("Error removing booking:", error.message);
             }
           },
         },
@@ -380,78 +393,78 @@ function EventView({ route, navigation }: EventViewScreenProps) {
 
   const bookingDetailsArray: BookingDetailsProps[] = [
     {
-      _id: 'booking1',
+      _id: "booking1",
       package: {
-        _id: 'package1',
-        name: 'Wedding Package',
+        _id: "package1",
+        name: "Wedding Package",
         vendor: {
-          _id: 'vendor1',
-          logo: 'vendor1-logo.jpg',
-          banner: 'vendor1-banner.jpg',
-          name: 'Amazing Events',
-          bio: 'We create unforgettable events.',
-          email: 'contact@amazingevents.com',
-          address: '123 Event St, Party City',
-          contactNumber: '123-456-7890',
+          _id: "vendor1",
+          logo: "vendor1-logo.jpg",
+          banner: "vendor1-banner.jpg",
+          name: "Amazing Events",
+          bio: "We create unforgettable events.",
+          email: "contact@amazingevents.com",
+          address: "123 Event St, Party City",
+          contactNumber: "123-456-7890",
           tags: [
-            { _id: 'tag1', name: 'wedding' },
-            { _id: 'tag2', name: 'luxury' },
+            { _id: "tag1", name: "wedding" },
+            { _id: "tag2", name: "luxury" },
           ],
           packages: [], // Nested packages will go here if needed
         },
-        vendorId: 'vendor1',
+        vendorId: "vendor1",
         price: 5000,
-        pictureURL: 'wedding-package.jpg',
+        pictureURL: "wedding-package.jpg",
         capacity: 200,
         inclusions: [
           {
-            id: 'product1',
-            name: 'Flower Arrangement',
-            imageURL: 'flower-arrangement.jpg',
-            description: 'Beautiful floral decorations.',
+            id: "product1",
+            name: "Flower Arrangement",
+            imageURL: "flower-arrangement.jpg",
+            description: "Beautiful floral decorations.",
             quantity: 20,
           },
           {
-            id: 'product2',
-            name: 'Wedding Cake',
-            imageURL: 'wedding-cake.jpg',
-            description: 'Three-tiered custom cake.',
+            id: "product2",
+            name: "Wedding Cake",
+            imageURL: "wedding-cake.jpg",
+            description: "Three-tiered custom cake.",
             quantity: 1,
           },
         ],
       },
-      packageId: 'package1',
+      packageId: "package1",
       vendor: {
-        _id: 'vendor1',
-        logo: 'vendor1-logo.jpg',
-        banner: 'vendor1-banner.jpg',
-        name: 'Amazing Events',
-        bio: 'We create unforgettable events.',
-        email: 'contact@amazingevents.com',
-        address: '123 Event St, Party City',
-        contactNumber: '123-456-7890',
+        _id: "vendor1",
+        logo: "vendor1-logo.jpg",
+        banner: "vendor1-banner.jpg",
+        name: "Amazing Events",
+        bio: "We create unforgettable events.",
+        email: "contact@amazingevents.com",
+        address: "123 Event St, Party City",
+        contactNumber: "123-456-7890",
         tags: [
-          { _id: 'tag1', name: 'wedding' },
-          { _id: 'tag2', name: 'luxury' },
+          { _id: "tag1", name: "wedding" },
+          { _id: "tag2", name: "luxury" },
         ],
         packages: [], // Nested packages will go here if needed
       },
-      vendorId: 'vendor1',
+      vendorId: "vendor1",
       client: {
-        _id: 'client1',
-        profilePicture: 'client1-profile.jpg',
-        email: 'johndoe@example.com',
-        lastName: 'Doe',
-        firstName: 'John',
-        contactNumber: '555-123-4567',
+        _id: "client1",
+        profilePicture: "client1-profile.jpg",
+        email: "johndoe@example.com",
+        lastName: "Doe",
+        firstName: "John",
+        contactNumber: "555-123-4567",
       },
-      clientId: 'client1',
+      clientId: "client1",
       event: {
-        _id: 'event1',
+        _id: "event1",
         attendees: 500,
         name: "John and Jane's Wedding",
-        date: new Date('2024-10-15'),
-        address: '123 Wedding Lane, Love City',
+        date: new Date("2024-10-15"),
+        address: "123 Wedding Lane, Love City",
         budget: {
           eventPlanning: 2000,
           eventCoordination: 1500,
@@ -463,82 +476,82 @@ function EventView({ route, navigation }: EventViewScreenProps) {
           total: 16000,
         },
       },
-      eventId: 'event1',
+      eventId: "event1",
       bookingStatus: BookingStatus.Confirmed,
     },
     {
-      _id: 'booking2',
+      _id: "booking2",
       package: {
-        _id: 'package2',
-        name: 'Corporate Event Package',
+        _id: "package2",
+        name: "Corporate Event Package",
         vendor: {
-          _id: 'vendor2',
-          logo: 'vendor2-logo.jpg',
-          banner: 'vendor2-banner.jpg',
-          name: 'Business Events Co.',
-          bio: 'Experts in corporate events.',
-          email: 'contact@businessevents.com',
-          address: '456 Corporate Ave, Business City',
-          contactNumber: '987-654-3210',
+          _id: "vendor2",
+          logo: "vendor2-logo.jpg",
+          banner: "vendor2-banner.jpg",
+          name: "Business Events Co.",
+          bio: "Experts in corporate events.",
+          email: "contact@businessevents.com",
+          address: "456 Corporate Ave, Business City",
+          contactNumber: "987-654-3210",
           tags: [
-            { _id: 'tag3', name: 'corporate' },
-            { _id: 'tag4', name: 'professional' },
+            { _id: "tag3", name: "corporate" },
+            { _id: "tag4", name: "professional" },
           ],
           packages: [], // Nested packages will go here if needed
         },
-        vendorId: 'vendor2',
+        vendorId: "vendor2",
         price: 8000,
-        pictureURL: 'corporate-package.jpg',
+        pictureURL: "corporate-package.jpg",
         capacity: 500,
         inclusions: [
           {
-            id: 'product3',
-            name: 'Audio-Visual Setup',
-            imageURL: 'av-setup.jpg',
-            description: 'State-of-the-art AV equipment.',
+            id: "product3",
+            name: "Audio-Visual Setup",
+            imageURL: "av-setup.jpg",
+            description: "State-of-the-art AV equipment.",
             quantity: 1,
           },
           {
-            id: 'product4',
-            name: 'Catering',
-            imageURL: 'catering.jpg',
-            description: 'Full-service catering.',
+            id: "product4",
+            name: "Catering",
+            imageURL: "catering.jpg",
+            description: "Full-service catering.",
             quantity: 500,
           },
         ],
       },
-      packageId: 'package2',
+      packageId: "package2",
       vendor: {
-        _id: 'vendor2',
-        logo: 'vendor2-logo.jpg',
-        banner: 'vendor2-banner.jpg',
-        name: 'Business Events Co.',
-        bio: 'Experts in corporate events.',
-        email: 'contact@businessevents.com',
-        address: '456 Corporate Ave, Business City',
-        contactNumber: '987-654-3210',
+        _id: "vendor2",
+        logo: "vendor2-logo.jpg",
+        banner: "vendor2-banner.jpg",
+        name: "Business Events Co.",
+        bio: "Experts in corporate events.",
+        email: "contact@businessevents.com",
+        address: "456 Corporate Ave, Business City",
+        contactNumber: "987-654-3210",
         tags: [
-          { _id: 'tag3', name: 'corporate' },
-          { _id: 'tag4', name: 'professional' },
+          { _id: "tag3", name: "corporate" },
+          { _id: "tag4", name: "professional" },
         ],
         packages: [], // Nested packages will go here if needed
       },
-      vendorId: 'vendor2',
+      vendorId: "vendor2",
       client: {
-        _id: 'client2',
-        profilePicture: 'client2-profile.jpg',
-        email: 'janesmith@example.com',
-        lastName: 'Smith',
-        firstName: 'Jane',
-        contactNumber: '555-987-6543',
+        _id: "client2",
+        profilePicture: "client2-profile.jpg",
+        email: "janesmith@example.com",
+        lastName: "Smith",
+        firstName: "Jane",
+        contactNumber: "555-987-6543",
       },
-      clientId: 'client2',
+      clientId: "client2",
       event: {
-        _id: 'event2',
-        name: 'Company Annual Meeting',
+        _id: "event2",
+        name: "Company Annual Meeting",
         attendees: 500,
-        date: new Date('2024-11-20'),
-        address: '789 Conference Rd, Business City',
+        date: new Date("2024-11-20"),
+        address: "789 Conference Rd, Business City",
         budget: {
           eventPlanning: 4000,
           eventCoordination: 3000,
@@ -550,7 +563,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
           total: 43000,
         },
       },
-      eventId: 'event2',
+      eventId: "event2",
       bookingStatus: BookingStatus.Pending,
     },
   ];
@@ -674,11 +687,12 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     fetchBookings(eventId);
   }, []);
 
-  const onBudgetBackButtonPress = () => setOpenBudget(false)
-
+  const onBudgetBackButtonPress = () => setOpenBudget(false);
 
   if (openBudget) {
-    return <BudgetScreen budget={budget} onBackBtnPress={onBudgetBackButtonPress} />;
+    return (
+      <BudgetScreen budget={budget} onBackBtnPress={onBudgetBackButtonPress} />
+    );
   }
 
   const updateEventFormValues: EventInfo = {
@@ -688,10 +702,18 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     date,
     attendees,
     budget,
-  }
+  };
 
   const eventUpdateOptions = [
-    { label: 'EDIT NAME', icon: 'pencil-sharp', onPress: () => navigation.navigate("UpdateEventForm", {eventInfo: {...updateEventFormValues}, updateValue: "NAME"}) },
+    {
+      label: "EDIT NAME",
+      icon: "pencil-sharp",
+      onPress: () =>
+        navigation.navigate("UpdateEventForm", {
+          eventInfo: { ...updateEventFormValues },
+          updateValue: "NAME",
+        }),
+    },
     // { label: 'EDIT DATE', icon: 'calendar' },
     // { label: 'EDIT ADDRESS', icon: 'location' },
     // { label: 'EDIT GUESTS', icon: 'people' },
@@ -699,23 +721,30 @@ function EventView({ route, navigation }: EventViewScreenProps) {
 
   const onEditBackButtonPress = () => setOpenEdit(false);
 
-  if(openEdit){
-    return <EventUpdateMenu options={eventUpdateOptions} onPress={(option) => console.log(option)} onBackPress={onEditBackButtonPress} />
+  if (openEdit) {
+    return (
+      <EventUpdateMenu
+        options={eventUpdateOptions}
+        onPress={(option) => console.log(option)}
+        onBackPress={onEditBackButtonPress}
+      />
+    );
   }
 
   const onBackBtnPress = () => navigation.goBack();
   const onEditButtonPress = () => setOpenEdit(true);
 
-
-
-
   return (
     <>
       <ExpoStatusBar />
-      <Toolbar onBackPress={onBackBtnPress} onDeletePress={() => {}} onEditPress={onEditButtonPress}/>
+      <Toolbar
+        onBackPress={onBackBtnPress}
+        onDeletePress={() => {}}
+        onEditPress={onEditButtonPress}
+      />
       <View style={listStyles.eventContainer}>
         <View className="flex flex-row justify-between">
-        <Text style={listStyles.dateText}>{dateString}</Text>
+          <Text style={listStyles.dateText}>{dateString}</Text>
           {/* <Button
             row
             flex={0}
@@ -831,17 +860,17 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 10,
-    position: 'relative',
+    position: "relative",
   },
   floatingRemoveButton: {
-    position: 'absolute',
+    position: "absolute",
     top: -10,
     right: -10,
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderRadius: 50,
     padding: 1,
     elevation: 5,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
@@ -909,7 +938,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 20,
     textAlign: "center",
-    paddingHorizontal: 2
+    paddingHorizontal: 2,
   },
   inputButton: {
     paddingVertical: 10,
@@ -938,9 +967,9 @@ const styles = StyleSheet.create({
     borderRadius: 50,
   },
   toolbarContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 16,
     paddingVertical: 8,
     // backgroundColor: '#6200EE', // Example toolbar background color
@@ -958,20 +987,20 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   toolbarActions: {
-    flexDirection: 'row',
+    flexDirection: "row",
   },
   eventUpdateMenuContainer: {
     flex: 1,
     // justifyContent: 'center', // Center vertically
-    alignItems: 'center', // Center horizontally
+    alignItems: "center", // Center horizontally
     paddingVertical: 10,
   },
   eventUpdateMenuButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: 10,
     marginVertical: 5,
-    backgroundColor: '#6200EE', // Example button background color
+    backgroundColor: "#6200EE", // Example button background color
     borderRadius: 5,
     width: "65%", // Set a fixed width to prevent extending the whole width
   },
@@ -980,8 +1009,8 @@ const styles = StyleSheet.create({
   },
   eventUpdateMenuLabel: {
     fontSize: 16,
-    color: 'white',
-    fontWeight: 'bold', // Make the text bold
+    color: "white",
+    fontWeight: "bold", // Make the text bold
   },
 });
 
@@ -1029,7 +1058,7 @@ const listStyles = StyleSheet.create({
   },
   capacityText: {
     fontSize: 14,
-    marginBottom: 8
+    marginBottom: 8,
   },
 });
 

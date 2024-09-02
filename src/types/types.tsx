@@ -1,20 +1,20 @@
 import {
   BottomTabNavigationProp,
   BottomTabScreenProps,
-} from '@react-navigation/bottom-tabs';
+} from "@react-navigation/bottom-tabs";
 import {
   CompositeNavigationProp,
   CompositeScreenProps,
   NavigatorScreenParams,
-} from '@react-navigation/native';
+} from "@react-navigation/native";
 import type {
   NativeStackNavigationProp,
   NativeStackScreenProps,
-} from '@react-navigation/native-stack';
-import { FullMetadata, StorageReference } from 'firebase/storage';
-import { ImageSourcePropType } from 'react-native';
+} from "@react-navigation/native-stack";
+import { FullMetadata, StorageReference } from "firebase/storage";
+import { ImageSourcePropType } from "react-native";
 
-type UserMode = 'CLIENT' | 'VENDOR';
+type UserMode = "CLIENT" | "VENDOR";
 
 type PaginationInfo = {
   hasMore: boolean;
@@ -36,17 +36,17 @@ type EventBudget = {
 interface BookingType {
   _id: string;
   vendor: {
-    id: string,
-    name: string
-  },
+    id: string;
+    name: string;
+  };
   package: {
-    name: string,
-    capacity: number,
-    orderType: string,
-    description: string,
-  }
-  date: Date,
-  status: string
+    name: string;
+    capacity: number;
+    orderType: string;
+    description: string;
+  };
+  date: Date;
+  status: string;
 }
 
 interface EventInfo {
@@ -72,9 +72,9 @@ interface Tag {
 }
 
 enum BookingStatus {
-  Pending = 'PENDING',
-  Confirmed = 'CONFIRMED',
-  Cancelled = 'CANCELLED',
+  Pending = "PENDING",
+  Confirmed = "CONFIRMED",
+  Cancelled = "CANCELLED",
 }
 
 interface Vendor {
@@ -173,7 +173,7 @@ interface SuccessErrorProps {
   buttonText: string;
   navigateTo?: string;
   logOut?: keyof ScreenProps;
-  status: 'success' | 'error';
+  status: "success" | "error";
   navParams?: ScreenProps[keyof ScreenProps];
 }
 
@@ -183,7 +183,7 @@ interface ConfirmationProps {
   confirmNavigateTo: keyof ScreenProps;
   confrimNavParams?: ScreenProps[keyof ScreenProps];
   isSwitching: boolean;
-  switchingTo?: 'CLIENT' | 'VENDOR';
+  switchingTo?: "CLIENT" | "VENDOR";
 }
 
 interface HomeProps {
@@ -228,7 +228,7 @@ interface BookingViewProps {
   fromPending: boolean;
 }
 
-type EventUpdateValueType = "NAME" | "ADDRESS" | "DATE" | "GUEST" | "BUDGET"
+type EventUpdateValueType = "NAME" | "ADDRESS" | "DATE" | "GUEST" | "BUDGET";
 
 interface UpdateEventFormProps {
   eventInfo: EventInfo;
@@ -261,53 +261,56 @@ type ScreenProps = {
   Rating: undefined;
 };
 
-type SignUpScreenProps = NativeStackScreenProps<ScreenProps, 'SignUp'>;
+type SignUpScreenProps = NativeStackScreenProps<ScreenProps, "SignUp">;
 
-type LoginScreenProps = NativeStackScreenProps<ScreenProps, 'Login'>;
+type LoginScreenProps = NativeStackScreenProps<ScreenProps, "Login">;
 
-type HomeScreenProps = NativeStackScreenProps<ScreenProps, 'Home'>;
+type HomeScreenProps = NativeStackScreenProps<ScreenProps, "Home">;
 
-type HomeScreenNavigationProp = NativeStackNavigationProp<ScreenProps, 'Home'>;
+type HomeScreenNavigationProp = NativeStackNavigationProp<ScreenProps, "Home">;
 
 type ProfileFormScreenProps = NativeStackScreenProps<
   ScreenProps,
-  'ProfileForm'
+  "ProfileForm"
 >;
-type AboutFormScreenProps = NativeStackScreenProps<ScreenProps, 'AboutForm'>;
-type MenuFormScreenProps = NativeStackScreenProps<ScreenProps, 'MenuForm'>;
+type AboutFormScreenProps = NativeStackScreenProps<ScreenProps, "AboutForm">;
+type MenuFormScreenProps = NativeStackScreenProps<ScreenProps, "MenuForm">;
 type VerificationFormScreenProps = NativeStackScreenProps<
   ScreenProps,
-  'VerificationForm'
+  "VerificationForm"
 >;
-type RatingScreenProps = NativeStackScreenProps<ScreenProps, 'Rating'>;
+type RatingScreenProps = NativeStackScreenProps<ScreenProps, "Rating">;
 
-type EventFormScreenProps = NativeStackScreenProps<ScreenProps, 'EventForm'>;
+type EventFormScreenProps = NativeStackScreenProps<ScreenProps, "EventForm">;
 
-type UpdateEventFormScreenProps = NativeStackScreenProps<ScreenProps, "UpdateEventForm">;
+type UpdateEventFormScreenProps = NativeStackScreenProps<
+  ScreenProps,
+  "UpdateEventForm"
+>;
 
-type EventViewScreenProps = NativeStackScreenProps<ScreenProps, 'EventView'>;
+type EventViewScreenProps = NativeStackScreenProps<ScreenProps, "EventView">;
 
 type BookingViewScreenProps = NativeStackScreenProps<
   ScreenProps,
-  'BookingView'
+  "BookingView"
 >;
 
-type ChatScreenProps = NativeStackScreenProps<ScreenProps, 'Chat'>;
+type ChatScreenProps = NativeStackScreenProps<ScreenProps, "Chat">;
 
-type ChatNavigationProps = NativeStackNavigationProp<ScreenProps, 'Chat'>;
+type ChatNavigationProps = NativeStackNavigationProp<ScreenProps, "Chat">;
 
 type SuccessErrorScreenProps = NativeStackScreenProps<
   ScreenProps,
-  'SuccessError'
+  "SuccessError"
 >;
 
 type ConfirmationScreenProps = NativeStackScreenProps<
   ScreenProps,
-  'Confirmation'
+  "Confirmation"
 >;
 
 export interface ChatListProps {
-  mode: 'VENDOR' | 'CLIENT';
+  mode: "VENDOR" | "CLIENT";
 }
 
 type HomeScreenBottomTabsProps = {
@@ -327,45 +330,45 @@ type VendorHomeScreenBottomTabsProps = {
 };
 
 type EventListScreenProps = CompositeScreenProps<
-  BottomTabScreenProps<HomeScreenBottomTabsProps, 'Events'>,
+  BottomTabScreenProps<HomeScreenBottomTabsProps, "Events">,
   NativeStackScreenProps<ScreenProps>
 >;
 
 type EventListNavigationProps = CompositeNavigationProp<
-  BottomTabNavigationProp<HomeScreenBottomTabsProps, 'Events'>,
+  BottomTabNavigationProp<HomeScreenBottomTabsProps, "Events">,
   NativeStackNavigationProp<ScreenProps>
 >;
 
 type ChatListScreenPropsList = CompositeScreenProps<
   BottomTabScreenProps<
     HomeScreenBottomTabsProps | VendorHomeScreenBottomTabsProps,
-    'ChatList'
+    "ChatList"
   >,
   NativeStackScreenProps<ScreenProps>
 >;
 
 type VendorListScreenProps = CompositeScreenProps<
-  BottomTabScreenProps<HomeScreenBottomTabsProps, 'Vendors'>,
+  BottomTabScreenProps<HomeScreenBottomTabsProps, "Vendors">,
   NativeStackScreenProps<ScreenProps>
 >;
 
-type VendorMenuScreenProps = NativeStackScreenProps<ScreenProps, 'VendorMenu'>;
+type VendorMenuScreenProps = NativeStackScreenProps<ScreenProps, "VendorMenu">;
 
 type BookingConfirmationScreenProps = NativeStackScreenProps<
   ScreenProps,
-  'BookingConfirmation'
+  "BookingConfirmation"
 >;
 
 type ProfileScreenProps = CompositeScreenProps<
-  BottomTabScreenProps<HomeScreenBottomTabsProps, 'Profile'>,
+  BottomTabScreenProps<HomeScreenBottomTabsProps, "Profile">,
   NativeStackScreenProps<ScreenProps>
 >;
 
-type VendorHomeScreenProps = NativeStackScreenProps<ScreenProps, 'VendorHome'>;
+type VendorHomeScreenProps = NativeStackScreenProps<ScreenProps, "VendorHome">;
 
 type VendorProfileFormScreenProps = NativeStackScreenProps<
   ScreenProps,
-  'VendorProfileForm'
+  "VendorProfileForm"
 >;
 
 export {
@@ -416,5 +419,5 @@ export {
   UserMode,
   PaginationInfo,
   BookingType,
-  UpdateEventFormScreenProps
+  UpdateEventFormScreenProps,
 };

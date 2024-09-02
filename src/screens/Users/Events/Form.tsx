@@ -1476,7 +1476,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
   );
 }
 
-function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps){
+function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps) {
   const userContext = useContext(UserContext);
   const { userId, isLoaded, getToken } = useAuth();
   const { assets, colors, sizes, gradients } = useTheme();
@@ -1496,9 +1496,17 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps){
   }
   const { eventInfo, updateValue } = route.params;
   const { _id, date, attendees, address, name, budget } = eventInfo;
-  const { eventPlanning, eventCoordination, venue, decorations, catering, photography, videography } = budget;
+  const {
+    eventPlanning,
+    eventCoordination,
+    venue,
+    decorations,
+    catering,
+    photography,
+    videography,
+  } = budget;
 
-  const eventDate = (typeof date === "string")? new Date(date): date;
+  const eventDate = typeof date === "string" ? new Date(date) : date;
 
   const eventFormInputRef = useRef<EventFormInputType>({
     name,
@@ -1514,15 +1522,14 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps){
     address,
     date: eventDate,
     guests: attendees,
-    budget
+    budget,
   });
 
   const backAction = () => navigation.goBack();
 
   const onSubmitPress = () => {
     console.log(eventFormInputRef.current);
-  }
-
+  };
 
   const EventInput = () => {
     switch (updateValue) {
@@ -1539,25 +1546,24 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps){
           />
         );
       default:
-        return <></>
-     }
+        return <></>;
+    }
   };
 
-   return(
+  return (
     <>
-      <ExpoStatusBar/>
+      <ExpoStatusBar />
       <Block
-    scroll
-    marginTop={sizes.sm}
-    padding={sizes.padding}
-    showsVerticalScrollIndicator={false}
-    contentContainerStyle={{ paddingBottom: sizes.xxl }}
-  >
-    <EventInput />
-  </Block>
+        scroll
+        marginTop={sizes.sm}
+        padding={sizes.padding}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: sizes.xxl }}
+      >
+        <EventInput />
+      </Block>
     </>
-
-   )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -1765,4 +1771,4 @@ const listStyles = StyleSheet.create({
   },
 });
 
-export  {EventForm, UpdateEventForm};
+export { EventForm, UpdateEventForm };
