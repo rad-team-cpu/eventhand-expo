@@ -1536,15 +1536,26 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps) {
       case "NAME":
         return (
           <EventNameInput
-            title="Edit Event Name"
+            title="What is your new name of your event?"
             description="Please enter the new name of your event"
-            buttonLabel="Submit"
+            buttonLabel="SUBMIT"
             onBtnPress={onSubmitPress}
             onBackBtnPress={backAction}
             eventFormValuesRef={eventFormInputRef}
             user={user}
           />
         );
+      case "ADDRESS":
+        return (
+          <EventAddressInput
+            title="Where is your new venue?"
+            description="Please enter the new address of your event venue"
+            buttonLabel="SUBMIT"
+            onBtnPress={onSubmitPress}
+            onBackBtnPress={backAction}
+            eventFormValuesRef={eventFormInputRef}
+          />
+        ); 
       default:
         return <></>;
     }

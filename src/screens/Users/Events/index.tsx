@@ -715,7 +715,11 @@ function EventView({ route, navigation }: EventViewScreenProps) {
         }),
     },
     // { label: 'EDIT DATE', icon: 'calendar' },
-    // { label: 'EDIT ADDRESS', icon: 'location' },
+    { label: 'EDIT ADDRESS', icon: 'location',       onPress: () =>
+      navigation.navigate("UpdateEventForm", {
+        eventInfo: { ...updateEventFormValues },
+        updateValue: "ADDRESS",
+      }), },
     // { label: 'EDIT GUESTS', icon: 'people' },
   ];
 
