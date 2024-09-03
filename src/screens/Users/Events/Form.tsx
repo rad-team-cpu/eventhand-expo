@@ -1585,6 +1585,10 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps){
         url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/${_id}/date`;
         body = JSON.stringify({ date: eventFormInputRef.current.date })
         break;
+      case "ADDRESS":
+        url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/${_id}/address`;
+        body = JSON.stringify({ address: eventFormInputRef.current.address })
+        break;
     }   
 
     const request = {
@@ -1615,6 +1619,12 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps){
               event._id === _id ? { ...event, date: updatedEvent.date } : event
             );
             setResult({...eventInfo, date: updatedEvent.date})
+            break;
+          case "ADDRESS":
+            updatedEvents = eventList.events.map(event => 
+              event._id === _id ? { ...event, address: updatedEvent.address} : event
+            );
+            setResult({...eventInfo, address: updatedEvent.address})
             break;
         }   
     
