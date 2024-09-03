@@ -147,7 +147,7 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
         setUser({ ...data.user });
         setEventList({...data.events})
         const getChatListInput: GetChatListInput = {
-          senderId: data._id,
+          senderId: data.user._id,
           senderType: 'CLIENT',
           pageNumber: 1,
           pageSize: 10,
