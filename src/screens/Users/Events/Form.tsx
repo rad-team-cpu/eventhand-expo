@@ -1167,6 +1167,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
               onBtnPress={onNextBtnPress}
               onBackBtnPress={backAction}
               eventFormValuesRef={eventFormInputRef}
+              mode="CREATE"
             />
           );
         case 1:
@@ -1191,6 +1192,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
               onBtnPress={onNextBtnPress}
               onBackBtnPress={backAction}
               eventFormValuesRef={eventFormInputRef}
+              mode="CREATE"
             />
           );
         case 3:
@@ -1202,6 +1204,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
               onBtnPress={onNextBtnPress}
               onBackBtnPress={backAction}
               eventFormValuesRef={eventFormInputRef}
+              mode="CREATE"
             />
           );
         case 4:
@@ -1213,6 +1216,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
               onBtnPress={onNextBtnPress}
               onBackBtnPress={backAction}
               eventFormValuesRef={eventFormInputRef}
+              mode="CREATE"
             />
           );
         case 5:
@@ -1224,6 +1228,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
               onBtnPress={onSubmitPress}
               onBackBtnPress={backAction}
               eventFormValuesRef={eventFormInputRef}
+              mode="CREATE"
             />
           );
         default:
@@ -1240,6 +1245,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
               onBtnPress={onNextBtnPress}
               onBackBtnPress={backAction}
               eventFormValuesRef={eventFormInputRef}
+              mode="CREATE"
             />
           );
         case 1:
@@ -1264,6 +1270,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
               onBtnPress={onNextBtnPress}
               onBackBtnPress={backAction}
               eventFormValuesRef={eventFormInputRef}
+              mode="CREATE"
             />
           );
         case 3:
@@ -1275,6 +1282,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
               onBtnPress={onNextBtnPress}
               onBackBtnPress={backAction}
               eventFormValuesRef={eventFormInputRef}
+              mode="CREATE"
             />
           );
         case 4:
@@ -1286,6 +1294,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
               onBtnPress={onNextBtnPress}
               onBackBtnPress={backAction}
               eventFormValuesRef={eventFormInputRef}
+              mode="CREATE"
             />
           );
         case 5:
@@ -1297,6 +1306,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
               onBtnPress={onNextBtnPress}
               onBackBtnPress={backAction}
               eventFormValuesRef={eventFormInputRef}
+              mode="CREATE"
             />
           );
         case 6:
@@ -1308,6 +1318,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
               onBtnPress={onSubmitPress}
               onBackBtnPress={backAction}
               eventFormValuesRef={eventFormInputRef}
+              mode="CREATE"
             />
           );
         default:
