@@ -477,7 +477,11 @@ const EventDateInput = (props: EventInputProps) => {
   );
 };
 
-const EventAddressInput = (props: EventInputProps) => {
+interface EventAddressInput extends EventInputProps {
+  oldAddress?: string;
+}
+
+const EventAddressInput = (props: EventAddressInput) => {
   const {
     title,
     description,
@@ -485,15 +489,23 @@ const EventAddressInput = (props: EventInputProps) => {
     onBackBtnPress,
     onBtnPress,
     eventFormValuesRef,
+    mode,
+    oldAddress
   } = props;
-  const { assets, colors, sizes, gradients } = useTheme();
+  const {  sizes,} = useTheme();
+
+
+  if(mode === "UPDATE" && !oldAddress){
+    throw new Error("oldAddress must not be undefined")
+  
+}
 
   const defaultAddress = eventFormValuesRef.current.address
     ? eventFormValuesRef.current.address
     : "";
 
   const [errorState, setErrorState] = useState<FormError>({
-    error: defaultAddress === undefined || defaultAddress === "",
+    error: mode ==="UPDATE"? oldAddress === defaultAddress: defaultAddress === undefined || defaultAddress === "",
     message: "",
   });
   const [isPressed, setIsPressed] = useState(false);
@@ -503,6 +515,11 @@ const EventAddressInput = (props: EventInputProps) => {
       setErrorState({
         error: true,
         message: "Please enter an address for your event",
+      });
+    } else if (mode ==="UPDATE" && text.toLocaleLowerCase() === oldAddress!.toLocaleLowerCase() ){
+      setErrorState({
+        error: true,
+        message: "Please enter a different address ",
       });
     } else {
       setErrorState({
@@ -1706,6 +1723,7 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps){
             onBackBtnPress={backAction}
             eventFormValuesRef={eventFormInputRef}
             mode="UPDATE"
+            oldAddress={address}
           />
         ); 
       case "GUEST":
