@@ -1566,13 +1566,26 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps){
 
   const backAction = () => navigation.goBack();
 
-  const updateEventName = async () => {
+  const onSubmitPress = async () => {
     setLoading(true);
     setErrorMessage('');
 
     const token = await getToken({ template: "event-hand-jwt" });
 
-    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/${_id}/name`;
+    let url = `${process.env.EXPO_PUBLIC_BACKEND_URL}`;
+
+    let body = "";
+
+    switch (updateValue) {
+      case "NAME":
+        url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/${_id}/name`;
+        body = JSON.stringify({ name: eventFormInputRef.current.name })
+        break;
+      case "DATE":
+        url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/${_id}/date`;
+        body = JSON.stringify({ date: eventFormInputRef.current.date })
+        break;
+    }   
 
     const request = {
       method: 'PATCH',
@@ -1580,7 +1593,7 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps){
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ name: eventFormInputRef.current.name }),
+      body,
     };
 
     try {
@@ -1588,17 +1601,32 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps){
 
       if (response.ok) {
         const updatedEvent = await response.json();
-        const updatedEvents = eventList.events.map(event => 
-          event._id === _id ? { ...event, name: updatedEvent.name } : event
-        );
-        setResult({...eventInfo, name: updatedEvent.name})
+        let updatedEvents = eventList.events
+
+        switch (updateValue) {
+          case "NAME":
+            updatedEvents = eventList.events.map(event => 
+              event._id === _id ? { ...event, name: updatedEvent.name } : event
+            );
+            setResult({...eventInfo, name: updatedEvent.name})
+            break;
+          case "DATE":
+            updatedEvents = eventList.events.map(event => 
+              event._id === _id ? { ...event, date: updatedEvent.date } : event
+            );
+            setResult({...eventInfo, date: updatedEvent.date})
+            break;
+        }   
+    
         setEventList(prevEventList => {
           return {
             ...prevEventList,
             events: [...updatedEvents]
           }
         })
+
         setSuccess(true);
+
       } else {
         const errorData = await response.json();
         if (response.status === 404) {
@@ -1618,15 +1646,6 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps){
     } finally {
       setLoading(false);
     }
-  };
-
-  const onSubmitPress = async () => {
-    console.log(eventFormInputRef.current);
-    switch (updateValue) {
-      case "NAME":
-        await updateEventName();
-        break;
-    }    
   };
 
   const EventInput = () => {
