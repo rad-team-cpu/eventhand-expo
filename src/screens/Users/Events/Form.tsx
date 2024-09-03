@@ -1589,6 +1589,10 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps){
         url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/${_id}/address`;
         body = JSON.stringify({ address: eventFormInputRef.current.address })
         break;
+      case "GUEST":
+        url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/${_id}/attendees`;
+        body = JSON.stringify({ attendees: eventFormInputRef.current.guests })
+        break;
     }   
 
     const request = {
@@ -1626,6 +1630,12 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps){
             );
             setResult({...eventInfo, address: updatedEvent.address})
             break;
+            case "GUEST":
+              updatedEvents = eventList.events.map(event => 
+                event._id === _id ? { ...event, attendees: updatedEvent.attendees} : event
+              );
+              setResult({...eventInfo, attendees: updatedEvent.attendees})
+              break;
         }   
     
         setEventList(prevEventList => {
