@@ -617,7 +617,11 @@ const isPositiveWholeNumber = (input: string) => {
   return regex.test(input);
 };
 
-const EventGuestsInput = (props: EventInputProps) => {
+interface EventGuestsInputProps extends EventInputProps {
+  oldGuests?: number
+}
+
+const EventGuestsInput = (props: EventGuestsInputProps) => {
   const {
     title,
     description,
@@ -625,14 +629,20 @@ const EventGuestsInput = (props: EventInputProps) => {
     onBackBtnPress,
     onBtnPress,
     eventFormValuesRef,
+    mode,
+    oldGuests
   } = props;
   const { assets, colors, sizes, gradients } = useTheme();
 
   const defaultGuests = eventFormValuesRef.current.guests;
 
+  if(mode === "UPDATE" && !oldGuests ){
+    throw new Error("oldGuests must not be undefined")
+  }
+
   const [touched, setTouched] = useState(false);
   const [errorState, setErrorState] = useState<FormError>({
-    error: defaultGuests <= 1,
+    error: mode === "UPDATE"? defaultGuests <= 1 || defaultGuests === oldGuests : defaultGuests <= 1,
     message: "",
   });
   const [isPressed, setIsPressed] = useState(false);
@@ -656,7 +666,12 @@ const EventGuestsInput = (props: EventInputProps) => {
         error: true,
         message: "Please enter a valid value",
       });
-    } else {
+    } else if (mode === "UPDATE" && oldGuests === numericValue){
+      setErrorState({
+        error: true,
+        message: "Please enter a different value",
+      });
+    }else {
       setErrorState({
         error: false,
         message: "",
@@ -682,7 +697,7 @@ const EventGuestsInput = (props: EventInputProps) => {
       <TextInput
         id="event-attendee-input"
         testID="test-event-attendee-input"
-        defaultValue={""}
+        defaultValue={mode === "UPDATE"? String(oldGuests): ""}
         onChangeText={onValueChange}
         autoCapitalize="none"
         inputMode="numeric"
@@ -1770,6 +1785,7 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps){
             onBackBtnPress={backAction}
             eventFormValuesRef={eventFormInputRef}
             mode="UPDATE"
+            oldGuests={attendees}
           />
         );
       default:
