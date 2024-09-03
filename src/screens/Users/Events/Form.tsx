@@ -49,6 +49,7 @@ import useTheme from "src/core/theme";
 import SuccessScreen from "Components/Success";
 import ErrorScreen from "Components/Error";
 import ExpoStatusBar from "expo-status-bar/build/ExpoStatusBar";
+import { i } from "@clerk/clerk-react/dist/controlComponents-CzpRUsyv";
 
 type SelectedCategories = {
   eventPlanning: boolean;
@@ -83,6 +84,7 @@ interface EventInputProps {
   onBackBtnPress: () => boolean | void;
   onBtnPress: () => void;
   eventFormValuesRef: React.MutableRefObject<EventFormInputType>;
+  mode: "CREATE" | "UPDATE"
 }
 
 interface FormError {
@@ -92,6 +94,7 @@ interface FormError {
 
 interface EventNameInputProps extends EventInputProps {
   user: UserProfile;
+  oldEventName?: string // only used during update
 }
 
 const EventNameInput = (props: EventNameInputProps) => {
@@ -103,15 +106,23 @@ const EventNameInput = (props: EventNameInputProps) => {
     onBtnPress,
     eventFormValuesRef,
     user,
+    mode,
+    oldEventName
   } = props;
-  const { assets, colors, sizes, gradients } = useTheme();
+  const {  sizes,  } = useTheme();
+
+  if(mode === "UPDATE" && !oldEventName){
+      throw new Error("oldEvent Name must not be undefined")
+    
+  }
 
   const defaultName = eventFormValuesRef.current.name;
 
   const [errorState, setErrorState] = useState<FormError>({
-    error: defaultName === "",
+    error: mode === "UPDATE"? defaultName == oldEventName: defaultName === "",
     message: "",
   });
+
   const [isPressed, setIsPressed] = useState(false);
 
   const onValueChange = (text: string) => {
@@ -119,6 +130,11 @@ const EventNameInput = (props: EventNameInputProps) => {
       setErrorState({
         error: true,
         message: "Please enter a name for your event",
+      });
+    }else if (mode ==="UPDATE" && text.toLocaleLowerCase() === oldEventName!.toLocaleLowerCase() ){
+      setErrorState({
+        error: true,
+        message: "Please enter a different name ",
       });
     } else {
       setErrorState({
@@ -131,6 +147,9 @@ const EventNameInput = (props: EventNameInputProps) => {
       ...eventFormValuesRef.current,
       name: text,
     };
+
+    
+
   };
 
   return (
@@ -1160,6 +1179,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
               onBackBtnPress={backAction}
               eventFormValuesRef={eventFormInputRef}
               user={user}
+              mode="CREATE"
             />
           );
         case 2:
@@ -1232,6 +1252,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
               onBackBtnPress={backAction}
               eventFormValuesRef={eventFormInputRef}
               user={user}
+              mode="CREATE"
             />
           );
         case 2:
@@ -1387,7 +1408,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
   const onSuccessPress = () =>
     navigation.replace("EventView", {
       ...result,
-      date: format(result.date, "MMMM dd, yyyy"),
+      date: result.date,
     });
 
   const onErrorPress = () => setError(false);
@@ -1476,11 +1497,11 @@ function EventForm({ navigation }: EventFormScreenProps) {
   );
 }
 
-function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps) {
+function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps){
   const userContext = useContext(UserContext);
   const { userId, isLoaded, getToken } = useAuth();
   const { assets, colors, sizes, gradients } = useTheme();
-
+  
   if (!isLoaded) {
     throw new Error("Clerk failed to load");
   }
@@ -1489,11 +1510,12 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps) {
     throw new Error("Profile must be used within a UserProvider");
   }
 
-  const { user, setEventList } = userContext;
+  const { user, eventList, setEventList } = userContext;
 
   if (!userId) {
     throw new Error("User does not exist! Please SignUp again");
   }
+
   const { eventInfo, updateValue } = route.params;
   const { _id, date, attendees, address, name, budget } = eventInfo;
   const {
@@ -1505,6 +1527,12 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps) {
     photography,
     videography,
   } = budget;
+
+  const [result, setResult] = useState<EventInfo>({...eventInfo});
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const eventDate = typeof date === "string" ? new Date(date) : date;
 
@@ -1521,14 +1549,73 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps) {
     },
     address,
     date: eventDate,
-    guests: 0,
+    guests: attendees,
     budget,
   });
 
   const backAction = () => navigation.goBack();
 
-  const onSubmitPress = () => {
+  const updateEventName = async () => {
+    setLoading(true);
+    setErrorMessage('');
+
+    const token = await getToken({ template: "event-hand-jwt" });
+
+    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/${_id}/name`;
+
+    const request = {
+      method: 'PATCH',
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ name: eventFormInputRef.current.name }),
+    };
+
+    try {
+      const response = await fetch(url, request);
+
+      if (response.ok) {
+        const updatedEvent = await response.json();
+        const updatedEvents = eventList.events.map(event => 
+          event._id === _id ? { ...event, name: updatedEvent.name } : event
+        );
+        setResult({...eventInfo, name: updatedEvent.name})
+        setEventList(prevEventList => {
+          return {
+            ...prevEventList,
+            events: [...updatedEvents]
+          }
+        })
+        setSuccess(true);
+      } else {
+        const errorData = await response.json();
+        if (response.status === 404) {
+          setError(true)
+          setErrorMessage('Event not found.');
+        } else if (response.status === 400) {
+          setError(true)
+          setErrorMessage('Invalid input. Please check the event name.');
+        } else {
+          setError(true)
+          setErrorMessage(errorData.message || 'Failed to update the event.');
+        }
+      }
+    } catch (error) {
+      setError(true)
+      setErrorMessage('An unexpected error occurred. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onSubmitPress = async () => {
     console.log(eventFormInputRef.current);
+    switch (updateValue) {
+      case "NAME":
+        await updateEventName();
+        break;
+    }    
   };
 
   const EventInput = () => {
@@ -1543,6 +1630,8 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps) {
             onBackBtnPress={backAction}
             eventFormValuesRef={eventFormInputRef}
             user={user}
+            mode="UPDATE"
+            oldEventName={name}
           />
         );
       case "DATE":
@@ -1554,6 +1643,7 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps) {
             onBtnPress={onSubmitPress}
             onBackBtnPress={backAction}
             eventFormValuesRef={eventFormInputRef}
+            mode="UPDATE"
           />
         );
       case "ADDRESS":
@@ -1565,6 +1655,7 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps) {
             onBtnPress={onSubmitPress}
             onBackBtnPress={backAction}
             eventFormValuesRef={eventFormInputRef}
+            mode="UPDATE"
           />
         ); 
       case "GUEST":
@@ -1576,12 +1667,49 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps) {
             onBtnPress={onSubmitPress}
             onBackBtnPress={backAction}
             eventFormValuesRef={eventFormInputRef}
+            mode="UPDATE"
           />
         );
       default:
         return <></>;
     }
   };
+
+  
+  const onSuccessPress = () => {
+    navigation.reset({
+      index: 1,
+      routes: [{name: "Home"}, {name: "EventView", params: {...result}}]
+    })
+  }
+
+  if (success) {
+    return (
+      <SuccessScreen
+        onPress={onSuccessPress}
+        description="Your new event name has been successfully Updated"
+        buttonText="Confirm"
+      />
+    );
+    }
+
+
+  const onErrorPress = () => setError(false);
+
+
+  if (error) {
+    return (
+      <ErrorScreen
+        onPress={onErrorPress}
+        description={errorMessage}
+        buttonText="Try Again"
+      />
+    );
+  }
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <>
@@ -1597,7 +1725,23 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps) {
       </Block>
     </>
   );
-}
+
+} 
+
+  
+
+  
+
+  
+  
+
+
+
+  
+
+
+
+
 
 const styles = StyleSheet.create({
   container: {
@@ -1802,6 +1946,7 @@ const listStyles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 8,
   },
+  
 });
 
 export { EventForm, UpdateEventForm };
