@@ -256,6 +256,7 @@ interface EventUpdateOption {
   label: string;
   icon: string;
   onPress: () => void;
+  disabled: boolean;
 }
 
 interface EventUpdateMenuProps {
@@ -296,13 +297,20 @@ const EventUpdateMenu: React.FC<EventUpdateMenuProps> = ({
       <View style={styles.eventUpdateMenuContainer}>
         <Text style={styles.budgetTitle}>EDIT EVENT</Text>
         <Text style={styles.budgetDescription}>
-          Cannot edit events with confirmed or pending bookings
+          Cannot edit event date and name with confirmed or pending bookings and cannot edit address, if you have booked venue.
         </Text>
         {options.map((option) => (
           <Pressable
             key={option.label}
             onPress={option.onPress}
-            style={styles.eventUpdateMenuButton}
+            disabled={option.disabled}
+            style={[styles.eventUpdateMenuButton, {
+              
+                backgroundColor: option.disabled
+                  ? "#D3D3D3" 
+                    : "#CB0C9F",
+              
+            }]}
           >
             <Ionicons
               name={option.icon}
@@ -318,8 +326,16 @@ const EventUpdateMenu: React.FC<EventUpdateMenuProps> = ({
   );
 };
 
+const checkArrayIfUndefinedOrEmpty = (array: any[] | undefined) => {
+  if(array){
+    return array.length <= 0;
+  }
+
+  return true;
+}
+
 function EventView({ route, navigation }: EventViewScreenProps) {
-  const { _id, name, attendees, budget, date, address, pending } = route.params;
+  const { _id, name, attendees, budget, date, address, pending, confirmed } = route.params;
   console.log(date)
   const dateString = format(date, "MMMM dd, yyyy")
   const { colors, sizes } = useTheme();
@@ -713,23 +729,30 @@ function EventView({ route, navigation }: EventViewScreenProps) {
           eventInfo: { ...updateEventFormValues },
           updateValue: "NAME",
         }),
+      disabled: !checkArrayIfUndefinedOrEmpty(confirmed) || !checkArrayIfUndefinedOrEmpty(pending)
     },
     { label: 'EDIT DATE', icon: 'calendar',       onPress: () =>
       navigation.navigate("UpdateEventForm", {
         eventInfo: { ...updateEventFormValues },
         updateValue: "DATE",
-      }),},
+      }),
+      disabled: !checkArrayIfUndefinedOrEmpty(confirmed) || !checkArrayIfUndefinedOrEmpty(pending)
+    },
     { label: 'EDIT ADDRESS', icon: 'location',       onPress: () =>
       navigation.navigate("UpdateEventForm", {
         eventInfo: { ...updateEventFormValues },
         updateValue: "ADDRESS",
-      }), },
+      }),
+      disabled: address === undefined
+
+    },
     { label: 'EDIT GUESTS', icon: 'people',
       onPress: () =>
         navigation.navigate("UpdateEventForm", {
           eventInfo: { ...updateEventFormValues },
           updateValue: "GUEST",
         }),
+        disabled: false
      },
   ];
 
