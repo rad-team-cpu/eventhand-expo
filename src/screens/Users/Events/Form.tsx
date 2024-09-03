@@ -50,6 +50,7 @@ import SuccessScreen from "Components/Success";
 import ErrorScreen from "Components/Error";
 import ExpoStatusBar from "expo-status-bar/build/ExpoStatusBar";
 import { i } from "@clerk/clerk-react/dist/controlComponents-CzpRUsyv";
+import { compareAsc } from "date-fns";
 
 type SelectedCategories = {
   eventPlanning: boolean;
@@ -382,7 +383,11 @@ const EventCategorySelect = (props: EventInputProps) => {
   );
 };
 
-const EventDateInput = (props: EventInputProps) => {
+interface EventDateInputProps extends EventInputProps{
+  oldDate?: Date;
+}
+
+const EventDateInput = (props: EventDateInputProps) => {
   const {
     title,
     description,
@@ -390,11 +395,19 @@ const EventDateInput = (props: EventInputProps) => {
     onBackBtnPress,
     onBtnPress,
     eventFormValuesRef,
+    mode,
+    oldDate
   } = props;
   const currentDate = eventFormValuesRef.current.date;
-  const { assets, colors, sizes, gradients } = useTheme();
+  const { sizes } = useTheme();
+
+  if(mode === "UPDATE" && !oldDate){
+      throw new Error("oldDate must not be undefined")
+
+  }
+
   const [errorState, setErrorState] = useState<FormError>({
-    error: false,
+    error: mode === "UPDATE"? compareAsc(currentDate, oldDate!) === -1 || compareAsc(currentDate, oldDate!) === 0: false ,
     message: "",
   });
   const [isPressed, setIsPressed] = useState(false);
@@ -415,6 +428,26 @@ const EventDateInput = (props: EventInputProps) => {
     setSelected(datePickerDate.selectStringDate(currentDate));
 
     if (currentDate) {
+      if(mode === "UPDATE" && oldDate){
+        switch (compareAsc( currentDate, oldDate)) {
+          case 1 :
+            eventFormValuesRef.current = {
+              ...eventFormValuesRef.current,
+              date: currentDate,
+            };
+            break;
+          case -1:
+            setErrorState({
+              error: true,
+              message: "Date should be after the old date",
+            });
+          case 0:
+            setErrorState({
+              error: true,
+              message: "Date should be after the old date",
+            }); 
+        }
+      }
       eventFormValuesRef.current = {
         ...eventFormValuesRef.current,
         date: currentDate,
@@ -1711,6 +1744,7 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps){
             onBackBtnPress={backAction}
             eventFormValuesRef={eventFormInputRef}
             mode="UPDATE"
+            oldDate={new Date(date)}
           />
         );
       case "ADDRESS":
