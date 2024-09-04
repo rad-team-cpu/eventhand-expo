@@ -1,13 +1,21 @@
-import { FontAwesome } from '@expo/vector-icons';
-import axios from 'axios';
-import { format } from 'date-fns/format';
-import ExpoStatusBar from 'expo-status-bar/build/ExpoStatusBar';
-import React, { useEffect, useRef, useState } from 'react';
-import Image from 'Components/Ui/Image';
-import Entypo from '@expo/vector-icons/Entypo';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
-import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
-import useTheme from 'src/core/theme';
+import { FontAwesome } from "@expo/vector-icons";
+import axios from "axios";
+import { format } from "date-fns/format";
+import ExpoStatusBar from "expo-status-bar/build/ExpoStatusBar";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import Image from "Components/Ui/Image";
+import Entypo from "@expo/vector-icons/Entypo";
+import {
+  Alert,
+  BackHandler,
+  GestureResponderEvent,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { TabView, SceneMap, TabBar } from "react-native-tab-view";
+import useTheme from "src/core/theme";
 import {
   EventViewScreenProps,
   ScreenProps,
@@ -18,11 +26,12 @@ import {
   HomeScreenBottomTabsProps,
   HomeScreenNavigationProp,
   EventBudget,
-} from 'types/types';
-import Button from 'Components/Ui/Button';
-import { AntDesign } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import Block from 'Components/Ui/Block';
+  EventInfo,
+} from "types/types";
+import Button from "Components/Ui/Button";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import Block from "Components/Ui/Block";
 
 type Category = {
   name: string;
@@ -33,49 +42,70 @@ type Category = {
 
 const categories: Category[] = [
   {
-    name: 'eventPlanning',
-    label: 'Event Planning',
-    icon: 'calendar',
-    color: '#FF6347',
+    name: "eventPlanning",
+    label: "Event Planning",
+    icon: "calendar",
+    color: "#FF6347",
   },
   {
-    name: 'eventCoordination',
-    label: 'Event Coordination',
-    icon: 'handshake-o',
-    color: '#4682B4',
+    name: "eventCoordination",
+    label: "Event Coordination",
+    icon: "handshake-o",
+    color: "#4682B4",
   },
-  { name: 'venue', label: 'Venue', icon: 'building', color: '#32CD32' },
+  { name: "venue", label: "Venue", icon: "building", color: "#32CD32" },
   {
-    name: 'decorations',
-    label: 'Decorations',
-    icon: 'paint-brush',
-    color: '#FF4500',
+    name: "decorations",
+    label: "Decorations",
+    icon: "paint-brush",
+    color: "#FF4500",
   },
-  { name: 'catering', label: 'Catering', icon: 'cutlery', color: '#FFD700' },
+  { name: "catering", label: "Catering", icon: "cutlery", color: "#FFD700" },
   {
-    name: 'photography',
-    label: 'Photography',
-    icon: 'camera',
-    color: '#FF69B4',
+    name: "photography",
+    label: "Photography",
+    icon: "camera",
+    color: "#FF69B4",
   },
   {
-    name: 'videography',
-    label: 'Videography',
-    icon: 'video-camera',
-    color: '#8A2BE2',
+    name: "videography",
+    label: "Videography",
+    icon: "video-camera",
+    color: "#8A2BE2",
   },
-  { name: 'total', label: 'Total', icon: 'calculator', color: '#4CAF50' },
+  { name: "total", label: "Total", icon: "calculator", color: "#4CAF50" },
 ];
+
+const calculateTotal = (budget: { [key: string]: number | null }): number => {
+  return Object.keys(budget)
+    .filter((key) => key !== "total") // Exclude the total key
+    .reduce((sum, key) => sum + (budget[key] ?? 0), 0); // Sum up non-null values
+};
 
 interface BudgetScreenProps {
   budget: EventBudget;
+  onUpdateBtnPress: () => void;
   onBackBtnPress: () => void;
 }
 
+const addCommasToNumber = (number: number) => {
+  // Convert the number to a string with exactly two decimal places
+  let numberString = number.toFixed(2);
+
+  // Split the string into the integer and decimal parts
+  let parts = numberString.split(".");
+
+  // Format the integer part with commas
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+  // Join the parts back together
+  return parts.join(".");
+};
+
 const BudgetScreen = (props: BudgetScreenProps) => {
   const [isPressed, setIsPressed] = useState(false);
-  const { assets, colors, sizes, gradients } = useTheme();
-  const { budget, onBackBtnPress } = props;
+  const {  sizes,} = useTheme();
+  const { budget, onBackBtnPress, onUpdateBtnPress } = props;
 
   return (
     <>
@@ -87,9 +117,9 @@ const BudgetScreen = (props: BudgetScreenProps) => {
       >
         <Block card paddingVertical={sizes.md} paddingHorizontal={sizes.md}>
           <Pressable onPress={onBackBtnPress}>
-            <Block className='flex flex-row mb-2'>
-              <AntDesign name='back' size={20} color={'#CB0C9F'} />
-              <Text className='ml-1 text-primary'>Go back</Text>
+            <Block className="flex flex-row mb-2">
+              <AntDesign name="back" size={20} color={"#CB0C9F"} />
+              <Text className="ml-1 text-primary">Go back</Text>
             </Block>
           </Pressable>
           <Text style={styles.budgetTitle}>Budget Breakdown</Text>
@@ -120,16 +150,17 @@ const BudgetScreen = (props: BudgetScreenProps) => {
                         { borderColor: category.color },
                       ]}
                     >
-                      ₱{budget[name as keyof EventBudget]}
+                      ₱{addCommasToNumber(budgetValue)}
                     </Text>
                   </View>
                 );
               }
             })}
           </View>
-          {/* <Pressable
+          <Pressable
             onPressIn={() => setIsPressed(true)}
             onPressOut={() => setIsPressed(false)}
+            onPress={onUpdateBtnPress}
             style={({ pressed }) => [
               styles.inputButton,
               {
@@ -137,14 +168,15 @@ const BudgetScreen = (props: BudgetScreenProps) => {
               },
             ]}
           >
-            <Text style={styles.inputButtonText}>Add Budget</Text>
-          </Pressable> */}
+            <Text style={styles.inputButtonText}>Update Budget</Text>
+          </Pressable>
         </Block>
       </Block>
     </>
   );
 };
 
+interface BookingListProps {}
 interface BookingListProps {}
 
 const SortTabBar = () => {
@@ -157,7 +189,7 @@ const SortTabBar = () => {
   return (
     <View style={styles.sortTabContainer}>
       {categories.map((category) => {
-        if (category.name !== 'total') {
+        if (category.name !== "total") {
           return (
             <Pressable
               key={category.name}
@@ -168,8 +200,8 @@ const SortTabBar = () => {
                     selectedCategory === category.name
                       ? category.color
                       : pressed
-                        ? category.color + '80' // Adding transparency on press
-                        : '#fff',
+                        ? category.color + "80" // Adding transparency on press
+                        : "#fff",
                   borderColor: category.color,
                 },
               ]}
@@ -179,7 +211,7 @@ const SortTabBar = () => {
                 name={category.icon}
                 size={15}
                 color={
-                  selectedCategory === category.name ? '#fff' : category.color
+                  selectedCategory === category.name ? "#fff" : category.color
                 }
               />
             </Pressable>
@@ -190,44 +222,156 @@ const SortTabBar = () => {
   );
 };
 
+interface ToolbarProps {
+  onBackPress: (event: GestureResponderEvent) => void | Boolean;
+  onDeletePress: (event: GestureResponderEvent) => void;
+  onEditPress: (event: GestureResponderEvent) => void;
+}
+
+const Toolbar: React.FC<ToolbarProps> = ({
+  onBackPress,
+  onDeletePress,
+  onEditPress,
+}) => {
+  return (
+    <View style={styles.toolbarContainer}>
+      <Pressable onPress={onBackPress} style={styles.toolbarButton}>
+        <Ionicons name="arrow-back" size={24} color="#CB0C9F" />
+      </Pressable>
+      <View style={styles.toolbarSpacer} />
+      <View style={styles.toolbarActions}>
+        <Pressable onPress={onEditPress} style={styles.toolbarButton}>
+          <Ionicons name="pencil" size={24} color="#CB0C9F" />
+        </Pressable>
+        <Pressable onPress={onDeletePress} style={styles.toolbarButton}>
+          <Ionicons name="trash" size={24} color="#CB0C9F" />
+        </Pressable>
+      </View>
+    </View>
+  );
+};
+
+interface EventUpdateOption {
+  label: string;
+  icon: string;
+  onPress: () => void;
+  disabled: boolean;
+}
+
+interface EventUpdateMenuProps {
+  options: EventUpdateOption[];
+  onPress: (option: string) => void;
+  onBackPress: () => void;
+}
+
+const EventUpdateMenu: React.FC<EventUpdateMenuProps> = ({
+  options,
+  onPress,
+  onBackPress,
+}) => {
+  const backAction = () => {
+    onBackPress();
+
+    return true;
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      const backHandler = BackHandler.addEventListener(
+        "hardwareBackPress",
+        backAction
+      );
+
+      return () => backHandler.remove();
+    }, [])
+  );
+
+  return (
+    <>
+      <View style={styles.toolbarContainer}>
+        <Pressable onPress={onBackPress} style={styles.toolbarButton}>
+          <Ionicons name="arrow-back" size={24} color="#CB0C9F" />
+        </Pressable>
+      </View>
+      <View style={styles.eventUpdateMenuContainer}>
+        <Text style={styles.budgetTitle}>EDIT EVENT</Text>
+        <Text style={styles.budgetDescription}>
+          Cannot edit event date and name with confirmed or pending bookings and cannot edit address, if you have booked venue.
+        </Text>
+        {options.map((option) => (
+          <Pressable
+            key={option.label}
+            onPress={option.onPress}
+            disabled={option.disabled}
+            style={[styles.eventUpdateMenuButton, {
+              
+                backgroundColor: option.disabled
+                  ? "#D3D3D3" 
+                    : "#CB0C9F",
+              
+            }]}
+          >
+            <Ionicons
+              name={option.icon}
+              size={20}
+              color="white"
+              style={styles.eventUpdateMenuIcon}
+            />
+            <Text style={styles.eventUpdateMenuLabel}>{option.label}</Text>
+          </Pressable>
+        ))}
+      </View>
+    </>
+  );
+};
+
+const checkArrayIfUndefinedOrEmpty = (array: any[] | undefined) => {
+  if(array){
+    return array.length <= 0;
+  }
+
+  return true;
+}
+
 function EventView({ route, navigation }: EventViewScreenProps) {
-  const { _id, name, attendees, budget, date, address, pending } = route.params;
-  const dateString =
-    date instanceof Date ? format(date, 'MMMM dd, yyyy') : date;
+  const { _id, name, attendees, budget, date, address, pending, confirmed } = route.params;
+  console.log(date)
+  const dateString = format(date, "MMMM dd, yyyy")
   const { colors, sizes } = useTheme();
   const [index, setIndex] = useState(0);
   const [openBudget, setOpenBudget] = useState(false);
+  const [openEdit, setOpenEdit] = useState(false);
   const [routes] = useState([
-    { key: 'confirmed', title: 'Confirmed' },
-    { key: 'pending', title: 'Pending' },
+    { key: "confirmed", title: "Confirmed" },
+    { key: "pending", title: "Pending" },
   ]);
   const [eventBookings, setEventBookings] = useState<BookingDetailsProps[]>([]);
   // console.log()
 
   const handleRemoveBooking = (id: string) => {
     Alert.alert(
-      'Confirm Cancellation',
-      'Are you sure you want to cancel this request to book?',
+      "Confirm Cancellation",
+      "Are you sure you want to cancel this request to book?",
       [
         {
-          text: 'NO',
-          style: 'cancel',
+          text: "NO",
+          style: "cancel",
         },
         {
-          text: 'YES',
+          text: "YES",
           onPress: async () => {
             try {
               await axios.delete(
                 `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking/${id}`,
                 {
                   headers: {
-                    'Content-Type': 'application/json',
+                    "Content-Type": "application/json",
                   },
                 }
               );
               fetchBookings(_id);
             } catch (error: any) {
-              console.error('Error removing booking:', error.message);
+              console.error("Error removing booking:", error.message);
             }
           },
         },
@@ -241,7 +385,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
         `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking?event=${eventId}`,
         {
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         }
       );
@@ -250,92 +394,92 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     } catch (error: any) {
       if (error instanceof TypeError) {
         console.error(
-          'Network request failed. Possible causes: CORS issues, network issues, or incorrect URL.'
+          "Network request failed. Possible causes: CORS issues, network issues, or incorrect URL."
         );
       } else {
-        console.error('Error fetching bookings:', error.message);
+        console.error("Error fetching bookings:", error.message);
       }
     }
   };
 
   const handleFindSupplier = () => {
-    navigation.navigate('Home', { initialTab: 'Vendors' });
+    navigation.navigate("Home", { initialTab: "Vendors" });
   };
 
   const bookingDetailsArray: BookingDetailsProps[] = [
     {
-      _id: 'booking1',
+      _id: "booking1",
       package: {
-        _id: 'package1',
-        name: 'Wedding Package',
+        _id: "package1",
+        name: "Wedding Package",
         vendor: {
-          _id: 'vendor1',
-          logo: 'vendor1-logo.jpg',
-          banner: 'vendor1-banner.jpg',
-          name: 'Amazing Events',
-          bio: 'We create unforgettable events.',
-          email: 'contact@amazingevents.com',
-          address: '123 Event St, Party City',
-          contactNumber: '123-456-7890',
+          _id: "vendor1",
+          logo: "vendor1-logo.jpg",
+          banner: "vendor1-banner.jpg",
+          name: "Amazing Events",
+          bio: "We create unforgettable events.",
+          email: "contact@amazingevents.com",
+          address: "123 Event St, Party City",
+          contactNumber: "123-456-7890",
           tags: [
-            { _id: 'tag1', name: 'wedding' },
-            { _id: 'tag2', name: 'luxury' },
+            { _id: "tag1", name: "wedding" },
+            { _id: "tag2", name: "luxury" },
           ],
           packages: [], // Nested packages will go here if needed
         },
-        vendorId: 'vendor1',
+        vendorId: "vendor1",
         price: 5000,
-        pictureURL: 'wedding-package.jpg',
+        pictureURL: "wedding-package.jpg",
         capacity: 200,
         inclusions: [
           {
-            id: 'product1',
-            name: 'Flower Arrangement',
-            imageURL: 'flower-arrangement.jpg',
-            description: 'Beautiful floral decorations.',
+            id: "product1",
+            name: "Flower Arrangement",
+            imageURL: "flower-arrangement.jpg",
+            description: "Beautiful floral decorations.",
             quantity: 20,
           },
           {
-            id: 'product2',
-            name: 'Wedding Cake',
-            imageURL: 'wedding-cake.jpg',
-            description: 'Three-tiered custom cake.',
+            id: "product2",
+            name: "Wedding Cake",
+            imageURL: "wedding-cake.jpg",
+            description: "Three-tiered custom cake.",
             quantity: 1,
           },
         ],
       },
-      packageId: 'package1',
+      packageId: "package1",
       vendor: {
-        _id: 'vendor1',
-        logo: 'vendor1-logo.jpg',
-        banner: 'vendor1-banner.jpg',
-        name: 'Amazing Events',
-        bio: 'We create unforgettable events.',
-        email: 'contact@amazingevents.com',
-        address: '123 Event St, Party City',
-        contactNumber: '123-456-7890',
+        _id: "vendor1",
+        logo: "vendor1-logo.jpg",
+        banner: "vendor1-banner.jpg",
+        name: "Amazing Events",
+        bio: "We create unforgettable events.",
+        email: "contact@amazingevents.com",
+        address: "123 Event St, Party City",
+        contactNumber: "123-456-7890",
         tags: [
-          { _id: 'tag1', name: 'wedding' },
-          { _id: 'tag2', name: 'luxury' },
+          { _id: "tag1", name: "wedding" },
+          { _id: "tag2", name: "luxury" },
         ],
         packages: [], // Nested packages will go here if needed
       },
-      vendorId: 'vendor1',
+      vendorId: "vendor1",
       client: {
-        _id: 'client1',
-        profilePicture: 'client1-profile.jpg',
-        email: 'johndoe@example.com',
-        lastName: 'Doe',
-        firstName: 'John',
-        contactNumber: '555-123-4567',
+        _id: "client1",
+        profilePicture: "client1-profile.jpg",
+        email: "johndoe@example.com",
+        lastName: "Doe",
+        firstName: "John",
+        contactNumber: "555-123-4567",
       },
-      clientId: 'client1',
+      clientId: "client1",
       event: {
-        _id: 'event1',
+        _id: "event1",
         attendees: 500,
         name: "John and Jane's Wedding",
-        date: new Date('2024-10-15'),
-        address: '123 Wedding Lane, Love City',
+        date: new Date("2024-10-15"),
+        address: "123 Wedding Lane, Love City",
         budget: {
           eventPlanning: 2000,
           eventCoordination: 1500,
@@ -347,82 +491,82 @@ function EventView({ route, navigation }: EventViewScreenProps) {
           total: 16000,
         },
       },
-      eventId: 'event1',
+      eventId: "event1",
       bookingStatus: BookingStatus.Confirmed,
     },
     {
-      _id: 'booking2',
+      _id: "booking2",
       package: {
-        _id: 'package2',
-        name: 'Corporate Event Package',
+        _id: "package2",
+        name: "Corporate Event Package",
         vendor: {
-          _id: 'vendor2',
-          logo: 'vendor2-logo.jpg',
-          banner: 'vendor2-banner.jpg',
-          name: 'Business Events Co.',
-          bio: 'Experts in corporate events.',
-          email: 'contact@businessevents.com',
-          address: '456 Corporate Ave, Business City',
-          contactNumber: '987-654-3210',
+          _id: "vendor2",
+          logo: "vendor2-logo.jpg",
+          banner: "vendor2-banner.jpg",
+          name: "Business Events Co.",
+          bio: "Experts in corporate events.",
+          email: "contact@businessevents.com",
+          address: "456 Corporate Ave, Business City",
+          contactNumber: "987-654-3210",
           tags: [
-            { _id: 'tag3', name: 'corporate' },
-            { _id: 'tag4', name: 'professional' },
+            { _id: "tag3", name: "corporate" },
+            { _id: "tag4", name: "professional" },
           ],
           packages: [], // Nested packages will go here if needed
         },
-        vendorId: 'vendor2',
+        vendorId: "vendor2",
         price: 8000,
-        pictureURL: 'corporate-package.jpg',
+        pictureURL: "corporate-package.jpg",
         capacity: 500,
         inclusions: [
           {
-            id: 'product3',
-            name: 'Audio-Visual Setup',
-            imageURL: 'av-setup.jpg',
-            description: 'State-of-the-art AV equipment.',
+            id: "product3",
+            name: "Audio-Visual Setup",
+            imageURL: "av-setup.jpg",
+            description: "State-of-the-art AV equipment.",
             quantity: 1,
           },
           {
-            id: 'product4',
-            name: 'Catering',
-            imageURL: 'catering.jpg',
-            description: 'Full-service catering.',
+            id: "product4",
+            name: "Catering",
+            imageURL: "catering.jpg",
+            description: "Full-service catering.",
             quantity: 500,
           },
         ],
       },
-      packageId: 'package2',
+      packageId: "package2",
       vendor: {
-        _id: 'vendor2',
-        logo: 'vendor2-logo.jpg',
-        banner: 'vendor2-banner.jpg',
-        name: 'Business Events Co.',
-        bio: 'Experts in corporate events.',
-        email: 'contact@businessevents.com',
-        address: '456 Corporate Ave, Business City',
-        contactNumber: '987-654-3210',
+        _id: "vendor2",
+        logo: "vendor2-logo.jpg",
+        banner: "vendor2-banner.jpg",
+        name: "Business Events Co.",
+        bio: "Experts in corporate events.",
+        email: "contact@businessevents.com",
+        address: "456 Corporate Ave, Business City",
+        contactNumber: "987-654-3210",
         tags: [
-          { _id: 'tag3', name: 'corporate' },
-          { _id: 'tag4', name: 'professional' },
+          { _id: "tag3", name: "corporate" },
+          { _id: "tag4", name: "professional" },
         ],
         packages: [], // Nested packages will go here if needed
       },
-      vendorId: 'vendor2',
+      vendorId: "vendor2",
       client: {
-        _id: 'client2',
-        profilePicture: 'client2-profile.jpg',
-        email: 'janesmith@example.com',
-        lastName: 'Smith',
-        firstName: 'Jane',
-        contactNumber: '555-987-6543',
+        _id: "client2",
+        profilePicture: "client2-profile.jpg",
+        email: "janesmith@example.com",
+        lastName: "Smith",
+        firstName: "Jane",
+        contactNumber: "555-987-6543",
       },
-      clientId: 'client2',
+      clientId: "client2",
       event: {
-        _id: 'event2',
-        name: 'Company Annual Meeting',
+        _id: "event2",
+        name: "Company Annual Meeting",
         attendees: 500,
-        date: new Date('2024-11-20'),
-        address: '789 Conference Rd, Business City',
+        date: new Date("2024-11-20"),
+        address: "789 Conference Rd, Business City",
         budget: {
           eventPlanning: 4000,
           eventCoordination: 3000,
@@ -434,7 +578,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
           total: 43000,
         },
       },
-      eventId: 'event2',
+      eventId: "event2",
       bookingStatus: BookingStatus.Pending,
     },
   ];
@@ -451,7 +595,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
               <View
                 key={booking._id}
                 style={styles.vendorContainer}
-                className='bg-white rounded-lg justify-between flex p-2'
+                className="bg-white rounded-lg justify-between"
               >
                 <Image
                   radius={sizes.s}
@@ -461,27 +605,20 @@ function EventView({ route, navigation }: EventViewScreenProps) {
                   style={{ backgroundColor: colors.gray }}
                 />
                 <View>
-                  <Text
-                    className='text-xs text-center font-semibold w-24'
-                    numberOfLines={1}
-                    ellipsizeMode='tail'
-                  >
-                    {(booking.package as PackageType).name}
+                  <Text className="text-xs text-center font-semibold">
+                    {(booking.package as PackageType).name.length > 12
+                      ? `${(booking.package as PackageType).name.substring(0, 10)}...`
+                      : (booking.package as PackageType).name}
                   </Text>
                 </View>
-                <View className='flex-col'>
+                <View className="flex-col">
                   {(booking.package as PackageType).inclusions.map(
                     (inclusion: Product) => (
-                      <View className='flex-row space-x-1' key={inclusion.id}>
-                        <Text
-                          className='text-xs text-center font-semibold flex'
-                          numberOfLines={1}
-                          ellipsizeMode='tail'
-                          style={{ maxWidth: 80 }}
-                        >
+                      <View className="flex-row space-x-1">
+                        <Text className="text-xs text-center font-semibold">
                           {inclusion.name}
                         </Text>
-                        <Text className='text-xs text-center font-semibold flex'>
+                        <Text className="text-xs text-center font-semibold">
                           x {inclusion.quantity}
                         </Text>
                       </View>
@@ -489,7 +626,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
                   )}
                 </View>
                 <Text
-                  className='text-xs font-semibold'
+                  className="text-xs font-semibold"
                   style={styles.vendorName}
                 >
                   ₱{(booking.package as PackageType).price}
@@ -502,25 +639,18 @@ function EventView({ route, navigation }: EventViewScreenProps) {
 
   const PendingVendors = () => (
     <View style={styles.listContainer}>
-      <SortTabBar />
+      {/* <SortTabBar/> */}
       {eventBookings &&
         eventBookings
           .filter((booking) => booking.bookingStatus === BookingStatus.Pending)
           .map((booking) => {
+            console.log(booking);
             return (
               <View
                 key={booking._id}
                 style={styles.vendorContainer}
-                className='bg-white rounded-lg justify-between flex p-2'
+                className="bg-white rounded-lg justify-between"
               >
-                {booking._id && (
-                  <Pressable
-                    onPress={() => handleRemoveBooking(booking._id as string)}
-                    style={styles.floatingRemoveButton}
-                  >
-                    <Entypo name='cross' size={24} color='red' />
-                  </Pressable>
-                )}
                 <Image
                   radius={sizes.s}
                   width={sizes.xl}
@@ -528,44 +658,32 @@ function EventView({ route, navigation }: EventViewScreenProps) {
                   src={booking.package?.pictureURL}
                   style={{ backgroundColor: colors.gray }}
                 />
-
                 <View>
-                  <Text
-                    className='text-xs text-center font-semibold w-24'
-                    numberOfLines={1}
-                    ellipsizeMode='tail'
-                  >
-                    {(booking.package as PackageType).name}
+                  <Text className="text-xs text-center font-semibold">
+                    {(booking.package as PackageType).name.length > 12
+                      ? `${(booking.package as PackageType).name.substring(0, 10)}...`
+                      : (booking.package as PackageType).name}
                   </Text>
                 </View>
-
-                <View className='flex-col'>
+                <View className="flex-col">
                   {(booking.package as PackageType).inclusions.map(
                     (inclusion: Product) => (
-                      <View className='flex-row space-x-1' key={inclusion.id}>
-                        <Text
-                          className='text-xs text-center font-semibold flex'
-                          numberOfLines={1}
-                          ellipsizeMode='tail'
-                          style={{ maxWidth: 80 }}
-                        >
+                      <View className="flex-row space-x-1">
+                        <Text className="text-xs text-center font-semibold">
                           {inclusion.name}
                         </Text>
-                        <Text className='text-xs text-center font-semibold flex'>
+                        <Text className="text-xs text-center font-semibold">
                           x {inclusion.quantity}
                         </Text>
                       </View>
                     )
                   )}
                 </View>
-
                 <Text
-                  className='text-s font-semibold'
-                  numberOfLines={1}
-                  ellipsizeMode='tail'
-                  style={[styles.vendorName, { maxWidth: 100 }]}
+                  className="text-xs font-semibold"
+                  style={styles.vendorName}
                 >
-                  ₱{(booking.package as PackageType).price.toFixed(2)}
+                  ₱{(booking.package as PackageType).price}
                 </Text>
               </View>
             );
@@ -584,62 +702,140 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     fetchBookings(eventId);
   }, []);
 
-  const onBackBtnPress = () => setOpenBudget(false);
+  const onBudgetBackButtonPress = () => setOpenBudget(false);
+
+  const updateEventFormValues: EventInfo = {
+    _id,
+    name,
+    address,
+    date,
+    attendees,
+    budget,
+  };
+
+  const onUpdateBtnPress =  () => {
+    navigation.navigate("UpdateEventForm", {
+      eventInfo: { ...updateEventFormValues },
+      updateValue: "BUDGET",
+    })
+  
+  }      
 
   if (openBudget) {
-    return <BudgetScreen budget={budget} onBackBtnPress={onBackBtnPress} />;
+    return (
+      <BudgetScreen budget={budget} onBackBtnPress={onBudgetBackButtonPress} onUpdateBtnPress={onUpdateBtnPress}/>
+    );
   }
+
+  const eventUpdateOptions = [
+    {
+      label: "EDIT NAME",
+      icon: "pencil-sharp",
+      onPress: () =>
+        navigation.navigate("UpdateEventForm", {
+          eventInfo: { ...updateEventFormValues },
+          updateValue: "NAME",
+        }),
+      disabled: !checkArrayIfUndefinedOrEmpty(confirmed) || !checkArrayIfUndefinedOrEmpty(pending)
+    },
+    { label: 'EDIT DATE', icon: 'calendar',       onPress: () =>
+      navigation.navigate("UpdateEventForm", {
+        eventInfo: { ...updateEventFormValues },
+        updateValue: "DATE",
+      }),
+      disabled: !checkArrayIfUndefinedOrEmpty(confirmed) || !checkArrayIfUndefinedOrEmpty(pending)
+    },
+    { label: 'EDIT ADDRESS', icon: 'location',       onPress: () =>
+      navigation.navigate("UpdateEventForm", {
+        eventInfo: { ...updateEventFormValues },
+        updateValue: "ADDRESS",
+      }),
+      disabled: address === undefined
+
+    },
+    { label: 'EDIT GUESTS', icon: 'people',
+      onPress: () =>
+        navigation.navigate("UpdateEventForm", {
+          eventInfo: { ...updateEventFormValues },
+          updateValue: "GUEST",
+        }),
+        disabled: false
+     },
+  ];
+
+  const onEditBackButtonPress = () => setOpenEdit(false);
+
+  if (openEdit) {
+    return (
+      <EventUpdateMenu
+        options={eventUpdateOptions}
+        onPress={(option) => console.log(option)}
+        onBackPress={onEditBackButtonPress}
+      />
+    );
+  }
+
+  const onBackBtnPress = () => navigation.goBack();
+  const onEditButtonPress = () => setOpenEdit(true);
 
   return (
     <>
       <ExpoStatusBar />
+      <Toolbar
+        onBackPress={onBackBtnPress}
+        onDeletePress={() => {}}
+        onEditPress={onEditButtonPress}
+      />
       <View style={listStyles.eventContainer}>
-        <View className='flex flex-row justify-between'>
-          <Button
+        <View className="flex flex-row justify-between">
+          <Text style={listStyles.dateText}>{dateString}</Text>
+          {/* <Button
             row
             flex={0}
-            justify='flex-start'
-            onPress={() => navigation.goBack()}
+            justify="flex-start"
+            onPress={onBackBtnPress}
           >
-            <AntDesign name='back' size={24} color='#CB0C9F' />
-            <Text className='text-primary ml-1'>Go back</Text>
-          </Button>
+            <AntDesign name="back" size={24} color="#CB0C9F" />
+            <Text className="text-primary ml-1">Go back</Text>
+          </Button> */}
           <View style={styles.container}>
             <Pressable
               style={styles.button}
-              android_ripple={{ color: '#c0c0c0' }}
+              android_ripple={{ color: "#c0c0c0" }}
               onPress={() => handleFindSupplier()}
             >
               <FontAwesome
-                name='search'
+                name="search"
                 size={10}
-                color='white'
+                color="white"
                 style={styles.icon}
               />
               <Text style={styles.buttonText}>Find Supplier</Text>
             </Pressable>
           </View>
         </View>
-
-        <Text style={listStyles.nameText}>{name}</Text>
         <View style={listStyles.row}>
-          <Text style={listStyles.dateText}>{dateString}</Text>
-          {address && (
-            <>
-              <Text style={listStyles.capacityText}>{address}</Text>
-            </>
-          )}
+          <Text style={listStyles.nameText}>{name}</Text>
         </View>
+        {address && (
+          <>
+            <Text style={listStyles.capacityText}>{address}</Text>
+          </>
+        )}
+        {/* <View style={listStyles.row}>
+          <Text style={listStyles.dateText}>{dateString}</Text>
+
+        </View> */}
         <View style={listStyles.separator} />
         <View style={listStyles.row}>
           <Pressable
             style={({ pressed }) => [
               {
-                backgroundColor: pressed ? '#9B47FF' : '#6200EE',
+                backgroundColor: pressed ? "#9B47FF" : "#6200EE",
                 padding: 5,
                 borderRadius: 5,
-                alignItems: 'center',
-                justifyContent: 'center',
+                alignItems: "center",
+                justifyContent: "center",
               },
             ]}
             onPress={() => setOpenBudget(true)}
@@ -647,7 +843,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
             <Text style={listStyles.budgetText}>View Budget</Text>
           </Pressable>
           <Text style={listStyles.capacityText}>
-            Capacity: {attendees !== 0 ? `${attendees}` : 'TBD'}
+            Capacity: {attendees !== 0 ? `${attendees}` : "TBD"}
           </Text>
         </View>
       </View>
@@ -676,9 +872,9 @@ const styles = StyleSheet.create({
     marginVertical: 1,
   },
   button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#6200EE',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#6200EE",
     paddingVertical: 10,
     paddingHorizontal: 10,
     borderRadius: 5,
@@ -687,7 +883,7 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },
   buttonText: {
-    color: 'white',
+    color: "white",
     fontSize: 12,
   },
   listContainer: {
@@ -696,29 +892,29 @@ const styles = StyleSheet.create({
   },
   roundedContainer: {
     borderRadius: 10,
-    backgroundColor: '#fff',
-    overflow: 'hidden',
+    backgroundColor: "#fff",
+    overflow: "hidden",
     elevation: 5,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
   vendorContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 10,
-    position: 'relative',
+    position: "relative",
   },
   floatingRemoveButton: {
-    position: 'absolute',
+    position: "absolute",
     top: -10,
     right: -10,
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderRadius: 50,
     padding: 1,
     elevation: 5,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
@@ -733,20 +929,20 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   tabBar: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     marginTop: 5, // Add margin top for TabBar
     marginHorizontal: 6,
     elevation: 4, // Optional shadow for TabBar on Android
-    shadowColor: '#000', // Optional shadow for TabBar on iOS
+    shadowColor: "#000", // Optional shadow for TabBar on iOS
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
   indicator: {
-    backgroundColor: '#CB0C9F',
+    backgroundColor: "#CB0C9F",
   },
   label: {
-    color: '#CB0C9F',
+    color: "#CB0C9F",
   },
 
   budgetInputContainer: {
@@ -756,8 +952,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   budgetInputLabelContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 5,
   },
   budgetInputIcon: {
@@ -765,7 +961,7 @@ const styles = StyleSheet.create({
   },
   budgetInputLabel: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   budgetInputField: {
     borderWidth: 1,
@@ -774,43 +970,91 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   budgetInputError: {
-    color: 'red',
+    color: "red",
     marginTop: 5,
   },
   budgetTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 10,
   },
   budgetDescription: {
     fontSize: 16,
     marginBottom: 20,
+    textAlign: "center",
+    paddingHorizontal: 2,
   },
   inputButton: {
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   inputButtonText: {
-    color: 'white',
+    color: "white",
     fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
   },
   sortTabContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+    flexDirection: "row",
+    justifyContent: "space-around",
     paddingVertical: 10,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
   },
   sortTabButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     padding: 10,
     borderWidth: 2,
     borderRadius: 50,
+  },
+  toolbarContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    // backgroundColor: '#6200EE', // Example toolbar background color
+    // position: 'absolute',
+    marginTop: 10,
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1,
+  },
+  toolbarButton: {
+    padding: 8,
+  },
+  toolbarSpacer: {
+    flex: 1,
+  },
+  toolbarActions: {
+    flexDirection: "row",
+  },
+  eventUpdateMenuContainer: {
+    flex: 1,
+    // justifyContent: 'center', // Center vertically
+    alignItems: "center", // Center horizontally
+    paddingVertical: 10,
+  },
+  eventUpdateMenuButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 10,
+    marginVertical: 5,
+    backgroundColor: "#6200EE", // Example button background color
+    borderRadius: 5,
+    width: "65%", // Set a fixed width to prevent extending the whole width
+  },
+  eventUpdateMenuIcon: {
+    marginRight: 10,
+  },
+  eventUpdateMenuLabel: {
+    fontSize: 16,
+    color: "white",
+    fontWeight: "bold", // Make the text bold
   },
 });
 
@@ -818,47 +1062,47 @@ const listStyles = StyleSheet.create({
   eventContainer: {
     paddingHorizontal: 16,
     paddingVertical: 10,
-    marginTop: 30,
+    // marginTop: 30,
     marginHorizontal: 5,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderLeftWidth: 8,
     borderTopLeftRadius: 16,
     borderBottomLeftRadius: 16,
-    borderLeftColor: '#CB0C9F',
+    borderLeftColor: "#CB0C9F",
     borderRightWidth: 8,
     borderTopRightRadius: 16,
     borderBottomRightRadius: 16,
-    borderRightColor: '#CB0C9F',
+    borderRightColor: "#CB0C9F",
     elevation: 10, // Add shadow for floating effect
-    shadowColor: 'black',
+    shadowColor: "black",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 10,
   },
   nameText: {
     fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 8,
+    fontWeight: "bold",
   },
   dateText: {
     fontSize: 14,
-    marginBottom: 8,
   },
   separator: {
     borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+    borderBottomColor: "#ccc",
     marginBottom: 8,
   },
   row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 12,
   },
   budgetText: {
-    color: 'white',
+    color: "white",
     fontSize: 14,
   },
   capacityText: {
     fontSize: 14,
+    marginBottom: 8,
   },
 });
 
