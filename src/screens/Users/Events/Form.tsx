@@ -243,6 +243,7 @@ const EventCategorySelect = (props: EventInputProps) => {
     onBackBtnPress,
     onBtnPress,
     eventFormValuesRef,
+    mode
   } = props;
 
   const defaultCategories = eventFormValuesRef.current.categories;
@@ -276,8 +277,8 @@ const EventCategorySelect = (props: EventInputProps) => {
         message: "Must select at least 1 category",
       });
     }
-
-    if (name === "venue") {
+    
+    if (name === "venue" && mode === "CREATE") {
       updatedSelection[name]
         ? (eventFormValuesRef.current = {
             ...eventFormValuesRef.current,
@@ -804,12 +805,13 @@ const EventBudgetInput = (props: EventInputProps) => {
     onBackBtnPress,
     onBtnPress,
     eventFormValuesRef,
+    mode
   } = props;
   const { sizes } = useTheme();
   const selectedCategories = eventFormValuesRef.current.categories;
   const defaultBudget = eventFormValuesRef.current.budget;
   const [errorState, setErrorState] = useState<EventBudgetError>({
-    error: !validateEventBudget(eventFormValuesRef.current),
+    error: mode === "UPDATE"? true : !validateEventBudget(eventFormValuesRef.current),
     message: "",
     messages: {
       eventPlanning: "",
@@ -1573,6 +1575,142 @@ function EventForm({ navigation }: EventFormScreenProps) {
   );
 }
 
+interface UpdateBudgetInputProps {
+  onBackBtnPress: () => boolean | void;
+  onBtnPress: () => void;
+  eventFormValuesRef: React.MutableRefObject<EventFormInputType>;
+  oldBudget: EventBudget;
+  oldAddress?: string
+}
+
+const UpdateBudgetInput = (props: UpdateBudgetInputProps) => {
+  const {onBackBtnPress, onBtnPress, eventFormValuesRef,  oldAddress} = props;
+  const [step, setStep] = useState<number>(0);
+
+  const categories = eventFormValuesRef.current.categories
+
+  const totalSteps = !categories.venue && !oldAddress? 3 : 2;
+
+  const onNextBtnPress = () => {
+    if(step < totalSteps - 1){
+      setStep(prevStep => prevStep + 1)
+    }
+  }
+  const backAction = () => {
+    if (step !== 0) {
+      setStep(step - 1);
+    }
+
+    return true;
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      const backHandler = BackHandler.addEventListener(
+        "hardwareBackPress",
+        backAction
+      );
+
+      return () => backHandler.remove();
+    }, [step])
+  );
+
+  if(!categories.venue && !oldAddress){
+    switch (step) {
+      case 0:
+        return(       
+          <EventCategorySelect
+            title="What type of vendors are you looking too add/remove?"
+            description="Please select at least one"
+            buttonLabel="NEXT"
+            onBtnPress={onNextBtnPress}
+            onBackBtnPress={onBackBtnPress}
+            eventFormValuesRef={eventFormValuesRef}
+            mode="UPDATE"
+          />
+        );
+      case 1:
+        return (
+          <EventAddressInput
+            title="Where will your event be held?"
+            description="Please enter the address of your event venue"
+            buttonLabel="NEXT"
+            onBtnPress={onNextBtnPress}
+            onBackBtnPress={backAction}
+            eventFormValuesRef={eventFormValuesRef}
+            mode="CREATE"
+          />
+        );
+      case 2:
+        return (
+          <EventBudgetInput
+            title="How much is your budget?"
+            description="Please enter the budget for each category."
+            buttonLabel="SUBMIT"
+            onBtnPress={onBtnPress}
+            onBackBtnPress={backAction}
+            eventFormValuesRef={eventFormValuesRef}
+            mode="UPDATE"
+          />
+        );
+      default:
+        return(       
+          <EventCategorySelect
+            title="What type of vendors are you looking for?"
+            description="Please select at least one"
+            buttonLabel="NEXT"
+            onBtnPress={onNextBtnPress}
+            onBackBtnPress={onBackBtnPress}
+            eventFormValuesRef={eventFormValuesRef}
+            mode="UPDATE"
+          />
+        );
+    }
+  }else{
+    switch (step) {
+      case 0:
+        return(       
+          <EventCategorySelect
+            title="What type of vendors are you looking too add/remove?"
+            description="Please select at least one"
+            buttonLabel="NEXT"
+            onBtnPress={onNextBtnPress}
+            onBackBtnPress={onBackBtnPress}
+            eventFormValuesRef={eventFormValuesRef}
+            mode="UPDATE"
+          />
+        );
+      case 1:
+        return (
+          <EventBudgetInput
+            title="How much  is your budget?"
+            description="Please enter the budget for each category."
+            buttonLabel="SUBMIT"
+            onBtnPress={onBtnPress}
+            onBackBtnPress={backAction}
+            eventFormValuesRef={eventFormValuesRef}
+            mode="UPDATE"
+          />
+        );
+      default:
+        return(       
+          <EventCategorySelect
+            title="What type of vendors are you looking for?"
+            description="Please select at least one"
+            buttonLabel="NEXT"
+            onBtnPress={onNextBtnPress}
+            onBackBtnPress={onBackBtnPress}
+            eventFormValuesRef={eventFormValuesRef}
+            mode="UPDATE"
+          />
+        );
+    }
+  }
+  
+
+
+}
+
 function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps){
   const userContext = useContext(UserContext);
   const { userId, isLoaded, getToken } = useAuth();
@@ -1607,6 +1745,7 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps){
   const [result, setResult] = useState<EventInfo>({...eventInfo});
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -1626,8 +1765,17 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps){
     address,
     date: eventDate,
     guests: attendees,
-    budget,
+    budget: {
+      eventPlanning: (eventPlanning)? eventPlanning: null,
+      eventCoordination: (eventCoordination)? eventCoordination: null,
+      decorations: (decorations)? decorations: null,
+      venue: (venue)? venue: null,
+      catering: (catering)? catering: null,
+      photography: (photography)? photography: null,
+      videography: (videography)? videography: null
+    },
   });
+
 
   const backAction = () => navigation.goBack();
 
@@ -1658,6 +1806,33 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps){
         url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/${_id}/attendees`;
         body = JSON.stringify({ attendees: eventFormInputRef.current.guests })
         break;
+      case "BUDGET":
+        const {
+          eventPlanning,
+          eventCoordination,
+          venue,
+          decorations,
+          catering,
+          photography,
+          videography,
+        } = eventFormInputRef.current.budget;
+        url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/${_id}/budget`;
+        body = (eventFormInputRef.current.budget.venue === null)? JSON.stringify({           eventPlanning,
+          eventCoordination,
+          venue,
+          decorations,
+          catering,
+          photography,
+          videography, 
+          address: eventFormInputRef.current.address }) :
+          JSON.stringify({           eventPlanning,
+            eventCoordination,
+            venue,
+            decorations,
+            catering,
+            photography,
+            videography,})
+        break;
     }   
 
     const request = {
@@ -1668,6 +1843,7 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps){
       },
       body,
     };
+
 
     try {
       const response = await fetch(url, request);
@@ -1701,6 +1877,12 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps){
               );
               setResult({...eventInfo, attendees: updatedEvent.attendees})
               break;
+              case "BUDGET":
+                  updatedEvents = eventList.events.map(event => 
+                    event._id === _id ?(event.budget.venue !== null)? { ...event,  budget: {...updatedEvent.budget, total: updatedEvent.total}, } :  { ...event,  budget: {...updatedEvent.budget, total: updatedEvent.total}, } : event
+                  );
+                  (updatedEvent.venue !== null)?setResult({...eventInfo, budget: {...updatedEvent.budget, total: updatedEvent.total}, address: updatedEvent.address}): setResult({...eventInfo,  budget: {...updatedEvent.budget, total: updatedEvent.total}})
+                  break;
         }   
     
         setEventList(prevEventList => {
@@ -1709,7 +1891,7 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps){
             events: [...updatedEvents]
           }
         })
-
+        setSuccessMessage(`Your event ${updateValue.toLocaleLowerCase()}} has been successfully Updated`)
         setSuccess(true);
 
       } else {
@@ -1719,7 +1901,7 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps){
           setErrorMessage('Event not found.');
         } else if (response.status === 400) {
           setError(true)
-          setErrorMessage('Invalid input. Please check the event name.');
+          setErrorMessage(`Invalid input. Please check the event ${updateValue.toLocaleLowerCase()}.`);
         } else {
           setError(true)
           setErrorMessage(errorData.message || 'Failed to update the event.');
@@ -1788,6 +1970,14 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps){
             oldGuests={attendees}
           />
         );
+      case "BUDGET":
+        return (<UpdateBudgetInput
+          onBtnPress={onSubmitPress}
+          onBackBtnPress={backAction}
+          eventFormValuesRef={eventFormInputRef}
+          oldBudget={budget}
+          oldAddress={address}
+        />)
       default:
         return <></>;
     }
@@ -1805,7 +1995,7 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps){
     return (
       <SuccessScreen
         onPress={onSuccessPress}
-        description="Your new event name has been successfully Updated"
+        description={successMessage}
         buttonText="Confirm"
       />
     );
@@ -1844,22 +2034,7 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps){
     </>
   );
 
-} 
-
-  
-
-  
-
-  
-  
-
-
-
-  
-
-
-
-
+};
 
 const styles = StyleSheet.create({
   container: {

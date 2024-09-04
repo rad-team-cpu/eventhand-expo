@@ -84,6 +84,7 @@ const calculateTotal = (budget: { [key: string]: number | null }): number => {
 
 interface BudgetScreenProps {
   budget: EventBudget;
+  onUpdateBtnPress: () => void;
   onBackBtnPress: () => void;
 }
 
@@ -103,11 +104,8 @@ const addCommasToNumber = (number: number) => {
 
 const BudgetScreen = (props: BudgetScreenProps) => {
   const [isPressed, setIsPressed] = useState(false);
-  const { assets, colors, sizes, gradients } = useTheme();
-  const { budget, onBackBtnPress } = props;
-  const [budgetTotal, setBudgetTotal] = useState<number>(
-    calculateTotal(budget)
-  );
+  const {  sizes,} = useTheme();
+  const { budget, onBackBtnPress, onUpdateBtnPress } = props;
 
   return (
     <>
@@ -159,9 +157,10 @@ const BudgetScreen = (props: BudgetScreenProps) => {
               }
             })}
           </View>
-          {/* <Pressable
+          <Pressable
             onPressIn={() => setIsPressed(true)}
             onPressOut={() => setIsPressed(false)}
+            onPress={onUpdateBtnPress}
             style={({ pressed }) => [
               styles.inputButton,
               {
@@ -169,8 +168,8 @@ const BudgetScreen = (props: BudgetScreenProps) => {
               },
             ]}
           >
-            <Text style={styles.inputButtonText}>Add Budget</Text>
-          </Pressable> */}
+            <Text style={styles.inputButtonText}>Update Budget</Text>
+          </Pressable>
         </Block>
       </Block>
     </>
@@ -705,12 +704,6 @@ function EventView({ route, navigation }: EventViewScreenProps) {
 
   const onBudgetBackButtonPress = () => setOpenBudget(false);
 
-  if (openBudget) {
-    return (
-      <BudgetScreen budget={budget} onBackBtnPress={onBudgetBackButtonPress} />
-    );
-  }
-
   const updateEventFormValues: EventInfo = {
     _id,
     name,
@@ -719,6 +712,20 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     attendees,
     budget,
   };
+
+  const onUpdateBtnPress =  () => {
+    navigation.navigate("UpdateEventForm", {
+      eventInfo: { ...updateEventFormValues },
+      updateValue: "BUDGET",
+    })
+  
+  }      
+
+  if (openBudget) {
+    return (
+      <BudgetScreen budget={budget} onBackBtnPress={onBudgetBackButtonPress} onUpdateBtnPress={onUpdateBtnPress}/>
+    );
+  }
 
   const eventUpdateOptions = [
     {
