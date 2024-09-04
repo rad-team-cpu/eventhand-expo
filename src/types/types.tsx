@@ -32,21 +32,45 @@ type EventBudget = {
   videography: number | null;
   total?: number;
 };
-
+interface Tag {
+  _id: string;
+  name?: string;
+}
 interface BookingType {
   _id: string;
   vendor: {
-    id: string;
-    name: string;
-  };
+    _id: string, 
+    name: string;   
+    logo: string;
+    email: string;
+    contactNum: string;
+    address: {
+      street: string;
+      city: string;
+      region: string;
+      postalCode: number;
+    }
+  }; // Reference to a Vendor
+  date: Date;
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELED' | 'DECLINED' | 'COMPLETED';
   package: {
+    _id: string; // Reference to a Package
     name: string;
+    imageUrl: string;
     capacity: number;
+    tags: Tag[]; // Array of Tag IDs
     orderType: string;
     description: string;
+    price: number;
+    inclusions: {
+      id: string; // Reference to an Inclusion
+      imageUrl: string;
+      name: string;
+      description: string;
+    }[];
   };
-  date: Date;
-  status: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 interface EventInfo {
@@ -56,8 +80,9 @@ interface EventInfo {
   attendees: number;
   budget: EventBudget;
   date: Date | string;
-  pending?: BookingDetailsProps[];
-  confirmed?: BookingDetailsProps[];
+  pendingBookings: BookingType[];
+  confirmedBookings: BookingType[];
+  cancelledOrDeclinedBookings: BookingType[];
 }
 interface EventList {
   events: EventInfo[];
@@ -66,10 +91,6 @@ interface EventList {
   hasMore: boolean;
 }
 
-interface Tag {
-  _id: string;
-  name?: string;
-}
 
 enum BookingStatus {
   Pending = "PENDING",
@@ -259,7 +280,10 @@ type ScreenProps = {
   VerificationForm: undefined;
   MenuForm: undefined;
   Rating: undefined;
+  UserBookingView: undefined;
 };
+
+type UserBookingViewScreenProps = NativeStackScreenProps<ScreenProps, "UserBookingView">
 
 type SignUpScreenProps = NativeStackScreenProps<ScreenProps, "SignUp">;
 

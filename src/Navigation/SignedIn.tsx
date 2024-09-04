@@ -22,6 +22,7 @@ import AboutForm from "screens/Vendor/Profile/AboutForm";
 import MenuForm from "screens/Vendor/Profile/MenuForm";
 import VerificationForm from "screens/Vendor/Profile/VerificationForm";
 import Rating from "Components/Ratings/Rating";
+import UserBookingView from "screens/Users/BookingView";
 
 const SignedInStack = createNativeStackNavigator<ScreenProps>();
 
@@ -65,6 +66,11 @@ const SignedInNav = () => {
       <SignedInStack.Screen
         name="EventForm"
         component={EventForm}
+        options={eventFormHeaderOptions}
+      />
+      <SignedInStack.Screen
+        name="UserBookingView"
+        component={UserBookingView}
         options={eventFormHeaderOptions}
       />
       <SignedInStack.Screen

@@ -8,6 +8,7 @@ import Entypo from "@expo/vector-icons/Entypo";
 import {
   Alert,
   BackHandler,
+  FlatList,
   GestureResponderEvent,
   Pressable,
   StyleSheet,
@@ -27,11 +28,16 @@ import {
   HomeScreenNavigationProp,
   EventBudget,
   EventInfo,
+  BookingType,
 } from "types/types";
 import Button from "Components/Ui/Button";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import Block from "Components/Ui/Block";
+import { faker } from "@faker-js/faker";
+import { useAuth } from "@clerk/clerk-expo";
+import Loading from "screens/Loading";
+import ErrorScreen from "Components/Error";
 
 type Category = {
   name: string;
@@ -175,9 +181,6 @@ const BudgetScreen = (props: BudgetScreenProps) => {
     </>
   );
 };
-
-interface BookingListProps {}
-interface BookingListProps {}
 
 const SortTabBar = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -333,18 +336,54 @@ const checkArrayIfUndefinedOrEmpty = (array: any[] | undefined) => {
   return true;
 }
 
+interface BookingListProps {
+  bookings: BookingType[];
+  onPress: (booking: BookingType) => void;
+}
+
+const BookingList: React.FC<BookingListProps> = ({ bookings, onPress }) => {
+  const renderItem = ({ item }: { item: BookingType}) => (
+    <Pressable style={styles.bookingListItem} onPress={() => onPress(item)}>
+            <Image source={{ uri: faker.image.url() }} style={styles.bookingListImage} />
+      <View style={styles.bookingListTextContainer}>
+        <Text style={styles.bookingListVendorName}>{item.vendor.name}</Text>
+        <Text style={styles.bookingListPackageName}>{item.package.name}</Text>
+        <View style={styles.bookingListRow}>
+          <Text style={styles.bookingListDate}>{format(item.date, "MMMM dd, yyyy")}</Text>
+          <Text style={styles.bookingListPrice}>{item.package.capacity}</Text>
+        </View>
+      </View>
+    </Pressable>
+  );
+
+  return (
+    <FlatList
+      data={bookings}
+      keyExtractor={(item) => item._id}
+      renderItem={renderItem}
+    />
+  );
+};
+
+
 function EventView({ route, navigation }: EventViewScreenProps) {
-  const { _id, name, attendees, budget, date, address, pending, confirmed } = route.params;
-  console.log(date)
-  const dateString = format(date, "MMMM dd, yyyy")
+  const eventId = route.params._id;
+  const { getToken } = useAuth();
   const { colors, sizes } = useTheme();
   const [index, setIndex] = useState(0);
   const [openBudget, setOpenBudget] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [event, setEvent] = useState<EventInfo>({...route.params});
+  const [error, setError] = useState(false);
+  const [errMessage, setErrMessage] = useState("")
   const [routes] = useState([
     { key: "confirmed", title: "Confirmed" },
     { key: "pending", title: "Pending" },
+    { key: "cancelled", title: "Cancelled/Declined" },
+
   ]);
+
   const [eventBookings, setEventBookings] = useState<BookingDetailsProps[]>([]);
   // console.log()
 
@@ -402,305 +441,547 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     }
   };
 
+  const fetchEvent = async () => {
+    console.log(eventId)
+    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/${eventId}/bookings`;
+
+    const token = getToken({ template: 'event-hand-jwt' });
+
+    const request = {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    try {
+      const res = await fetch(url, request);
+      const data = await res.json();
+      
+   
+      if (res.status === 200) {
+        setEvent({...data})
+
+        console.log('EVENT DATA SUCCESSFULLY LOADED');
+      } else if (res.status === 400) {
+        throw new Error('Bad request - Invalid data.');
+      } else if (res.status === 401) {
+        throw new Error('Unauthorized - Authentication failed.');
+      } else if (res.status === 404) {
+        throw new Error('Event Not Found');
+      } else {
+        throw new Error('Unexpected error occurred.');
+      }
+    } catch (error: any) {
+      console.error(`Error fetching event (${error.code}): ${error} `);
+      setErrMessage(`Error fetching event (${error.code}): ${error} `)
+      setError(true);
+    }finally{
+      setLoading(false);
+      console.log(error)
+    }
+  };
+
   const handleFindSupplier = () => {
     navigation.navigate("Home", { initialTab: "Vendors" });
   };
 
-  const bookingDetailsArray: BookingDetailsProps[] = [
-    {
-      _id: "booking1",
-      package: {
-        _id: "package1",
-        name: "Wedding Package",
-        vendor: {
-          _id: "vendor1",
-          logo: "vendor1-logo.jpg",
-          banner: "vendor1-banner.jpg",
-          name: "Amazing Events",
-          bio: "We create unforgettable events.",
-          email: "contact@amazingevents.com",
-          address: "123 Event St, Party City",
-          contactNumber: "123-456-7890",
-          tags: [
-            { _id: "tag1", name: "wedding" },
-            { _id: "tag2", name: "luxury" },
-          ],
-          packages: [], // Nested packages will go here if needed
-        },
-        vendorId: "vendor1",
-        price: 5000,
-        pictureURL: "wedding-package.jpg",
-        capacity: 200,
-        inclusions: [
-          {
-            id: "product1",
-            name: "Flower Arrangement",
-            imageURL: "flower-arrangement.jpg",
-            description: "Beautiful floral decorations.",
-            quantity: 20,
-          },
-          {
-            id: "product2",
-            name: "Wedding Cake",
-            imageURL: "wedding-cake.jpg",
-            description: "Three-tiered custom cake.",
-            quantity: 1,
-          },
-        ],
-      },
-      packageId: "package1",
-      vendor: {
-        _id: "vendor1",
-        logo: "vendor1-logo.jpg",
-        banner: "vendor1-banner.jpg",
-        name: "Amazing Events",
-        bio: "We create unforgettable events.",
-        email: "contact@amazingevents.com",
-        address: "123 Event St, Party City",
-        contactNumber: "123-456-7890",
-        tags: [
-          { _id: "tag1", name: "wedding" },
-          { _id: "tag2", name: "luxury" },
-        ],
-        packages: [], // Nested packages will go here if needed
-      },
-      vendorId: "vendor1",
-      client: {
-        _id: "client1",
-        profilePicture: "client1-profile.jpg",
-        email: "johndoe@example.com",
-        lastName: "Doe",
-        firstName: "John",
-        contactNumber: "555-123-4567",
-      },
-      clientId: "client1",
-      event: {
-        _id: "event1",
-        attendees: 500,
-        name: "John and Jane's Wedding",
-        date: new Date("2024-10-15"),
-        address: "123 Wedding Lane, Love City",
-        budget: {
-          eventPlanning: 2000,
-          eventCoordination: 1500,
-          venue: 3000,
-          decorations: 1000,
-          catering: 5000,
-          photography: 2000,
-          videography: 1500,
-          total: 16000,
-        },
-      },
-      eventId: "event1",
-      bookingStatus: BookingStatus.Confirmed,
-    },
-    {
-      _id: "booking2",
-      package: {
-        _id: "package2",
-        name: "Corporate Event Package",
-        vendor: {
-          _id: "vendor2",
-          logo: "vendor2-logo.jpg",
-          banner: "vendor2-banner.jpg",
-          name: "Business Events Co.",
-          bio: "Experts in corporate events.",
-          email: "contact@businessevents.com",
-          address: "456 Corporate Ave, Business City",
-          contactNumber: "987-654-3210",
-          tags: [
-            { _id: "tag3", name: "corporate" },
-            { _id: "tag4", name: "professional" },
-          ],
-          packages: [], // Nested packages will go here if needed
-        },
-        vendorId: "vendor2",
-        price: 8000,
-        pictureURL: "corporate-package.jpg",
-        capacity: 500,
-        inclusions: [
-          {
-            id: "product3",
-            name: "Audio-Visual Setup",
-            imageURL: "av-setup.jpg",
-            description: "State-of-the-art AV equipment.",
-            quantity: 1,
-          },
-          {
-            id: "product4",
-            name: "Catering",
-            imageURL: "catering.jpg",
-            description: "Full-service catering.",
-            quantity: 500,
-          },
-        ],
-      },
-      packageId: "package2",
-      vendor: {
-        _id: "vendor2",
-        logo: "vendor2-logo.jpg",
-        banner: "vendor2-banner.jpg",
-        name: "Business Events Co.",
-        bio: "Experts in corporate events.",
-        email: "contact@businessevents.com",
-        address: "456 Corporate Ave, Business City",
-        contactNumber: "987-654-3210",
-        tags: [
-          { _id: "tag3", name: "corporate" },
-          { _id: "tag4", name: "professional" },
-        ],
-        packages: [], // Nested packages will go here if needed
-      },
-      vendorId: "vendor2",
-      client: {
-        _id: "client2",
-        profilePicture: "client2-profile.jpg",
-        email: "janesmith@example.com",
-        lastName: "Smith",
-        firstName: "Jane",
-        contactNumber: "555-987-6543",
-      },
-      clientId: "client2",
-      event: {
-        _id: "event2",
-        name: "Company Annual Meeting",
-        attendees: 500,
-        date: new Date("2024-11-20"),
-        address: "789 Conference Rd, Business City",
-        budget: {
-          eventPlanning: 4000,
-          eventCoordination: 3000,
-          venue: 10000,
-          decorations: 2000,
-          catering: 15000,
-          photography: 5000,
-          videography: 4000,
-          total: 43000,
-        },
-      },
-      eventId: "event2",
-      bookingStatus: BookingStatus.Pending,
-    },
-  ];
-
-  const ConfirmedVendors = () => (
-    <View style={styles.listContainer}>
-      {eventBookings &&
-        eventBookings
-          .filter(
-            (booking) => booking.bookingStatus === BookingStatus.Confirmed
-          )
-          .map((booking) => {
-            return (
-              <View
-                key={booking._id}
-                style={styles.vendorContainer}
-                className="bg-white rounded-lg justify-between"
-              >
-                <Image
-                  radius={sizes.s}
-                  width={sizes.xl}
-                  height={sizes.xl}
-                  src={booking.package?.pictureURL}
-                  style={{ backgroundColor: colors.gray }}
-                />
-                <View>
-                  <Text className="text-xs text-center font-semibold">
-                    {(booking.package as PackageType).name.length > 12
-                      ? `${(booking.package as PackageType).name.substring(0, 10)}...`
-                      : (booking.package as PackageType).name}
-                  </Text>
-                </View>
-                <View className="flex-col">
-                  {(booking.package as PackageType).inclusions.map(
-                    (inclusion: Product) => (
-                      <View className="flex-row space-x-1">
-                        <Text className="text-xs text-center font-semibold">
-                          {inclusion.name}
-                        </Text>
-                        <Text className="text-xs text-center font-semibold">
-                          x {inclusion.quantity}
-                        </Text>
-                      </View>
-                    )
-                  )}
-                </View>
-                <Text
-                  className="text-xs font-semibold"
-                  style={styles.vendorName}
-                >
-                  ₱{(booking.package as PackageType).price}
-                </Text>
-              </View>
-            );
-          })}
-    </View>
-  );
-
-  const PendingVendors = () => (
-    <View style={styles.listContainer}>
-      {/* <SortTabBar/> */}
-      {eventBookings &&
-        eventBookings
-          .filter((booking) => booking.bookingStatus === BookingStatus.Pending)
-          .map((booking) => {
-            console.log(booking);
-            return (
-              <View
-                key={booking._id}
-                style={styles.vendorContainer}
-                className="bg-white rounded-lg justify-between"
-              >
-                <Image
-                  radius={sizes.s}
-                  width={sizes.xl}
-                  height={sizes.xl}
-                  src={booking.package?.pictureURL}
-                  style={{ backgroundColor: colors.gray }}
-                />
-                <View>
-                  <Text className="text-xs text-center font-semibold">
-                    {(booking.package as PackageType).name.length > 12
-                      ? `${(booking.package as PackageType).name.substring(0, 10)}...`
-                      : (booking.package as PackageType).name}
-                  </Text>
-                </View>
-                <View className="flex-col">
-                  {(booking.package as PackageType).inclusions.map(
-                    (inclusion: Product) => (
-                      <View className="flex-row space-x-1">
-                        <Text className="text-xs text-center font-semibold">
-                          {inclusion.name}
-                        </Text>
-                        <Text className="text-xs text-center font-semibold">
-                          x {inclusion.quantity}
-                        </Text>
-                      </View>
-                    )
-                  )}
-                </View>
-                <Text
-                  className="text-xs font-semibold"
-                  style={styles.vendorName}
-                >
-                  ₱{(booking.package as PackageType).price}
-                </Text>
-              </View>
-            );
-          })}
-    </View>
-  );
-
-  const renderScene = SceneMap({
-    confirmed: ConfirmedVendors,
-    pending: PendingVendors,
-  });
+  //   // PENDING
+  //   {
+  //     id: '1',
+  //     vendor: { _id: 'v1', name: 'Vendor A' },
+  //     eventId: 'e1',
+  //     date: '2024-09-05',
+  //     status: 'PENDING',
+  //     package: {
+  //       name: 'Basic Package',
+  //       capacity: 100,
+  //       orderType: 'Online',
+  //       description: 'Basic event package',
+  //       inclusions: [
+  //         { id: 'inc1', name: 'Inclusion 1', description: 'Inclusion 1 description' },
+  //       ],
+  //     },
+  //     createdAt: '2024-08-01',
+  //     updatedAt: '2024-08-02',
+  //   },
+  //   {
+  //     id: '2',
+  //     vendor: { _id: 'v2', name: 'Vendor B' },
+  //     eventId: 'e2',
+  //     date: '2024-09-06',
+  //     status: 'PENDING',
+  //     package: {
+  //       name: 'Standard Package',
+  //       capacity: 150,
+  //       orderType: 'In-Person',
+  //       description: 'Standard event package',
+  //       inclusions: [
+  //         { id: 'inc2', name: 'Inclusion 2', description: 'Inclusion 2 description' },
+  //       ],
+  //     },
+  //     createdAt: '2024-08-03',
+  //     updatedAt: '2024-08-04',
+  //   },
+  //   {
+  //     id: '3',
+  //     vendor: { _id: 'v3', name: 'Vendor C' },
+  //     eventId: 'e3',
+  //     date: '2024-09-07',
+  //     status: 'PENDING',
+  //     package: {
+  //       name: 'Premium Package',
+  //       capacity: 200,
+  //       orderType: 'Online',
+  //       description: 'Premium event package',
+  //       inclusions: [
+  //         { id: 'inc3', name: 'Inclusion 3', description: 'Inclusion 3 description' },
+  //       ],
+  //     },
+  //     createdAt: '2024-08-05',
+  //     updatedAt: '2024-08-06',
+  //   },
+  //   {
+  //     id: '4',
+  //     vendor: { _id: 'v4', name: 'Vendor D' },
+  //     eventId: 'e4',
+  //     date: '2024-09-08',
+  //     status: 'PENDING',
+  //     package: {
+  //       name: 'Deluxe Package',
+  //       capacity: 250,
+  //       orderType: 'In-Person',
+  //       description: 'Deluxe event package',
+  //       inclusions: [
+  //         { id: 'inc4', name: 'Inclusion 4', description: 'Inclusion 4 description' },
+  //       ],
+  //     },
+  //     createdAt: '2024-08-07',
+  //     updatedAt: '2024-08-08',
+  //   },
+  //   {
+  //     id: '5',
+  //     vendor: { _id: 'v5', name: 'Vendor E' },
+  //     eventId: 'e5',
+  //     date: '2024-09-09',
+  //     status: 'PENDING',
+  //     package: {
+  //       name: 'Ultimate Package',
+  //       capacity: 300,
+  //       orderType: 'Online',
+  //       description: 'Ultimate event package',
+  //       inclusions: [
+  //         { id: 'inc5', name: 'Inclusion 5', description: 'Inclusion 5 description' },
+  //       ],
+  //     },
+  //     createdAt: '2024-08-09',
+  //     updatedAt: '2024-08-10',
+  //   },
+  //   // CONFIRMED
+  //   {
+  //     id: '6',
+  //     vendor: { _id: 'v1', name: 'Vendor A' },
+  //     eventId: 'e6',
+  //     date: '2024-09-10',
+  //     status: 'CONFIRMED',
+  //     package: {
+  //       name: 'Basic Package',
+  //       capacity: 100,
+  //       orderType: 'Online',
+  //       description: 'Basic event package',
+  //       inclusions: [
+  //         { id: 'inc1', name: 'Inclusion 1', description: 'Inclusion 1 description' },
+  //       ],
+  //     },
+  //     createdAt: '2024-08-11',
+  //     updatedAt: '2024-08-12',
+  //   },
+  //   {
+  //     id: '7',
+  //     vendor: { _id: 'v2', name: 'Vendor B' },
+  //     eventId: 'e7',
+  //     date: '2024-09-11',
+  //     status: 'CONFIRMED',
+  //     package: {
+  //       name: 'Standard Package',
+  //       capacity: 150,
+  //       orderType: 'In-Person',
+  //       description: 'Standard event package',
+  //       inclusions: [
+  //         { id: 'inc2', name: 'Inclusion 2', description: 'Inclusion 2 description' },
+  //       ],
+  //     },
+  //     createdAt: '2024-08-13',
+  //     updatedAt: '2024-08-14',
+  //   },
+  //   {
+  //     id: '8',
+  //     vendor: { _id: 'v3', name: 'Vendor C' },
+  //     eventId: 'e8',
+  //     date: '2024-09-12',
+  //     status: 'CONFIRMED',
+  //     package: {
+  //       name: 'Premium Package',
+  //       capacity: 200,
+  //       orderType: 'Online',
+  //       description: 'Premium event package',
+  //       inclusions: [
+  //         { id: 'inc3', name: 'Inclusion 3', description: 'Inclusion 3 description' },
+  //       ],
+  //     },
+  //     createdAt: '2024-08-15',
+  //     updatedAt: '2024-08-16',
+  //   },
+  //   {
+  //     id: '9',
+  //     vendor: { _id: 'v4', name: 'Vendor D' },
+  //     eventId: 'e9',
+  //     date: '2024-09-13',
+  //     status: 'CONFIRMED',
+  //     package: {
+  //       name: 'Deluxe Package',
+  //       capacity: 250,
+  //       orderType: 'In-Person',
+  //       description: 'Deluxe event package',
+  //       inclusions: [
+  //         { id: 'inc4', name: 'Inclusion 4', description: 'Inclusion 4 description' },
+  //       ],
+  //     },
+  //     createdAt: '2024-08-17',
+  //     updatedAt: '2024-08-18',
+  //   },
+  //   {
+  //     id: '10',
+  //     vendor: { _id: 'v5', name: 'Vendor E' },
+  //     eventId: 'e10',
+  //     date: '2024-09-14',
+  //     status: 'CONFIRMED',
+  //     package: {
+  //       name: 'Ultimate Package',
+  //       capacity: 300,
+  //       orderType: 'Online',
+  //       description: 'Ultimate event package',
+  //       inclusions: [
+  //         { id: 'inc5', name: 'Inclusion 5', description: 'Inclusion 5 description' },
+  //       ],
+  //     },
+  //     createdAt: '2024-08-19',
+  //     updatedAt: '2024-08-20',
+  //   },
+  //   // CANCELED
+  //   {
+  //     id: '11',
+  //     vendor: { _id: 'v1', name: 'Vendor A' },
+  //     eventId: 'e11',
+  //     date: '2024-09-15',
+  //     status: 'CANCELED',
+  //     package: {
+  //       name: 'Basic Package',
+  //       capacity: 100,
+  //       orderType: 'Online',
+  //       description: 'Basic event package',
+  //       inclusions: [
+  //         { id: 'inc1', name: 'Inclusion 1', description: 'Inclusion 1 description' },
+  //       ],
+  //     },
+  //     createdAt: '2024-08-21',
+  //     updatedAt: '2024-08-22',
+  //   },
+  //   {
+  //     id: '12',
+  //     vendor: { _id: 'v2', name: 'Vendor B' },
+  //     eventId: 'e12',
+  //     date: '2024-09-16',
+  //     status: 'CANCELED',
+  //     package: {
+  //       name: 'Standard Package',
+  //       capacity: 150,
+  //       orderType: 'In-Person',
+  //       description: 'Standard event package',
+  //       inclusions: [
+  //         { id: 'inc2', name: 'Inclusion 2', description: 'Inclusion 2 description' },
+  //       ],
+  //     },
+  //     createdAt: '2024-08-23',
+  //     updatedAt: '2024-08-24',
+  //   },
+  //   {
+  //     id: '13',
+  //     vendor: { _id: 'v3', name: 'Vendor C' },
+  //     eventId: 'e13',
+  //     date: '2024-09-17',
+  //     status: 'CANCELED',
+  //     package: {
+  //       name: 'Premium Package',
+  //       capacity: 200,
+  //       orderType: 'Online',
+  //       description: 'Premium event package',
+  //       inclusions: [
+  //         { id: 'inc3', name: 'Inclusion 3', description: 'Inclusion 3 description' },
+  //       ],
+  //     },
+  //     createdAt: '2024-08-25',
+  //     updatedAt: '2024-08-26',
+  //   },
+  //   {
+  //     id: '14',
+  //     vendor: { _id: 'v4', name: 'Vendor D' },
+  //     eventId: 'e14',
+  //     date: '2024-09-18',
+  //     status: 'CANCELED',
+  //     package: {
+  //       name: 'Deluxe Package',
+  //       capacity: 250,
+  //       orderType: 'In-Person',
+  //       description: 'Deluxe event package',
+  //       inclusions: [
+  //         { id: 'inc4', name: 'Inclusion 4', description: 'Inclusion 4 description' },
+  //       ],
+  //     },
+  //     createdAt: '2024-08-27',
+  //     updatedAt: '2024-08-28',
+  //   },
+  //   {
+  //     id: '15',
+  //     vendor: { _id: 'v5', name: 'Vendor E' },
+  //     eventId: 'e15',
+  //     date: '2024-09-19',
+  //     status: 'CANCELED',
+  //     package: {
+  //       name: 'Ultimate Package',
+  //       capacity: 300,
+  //       orderType: 'Online',
+  //       description: 'Ultimate event package',
+  //       inclusions: [
+  //         { id: 'inc5', name: 'Inclusion 5', description: 'Inclusion 5 description' },
+  //       ],
+  //     },
+  //     createdAt: '2024-08-29',
+  //     updatedAt: '2024-08-30',
+  //   },
+  //   // DECLINED
+  //   {
+  //     id: '16',
+  //     vendor: { _id: 'v1', name: 'Vendor A' },
+  //     eventId: 'e16',
+  //     date: '2024-09-20',
+  //     status: 'DECLINED',
+  //     package: {
+  //       name: 'Basic Package',
+  //       capacity: 100,
+  //       orderType: 'Online',
+  //       description: 'Basic event package',
+  //       inclusions: [
+  //         { id: 'inc1', name: 'Inclusion 1', description: 'Inclusion 1 description' },
+  //       ],
+  //     },
+  //     createdAt: '2024-08-31',
+  //     updatedAt: '2024-09-01',
+  //   },
+  //   {
+  //     id: '17',
+  //     vendor: { _id: 'v2', name: 'Vendor B' },
+  //     eventId: 'e17',
+  //     date: '2024-09-21',
+  //     status: 'DECLINED',
+  //     package: {
+  //       name: 'Standard Package',
+  //       capacity: 150,
+  //       orderType: 'In-Person',
+  //       description: 'Standard event package',
+  //       inclusions: [
+  //         { id: 'inc2', name: 'Inclusion 2', description: 'Inclusion 2 description' },
+  //       ],
+  //     },
+  //     createdAt: '2024-09-02',
+  //     updatedAt: '2024-09-03',
+  //   },
+  //   {
+  //     id: '18',
+  //     vendor: { _id: 'v3', name: 'Vendor C' },
+  //     eventId: 'e18',
+  //     date: '2024-09-22',
+  //     status: 'DECLINED',
+  //     package: {
+  //       name: 'Premium Package',
+  //       capacity: 200,
+  //       orderType: 'Online',
+  //       description: 'Premium event package',
+  //       inclusions: [
+  //         { id: 'inc3', name: 'Inclusion 3', description: 'Inclusion 3 description' },
+  //       ],
+  //     },
+  //     createdAt: '2024-09-04',
+  //     updatedAt: '2024-09-05',
+  //   },
+  //   {
+  //     id: '19',
+  //     vendor: { _id: 'v4', name: 'Vendor D' },
+  //     eventId: 'e19',
+  //     date: '2024-09-23',
+  //     status: 'DECLINED',
+  //     package: {
+  //       name: 'Deluxe Package',
+  //       capacity: 250,
+  //       orderType: 'In-Person',
+  //       description: 'Deluxe event package',
+  //       inclusions: [
+  //         { id: 'inc4', name: 'Inclusion 4', description: 'Inclusion 4 description' },
+  //       ],
+  //     },
+  //     createdAt: '2024-09-06',
+  //     updatedAt: '2024-09-07',
+  //   },
+  //   {
+  //     id: '20',
+  //     vendor: { _id: 'v5', name: 'Vendor E' },
+  //     eventId: 'e20',
+  //     date: '2024-09-24',
+  //     status: 'DECLINED',
+  //     package: {
+  //       name: 'Ultimate Package',
+  //       capacity: 300,
+  //       orderType: 'Online',
+  //       description: 'Ultimate event package',
+  //       inclusions: [
+  //         { id: 'inc5', name: 'Inclusion 5', description: 'Inclusion 5 description' },
+  //       ],
+  //     },
+  //     createdAt: '2024-09-08',
+  //     updatedAt: '2024-09-09',
+  //   },
+  //   // COMPLETED
+  //   {
+  //     id: '21',
+  //     vendor: { _id: 'v1', name: 'Vendor A' },
+  //     eventId: 'e21',
+  //     date: '2024-09-25',
+  //     status: 'COMPLETED',
+  //     package: {
+  //       name: 'Basic Package',
+  //       capacity: 100,
+  //       orderType: 'Online',
+  //       description: 'Basic event package',
+  //       inclusions: [
+  //         { id: 'inc1', name: 'Inclusion 1', description: 'Inclusion 1 description' },
+  //       ],
+  //     },
+  //     createdAt: '2024-09-10',
+  //     updatedAt: '2024-09-11',
+  //   },
+  //   {
+  //     id: '22',
+  //     vendor: { _id: 'v2', name: 'Vendor B' },
+  //     eventId: 'e22',
+  //     date: '2024-09-26',
+  //     status: 'COMPLETED',
+  //     package: {
+  //       name: 'Standard Package',
+  //       capacity: 150,
+  //       orderType: 'In-Person',
+  //       description: 'Standard event package',
+  //       inclusions: [
+  //         { id: 'inc2', name: 'Inclusion 2', description: 'Inclusion 2 description' },
+  //       ],
+  //     },
+  //     createdAt: '2024-09-12',
+  //     updatedAt: '2024-09-13',
+  //   },
+  //   {
+  //     id: '23',
+  //     vendor: { _id: 'v3', name: 'Vendor C' },
+  //     eventId: 'e23',
+  //     date: '2024-09-27',
+  //     status: 'COMPLETED',
+  //     package: {
+  //       name: 'Premium Package',
+  //       capacity: 200,
+  //       orderType: 'Online',
+  //       description: 'Premium event package',
+  //       inclusions: [
+  //         { id: 'inc3', name: 'Inclusion 3', description: 'Inclusion 3 description' },
+  //       ],
+  //     },
+  //     createdAt: '2024-09-14',
+  //     updatedAt: '2024-09-15',
+  //   },
+  //   {
+  //     id: '24',
+  //     vendor: { _id: 'v4', name: 'Vendor D' },
+  //     eventId: 'e24',
+  //     date: '2024-09-28',
+  //     status: 'COMPLETED',
+  //     package: {
+  //       name: 'Deluxe Package',
+  //       capacity: 250,
+  //       orderType: 'In-Person',
+  //       description: 'Deluxe event package',
+  //       inclusions: [
+  //         { id: 'inc4', name: 'Inclusion 4', description: 'Inclusion 4 description' },
+  //       ],
+  //     },
+  //     createdAt: '2024-09-16',
+  //     updatedAt: '2024-09-17',
+  //   },
+  //   {
+  //     id: '25',
+  //     vendor: { _id: 'v5', name: 'Vendor E' },
+  //     eventId: 'e25',
+  //     date: '2024-09-29',
+  //     status: 'COMPLETED',
+  //     package: {
+  //       name: 'Ultimate Package',
+  //       capacity: 300,
+  //       orderType: 'Online',
+  //       description: 'Ultimate event package',
+  //       inclusions: [
+  //         { id: 'inc5', name: 'Inclusion 5', description: 'Inclusion 5 description' },
+  //       ],
+  //     },
+  //     createdAt: '2024-09-18',
+  //     updatedAt: '2024-09-19',
+  //   },
+  // ];
 
   useEffect(() => {
-    const eventId = _id;
-    console.log(eventId);
-    fetchBookings(eventId);
+    // const eventId = _id;
+    // console.log(eventId);
+    // fetchBookings(eventId);
+    fetchEvent();
   }, []);
+
+  if(loading){
+    return <Loading/>
+  }
+
+  if(error){
+    return(
+      <ErrorScreen
+      description={errMessage}
+      buttonText='GO BACK'
+      onPress={() => navigation.goBack()}
+    />
+    )
+
+  }
+
+  const { _id, name, attendees, budget, date, address, pendingBookings, confirmedBookings, cancelledOrDeclinedBookings } = event;
+
+  const dateString = format(date, "MMMM dd, yyyy")
+
+
+  const Confirmed = () => <BookingList bookings={confirmedBookings} onPress={(booking: BookingType) => console.log(booking)}/>
+  const Pending = () => <BookingList  bookings={pendingBookings} onPress={(booking: BookingType) => console.log(booking)}/>
+  const Cancelled = () => <BookingList  bookings={cancelledOrDeclinedBookings} onPress={(booking: BookingType) => console.log(booking)}/>
+
+
+  const renderScene = SceneMap({
+    confirmed: Confirmed,
+    pending: Pending,
+    cancelled: Cancelled,
+  });
 
   const onBudgetBackButtonPress = () => setOpenBudget(false);
 
@@ -736,14 +1017,14 @@ function EventView({ route, navigation }: EventViewScreenProps) {
           eventInfo: { ...updateEventFormValues },
           updateValue: "NAME",
         }),
-      disabled: !checkArrayIfUndefinedOrEmpty(confirmed) || !checkArrayIfUndefinedOrEmpty(pending)
+      disabled: !checkArrayIfUndefinedOrEmpty(confirmedBookings) || !checkArrayIfUndefinedOrEmpty(pendingBookings)
     },
     { label: 'EDIT DATE', icon: 'calendar',       onPress: () =>
       navigation.navigate("UpdateEventForm", {
         eventInfo: { ...updateEventFormValues },
         updateValue: "DATE",
       }),
-      disabled: !checkArrayIfUndefinedOrEmpty(confirmed) || !checkArrayIfUndefinedOrEmpty(pending)
+      disabled: !checkArrayIfUndefinedOrEmpty(confirmedBookings) || !checkArrayIfUndefinedOrEmpty(pendingBookings)
     },
     { label: 'EDIT ADDRESS', icon: 'location',       onPress: () =>
       navigation.navigate("UpdateEventForm", {
@@ -1056,6 +1337,48 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "bold", // Make the text bold
   },
+  bookingListItem: {
+    flexDirection: 'row',
+    padding: 10,
+    marginVertical: 5,
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  bookingListImage: {
+    width: 60,
+    height: 60,
+    marginRight: 10,
+    borderRadius: 5,
+  },
+  bookingListTextContainer: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  bookingListVendorName: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    marginBottom: 2,
+  },
+  bookingListPackageName: {
+    fontSize: 14,
+    marginBottom: 2,
+  },
+  bookingListRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  bookingListDate: {
+    fontSize: 12,
+    color: '#555',
+  },
+  bookingListPrice: {
+    fontSize: 12,
+    color: '#555',
+  },
 });
 
 const listStyles = StyleSheet.create({
@@ -1104,6 +1427,7 @@ const listStyles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 8,
   },
+
 });
 
 export default EventView;
