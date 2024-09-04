@@ -1195,6 +1195,9 @@ function EventForm({ navigation }: EventFormScreenProps) {
       photography: null,
       videography: null,
     },
+    pendingBookings: [],
+    confirmedBookings: [],
+    cancelledOrDeclinedBookings: []
   });
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(false);
