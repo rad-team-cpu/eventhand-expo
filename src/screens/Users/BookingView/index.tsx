@@ -1,7 +1,9 @@
 import { faker } from '@faker-js/faker';
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, Image, Pressable, StyleSheet, Alert, GestureResponderEvent } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
+import { BookingType, UserBookingViewScreenProps } from 'types/types';
+import ConfirmationDialog from 'Components/ConfirmationDialog';
 
 
 interface Vendor {
@@ -67,8 +69,14 @@ const Toolbar: React.FC<ToolbarProps> = ({
   );
 };
 
-const BookingDetails: React.FC<{ booking: Booking }> = ({ booking }) => {
-  const statusColors: { [key in Booking['status']]: string } = {
+interface BookingDetailsProps{
+  booking: BookingType
+  onBackPress: (event: GestureResponderEvent) => void | Boolean;
+}
+
+const BookingDetails = (props: BookingDetailsProps) => {
+  const { booking, onBackPress} = props;
+  const statusColors: { [key in BookingType['status']]: string } = {
     PENDING: 'orange',
     CONFIRMED: 'green',
     CANCELED: 'red',
@@ -76,17 +84,24 @@ const BookingDetails: React.FC<{ booking: Booking }> = ({ booking }) => {
     COMPLETED: 'blue',
   };
 
+  const [confirmCancelBooking, setConfirmCancelBooking] = useState(false);
+
   const handleCancelBooking = () => {
-    Alert.alert('Booking Cancelled', 'Your booking has been cancelled.');
+    // Alert.alert('Booking Cancelled', 'Your booking has been cancelled.');
+    setConfirmCancelBooking(true);
   };
 
   const handleViewVendor = () => {
     Alert.alert('View Vendor', `Viewing vendor: ${booking.vendor.name}`);
   };
 
+  if(confirmCancelBooking){
+    return <ConfirmationDialog title='Cancel Booking' description={`Do you wish to cancel your booking with ${booking.vendor.name}?`} onCancel={() => setConfirmCancelBooking(false)} onConfirm={() => console.log(confirm)}/>
+  }
+
   return (
     <>
-          <Toolbar onBackPress={() => console.log("back")}/>
+          <Toolbar onBackPress={onBackPress}/>
        <View style={styles.container}>
       {/* Vendor Information */}
       <View style={styles.vendorContainer}>
@@ -117,16 +132,18 @@ const BookingDetails: React.FC<{ booking: Booking }> = ({ booking }) => {
       <View style={styles.packageContainer}>
         <Image source={{ uri: booking.package.imageUrl }} style={styles.packageImage} />
         <Text style={styles.packageName}>{booking.package.name}:</Text>
-        {booking.package.inclusions.map(item => <Text key={item.id} style={{fontWeight: "bold"}}>------ {item.name} </Text>)}
+        {booking.package.inclusions.map(item => <Text key={item.id} style={{fontWeight: "bold"}}>- {item.name} - {item.description} </Text>)}
         <Text>{booking.package.description}</Text>
         {/* Additional package details can go here */}
       </View>
 
       {/* Cancel Booking Button */}
       <View style={styles.separator} />
-      <Pressable style={styles.cancelButton} onPress={handleCancelBooking}>
-        <Text style={styles.buttonText}>Cancel Booking</Text>
-      </Pressable>
+      { booking.status !== "DECLINED" && (
+              <Pressable style={styles.cancelButton} onPress={handleCancelBooking}>
+              <Text style={styles.buttonText}>Cancel Booking</Text>
+            </Pressable>
+      ) }
     </View>
     </>
    
@@ -159,15 +176,19 @@ const sampleBookingData:Booking = {
       orderType: 'In-Person',
       description: 'A premium wedding package including venue, catering, decorations, and photography.',
       inclusions: [
-        { id: '66d197ce3e97cb8a64e1cb27', name: 'Venue', description: 'Luxurious venue with a capacity of 200 guests.' },
+        { id: '66d197ce3e97cb8a64e1cb27', name: 'Venue', description: 'Luxurious venue with a capacity of 200 guests.',  },
         { id: '66d197ce3e97cb8a64e1cb28', name: 'Catering', description: 'Gourmet catering with a 5-course meal.' },
         { id: '66d197ce3e97cb8a64e1cb29', name: 'Photography', description: 'Professional photography services for the entire event.' },
       ],
   },
 };
 
-function  UserBookingView() {
-  return <BookingDetails booking={sampleBookingData}/>
+function  UserBookingView({navigation, route}: UserBookingViewScreenProps) {
+  const {booking} = route.params;
+
+  const onBackPress = () => navigation.goBack();
+
+  return <BookingDetails booking={booking} onBackPress={onBackPress}/>
 }
 
 
