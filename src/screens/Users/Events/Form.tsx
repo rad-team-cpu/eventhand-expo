@@ -1447,14 +1447,32 @@ function EventForm({ navigation }: EventFormScreenProps) {
       switch (response.status) {
         case 201:
           const data = await response.json();
-
-          setResult({ ...data, budget: { ...data.budget, total: data.total } });
+          const event: EventInfo ={
+          _id: data._id,
+          name: data.name,
+          date: data.date,
+          attendees: data.attendees,
+          budget: {
+            eventPlanning: data.budget.eventPlanning,
+            eventCoordination: data.budget.eventCoordination,
+            decorations: data.budget.decorations,
+            venue: data.budget.venue,
+            catering: data.budget.catering,
+            photography: data.budget.photography,
+            videography: data.budget.videography,
+            total: data.total
+          },
+          pendingBookings: [],
+          confirmedBookings: [],
+          cancelledOrDeclinedBookings: []
+          }
+          setResult(event);
           setEventList((prevEventList) => {
             return {
               ...prevEventList,
               events: [
                 ...prevEventList.events,
-                { ...data, budget: { ...data.budget, total: data.total } },
+                { ...event },
               ],
             };
           });
