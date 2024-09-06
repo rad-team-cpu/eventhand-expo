@@ -18,7 +18,11 @@ import Button from 'Components/Ui/Button';
 import Image from 'Components/Ui/Image';
 import Text from 'Components/Ui/Text';
 import useTheme from '../../../core/theme';
-import { ScreenProps, VerificationFormScreenProps } from '../../../types/types';
+import {
+  ScreenProps,
+  VendorProfileFormScreenProps,
+  VerificationFormScreenProps,
+} from '../../../types/types';
 import Loading from '../../Loading';
 import { VendorContext } from 'Contexts/VendorContext';
 import axios from 'axios';
@@ -34,6 +38,11 @@ const idTypes = [
   { label: 'Passport', value: 'PASSPORT' },
   { label: 'Other', value: 'OTHER' },
 ];
+
+interface VendorProfileFormProps extends VendorProfileFormScreenProps {
+  onSubmit: () => void;
+  onGoBack: () => void;
+}
 
 interface ImageInfo {
   fileSize?: number;
@@ -63,7 +72,7 @@ const verificationFormValidationSchema = object().shape({
   }).nullable(),
 });
 
-const VerificationForm = ({ navigation }: VerificationFormScreenProps) => {
+const VerificationForm = ({ navigation, onSubmit, onGoBack }: VendorProfileFormProps) => {
   const {
     control,
     register,
@@ -137,12 +146,13 @@ const VerificationForm = ({ navigation }: VerificationFormScreenProps) => {
       switch (response.status) {
         case 200:
           setLoading(false);
-          navigateToSuccessError({
-            description: 'Your information was saved successfully.',
-            buttonText: 'Continue',
-            navigateTo: 'VendorHome',
-            status: 'success',
-          });
+          onSubmit();
+          // navigateToSuccessError({
+          //   description: 'Your information was saved successfully.',
+          //   buttonText: 'Continue',
+          //   navigateTo: 'VendorHome',
+          //   status: 'success',
+          // });
           break;
         case 403:
           setSubmitErrMessage('Forbidden - Access denied.');
@@ -191,7 +201,7 @@ const VerificationForm = ({ navigation }: VerificationFormScreenProps) => {
                 row
                 flex={0}
                 justify='flex-start'
-                onPress={() => navigation.goBack()}
+                onPress={onGoBack}
               >
                 <AntDesign name='back' size={24} color='white' />
                 <Text p white marginLeft={sizes.s}>
