@@ -24,7 +24,7 @@ import Button from 'Components/Ui/Button';
 import Image from 'Components/Ui/Image';
 import Text from 'Components/Ui/Text';
 import useTheme from '../../../core/theme';
-import { AboutFormScreenProps, ScreenProps } from '../../../types/types';
+import { AboutFormScreenProps, ScreenProps, VendorProfileFormScreenProps } from '../../../types/types';
 import Loading from '../../Loading';
 import { VendorContext } from 'Contexts/VendorContext';
 import axios from 'axios';
@@ -33,11 +33,16 @@ interface AboutInput extends FieldValues {
   bio: string;
 }
 
+interface VendorProfileFormProps extends VendorProfileFormScreenProps {
+  onSubmit: () => void;
+  onGoBack: () => void;
+}
+
 const aboutFormValidationSchema = object().shape({
   bio: string().required('Enter bio'),
 });
 
-const AboutForm = ({ navigation }: AboutFormScreenProps) => {
+const AboutForm = ({ navigation, onSubmit, onGoBack }: VendorProfileFormProps) => {
   const {
     control,
     register,
@@ -72,7 +77,9 @@ const AboutForm = ({ navigation }: AboutFormScreenProps) => {
     console.log(input);
 
     const navigateToSuccessError = (props: ScreenProps['SuccessError']) => {
-      navigation.navigate('SuccessError', { ...props });
+      // navigation.navigate('SuccessError', { ...props });
+      onSubmit();
+
     };
 
     try {
@@ -155,7 +162,7 @@ const AboutForm = ({ navigation }: AboutFormScreenProps) => {
                 row
                 flex={0}
                 justify='flex-start'
-                onPress={() => navigation.goBack()}
+                onPress={onGoBack}
               >
                 <AntDesign name='back' size={24} color='white' />
                 <Text p white marginLeft={sizes.s}>
