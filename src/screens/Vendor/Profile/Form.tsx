@@ -55,6 +55,10 @@ interface VendorTag {
   name: string;
 }
 
+interface VendorProfileFormProps extends VendorProfileFormScreenProps {
+  onSubmit: () => void;
+}
+
 interface VendorProfileInput extends FieldValues {
   logo: ImageInfo | null;
   name: string;
@@ -97,7 +101,10 @@ const vendorProfileValidationSchema = object().shape({
   //   .required("Must select a tag"),
 });
 
-const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
+const VendorProfileForm = ({
+  navigation,
+  onSubmit,
+}: VendorProfileFormProps) => {
   const [submitErrMessage, setSubmitErrMessage] = useState('');
   const { getToken, userId } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -149,8 +156,8 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
   };
 
   const onNextBtnPress = async (e: GestureResponderEvent) => {
-    trigger();
     if (isValid) {
+      onSubmit();
       setConfirmDetails(true);
     }
   };
@@ -249,6 +256,9 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
               source={assets.background}
             >
               <Block flex={0} align='center' marginTop={sizes.md}>
+                <Text white transform='uppercase' marginBottom={sizes.s}>
+                  Set up your Vendor Profile
+                </Text>
                 <ProfileUpload
                   name='logo'
                   label='Upload your photo'
@@ -267,9 +277,6 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
             color='rgba(255,255,255,1)'
           >
             <Block align='flex-start' className='pl-4 pt-4'>
-              <Text transform='uppercase' marginBottom={sizes.s}>
-                Set up your Vendor Profile
-              </Text>
               <Text p marginVertical={sizes.s} className='capitalize'>
                 Company/Shop Name:
               </Text>
@@ -562,8 +569,8 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
   const Form = () => {
     const onSuccessPress = () => {
       setLoading(false);
-      navigation.navigate('VerificationForm');
-      // navigation.replace("VendorHome", {initialTab: "Profile"})
+      // navigation.navigate('VerificationForm');
+      navigation.replace('VendorHome', { initialTab: 'Profile' });
     };
 
     const onErrorPress = () => {
