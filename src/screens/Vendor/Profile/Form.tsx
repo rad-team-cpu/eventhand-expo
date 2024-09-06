@@ -1,5 +1,6 @@
 import { useAuth, useUser } from '@clerk/clerk-expo';
 // import { EmailAddressResource } from "@clerk/types/dist/emailAddress";
+import { AntDesign } from '@expo/vector-icons';
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useFocusEffect } from '@react-navigation/native';
@@ -9,9 +10,14 @@ import GenderPicker from 'Components/Input/GenderPicker';
 import ProfileUpload from 'Components/Input/ProfileUpload';
 import TagButtons from 'Components/Input/TagButtons';
 import SuccessScreen from 'Components/Success';
+import Block from 'Components/Ui/Block';
 import { UserContext } from 'Contexts/UserContext';
 import { VendorContext } from 'Contexts/VendorContext';
 import { UploadResult } from 'firebase/storage';
+import Button from 'Components/Ui/Button';
+import Image from 'Components/Ui/Image';
+import Text from 'Components/Ui/Text';
+import useTheme from '../../../core/theme';
 import React, { useState, useContext, useCallback, useEffect } from 'react';
 import {
   useForm,
@@ -24,8 +30,6 @@ import {
   BackHandler,
   View,
   TextInput,
-  Button,
-  Text,
   StyleSheet,
   GestureResponderEvent,
   TextStyle,
@@ -199,7 +203,7 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
         }),
       };
       const response = await fetch(url, request);
-      console.log(response);
+      console.log(response.body);
       switch (response.status) {
         case 201:
           const data = await response.json();
@@ -224,225 +228,205 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
   const onSubmitPress = handleSubmit(createProfile);
 
   const FormFields = () => {
+    const { assets, colors, sizes, gradients } = useTheme();
     return (
-      <ScrollView
-        id='vendor-profile-form-field'
-        testID='test-vendor-profile-form-field'
-        contentContainerStyle={styles.container}
-      >
-        <Text style={styles.title}>SET UP YOUR VENDOR PROFILE</Text>
-        <ProfileUpload
-          name='logo'
-          label='Upload your photo'
-          control={control as unknown as Control<FieldValues, unknown>}
-          register={register as unknown as UseFormRegister<FieldValues>}
-          errors={errors}
-        />
-        <Text style={styles.label}>Company/Shop Name:</Text>
-        <Controller
-          name='name'
-          control={control}
-          render={({ field: { onChange, onBlur, value } }) => {
-            const onValueChange = (text: string) => onChange(text);
-
-            return (
-              <TextInput
-                id='name-text-input'
-                testID='test-name-input'
-                style={styles.textBox}
-                placeholder='Name'
-                onBlur={onBlur}
-                value={value}
-                onChangeText={onValueChange}
-                autoCapitalize='none'
-                returnKeyType='next'
-              />
-            );
-          }}
-        />
-        {errors['name']?.message && (
-          <Text testID='test-name-err-text' style={styles.errorText}>
-            {errors['name']?.message}
-          </Text>
-        )}
-        <Text style={styles.label}>Company/Shop Email:</Text>
-        <Controller
-          name='email'
-          control={control}
-          render={({ field: { onChange, onBlur, value } }) => {
-            const onValueChange = (text: string) => onChange(text);
-
-            const onNewEmailTextBoxPress = () => setNewEmail(true);
-
-            const onDefaultEmailPress = () => {
-              const email = clerkUser.primaryEmailAddress?.toString();
-              setNewEmail(false);
-              onChange(email!);
-              trigger();
-            };
-
-            return (
-              <>
-                <View
-                  style={{
-                    ...styles.textBox,
-                    backgroundColor: !newEmail ? '#EBEBE4' : '#FFFF',
-                    borderColor: !newEmail ? 'gray' : '#C0C0C0',
-                  }}
-                >
-                  <Pressable
-                    testID='test-new-email-btn'
-                    style={{
-                      ...styles.circle,
-                      backgroundColor: newEmail ? 'green' : 'white',
-                      borderColor: newEmail ? '#C0C0C0' : 'gray',
-                    }}
-                    onPress={onNewEmailTextBoxPress}
-                  >
-                    {newEmail && (
-                      <FontAwesome name='check' size={16} color='white' />
-                    )}
-                  </Pressable>
+      <Block safe marginTop={sizes.md}>
+        <Block
+          id='vendor-profile-form-field'
+          testID='test-vendor-profile-form-field'
+          scroll
+          paddingHorizontal={sizes.s}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: sizes.padding }}
+        >
+          <Block flex={0} style={{ zIndex: 0 }}>
+            <Image
+              background
+              resizeMode='cover'
+              padding={sizes.sm}
+              paddingBottom={sizes.l}
+              radius={sizes.cardRadius}
+              source={assets.background}
+            >
+              <Block flex={0} align='center' marginTop={sizes.md}>
+                <ProfileUpload
+                  name='logo'
+                  label='Upload your photo'
+                  control={control as unknown as Control<FieldValues, unknown>}
+                  register={register as unknown as UseFormRegister<FieldValues>}
+                  errors={errors}
+                />
+              </Block>
+            </Image>
+          </Block>
+          <Block
+            flex={0}
+            radius={sizes.sm}
+            marginTop={-sizes.l}
+            marginHorizontal='3%'
+            color='rgba(255,255,255,1)'
+          >
+            <Block align='flex-start' className='pl-4 pt-4'>
+              <Text transform='uppercase' marginBottom={sizes.s}>
+                Set up your Vendor Profile
+              </Text>
+              <Text p marginVertical={sizes.s} className='capitalize'>
+                Company/Shop Name:
+              </Text>
+              <Controller
+                name='name'
+                control={control}
+                render={({ field: { onChange, onBlur, value } }) => (
                   <TextInput
-                    id='email-text-input'
-                    testID='test-email-text-input'
-                    style={styles.text}
-                    placeholder={!newEmail ? 'Use Different Email' : 'Email'}
-                    defaultValue={value}
-                    value={newEmail ? value : ''}
-                    editable={newEmail}
+                    id='name-text-input'
+                    testID='test-name-input'
+                    placeholder='Name'
                     onBlur={onBlur}
-                    onChangeText={onValueChange}
-                    keyboardType='email-address'
+                    value={value}
+                    onChangeText={onChange}
                     autoCapitalize='none'
                     returnKeyType='next'
+                    className='border p-1 rounded-lg border-purple-700 w-11/12'
                   />
-                </View>
-                <View
-                  style={{
-                    ...styles.textBox,
-                    backgroundColor: newEmail ? '#EBEBE4' : '#FFFF',
-                    borderColor: !newEmail ? 'gray' : '#C0C0C0',
-                  }}
-                >
-                  <Pressable
-                    testID='test-current-email-button'
-                    style={{
-                      ...styles.circle,
-                      backgroundColor: !newEmail ? 'green' : 'white',
-                      borderColor: !newEmail ? 'gray' : '#C0C0C0',
-                    }}
-                    onPress={onDefaultEmailPress}
-                  >
-                    {!newEmail && (
-                      <FontAwesome name='check' size={16} color='white' />
-                    )}
-                  </Pressable>
-                  <Text
-                    testID='test-current-email-text'
-                    style={{
-                      ...styles.text,
-                      fontWeight: newEmail ? '300' : '400',
-                    }}
-                  >
-                    {!newEmail
-                      ? clerkUser.primaryEmailAddress!.emailAddress
-                      : 'Use Current Email'}
-                  </Text>
-                </View>
-              </>
-            );
-          }}
-        />
-        {errors['email']?.message && (
-          <Text testID='test-email-err-text' style={styles.errorText}>
-            {errors['email']?.message}
-          </Text>
-        )}
-        <Text style={styles.label}>Company/Shop Contact No.</Text>
-        <Controller
-          name='contactNumber'
-          control={control}
-          render={({ field: { onChange, onBlur, value } }) => {
-            const onValueChange = (text: string) => onChange(text);
-
-            return (
-              <TextInput
-                id='contact-number-input'
-                testID='test-contact-number-input'
-                style={styles.textBox}
-                placeholder='Contact No.'
-                onBlur={onBlur}
-                onChangeText={onValueChange}
-                value={value}
-                autoCapitalize='none'
-                returnKeyType='next'
-                keyboardType='number-pad'
-                maxLength={11}
-                textContentType='telephoneNumber'
-                inputMode='tel'
+                )}
               />
-            );
-          }}
-        />
-        {errors['contactNumber']?.message && (
-          <Text testID='test-contact-number-err-text' style={styles.errorText}>
-            {errors['contactNumber']?.message}
-          </Text>
-        )}
-        {/* <Text style={styles.label}>Company/Shop Address:</Text>
-        <Controller
-          name="address"
-          control={control}
-          render={({ field: { onChange, onBlur, value } }) => {
-            const onValueChange = (text: string) => onChange(text);
+              {errors['name']?.message && (
+                <Text testID='test-name-err-text' danger>
+                  {errors['name']?.message}
+                </Text>
+              )}
+            </Block>
 
-            return (
-              <TextInput
-                id="address-text-input"
-                testID="test-address-text-input"
-                style={styles.textBox}
-                placeholder="Address"
-                onBlur={onBlur}
-                value={value}
-                onChangeText={onValueChange}
-                autoCapitalize="none"
-                returnKeyType="next"
+            <Block align='flex-start' className='pl-4'>
+              <Text p className='capitalize' marginVertical={sizes.s}>
+                Company/Shop Email:
+              </Text>
+              <Controller
+                name='email'
+                control={control}
+                render={({ field: { onChange, onBlur, value } }) => {
+                  const onValueChange = (text: string) => onChange(text);
+
+                  const onNewEmailTextBoxPress = () => setNewEmail(true);
+
+                  const onDefaultEmailPress = () => {
+                    const email = clerkUser.primaryEmailAddress?.toString();
+                    setNewEmail(false);
+                    onChange(email!);
+                    trigger();
+                  };
+
+                  return (
+                    <>
+                      <Block
+                        className={`border p-2 rounded-lg flex-row w-11/12 mb-2 ${!newEmail ? 'bg-gray-300 border-gray-400' : 'bg-white border-gray-300'}`}
+                      >
+                        <Pressable
+                          testID='test-new-email-btn'
+                          className={`h-5 w-5 rounded-full mr-1 p-1 ${newEmail ? 'bg-green-600 border-gray-300' : 'bg-white border-gray-400'}`}
+                          onPress={onNewEmailTextBoxPress}
+                        >
+                          {newEmail && (
+                            <FontAwesome name='check' size={12} color='white' />
+                          )}
+                        </Pressable>
+                        <TextInput
+                          id='email-text-input'
+                          testID='test-email-text-input'
+                          className='text-sm text-gray-800 w-11/12'
+                          placeholder={
+                            !newEmail ? 'Use Different Email' : 'Email'
+                          }
+                          defaultValue={value}
+                          value={newEmail ? value : ''}
+                          editable={newEmail}
+                          onBlur={onBlur}
+                          onChangeText={onValueChange}
+                          keyboardType='email-address'
+                          autoCapitalize='none'
+                          returnKeyType='next'
+                        />
+                      </Block>
+                      <Block
+                        className={`border p-2 rounded-lg flex-row w-11/12 ${newEmail ? 'bg-gray-300 border-gray-400' : 'bg-white border-gray-300'}`}
+                      >
+                        <Pressable
+                          testID='test-current-email-button'
+                          className={`h-5 w-5 rounded-full mr-1 p-1 ${!newEmail ? 'bg-green-600 border-gray-400' : 'bg-white border-gray-300'}`}
+                          onPress={onDefaultEmailPress}
+                        >
+                          {!newEmail && (
+                            <FontAwesome name='check' size={12} color='white' />
+                          )}
+                        </Pressable>
+                        <Text
+                          testID='test-current-email-text'
+                          className='text-sm text-gray-800 w-11/12'
+                        >
+                          {!newEmail
+                            ? clerkUser.primaryEmailAddress!.emailAddress
+                            : 'Use Current Email'}
+                        </Text>
+                      </Block>
+                    </>
+                  );
+                }}
               />
-            );
-          }}
-        />
-        {errors["address"]?.message && (
-          <Text testID="test-address-err-text" style={styles.errorText}>
-            {errors["address"]?.message}
-          </Text>
-        )} */}
-        {/* <Modal
-          animationType="fade"
-          transparent
-          visible={modalVisible}
-          onRequestClose={() => {
-            Alert.alert("Modal has been closed.");
-            setModalVisible(!modalVisible);
-          }}
-        >
-          <View style={styles.centeredView}>
-            <View style={styles.modalView}>
-              <Text style={styles.modalText}>Hello World!</Text>
-              <Pressable
-                style={[styles.button, styles.buttonClose]}
-                onPress={() => setModalVisible(!modalVisible)}
-              >
-                <Text style={styles.textStyle}>Hide Modal</Text>
-              </Pressable>
-            </View>
-          </View>
-        </Modal> */}
-        <Button title='NEXT' testID='next-btn' onPress={onNextBtnPress} />
-        <Text testID='save-err-text' style={styles.errorText}>
-          {submitErrMessage}
-        </Text>
-      </ScrollView>
+
+              {errors['email']?.message && (
+                <Text testID='test-email-err-text' danger>
+                  {errors['email']?.message}
+                </Text>
+              )}
+            </Block>
+
+            <Block align='flex-start' className='pl-4 mb-3'>
+              <Text p marginVertical={sizes.s}>
+                Contact Number:
+              </Text>
+              <Controller
+                name='contactNumber'
+                control={control}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    id='contact-number-input'
+                    testID='test-contact-number-input'
+                    placeholder='Contact No.'
+                    onBlur={onBlur}
+                    value={value}
+                    onChangeText={onChange}
+                    keyboardType='number-pad'
+                    autoCapitalize='none'
+                    maxLength={11}
+                    textContentType='telephoneNumber'
+                    className='border p-1 mb-2 rounded-lg border-purple-700 w-11/12'
+                  />
+                )}
+              />
+              {errors['contactNumber']?.message && (
+                <Text testID='test-contact-number-err-text' danger>
+                  {errors['contactNumber']?.message}
+                </Text>
+              )}
+            </Block>
+
+            <Button
+              testID='next-btn'
+              onPress={onNextBtnPress}
+              primary
+              outlined
+              marginBottom={sizes.s}
+              marginHorizontal={sizes.sm}
+              shadow={false}
+              disabled={!isValid}
+            >
+              <Text bold primary transform='uppercase'>
+                Update
+              </Text>
+            </Button>
+          </Block>
+        </Block>
+      </Block>
     );
   };
 
@@ -476,53 +460,110 @@ const VendorProfileForm = ({ navigation }: VendorProfileFormScreenProps) => {
   );
 
   const Confirmation = () => {
+    const { assets, colors, sizes, gradients } = useTheme();
     const avatarUri = getValues('logo') !== null ? getValues('logo')!.uri : '';
 
     return (
-      <View
-        id='vendor-profile-form-confirm'
-        testID='test-vendor-profile-form-confirm'
-      >
-        {/* <Text style={styles.title}>CONFIRM DETAILS</Text> */}
-        <Avatar
-          uri={avatarUri}
-          label='CONFIRM DETAILS'
-          labelTextStyle={styles.title as TextStyle}
-        />
-        <Text style={styles.label}>Name:</Text>
-        <Text id='name' testID='test-name' style={styles.details}>
-          {getValues('name')}
-        </Text>
-        <Text style={styles.label}>Email:</Text>
-        <Text id='email' testID='test-email' style={styles.details}>
-          {getValues('email')}
-        </Text>
-        <Text style={styles.label}>CONTACT NO.</Text>
-        <Text id='contact-num' testID='test-contact-num' style={styles.details}>
-          {getValues('contactNumber')}
-        </Text>
-        {/* <Text style={styles.label}>ADDRESS:</Text>
-        <Text id="address" testID="test-address" style={styles.details}>
-          {getValues("address")}
-        </Text> */}
-        <Button
-          title='SAVE'
-          testID='test-save-btn'
-          onPress={onSubmitPress}
-          disabled={!isValid}
-        />
-        <Text testID='save-err-text' style={styles.errorText}>
-          {submitErrMessage}
-        </Text>
-      </View>
+      <Block safe marginTop={sizes.md}>
+        <Block
+          id='vendor-profile-form-confirm'
+          testID='test-vendor-profile-form-confirm'
+          scroll
+          paddingHorizontal={sizes.xs}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: sizes.padding }}
+        >
+          <Block flex={0} style={{ zIndex: 0 }}>
+            <Image
+              background
+              resizeMode='cover'
+              padding={sizes.sm}
+              paddingBottom={sizes.l}
+              radius={sizes.cardRadius}
+              source={assets.background}
+            >
+              <Button
+                row
+                flex={0}
+                justify='flex-start'
+                onPress={() => setConfirmDetails(false)}
+              >
+                <AntDesign name='back' size={24} color='white' />
+                <Text p white marginLeft={sizes.s}>
+                  Go back
+                </Text>
+              </Button>
+              <Block flex={0} align='center' marginVertical={sizes.sm}>
+                <Avatar uri={avatarUri} label='CONFIRM DETAILS' />
+              </Block>
+            </Image>
+          </Block>
+          <Block
+            flex={0}
+            radius={sizes.sm}
+            marginTop={-sizes.l}
+            marginHorizontal='8%'
+            color='rgba(255,255,255,1)'
+          >
+            <Block align='flex-start' className='pl-4 pt-4'>
+              <Text p>Name</Text>
+              <Text
+                id='name'
+                testID='test-name'
+                className='capitalize font-bold'
+              >
+                {getValues('name')}
+              </Text>
+            </Block>
+
+            <Block align='flex-start' className='pl-4 pt-4'>
+              <Text p>Email</Text>
+              <Text id='email' testID='test-email'>
+                {getValues('email')}
+              </Text>
+            </Block>
+
+            <Block align='flex-start' className='pl-4 pt-4'>
+              <Text p marginBottom={sizes.xs}>
+                Contact Number
+              </Text>
+              <Text
+                id='contact-num'
+                testID='test-contact-num'
+                marginBottom={sizes.xs}
+              >
+                {getValues('contactNumber')}
+              </Text>
+            </Block>
+
+            <Button
+              testID='test-save-btn'
+              onPress={onSubmitPress}
+              disabled={!isValid}
+              primary
+              outlined
+              marginBottom={sizes.s}
+              marginHorizontal={sizes.sm}
+              shadow={false}
+            >
+              <Text bold primary transform='uppercase'>
+                Confirm
+              </Text>
+            </Button>
+            <Text testID='save-err-text' danger>
+              {submitErrMessage}
+            </Text>
+          </Block>
+        </Block>
+      </Block>
     );
   };
 
   const Form = () => {
     const onSuccessPress = () => {
       setLoading(false);
-      // navigation.navigate('VerificationForm');
-      navigation.replace("VendorHome", {initialTab: "Profile"})
+      navigation.navigate('VerificationForm');
+      // navigation.replace("VendorHome", {initialTab: "Profile"})
     };
 
     const onErrorPress = () => {
