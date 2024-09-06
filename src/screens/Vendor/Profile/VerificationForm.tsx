@@ -26,13 +26,13 @@ import IDUpload from 'Components/Input/IdUpload';
 import { Picker } from '@react-native-picker/picker';
 
 const idTypes = [
-  { label: 'Business Permit - Barangay', value: 'barangay_permit' },
-  { label: "Business Permit - Mayor's Permit", value: 'mayors_permit' },
-  { label: 'BIR Registration', value: 'bir_registration' },
-  { label: 'DTI Registration', value: 'dti_registration' },
-  { label: 'Driver License', value: 'driver_license' },
-  { label: 'Passport', value: 'passport' },
-  { label: 'Other', value: 'other' },
+  { label: 'Business Permit - Barangay', value: 'BARANGAY_PERMIT' },
+  { label: "Business Permit - Mayor's Permit", value: 'MAYORS_PERMIT' },
+  { label: 'BIR Registration', value: 'BIR_REGISTRATION' },
+  { label: 'DTI Registration', value: 'DTI_REGISTRATION' },
+  { label: 'Driver License', value: 'DRIVER_LICENSE' },
+  { label: 'Passport', value: 'PASSPORT' },
+  { label: 'Other', value: 'OTHER' },
 ];
 
 interface ImageInfo {
