@@ -1,87 +1,154 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Button } from 'react-native';
+import { View, Text, Button, StyleSheet } from 'react-native';
 import VendorProfileForm from './Form';
-import { MultiStepFormScreenProps } from 'types/types';
-import AboutForm from './AboutForm';
+import { ScreenProps, VendorProfileFormScreenProps } from 'types/types';
 import VerificationForm from './VerificationForm';
+import AboutForm from './AboutForm';
+import AddressForm from './AddressForm';
 import MenuForm from './MenuForm';
 
-const MultiStepForm = ({ navigation }: MultiStepFormScreenProps) => {
+const MultiStepForm = ({ navigation, route }: VendorProfileFormScreenProps) => {
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 2;
+  const totalSteps = 5; // Total number of steps
 
-  const nextStep = () => {
-    if (currentStep < totalSteps) {
-      setCurrentStep(currentStep + 1);
-    }
+  const navigateToSuccessError = (props: ScreenProps['SuccessError']) => {
+    navigation.replace('SuccessError', { ...props });
   };
 
-  const prevStep = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
-
-  const handleStepCompletion = (stepData: any) => {
-    if (currentStep < totalSteps) {
-      nextStep();
+  const handleNextStep = () => {
+    if (currentStep === 5) {
+      navigateToSuccessError({
+        description: 'Your information was saved successfully.',
+        buttonText: 'Continue',
+        navigateTo: 'VendorHome',
+        status: 'success',
+      });
     } else {
-      navigation.replace('VendorHome', { initialTab: 'Profile' });
+      setCurrentStep((prevStep) => prevStep + 1);
     }
   };
 
-  const renderStep = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          <VendorProfileForm
-            navigation={navigation}
-            isPartOfMultiStep={true}
-            onComplete={handleStepCompletion}
-          />
-        );
-      case 2:
-        return <VerificationForm onComplete={handleStepCompletion} />;
-      case 3:
-        return <AboutForm onComplete={handleStepCompletion} />;
-      case 4:
-        return <MenuForm onComplete={handleStepCompletion} />;
-      case 5:
-        return <AboutForm onComplete={handleStepCompletion} />;
-      default:
-        return null;
-    }
+  const handlePrevStep = () => {
+    setCurrentStep((prevStep) => prevStep - 1);
   };
 
+  const handleConfirm = () => {
+    handleNextStep();
+  };
+
+  const handleGoBack = () => {
+    handlePrevStep();
+  };
+
+  interface StepperProps {
+    currentStep: number;
+    totalSteps: number;
+  }
+
+  const Stepper: React.FC<StepperProps> = ({ currentStep, totalSteps }) => {
+    return (
+      <View style={styles.stepperContainer}>
+        {Array.from({ length: totalSteps }, (_, index) => (
+          <View
+            key={index}
+            style={[
+              styles.step,
+              index < currentStep ? styles.activeStep : styles.inactiveStep,
+            ]}
+          >
+            <Text
+              style={[
+                styles.stepText,
+                index < currentStep
+                  ? styles.activeStepText
+                  : styles.inactiveStepText,
+              ]}
+            >
+              {index + 1}
+            </Text>
+          </View>
+        ))}
+      </View>
+    );
+  };
 
   return (
-    <View style={styles.container}>
-      {/* <Text style={styles.stepIndicator}>
-        Step {currentStep} of {totalSteps}
-      </Text> */}
-      {renderStep()}
-      <View style={styles.navigationButtons}>
-        {currentStep > 1 && <Button title='Previous' onPress={prevStep} />}
-      </View>
+    <View style={{ flex: 1 }}>
+      <Stepper currentStep={currentStep} totalSteps={totalSteps} />
+
+      {currentStep === 1 && (
+        <VendorProfileForm
+          navigation={navigation}
+          route={route}
+          onSubmit={handleConfirm}
+        />
+      )}
+      {currentStep === 2 && (
+        <VerificationForm
+          navigation={navigation}
+          route={route}
+          onSubmit={handleConfirm}
+          onGoBack={handleGoBack}
+        />
+      )}
+      {currentStep === 3 && (
+        <AboutForm
+          navigation={navigation}
+          route={route}
+          onSubmit={handleConfirm}
+          onGoBack={handleGoBack}
+        />
+      )}
+      {currentStep === 4 && (
+        <AddressForm
+          navigation={navigation}
+          route={route}
+          onSubmit={handleConfirm}
+          onGoBack={handleGoBack}
+        />
+      )}
+      {currentStep === 5 && (
+        <MenuForm
+          navigation={navigation}
+          route={route}
+          onConfirm={handleConfirm}
+          onGoBack={handleGoBack}
+        />
+      )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-  },
-  stepIndicator: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  navigationButtons: {
+  stepperContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginTop: 20,
+  },
+  step: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 5,
+  },
+  activeStep: {
+    backgroundColor: '#CB0C9F',
+  },
+  inactiveStep: {
+    backgroundColor: 'gray',
+  },
+  stepText: {
+    color: 'white',
+    fontSize: 16,
+  },
+  activeStepText: {
+    color: 'white',
+  },
+  inactiveStepText: {
+    color: 'white',
   },
 });
 
