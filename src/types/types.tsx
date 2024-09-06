@@ -54,19 +54,20 @@ interface BookingType {
   date: Date;
   status: 'PENDING' | 'CONFIRMED' | 'CANCELED' | 'DECLINED' | 'COMPLETED';
   package: {
-    _id: string; // Reference to a Package
+    _id: string; 
     name: string;
     imageUrl: string;
     capacity: number;
-    tags: Tag[]; // Array of Tag IDs
+    tags: Tag[]; 
     orderType: string;
     description: string;
     price: number;
     inclusions: {
-      id: string; // Reference to an Inclusion
+      id: string; 
       imageUrl: string;
       name: string;
       description: string;
+      quantity: number
     }[];
   };
   createdAt: Date;
@@ -113,16 +114,25 @@ interface Vendor {
   bookings?: BookingDetailsProps[];
 }
 
-interface PackageType {
-  _id: string;
+interface Inclusion {
+  id: string; 
+  imageUrl: string;
   name: string;
-  vendor: Vendor;
-  vendorId: string;
-  price: number;
-  pictureURL: string;
-  capacity: number;
-  inclusions: Product[];
+  description: string;
+  quantity: number
 }
+interface PackageType 
+  {
+    _id: string; 
+    name: string;
+    imageUrl: string;
+    capacity: number;
+    tags: Tag[]; 
+    orderType: string;
+    description: string;
+    price: number;
+    inclusions: Inclusion[];
+  }
 
 interface Product {
   id: string;
@@ -227,8 +237,38 @@ interface VendorMenuProps {
 //   date?: Date | string;
 // }
 
+interface ReviewType {
+  _id: string;
+  client: {_id: string, name: string};
+  comment: string;
+  rating: number;
+  package: PackageType;
+}
+
+
+interface VendorMenuType {
+_id: string;
+logo: string
+name: string;
+bio: string;
+email: string;
+tags: Tag[];
+packages: PackageType[];
+averageRatings: number
+totalBookings: number
+reviews:  ReviewType[]
+}
+
 interface BookingConfirmationProps {
-  packageId: string;
+  vendor: {
+    _id: string;
+    logo: string
+  name: string;
+  bio: string;
+  email: string;
+  tags: Tag[]
+  }
+  vendorPackage: PackageType
 }
 
 interface BookingDetailsProps {
@@ -281,7 +321,7 @@ type ScreenProps = {
   VerificationForm: undefined;
   MenuForm: undefined;
   Rating: undefined;
-  UserBookingView: undefined;
+  UserBookingView: {booking: BookingType};
 };
 
 type UserBookingViewScreenProps = NativeStackScreenProps<ScreenProps, "UserBookingView">
@@ -451,4 +491,7 @@ export {
   PaginationInfo,
   BookingType,
   UpdateEventFormScreenProps,
+  UserBookingViewScreenProps,
+  Inclusion,
+
 };
