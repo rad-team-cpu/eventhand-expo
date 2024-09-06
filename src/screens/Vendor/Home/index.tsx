@@ -177,7 +177,7 @@ const VendorHome = ({ navigation, route }: VendorHomeScreenProps) => {
         sendMessage(getChatListInput);
 
         setLoading(false);
-        // navigation.replace('MultiStepForm');
+        navigation.replace('MultiStepForm');
         console.log('VENDOR DATA SUCCESSFULLY LOADED');
       } else if (res.status === 400) {
         throw new Error('Bad request - Invalid data.');
