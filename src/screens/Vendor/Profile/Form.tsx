@@ -278,7 +278,7 @@ const VendorProfileForm = ({
           >
             <Block align='flex-start' className='pl-4 pt-4'>
               <Text p marginVertical={sizes.s} className='capitalize'>
-                Company/Shop Name:
+                Company/Shop Name*:
               </Text>
               <Controller
                 name='name'
@@ -306,7 +306,7 @@ const VendorProfileForm = ({
 
             <Block align='flex-start' className='pl-4'>
               <Text p className='capitalize' marginVertical={sizes.s}>
-                Company/Shop Email:
+                Company/Shop Email*:
               </Text>
               <Controller
                 name='email'
@@ -389,7 +389,7 @@ const VendorProfileForm = ({
 
             <Block align='flex-start' className='pl-4 mb-3'>
               <Text p marginVertical={sizes.s}>
-                Contact Number:
+                Contact Number*:
               </Text>
               <Controller
                 name='contactNumber'

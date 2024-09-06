@@ -2,13 +2,22 @@ import React from 'react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { ScrollView, TextInput, View, TouchableOpacity } from 'react-native';
+import {
+  ScrollView,
+  TextInput,
+  View,
+  TouchableOpacity,
+  Pressable,
+} from 'react-native';
 import Block from 'Components/Ui/Block';
 import Button from 'Components/Ui/Button';
 import { AntDesign } from '@expo/vector-icons';
 import Image from 'Components/Ui/Image';
 import Text from 'Components/Ui/Text';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import useTheme from '../../../core/theme';
+import { Ionicons } from '@expo/vector-icons';
+
 import { MenuFormScreenProps, VendorProfileFormScreenProps } from 'types/types';
 
 interface InclusionInput {
@@ -31,6 +40,7 @@ interface FormValues {
 interface VendorProfileFormProps extends VendorProfileFormScreenProps {
   onConfirm: () => void;
   onGoBack: () => void;
+  onSkip: () => void;
 }
 
 const inclusionSchema: yup.ObjectSchema<InclusionInput> = yup.object().shape({
@@ -62,6 +72,7 @@ const MenuForm = ({
   navigation,
   onGoBack,
   onConfirm,
+  onSkip,
 }: VendorProfileFormProps) => {
   const {
     control,
@@ -219,7 +230,10 @@ const MenuForm = ({
               outlined
               marginTop={sizes.sm}
               shadow={false}
+              className='flex flex-row'
             >
+              <Ionicons name='trash' size={16} color='#CB0C9F' />
+
               <Text>Remove Package</Text>
             </Button>
           </Block>
@@ -238,18 +252,42 @@ const MenuForm = ({
           shadow={false}
           outlined
           primary
+          className='flex flex-row'
         >
-          <Text bold>Add Another Package</Text>
+          <MaterialCommunityIcons
+            name='text-box-plus-outline'
+            size={16}
+            color='#CB0C9F'
+          />
+          <Text p bold>
+            Add Another Package
+          </Text>
         </Button>
+        <Block className='flex flex-row space-x-1'>
+          <Button
+            primary
+            onPress={handleSubmit(onSubmit)}
+            marginVertical={sizes.sm}
+            shadow={false}
+            className='flex-1'
+          >
+            <Text bold white>
+              Submit
+            </Text>
+          </Button>
 
-        <Button
-          primary
-          onPress={handleSubmit(onSubmit)}
-          marginVertical={sizes.sm}
-          shadow={false}
-        >
-          <Text bold>Submit</Text>
-        </Button>
+          <Button
+            secondary
+            onPress={onSkip}
+            marginVertical={sizes.sm}
+            shadow={false}
+            className='flex-1'
+          >
+            <Text bold white>
+              Skip
+            </Text>
+          </Button>
+        </Block>
       </ScrollView>
     </Block>
   );
@@ -279,11 +317,17 @@ const InclusionFields = ({
     <Block>
       {inclusionFields.map((inclusion, inclusionIndex) => (
         <Block
+          card
           key={inclusion.id}
-          paddingVertical={sizes.s}
+          padding={sizes.s}
+          marginVertical={sizes.s}
+          shadow={false}
+          outlined
           style={{ flexDirection: 'column' }}
         >
-          <Text>Name:</Text>
+          <Block className='flex flex-row justify-between'>
+            <Text>Name:</Text>
+          </Block>
           <Controller
             name={`packages.${packageIndex}.inclusions.${inclusionIndex}.name`}
             control={control}
@@ -345,7 +389,7 @@ const InclusionFields = ({
             name={`packages.${packageIndex}.inclusions.${inclusionIndex}.quantity`}
             control={control}
             render={({ field: { onChange, value } }) => (
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }} className=' justify-between'>
                 <TouchableOpacity
                   onPress={() => onChange(value - 1 >= 1 ? value - 1 : 1)}
                   style={{
@@ -384,6 +428,15 @@ const InclusionFields = ({
                 >
                   <Text>+</Text>
                 </TouchableOpacity>
+                <Block>
+                  <Pressable
+                    onPress={() => removeInclusion(inclusionIndex)}
+                    className='flex flex-row self-end pr-2'
+                  >
+                    <Ionicons name='trash' size={24} color='#CB0C9F' />
+                  </Pressable>
+                  <Text size={sizes.s} className='self-end'>Remove Inclusion</Text>
+                </Block>
               </View>
             )}
           />
@@ -396,16 +449,6 @@ const InclusionFields = ({
               }
             </Text>
           )}
-
-          <Button
-            onPress={() => removeInclusion(inclusionIndex)}
-            danger
-            outlined
-            marginTop={sizes.sm}
-            shadow={false}
-          >
-            <Text>Remove Inclusion</Text>
-          </Button>
         </Block>
       ))}
 
@@ -416,7 +459,9 @@ const InclusionFields = ({
         shadow={false}
         outlined
         primary
+        className='flex flex-row'
       >
+        <MaterialCommunityIcons name='tray-plus' size={16} color='black' />
         <Text bold>Add Inclusion</Text>
       </Button>
     </Block>
