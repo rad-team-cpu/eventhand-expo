@@ -4,7 +4,6 @@ import { format } from "date-fns/format";
 import ExpoStatusBar from "expo-status-bar/build/ExpoStatusBar";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import Image from "Components/Ui/Image";
-import Entypo from "@expo/vector-icons/Entypo";
 import {
   Alert,
   BackHandler,
@@ -19,13 +18,7 @@ import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import useTheme from "src/core/theme";
 import {
   EventViewScreenProps,
-  ScreenProps,
-  BookingStatus,
   BookingDetailsProps,
-  PackageType,
-  Product,
-  HomeScreenBottomTabsProps,
-  HomeScreenNavigationProp,
   EventBudget,
   EventInfo,
   BookingType,
@@ -38,6 +31,7 @@ import { faker } from "@faker-js/faker";
 import { useAuth } from "@clerk/clerk-expo";
 import Loading from "screens/Loading";
 import ErrorScreen from "Components/Error";
+import { isBefore } from "date-fns";
 
 type Category = {
   name: string;
@@ -1128,20 +1122,26 @@ function EventView({ route, navigation }: EventViewScreenProps) {
         </View>
       </View>
 
-      <TabView
-        navigationState={{ index, routes }}
-        renderScene={renderScene}
-        onIndexChange={setIndex}
-        initialLayout={{ width: 300 }}
-        renderTabBar={(props) => (
-          <TabBar
-            {...props}
-            indicatorStyle={styles.indicator}
-            style={styles.tabBar}
-            labelStyle={styles.label}
-          />
-        )}
-      />
+      {!isBefore(event.date, new Date()) && (
+              <TabView
+              navigationState={{ index, routes }}
+              renderScene={renderScene}
+              onIndexChange={setIndex}
+              initialLayout={{ width: 300 }}
+              renderTabBar={(props) => (
+                <TabBar
+                  {...props}
+                  indicatorStyle={styles.indicator}
+                  style={styles.tabBar}
+                  labelStyle={styles.label}
+                />
+              )}
+            />
+      )}
+
+      {isBefore(event.date, new Date()) && <BookingList bookings={confirmedBookings} onPress={(booking: BookingType) => navigation.navigate("UserBookingView", {booking: {...booking}})}/>}
+
+
       {/* <HomeNav /> */}
     </>
   );

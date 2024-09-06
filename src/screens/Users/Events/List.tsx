@@ -2,14 +2,15 @@ import { MaterialIcons, AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { UserContext } from "Contexts/UserContext";
 import { format } from "date-fns/format";
-import React, { useContext, useMemo } from "react";
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import React, { useContext, useMemo, useState } from "react";
+import { FlatList, Pressable, StatusBar, StyleSheet, Text, View } from "react-native";
 import Block from "Components/Ui/Block";
 import Image from "Components/Ui/Image";
 import useTheme from "../../../core/theme";
-import { StatusBar } from "expo-status-bar";
 
 import { EventInfo, HomeScreenNavigationProp } from "types/types";
+import { SceneMap, TabView, TabBar } from "react-native-tab-view";
+import { isAfter, isBefore, isToday } from "date-fns";
 
 interface FloatingCreateButtonProps {
   onPress: () => void;
@@ -125,9 +126,12 @@ const Events = ({ events }: EventsProps) => (
   />
 );
 
+
+
 function EventList() {
   const userContext = useContext(UserContext);
   const { assets, colors, sizes, gradients } = useTheme();
+  const [selectedTab, setSelectedTab] = useState<'Upcoming' | 'Past'>('Upcoming');
 
   const navigation = useNavigation<HomeScreenNavigationProp>();
 
@@ -135,21 +139,60 @@ function EventList() {
     throw new Error("UserInfo must be used within a UserProvider");
   }
 
+  const [routes] = useState([
+    { key: "upcoming", title: "Upcoming" },
+    { key: "past", title: "Past" },
+  ]);
+  const [index, setIndex] = useState(0);
+
+
   const onCreatePress = () => navigation.navigate("EventForm");
 
   const { eventList } = userContext;
-  // const { events } = user;
   const events = eventList.events; // test data;
+  const upcomingEvents = events.filter( event => !isBefore(event.date, new Date()))
+  const pastEvents = events.filter( event => isBefore(event.date, new Date()))
 
   if (events && events.length > 0) {
+    
     return (
       <Block safe>
-        <StatusBar style="auto" />
+        <StatusBar/>
+        <View style={styles.tabBarContainer}>
+      <Pressable
+        style={[
+          styles.tabBarButton,
+          selectedTab === 'Upcoming' && styles.tabBarButtonSelected,
+        ]}
+        onPress={() => setSelectedTab('Upcoming')}
+      >
+        <Text style={selectedTab === 'Upcoming' ? styles.tabBarTextSelected : styles.tabBarText}>
+          Upcoming
+        </Text>
+      </Pressable>
+      <Pressable
+        style={[
+          styles.tabBarButton,
+          selectedTab === 'Past' && styles.tabBarButtonSelected,
+        ]}
+        onPress={() => setSelectedTab('Past')}
+      >
+        <Text style={selectedTab === 'Past' ? styles.tabBarTextSelected : styles.tabBarText}>
+          Past
+        </Text>
+      </Pressable>
+    </View>
+
         <Block flex={0} style={{ zIndex: 0 }}>
-          <Text className="pt-10 pl-6 font-bold text-2xl text-pink-600">
+          {/* <Text className="pt-10 pl-6 font-bold text-2xl text-pink-600">
             Upcoming Events
-          </Text>
-          <Events events={events} />
+          </Text> */}
+          {selectedTab === "Upcoming" && (
+            <Events events={upcomingEvents} />
+          )}
+              {selectedTab === "Past" && (
+            <Events events={pastEvents} />
+          )}
         </Block>
         <FloatingCreateButton onPress={onCreatePress} />
       </Block>
@@ -210,7 +253,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   listContainer: {
-    paddingVertical: 16,
+    // paddingVertical: 16,
     paddingHorizontal: 30,
   },
   itemContainer: {
@@ -251,6 +294,33 @@ const styles = StyleSheet.create({
   capacityText: {
     fontSize: 14,
   },
+  tabBarContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    // paddingTop: 20, // Adjust to be below the status bar
+    backgroundColor: '#f8f8f8',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+  },
+  tabBarButton: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 15,
+  },
+  tabBarButtonSelected: {
+    borderBottomWidth: 2,
+    borderBottomColor: "#CB0C9F" // Highlight color for selected tab
+  },
+  tabBarText: {
+    color: '#666',
+    fontSize: 16,
+  },
+  tabBarTextSelected: {
+    color: "#CB0C9F",
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+
 });
 
 export default EventList;
