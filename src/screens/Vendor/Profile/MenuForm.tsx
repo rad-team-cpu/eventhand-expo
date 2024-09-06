@@ -9,7 +9,7 @@ import { AntDesign } from '@expo/vector-icons';
 import Image from 'Components/Ui/Image';
 import Text from 'Components/Ui/Text';
 import useTheme from '../../../core/theme';
-import { MenuFormScreenProps } from 'types/types';
+import { MenuFormScreenProps, VendorProfileFormScreenProps } from 'types/types';
 
 interface InclusionInput {
   name: string;
@@ -19,13 +19,18 @@ interface InclusionInput {
 
 interface PackageInput {
   name: string;
-  picture: string;
+  picture?: string;
   price: number;
   inclusions: InclusionInput[];
 }
 
 interface FormValues {
   packages: PackageInput[];
+}
+
+interface VendorProfileFormProps extends VendorProfileFormScreenProps {
+  onConfirm: () => void;
+  onGoBack: () => void;
 }
 
 const inclusionSchema: yup.ObjectSchema<InclusionInput> = yup.object().shape({
@@ -36,7 +41,7 @@ const inclusionSchema: yup.ObjectSchema<InclusionInput> = yup.object().shape({
 
 const packageSchema: yup.ObjectSchema<PackageInput> = yup.object().shape({
   name: yup.string().required('Package name is required'),
-  picture: yup.string().required('Package picture is required'),
+  picture: yup.string(),
   price: yup.number().required('Price is required').min(1),
   inclusions: yup
     .array()
@@ -53,7 +58,11 @@ const formSchema: yup.ObjectSchema<FormValues> = yup.object().shape({
     .min(1, 'At least one package is required'),
 });
 
-const MenuForm = ({ navigation }: MenuFormScreenProps) => {
+const MenuForm = ({
+  navigation,
+  onGoBack,
+  onConfirm,
+}: VendorProfileFormProps) => {
   const {
     control,
     handleSubmit,
@@ -85,7 +94,9 @@ const MenuForm = ({ navigation }: MenuFormScreenProps) => {
   });
 
   const onSubmit = (data: FormValues) => {
-    console.log('Submitted Data:', data);
+    // console.log('Submitted Data:', data);
+    onConfirm();
+
     // Submit the data to the backend
   };
 
@@ -107,12 +118,7 @@ const MenuForm = ({ navigation }: MenuFormScreenProps) => {
             radius={sizes.cardRadius}
             source={assets.background}
           >
-            <Button
-              row
-              flex={0}
-              justify='flex-start'
-              onPress={() => navigation.goBack()}
-            >
+            <Button row flex={0} justify='flex-start' onPress={onGoBack}>
               <AntDesign name='back' size={24} color='white' />
               <Text p white marginLeft={sizes.s}>
                 Go back
@@ -362,7 +368,7 @@ const InclusionFields = ({
                     textAlign: 'center',
                     marginHorizontal: sizes.xs,
                     borderRadius: sizes.sm,
-                    width: 60, 
+                    width: 60,
                   }}
                   keyboardType='numeric'
                 />
