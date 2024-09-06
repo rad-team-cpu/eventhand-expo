@@ -14,18 +14,17 @@ import {
   ScreenProps,
   HomeScreenNavigationProp,
   Tag,
+  BookingConfirmationScreenProps,
+  Inclusion,
 } from 'types/types';
 import Loading from 'screens/Loading';
 import { GetMessagesInput, WebSocketContext } from 'Contexts/WebSocket';
 import { UserContext } from 'Contexts/UserContext';
 import { ObjectId } from 'bson';
 
-const BookingConfirmation = () => {
+const BookingConfirmation = ({route}: BookingConfirmationScreenProps) => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
-  const route = useRoute();
   const { assets, colors, sizes, gradients } = useTheme();
-  const [vendorPackage, setVendorPackage] = useState<PackageType>();
-  const [vendor, setVendor] = useState<Vendor>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const userContext = useContext(UserContext);
@@ -43,7 +42,7 @@ const BookingConfirmation = () => {
 
   const { user } = userContext;
 
-  const { packageId } = route.params as { packageId: string };
+  const { vendor, vendorPackage } = route.params;
 
   const onPressBook = (packageId: string, vendorId: string) => {
     const BookingDetailsProps: ScreenProps['BookingDetails'] = {
@@ -54,39 +53,7 @@ const BookingConfirmation = () => {
     navigation.navigate('BookingDetails', BookingDetailsProps);
   };
 
-  const fetchPackage = useCallback(async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/packages/${packageId}`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-      setVendorPackage(response.data);
-    } catch (error: any) {
-      setError(error.message || 'Error fetching package');
-      setLoading(false);
-    }
-  }, [packageId]);
 
-  const fetchVendor = useCallback(async (vendorId: string) => {
-    try {
-      const response = await axios.get(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors/${vendorId}`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-      setVendor(response.data);
-    } catch (error: any) {
-      setError(error.message || 'Error fetching vendor');
-      setLoading(false);
-    }
-  }, []);
 
   const onMessagePress = () => {
     if (!vendor) {
@@ -112,35 +79,35 @@ const BookingConfirmation = () => {
     }
   };
 
-  useEffect(() => {
-    const loadPackage = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        await fetchPackage();
-      } catch (err) {
-        setLoading(false);
-        return;
-      }
-      setLoading(false);
-    };
+  // useEffect(() => {
+  //   const loadPackage = async () => {
+  //     setLoading(true);
+  //     setError(null);
+  //     try {
+  //       await fetchPackage();
+  //     } catch (err) {
+  //       setLoading(false);
+  //       return;
+  //     }
+  //     setLoading(false);
+  //   };
 
-    loadPackage();
-  }, [fetchPackage]);
+  //   loadPackage();
+  // }, [fetchPackage]);
 
-  useEffect(() => {
-    if (vendorPackage && vendorPackage.vendorId) {
-      fetchVendor(vendorPackage.vendorId);
-    }
-  }, [vendorPackage, fetchVendor]);
+  // useEffect(() => {
+  //   if (vendorPackage && vendorPackage.vendorId) {
+  //     fetchVendor(vendorPackage.vendorId);
+  //   }
+  // }, [vendorPackage, fetchVendor]);
 
-  if (loading) {
-    return <Loading />;
-  }
+  // if (loading) {
+  //   return <Loading />;
+  // }
 
-  if (error) {
-    return <Text>{error}</Text>;
-  }
+  // if (error) {
+  //   return <Text>{error}</Text>;
+  // }
 
   return (
     <Block
@@ -216,7 +183,7 @@ const BookingConfirmation = () => {
       </Block>
 
       <Block card paddingVertical={sizes.s} paddingHorizontal={sizes.sm}>
-        {vendorPackage?.inclusions.map((inclusion: Product) => (
+        {vendorPackage.inclusions.map((inclusion: Inclusion) => (
           <Block
             key={inclusion.id}
             className=' h-18 w-full rounded-xl flex flex-row mb-2'
@@ -224,7 +191,7 @@ const BookingConfirmation = () => {
             <Image
               background
               padding={sizes.md}
-              src={inclusion.imageURL}
+              src={inclusion.imageUrl}
               rounded
               className='rounded-xl h-18 w-18'
             ></Image>

@@ -442,7 +442,6 @@ function EventView({ route, navigation }: EventViewScreenProps) {
   };
 
   const fetchEvent = async () => {
-    console.log(eventId)
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/${eventId}/bookings`;
 
     const token = getToken({ template: 'event-hand-jwt' });
