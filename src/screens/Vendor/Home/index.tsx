@@ -177,6 +177,7 @@ const VendorHome = ({ navigation, route }: VendorHomeScreenProps) => {
         sendMessage(getChatListInput);
 
         setLoading(false);
+        navigation.replace('MultiStepForm');
         console.log('VENDOR DATA SUCCESSFULLY LOADED');
       } else if (res.status === 400) {
         throw new Error('Bad request - Invalid data.');
@@ -184,7 +185,7 @@ const VendorHome = ({ navigation, route }: VendorHomeScreenProps) => {
         throw new Error('Unauthorized - Authentication failed.');
       } else if (res.status === 404) {
         setLoading(false);
-        navigation.replace('VendorProfileForm');
+        navigation.replace('MultiStepForm');
       } else {
         throw new Error('Unexpected error occurred.');
       }
