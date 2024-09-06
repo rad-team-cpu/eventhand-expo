@@ -24,18 +24,28 @@ import {
   Tag,
   Vendor,
 } from "types/types";
+import { useAuth } from "@clerk/clerk-react";
+
+interface VendorListItem {
+  _id: string;
+  name: string;
+  logo: string;
+  rating: number
+}
 
 export default function VendorList() {
   const userContext = useContext(UserContext);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const { getToken, userId } = useAuth();
   const { assets, sizes } = useTheme();
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const route = useRoute();
-  const [venueVendors, setVenueVendors] = useState<Vendor[]>([]);
-  const [planningVendors, setPlanningVendors] = useState<Vendor[]>([]);
-  const [cateringVendors, setCateringVendors] = useState<Vendor[]>([]);
-  const [photographyVendors, setPhotographyVendors] = useState<Vendor[]>([]);
-  const [decorationVendors, setDecorationVendors] = useState<Vendor[]>([]);
+  const [venueVendors, setVenueVendors] = useState<VendorListItem []>([]);
+  const [planningVendors, setPlanningVendors] = useState<VendorListItem[]>([]);
+  const [cateringVendors, setCateringVendors] = useState<VendorListItem[]>([]);
+  const [photographyVendors, setPhotographyVendors] = useState<VendorListItem []>([]);
+  const [decorationVendors, setDecorationVendors] = useState<VendorListItem []>([]);
+  const [realVendors, setRealVendors] = useState<VendorListItem []>([]);
 
   if (!userContext) {
     throw new Error("UserInfo must be used within a UserProvider");
@@ -44,59 +54,83 @@ export default function VendorList() {
   const events = eventList.events;
 
   const onPressVendor = (vendorId: string) => {
+    console.log(vendorId)
     const vendorMenuProps: ScreenProps["VendorMenu"] = {
       vendorId,
     };
 
     navigation.navigate("VendorMenu", vendorMenuProps);
-    if (events && events.length > 0) {
-      const vendorMenuProps: ScreenProps["VendorMenu"] = {
-        vendorId,
-      };
-      navigation.navigate("VendorMenu", vendorMenuProps);
-    } else {
-      navigation.navigate("EventForm");
-    }
+
+    
+
+    // navigation.navigate("VendorMenu", vendorMenuProps);
+    // if (events && events.length > 0) {
+    //   const vendorMenuProps: ScreenProps["VendorMenu"] = {
+    //     vendorId,
+    //   };
+    //   navigation.navigate("VendorMenu", vendorMenuProps);
+    // } else {
+    //   navigation.navigate("EventForm");
+    // }
   };
 
-  const fetchVendors = async (
-    tags: string[],
-    setVendors: React.Dispatch<React.SetStateAction<Vendor[]>>
-  ) => {
-    try {
-      const tagsQuery = tags.join(",");
+  const fetchVendors = async () => {
+    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors/${userId}/list`;
 
-      const response = await axios.get(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors/tags?tags=${tagsQuery}`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      setVendors(response.data);
-    } catch (error: any) {
-      if (error instanceof TypeError) {
-        console.error(
-          "Network request failed. Possible causes: CORS issues, network issues, or incorrect URL."
-        );
+    const token = getToken({ template: 'event-hand-jwt' });
+
+    const request = {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    try {
+      const res = await fetch(url, request);
+      const data = await res.json();
+      
+   
+      if (res.status === 200) {
+        setCateringVendors(data.catering);
+        setVenueVendors(data.venue);
+        setPhotographyVendors(data.photography);
+        setPlanningVendors(data.planning);
+        setDecorationVendors(data.decorations);
+        setRealVendors(data.realVendors);
+
+        console.log('EVENT DATA SUCCESSFULLY LOADED');
+      } else if (res.status === 400) {
+        throw new Error('Bad request - Invalid data.');
+      } else if (res.status === 401) {
+        throw new Error('Unauthorized - Authentication failed.');
+      } else if (res.status === 404) {
+        throw new Error('Event Not Found');
       } else {
-        console.error("Error fetching vendors:", error.message);
+        throw new Error('Unexpected error occurred.');
       }
+    } catch (error: any) {
+      console.error(`Error fetching event (${error.code}): ${error} `);
+      // setErrMessage(`Error fetching event (${error.code}): ${error} `)
+      // setError(true);
+    }finally{
+      setLoading(false);
+      // console.log(error)
     }
   };
 
   useEffect(() => {
-    fetchVendors(["66966f907ca14eb4d4778a61"], setCateringVendors);
-    fetchVendors(["66966f897ca14eb4d4778a5f"], setVenueVendors);
-    fetchVendors(["66966f9a7ca14eb4d4778a65"], setPhotographyVendors);
-    fetchVendors(["66966f5e7ca14eb4d4778a5b"], setPlanningVendors);
-    fetchVendors(["66966f957ca14eb4d4778a63"], setDecorationVendors);
+    fetchVendors();
   }, []);
+
+  if(loading){
+    return <Loading />
+  }
 
   return (
     <Block testID="vendor-list" safe>
-      {loading && <Loading />}
       <StatusBar style="auto" />
       <Block flex={0} style={{ zIndex: 0 }}>
         <Image
@@ -128,7 +162,7 @@ export default function VendorList() {
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {cateringVendors.slice(0, 11).map((vendor) => (
               <TouchableOpacity
-                key={vendor._id}
+                key={`${vendor._id} - catering`}
                 onPress={() => onPressVendor(vendor._id)}
               >
                 <View className="bg-slate-500/30 h-32 w-40 flex items-center justify-center rounded-xl mr-4 relative ">
@@ -136,7 +170,7 @@ export default function VendorList() {
                     background
                     resizeMode="cover"
                     padding={sizes.md}
-                    src={vendor.banner}
+                    src={vendor.logo}
                     rounded
                     blurRadius={2}
                     className="h-32 w-40 rounded-xl"
@@ -153,11 +187,11 @@ export default function VendorList() {
             ))}
           </ScrollView>
           <View className="h-auto flex items-left justify-left gap-y-3">
-            <Text className="text-xl text-black font-bold">Trendy Venues</Text>
+            <Text className="text-xl text-black font-bold">Trending Vendorss</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {venueVendors.slice(0, 11).map((vendor) => (
+              {realVendors.slice(0, 11).map((vendor) => (
                 <TouchableOpacity
-                  key={vendor._id}
+                  key={`${vendor._id} - clerk`}
                   className=" h-32 w-24 flex flex-row rounded-xl mr-4 "
                   onPress={() => onPressVendor(vendor._id)}
                 >
@@ -166,7 +200,7 @@ export default function VendorList() {
                       background
                       resizeMode="cover"
                       padding={sizes.md}
-                      src={vendor.banner}
+                      src={vendor.logo}
                       rounded
                       className="h-24 w-24 rounded-xl"
                     ></Image>
@@ -177,8 +211,49 @@ export default function VendorList() {
                     </Text>
                     <View className="flex flex-row items-center self-end">
                       <Text className="text-xs">
-                        {vendor.credibilityFactors?.ratingsScore
-                          ? vendor.credibilityFactors.ratingsScore.toFixed(1)
+                        {vendor.rating
+                          ? vendor.rating.toFixed(1)
+                          : "0"}
+                      </Text>
+                      <AntDesign
+                        name="star"
+                        size={12}
+                        color="gold"
+                        style={{ marginLeft: 4 }}
+                      />
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+          <View className="h-auto flex items-left justify-left gap-y-3">
+            <Text className="text-xl text-black font-bold">Trendy Venues</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {venueVendors.slice(0, 11).map((vendor) => (
+                <TouchableOpacity
+                  key={`${vendor._id} - venue`}
+                  className=" h-32 w-24 flex flex-row rounded-xl mr-4 "
+                  onPress={() => onPressVendor(vendor._id)}
+                >
+                  <View className="bg-slate-500/30 w-24 h-24 rounded-xl align-middle ">
+                    <Image
+                      background
+                      resizeMode="cover"
+                      padding={sizes.md}
+                      src={vendor.logo}
+                      rounded
+                      className="h-24 w-24 rounded-xl"
+                    ></Image>
+                    <Text className="text-xs text-center">
+                      {vendor.name.length > 12
+                        ? `${vendor.name.substring(0, 10)}...`
+                        : vendor.name}
+                    </Text>
+                    <View className="flex flex-row items-center self-end">
+                      <Text className="text-xs">
+                        {vendor.rating
+                          ? vendor.rating.toFixed(1)
                           : "0"}
                       </Text>
                       <AntDesign
@@ -200,7 +275,7 @@ export default function VendorList() {
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {photographyVendors.slice(0, 11).map((vendor) => (
                 <TouchableOpacity
-                  key={vendor._id}
+                  key={`${vendor._id} - photography`}
                   className=" h-32 w-24 flex flex-row rounded-xl mr-4 "
                   onPress={() => onPressVendor(vendor._id)}
                 >
@@ -209,7 +284,7 @@ export default function VendorList() {
                       background
                       resizeMode="cover"
                       padding={sizes.md}
-                      src={vendor.banner}
+                      src={vendor.logo}
                       rounded
                       className="h-24 w-24 rounded-xl"
                     ></Image>
@@ -220,8 +295,8 @@ export default function VendorList() {
                     </Text>
                     <View className="flex flex-row items-center self-end">
                       <Text className="text-xs">
-                        {vendor.credibilityFactors?.ratingsScore
-                          ? vendor.credibilityFactors.ratingsScore.toFixed(1)
+                        {vendor.rating
+                          ? vendor.rating.toFixed(1)
                           : "0"}
                       </Text>
                       <AntDesign
@@ -247,7 +322,7 @@ export default function VendorList() {
             >
               {planningVendors.slice(0, 7).map((vendor) => (
                 <TouchableOpacity
-                  key={vendor._id}
+                  key={`${vendor._id} - planning`}
                   className="w-24 h-28 rounded-xl mr-4"
                   onPress={() => onPressVendor(vendor._id)}
                 >
@@ -256,7 +331,7 @@ export default function VendorList() {
                       background
                       resizeMode="cover"
                       padding={sizes.md}
-                      src={vendor.banner}
+                      src={vendor.logo}
                       rounded
                       className="h-20 w-24 rounded-xl"
                     ></Image>
@@ -268,8 +343,8 @@ export default function VendorList() {
                   </Text>
                   <View className="flex flex-row items-center self-end">
                     <Text className="text-xs">
-                      {vendor.credibilityFactors?.ratingsScore
-                        ? vendor.credibilityFactors.ratingsScore.toFixed(1)
+                      {vendor.rating
+                        ? vendor.rating.toFixed(1)
                         : "0"}
                     </Text>
                     <AntDesign
@@ -294,7 +369,7 @@ export default function VendorList() {
             >
               {decorationVendors.slice(0, 7).map((vendor) => (
                 <TouchableOpacity
-                  key={vendor._id}
+                  key={`${vendor._id} - decoration`}
                   className="w-40 h-30 rounded-xl mr-4 "
                   onPress={() => onPressVendor(vendor._id)}
                 >
@@ -303,7 +378,7 @@ export default function VendorList() {
                       background
                       resizeMode="cover"
                       padding={sizes.md}
-                      src={vendor.banner}
+                      src={vendor.logo}
                       rounded
                       className="h-20 w-40 rounded-xl"
                     ></Image>
@@ -316,8 +391,8 @@ export default function VendorList() {
                     </Text>
                     <View className="flex flex-row items-center self-end">
                       <Text className="text-xs">
-                        {vendor.credibilityFactors?.ratingsScore
-                          ? vendor.credibilityFactors.ratingsScore.toFixed(1)
+                        {vendor.rating
+                          ? vendor.rating.toFixed(1)
                           : "0"}
                       </Text>
                       <AntDesign

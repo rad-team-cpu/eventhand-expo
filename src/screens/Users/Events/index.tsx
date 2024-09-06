@@ -442,7 +442,6 @@ function EventView({ route, navigation }: EventViewScreenProps) {
   };
 
   const fetchEvent = async () => {
-    console.log(eventId)
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/${eventId}/bookings`;
 
     const token = getToken({ template: 'event-hand-jwt' });
@@ -971,11 +970,9 @@ function EventView({ route, navigation }: EventViewScreenProps) {
 
   const dateString = format(date, "MMMM dd, yyyy")
 
-
-  const Confirmed = () => <BookingList bookings={confirmedBookings} onPress={(booking: BookingType) => console.log(booking)}/>
-  const Pending = () => <BookingList  bookings={pendingBookings} onPress={(booking: BookingType) => console.log(booking)}/>
-  const Cancelled = () => <BookingList  bookings={cancelledOrDeclinedBookings} onPress={(booking: BookingType) => console.log(booking)}/>
-
+  const Confirmed = () => <BookingList bookings={confirmedBookings} onPress={(booking: BookingType) => navigation.navigate("UserBookingView", {booking: {...booking}})}/>
+  const Pending = () => <BookingList  bookings={pendingBookings} onPress={(booking: BookingType) => navigation.navigate("UserBookingView", {booking: {...booking}})}/>
+  const Cancelled = () => <BookingList  bookings={cancelledOrDeclinedBookings} onPress={(booking: BookingType) => navigation.navigate("UserBookingView", {booking: {...booking}})}/>
 
   const renderScene = SceneMap({
     confirmed: Confirmed,
