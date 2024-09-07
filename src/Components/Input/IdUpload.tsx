@@ -18,6 +18,7 @@ import {
   StyleSheet,
   Pressable,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { ImageInfo } from 'types/types';
 
@@ -46,26 +47,28 @@ const IDUpload = (props: IDUploadProps) => {
         control={control}
         render={({ field: { name, onChange, value } }) => {
           const pickImageAsync = async () => {
-            setLoading(true);
-            const permission = await requestPermission();
-
-            if (!permission.granted) {
-              alert(
-                'You have denied access to media library. Please select allow to upload ID image'
-              );
+            if (status?.granted === false) {
+              const permission = await requestPermission();
+              if (!permission.granted) {
+                Alert.alert(
+                  'Permission Denied',
+                  'You need to allow media library access to upload an ID image.'
+                );
+                return;
+              }
             }
 
+            setLoading(true);
             const result = await launchImageLibraryAsync({
               quality: 1,
+              mediaTypes: 'Images',
             });
 
             if (!result.canceled) {
               const image = result.assets[0];
               const imageFileInfo = await getFileInfo(image.uri);
-              const fileExtension = image.fileName
-                ? image.fileName.split('.').pop()
-                : '';
-              const mimeType = image.mimeType ? image.mimeType : '';
+              const fileExtension = image.uri.split('.').pop();
+              const mimeType = `image/${fileExtension}`;
 
               const selectedImageInfo: ImageInfo = {
                 uri: image.uri,
@@ -75,28 +78,22 @@ const IDUpload = (props: IDUploadProps) => {
               };
               onChange(selectedImageInfo);
             } else {
-              alert('You did not select any image.');
+              Alert.alert('No Image Selected', 'You did not select any image.');
             }
             setLoading(false);
           };
 
-          const selectImage = () => pickImageAsync();
-
           const errorMessages = [
-            errors[name]?.fileSize,
-            errors[name]?.mimeType,
-            errors[name]?.fileExtension,
+            errors?.[name]?.fileSize?.message,
+            errors?.[name]?.mimeType?.message,
+            errors?.[name]?.fileExtension?.message,
+            errors?.[name]?.uri?.message,
           ];
 
-          const errorMessage = errorMessages[0]
-            ? errorMessages[0].message
-            : errorMessages[1]
-              ? errorMessages[1].message
-              : errorMessages[2]
-                ? errorMessages[2].message
-                : '';
+          const errorMessage = errorMessages.find((msg) => msg !== undefined);
+
           const uploadedImage =
-            value !== null ? { uri: value.uri } : defaultImage;
+            value && value.uri !== '' ? { uri: value.uri } : defaultImage;
 
           return (
             <View style={styles.container}>
@@ -112,9 +109,12 @@ const IDUpload = (props: IDUploadProps) => {
                     styles.editButton,
                     loading ? styles.loadingEditButton : null,
                   ]}
-                  onPress={selectImage}
+                  onPress={pickImageAsync}
+                  disabled={loading}
                 >
-                  {!loading && <Feather name='upload' size={20} color='#fff' />}
+                  {!loading && (
+                    <Feather name='upload' size={20} color='#fff' />
+                  )}
                   {loading && (
                     <ActivityIndicator
                       testID='test-loading-upload-btn'
@@ -124,9 +124,11 @@ const IDUpload = (props: IDUploadProps) => {
                   )}
                 </Pressable>
               </View>
-              <Text testID='test-id-upload-err-text' style={styles.errorText}>
-                {errorMessage}
-              </Text>
+              {errorMessage && (
+                <Text testID='test-id-upload-err-text' style={styles.errorText}>
+                  {errorMessage}
+                </Text>
+              )}
             </View>
           );
         }}
@@ -159,13 +161,8 @@ const styles = StyleSheet.create({
   loadingEditButton: {
     backgroundColor: '#FFFFFF',
   },
-  label: {
-    marginTop: 10,
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
   errorText: {
-    color: 'white',
+    color: 'red',
     marginTop: 10,
     textAlign: 'center',
   },

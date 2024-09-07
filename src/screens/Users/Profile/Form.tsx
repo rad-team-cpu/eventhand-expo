@@ -3,10 +3,7 @@ import { AntDesign } from '@expo/vector-icons';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import Avatar from 'Components/Avatar';
-import {
-  UploadResult,
-
-} from 'firebase/storage';
+import { UploadResult } from 'firebase/storage';
 import React, { useState, useContext, useCallback } from 'react';
 import {
   useForm,
@@ -15,11 +12,7 @@ import {
   Control,
   UseFormRegister,
 } from 'react-hook-form';
-import {
-  BackHandler,
-  TextInput,
-  GestureResponderEvent,
-} from 'react-native';
+import { BackHandler, TextInput, GestureResponderEvent } from 'react-native';
 import FirebaseService from 'service/firebase';
 import { object, string, number } from 'yup';
 
@@ -38,7 +31,6 @@ import {
   SuccessErrorScreenProps,
 } from '../../../types/types';
 import Loading from '../../Loading';
-
 
 interface ProfileInput extends FieldValues {
   profileAvatar: ImageInfo | null;
@@ -236,6 +228,7 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
   const onSubmitPress = handleSubmit(createProfile);
 
   const FormFields = () => {
+   
     return (
       <Block safe marginTop={sizes.md}>
         <Block
@@ -284,7 +277,7 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
             color='rgba(255,255,255,1)'
           >
             <Block align='flex-start' className='pl-4 pt-4'>
-              <Text transform='uppercase'  marginBottom={sizes.s}>
+              <Text transform='uppercase' marginBottom={sizes.s}>
                 Set up your Profile:
               </Text>
               <Text p className='capitalize'>
@@ -421,94 +414,95 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
 
     return (
       <Block safe marginTop={sizes.md}>
-        <Block
-          id='profile-form-field'
-          testID='test-profile-form-field'
-          scroll
-          paddingHorizontal={sizes.s}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: sizes.padding }}
-        >
-          <Block flex={0} style={{ zIndex: 0 }}>
-            <Image
-              background
-              resizeMode='cover'
-              padding={sizes.sm}
-              paddingBottom={sizes.l}
-              radius={sizes.cardRadius}
-              source={assets.background}
-            >
-              <Button
-                row
-                flex={0}
-                justify='flex-start'
-                onPress={() => setConfirmDetails(false)}
-              >
-                <AntDesign name='back' size={24} color='white' />
-                <Text p white marginLeft={sizes.s}>
-                  Go back
-                </Text>
-              </Button>
-              <Block flex={0} align='center' marginVertical={sizes.sm}>
-                <Avatar uri={avatarUri} label='CONFIRM DETAILS' />
-              </Block>
-            </Image>
-          </Block>
-          <Block
-            flex={0}
-            radius={sizes.sm}
-            marginTop={-sizes.l}
-            marginHorizontal='8%'
-            color='rgba(255,255,255,1)'
+      <Block
+        id="vendor-profile-form-confirm"
+        testID="test-vendor-profile-form-confirm"
+        scroll
+        paddingHorizontal={sizes.s}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: sizes.padding }}
+      >
+        <Block flex={0} style={{ zIndex: 0 }}>
+          <Image
+            background
+            resizeMode="cover"
+            padding={sizes.sm}
+            paddingBottom={sizes.l}
+            radius={sizes.cardRadius}
+            source={assets.background}
           >
-            <Block align='flex-start' className='pl-4 pt-4'>
-              <Text p>First Name</Text>
-              <Text
-                id='fist-name'
-                testID='test-first-name'
-                className='capitalize font-bold'
-              >
-                {getValues('firstName')}
-              </Text>
-            </Block>
-
-            <Block align='flex-start' className='pl-4 pt-4'>
-              <Text p>Last Name</Text>
-              <Text
-                id='last-name'
-                testID='test-last-name'
-                className='capitalize'
-              >
-                {getValues('lastName')}
-              </Text>
-            </Block>
-
-            <Block align='flex-start' className='pl-4 pt-4'>
-              <Text p>Contact Number</Text>
-              <Text id='contact-num' testID='test-contact-num'>
-                {getValues('contactNumber')}
-              </Text>
-            </Block>
             <Button
-              testID='test-save-btn'
-              onPress={onSubmitPress}
-              disabled={!isValid}
-              primary
-              outlined
-              marginBottom={sizes.s}
-              marginHorizontal={sizes.sm}
-              shadow={false}
+              row
+              flex={0}
+              justify="flex-start"
+              onPress={() => setConfirmDetails(false)}
             >
-              <Text bold primary transform='uppercase'>
-                Confirm
+              <AntDesign name="back" size={24} color="white" />
+              <Text p white marginLeft={sizes.s}>
+                Go back
               </Text>
             </Button>
-            <Text testID='save-err-text' danger>
-              {submitErrMessage}
+            <Block flex={0} align="center" marginVertical={sizes.sm}>
+              <Avatar uri={avatarUri} label="CONFIRM DETAILS" />
+            </Block>
+          </Image>
+        </Block>
+        <Block
+          flex={0}
+          radius={sizes.sm}
+          marginTop={-sizes.l}
+          marginHorizontal="8%"
+          color="rgba(255,255,255,1)"
+        >
+          <Block align="flex-start" className="pl-4 pt-4">
+            <Text p>Name</Text>
+            <Text
+              id="name"
+              testID="test-name"
+              className="capitalize font-bold"
+            >
+              {getValues('name')}
             </Text>
           </Block>
+  
+          <Block align="flex-start" className="pl-4 pt-4">
+            <Text p>Email</Text>
+            <Text
+              id="email"
+              testID="test-email"
+              className="capitalize"
+            >
+              {getValues('email')}
+            </Text>
+          </Block>
+  
+          <Block align="flex-start" className="pl-4 pt-4">
+            <Text p>Contact Number</Text>
+            <Text id="contact-num" testID="test-contact-num">
+              {getValues('contactNumber')}
+            </Text>
+          </Block>
+  
+          <Button
+            testID="test-save-btn"
+            onPress={onSubmitPress}
+            disabled={!isValid}
+            primary
+            outlined
+            marginBottom={sizes.s}
+            marginHorizontal={sizes.sm}
+            shadow={false}
+          >
+            <Text bold primary transform="uppercase">
+              Confirm
+            </Text>
+          </Button>
+          <Text testID="save-err-text" danger>
+            {submitErrMessage}
+          </Text>
         </Block>
       </Block>
+    </Block>
     );
   };
 
