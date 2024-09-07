@@ -2,7 +2,7 @@ import { MaterialIcons, AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { UserContext } from "Contexts/UserContext";
 import { format } from "date-fns/format";
-import React, { useContext, useMemo, useState } from "react";
+import React, { useCallback, useContext, useMemo, useState } from "react";
 import { FlatList, Pressable, StatusBar, StyleSheet, Text, View } from "react-native";
 import Block from "Components/Ui/Block";
 import Image from "Components/Ui/Image";
@@ -109,29 +109,13 @@ interface EventsProps {
   events: EventInfo[];
 }
 
-const Events = ({ events }: EventsProps) => (
-  <FlatList
-    keyExtractor={(item) => item._id}
-    contentContainerStyle={styles.listContainer}
-    data={events}
-    renderItem={({ item }) => (
-      <EventListItem
-        _id={item._id}
-        name={item.name}
-        address={item.address}
-        date={item.date}
-        budget={item.budget}
-        attendees={item.attendees} pendingBookings={item.pendingBookings} confirmedBookings={item.confirmedBookings} cancelledOrDeclinedBookings={item.cancelledOrDeclinedBookings}      />
-    )}
-  />
-);
-
 
 
 function EventList() {
   const userContext = useContext(UserContext);
-  const { assets, colors, sizes, gradients } = useTheme();
+  const { assets,  sizes } = useTheme();
   const [selectedTab, setSelectedTab] = useState<'Upcoming' | 'Past'>('Upcoming');
+  const [page, setPage] = useState(1);
 
   const navigation = useNavigation<HomeScreenNavigationProp>();
 
@@ -139,22 +123,28 @@ function EventList() {
     throw new Error("UserInfo must be used within a UserProvider");
   }
 
-  const [routes] = useState([
-    { key: "upcoming", title: "Upcoming" },
-    { key: "past", title: "Past" },
-  ]);
-  const [index, setIndex] = useState(0);
-
+  
 
   const onCreatePress = () => navigation.navigate("EventForm");
 
   const { eventList } = userContext;
-  const events = eventList.events; // test data;
-  const upcomingEvents = events.filter( event => !isBefore(event.date, new Date()))
-  const pastEvents = events.filter( event => isBefore(event.date, new Date()))
 
-  if (events && events.length > 0) {
-    
+
+  const events = useCallback(() => {
+    const events = eventList.events; 
+    const upcomingEvents = events.filter( event => !isBefore(event.date, new Date()))
+    const pastEvents = events.filter( event => isBefore(event.date, new Date()))
+
+    switch (selectedTab) {
+      case "Past":
+        return pastEvents;
+      case "Upcoming":
+        return upcomingEvents
+    }
+
+  }, [selectedTab])
+
+  if (events() && events().length > 0) {   
     return (
       <Block safe>
         <StatusBar/>
@@ -184,15 +174,20 @@ function EventList() {
     </View>
 
         <Block flex={0} style={{ zIndex: 0 }}>
-          {/* <Text className="pt-10 pl-6 font-bold text-2xl text-pink-600">
-            Upcoming Events
-          </Text> */}
-          {selectedTab === "Upcoming" && (
-            <Events events={upcomingEvents} />
-          )}
-              {selectedTab === "Past" && (
-            <Events events={pastEvents} />
-          )}
+  <FlatList
+    keyExtractor={(item) => item._id}
+    contentContainerStyle={styles.listContainer}
+    data={events()}
+    renderItem={({ item }) => (
+      <EventListItem
+        _id={item._id}
+        name={item.name}
+        address={item.address}
+        date={item.date}
+        budget={item.budget}
+        attendees={item.attendees} pendingBookings={item.pendingBookings} confirmedBookings={item.confirmedBookings} cancelledOrDeclinedBookings={item.cancelledOrDeclinedBookings}      />
+    )}
+  />
         </Block>
         <FloatingCreateButton onPress={onCreatePress} />
       </Block>
