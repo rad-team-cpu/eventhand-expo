@@ -279,7 +279,6 @@ function EventList() {
         attendees={item.attendees} pendingBookings={item.pendingBookings} confirmedBookings={item.confirmedBookings} cancelledOrDeclinedBookings={item.cancelledOrDeclinedBookings}      />
     )}
     onEndReached={onEndReached}
-    // onEndReachedThreshold={0.5}
     ListFooterComponent={renderFooter}
   />          
 
