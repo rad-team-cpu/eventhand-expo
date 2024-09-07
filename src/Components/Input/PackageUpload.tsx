@@ -37,14 +37,14 @@ const PackageUpload = (props: PackageUploadProps) => {
   const [status, requestPermission] = useMediaLibraryPermissions();
 
   const { name, label, control, errors } = props;
-  const defaultImage = require('../../assets/images/card1.png');
+  const defaultImage = require('../../assets/images/card1.png'); // Placeholder image
 
   return (
     <View>
       <Controller
         name={name}
         control={control}
-        render={({ field: { name, onChange, value } }) => {
+        render={({ field: { onChange, value } }) => {
           const pickImageAsync = async () => {
             setLoading(true);
             const permission = await requestPermission();
@@ -53,6 +53,8 @@ const PackageUpload = (props: PackageUploadProps) => {
               alert(
                 'You have denied access to media library. Please select allow to upload ID image'
               );
+              setLoading(false);
+              return;
             }
 
             const result = await launchImageLibraryAsync({
@@ -91,12 +93,14 @@ const PackageUpload = (props: PackageUploadProps) => {
           const errorMessage = errorMessages[0]
             ? errorMessages[0].message
             : errorMessages[1]
-              ? errorMessages[1].message
-              : errorMessages[2]
-                ? errorMessages[2].message
-                : '';
+            ? errorMessages[1].message
+            : errorMessages[2]
+            ? errorMessages[2].message
+            : '';
+
+          // Fallback to defaultImage if value is null or undefined
           const uploadedImage =
-            value !== null ? { uri: value.uri } : defaultImage;
+            value && value.uri ? { uri: value.uri } : defaultImage;
 
           return (
             <View style={styles.container}>
@@ -114,7 +118,7 @@ const PackageUpload = (props: PackageUploadProps) => {
                   ]}
                   onPress={selectImage}
                 >
-                  {!loading && <Feather name='upload' size={20} color='#fff' />}
+                  {!loading && <Feather name='upload' size={16} color='#fff' />}
                   {loading && (
                     <ActivityIndicator
                       testID='test-loading-upload-btn'
@@ -138,14 +142,13 @@ const PackageUpload = (props: PackageUploadProps) => {
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    marginVertical: 5,
   },
   idImageContainer: {
     position: 'relative',
   },
   idImage: {
-    width: 200,
-    height: 150,
+    width: 65,
+    height: 65,
     borderRadius: 10,
   },
   editButton: {
@@ -154,7 +157,7 @@ const styles = StyleSheet.create({
     right: 0,
     backgroundColor: '#007AFF',
     borderRadius: 15,
-    padding: 5,
+    padding: 3,
   },
   loadingEditButton: {
     backgroundColor: '#FFFFFF',
