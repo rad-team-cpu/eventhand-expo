@@ -113,6 +113,8 @@ const BudgetScreen = (props: BudgetScreenProps) => {
   const {  sizes,} = useTheme();
   const { budget, onBackBtnPress, onUpdateBtnPress } = props;
 
+  const eventBudget = {...budget, total: calculateTotal(budget)}
+
   return (
     <>
       <Block
@@ -135,7 +137,7 @@ const BudgetScreen = (props: BudgetScreenProps) => {
           <View style={styles.budgetInputContainer}>
             {categories.map((category) => {
               const { name, icon, color, label } = category;
-              const budgetValue = budget[name as keyof EventBudget];
+              const budgetValue = eventBudget[name as keyof EventBudget];
               if (budgetValue !== null && budgetValue !== undefined) {
                 return (
                   <View key={name} style={styles.budgetInputWrapper}>
@@ -1025,7 +1027,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
         eventInfo: { ...updateEventFormValues },
         updateValue: "ADDRESS",
       }),
-      disabled: address === undefined
+      disabled: address === undefined || budget.venue !== null
 
     },
     { label: 'EDIT GUESTS', icon: 'people',
