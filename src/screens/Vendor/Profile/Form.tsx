@@ -157,7 +157,6 @@ const VendorProfileForm = ({
 
   const onNextBtnPress = async (e: GestureResponderEvent) => {
     if (isValid) {
-      onSubmit();
       setConfirmDetails(true);
     }
   };
@@ -255,6 +254,12 @@ const VendorProfileForm = ({
               radius={sizes.cardRadius}
               source={assets.background}
             >
+              <Button row flex={0} justify='flex-start' onPress={backAction}>
+                <AntDesign name='back' size={24} color='white' />
+                <Text p white marginLeft={sizes.s}>
+                  Go back
+                </Text>
+              </Button>
               <Block flex={0} align='center' marginTop={sizes.md}>
                 <Text white transform='uppercase' marginBottom={sizes.s}>
                   Set up your Vendor Profile
@@ -569,8 +574,8 @@ const VendorProfileForm = ({
   const Form = () => {
     const onSuccessPress = () => {
       setLoading(false);
-      // navigation.navigate('VerificationForm');
-      navigation.replace('VendorHome', { initialTab: 'Profile' });
+      navigation.navigate('MultiStepForm');
+      // navigation.replace('VendorHome', { initialTab: 'Profile' });
     };
 
     const onErrorPress = () => {
