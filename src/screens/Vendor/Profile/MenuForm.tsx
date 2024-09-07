@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   useForm,
   useFieldArray,
@@ -7,8 +7,10 @@ import {
   UseFormRegister,
   FieldValues,
 } from 'react-hook-form';
+import axios from 'axios';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
+import FirebaseService from 'service/firebase';
 import { ScrollView, TextInput, View, TouchableOpacity } from 'react-native';
 import Block from 'Components/Ui/Block';
 import Button from 'Components/Ui/Button';
@@ -16,7 +18,7 @@ import { AntDesign } from '@expo/vector-icons';
 import Image from 'Components/Ui/Image';
 import Text from 'Components/Ui/Text';
 import useTheme from '../../../core/theme';
-import { MenuFormScreenProps } from 'types/types';
+import { MenuFormScreenProps, ScreenProps } from 'types/types';
 import PackageUpload from 'Components/Input/PackageUpload';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -26,9 +28,17 @@ interface InclusionInput {
   quantity: number;
 }
 
+interface ImageInfo {
+  fileSize?: number;
+  uri?: string;
+  mimeType?: string;
+  fileExtension?: string;
+}
+
 interface PackageInput {
   name: string;
-  picture: string;
+  imageUrl?: ImageInfo | null;
+  capacity: number;
   price: number;
   inclusions: InclusionInput[];
 }
@@ -44,9 +54,25 @@ const inclusionSchema: yup.ObjectSchema<InclusionInput> = yup.object().shape({
 });
 
 const packageSchema: yup.ObjectSchema<PackageInput> = yup.object().shape({
-  name: yup.string().required('Package name is required'),
-  picture: yup.string().required('Package picture is required'),
+  imageUrl: yup
+    .object({
+      fileSize: yup
+        .number()
+        .max(5242880, 'File size too large, must be below 5mb'),
+      uri: yup.string(),
+      mimeType: yup.string().matches(/^image\/(png|jpeg)$/, {
+        message: 'File must be a png or jpeg',
+        excludeEmptyString: true,
+      }),
+      fileExtension: yup.string().matches(/^(png|jpe?g)$/, {
+        message: 'File must be a png or jpeg',
+        excludeEmptyString: true,
+      }),
+    })
+    .nullable(),
+  name: yup.string().required('Package picture is required'),
   price: yup.number().required('Price is required').min(1),
+  capacity: yup.number().required('Capacity is required').min(1),
   inclusions: yup
     .array()
     .of(inclusionSchema)
@@ -63,6 +89,9 @@ const formSchema: yup.ObjectSchema<FormValues> = yup.object().shape({
 });
 
 const MenuForm = ({ navigation }: MenuFormScreenProps) => {
+  const [loading, setLoading] = useState(false);
+  const { sizes, assets } = useTheme();
+
   const {
     control,
     register,
@@ -75,15 +104,14 @@ const MenuForm = ({ navigation }: MenuFormScreenProps) => {
       packages: [
         {
           name: '',
-          picture: '',
+          capacity: 0,
+          imageUrl: null,
           price: 0,
           inclusions: [{ name: '', description: '', quantity: 1 }],
         },
       ],
     },
   });
-
-  const { sizes, assets } = useTheme();
 
   const {
     fields: packageFields,
@@ -94,9 +122,39 @@ const MenuForm = ({ navigation }: MenuFormScreenProps) => {
     name: 'packages',
   });
 
-  const onSubmit = (data: FormValues) => {
+  const navigateToSuccessError = (props: ScreenProps['SuccessError']) => {
+    navigation.navigate('SuccessError', { ...props });
+  };
+
+  const onSubmit = async (data: FormValues) => {
     console.log('Submitted Data:', data);
-    // Submit the data to the backend
+
+    try {
+      const response = await axios.post(
+        `${process.env.EXPO_PUBLIC_BACKEND_URL}/packages`,
+        data,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        setLoading(false);
+        console.log('Packages created successfully:', response.data);
+        navigateToSuccessError({
+          description: 'Your information was saved successfully.',
+          buttonText: 'Continue',
+          navigateTo: 'VendorHome',
+          status: 'success',
+        });
+      } else {
+        console.error('Failed to create packages:', response.data);
+      }
+    } catch (error) {
+      console.error('Error creating packages:', error);
+    }
   };
 
   return (
@@ -143,51 +201,94 @@ const MenuForm = ({ navigation }: MenuFormScreenProps) => {
             shadow
             style={{ flexDirection: 'column' }}
           >
-            <Text bold marginBottom={sizes.xs} primary>
-              Package {packageIndex + 1}
-            </Text>
-            {/* <Controller
-              name={`packages.${packageIndex}.picture`}
-              control={control}
-              render={({ field: { onChange, value } }) => (
-                <PackageUpload
-                  name='credentials'
-                  label='Upload your ID photo'
-                  control={control as unknown as Control<FieldValues, unknown>}
-                  register={register as unknown as UseFormRegister<FieldValues>}
-                  errors={errors}
-                />
-              )}
-            /> */}
-            <Text>Name:</Text>
-
-            <Controller
-              name={`packages.${packageIndex}.name`}
-              control={control}
-              render={({ field: { onChange, value } }) => (
-                <TextInput
-                  placeholder='Package Name'
-                  value={value}
-                  onChangeText={onChange}
-                  style={{
-                    borderWidth: 1,
-                    borderColor: 'gray',
-                    padding: sizes.s,
-                    marginVertical: sizes.xs,
-                    borderRadius: sizes.sm,
-                  }}
-                />
-              )}
-            />
-            {errors.packages?.[packageIndex]?.name && (
-              <Text danger>{errors.packages[packageIndex].name?.message}</Text>
-            )}
-
-            {errors.packages?.[packageIndex]?.picture && (
-              <Text danger>
-                {errors.packages[packageIndex].picture?.message}
+            <Block className='flex flex-row'>
+              <Text bold marginBottom={sizes.xs} primary>
+                Package {packageIndex + 1}
               </Text>
-            )}
+              <Block className='flex flex-row justify-end'>
+                <Button
+                  onPress={() =>
+                    appendPackage({
+                      name: '',
+                      imageUrl: null,
+                      capacity: 0,
+                      price: 0,
+                      inclusions: [{ name: '', description: '', quantity: 1 }],
+                    })
+                  }
+                  shadow={false}
+                  outlined
+                  primary
+                  marginRight={sizes.s}
+                >
+                  <AntDesign name='plus' size={24} color='#CB0C9F' />
+                  <Text p size={sizes.s}>
+                    Package
+                  </Text>
+                </Button>
+                <Button
+                  onPress={() => removePackage(packageIndex)}
+                  danger
+                  outlined
+                  shadow={false}
+                >
+                  <Ionicons name='trash' size={24} color='#CB0C9F' />
+                  <Text size={sizes.s}>Package</Text>
+                </Button>
+              </Block>
+            </Block>
+            <Block className='flex flex-row h-20'>
+              <Controller
+                name={`packages.${packageIndex}.imageUrl`}
+                control={control}
+                render={({ field: { onChange, value } }) => (
+                  <PackageUpload
+                    name='package'
+                    label='Package'
+                    control={
+                      control as unknown as Control<FieldValues, unknown>
+                    }
+                    register={
+                      register as unknown as UseFormRegister<FieldValues>
+                    }
+                    errors={errors}
+                  />
+                )}
+              />
+              <Block>
+                <Text marginLeft={sizes.sm}>Name:</Text>
+
+                <Controller
+                  name={`packages.${packageIndex}.name`}
+                  control={control}
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      placeholder='Package Name'
+                      value={value}
+                      onChangeText={onChange}
+                      style={{
+                        borderWidth: 1,
+                        borderColor: 'gray',
+                        padding: sizes.s,
+                        marginLeft: sizes.sm,
+                        borderRadius: sizes.sm,
+                      }}
+                    />
+                  )}
+                />
+                {errors.packages?.[packageIndex]?.name && (
+                  <Text danger>
+                    {errors.packages[packageIndex].name?.message}
+                  </Text>
+                )}
+
+                {errors.packages?.[packageIndex]?.imageUrl && (
+                  <Text danger>
+                    {errors.packages[packageIndex].imageUrl?.message}
+                  </Text>
+                )}
+              </Block>
+            </Block>
 
             <Text>Price:</Text>
             <Controller
@@ -203,7 +304,6 @@ const MenuForm = ({ navigation }: MenuFormScreenProps) => {
                     borderWidth: 1,
                     borderColor: 'gray',
                     padding: sizes.s,
-                    marginVertical: sizes.xs,
                     borderRadius: sizes.sm,
                   }}
                 />
@@ -213,7 +313,7 @@ const MenuForm = ({ navigation }: MenuFormScreenProps) => {
               <Text danger>{errors.packages[packageIndex].price?.message}</Text>
             )}
 
-            <Text bold marginTop={sizes.xs} primary>
+            <Text bold primary>
               Inclusions:
             </Text>
             <InclusionFields
@@ -221,43 +321,18 @@ const MenuForm = ({ navigation }: MenuFormScreenProps) => {
               packageIndex={packageIndex}
               errors={errors}
             />
-
-            <Button
-              onPress={() => removePackage(packageIndex)}
-              danger
-              outlined
-              marginTop={sizes.sm}
-              shadow={false}
-            >
-              <Text>Remove Package</Text>
-            </Button>
           </Block>
         ))}
 
         <Button
-          onPress={() =>
-            appendPackage({
-              name: '',
-              picture: '',
-              price: 0,
-              inclusions: [{ name: '', description: '', quantity: 1 }],
-            })
-          }
-          marginVertical={sizes.sm}
-          shadow={false}
-          outlined
-          primary
-        >
-          <Text bold>Add Another Package</Text>
-        </Button>
-
-        <Button
           primary
           onPress={handleSubmit(onSubmit)}
-          marginVertical={sizes.sm}
           shadow={false}
+          marginHorizontal={sizes.sm}
         >
-          <Text bold>Submit</Text>
+          <Text bold white>
+            Submit
+          </Text>
         </Button>
       </ScrollView>
     </Block>
@@ -286,6 +361,18 @@ const InclusionFields = ({
 
   return (
     <Block>
+      <Button
+        onPress={() =>
+          appendInclusion({ name: '', description: '', quantity: 1 })
+        }
+        shadow={false}
+        outlined
+        primary
+        className='flex flex-row'
+      >
+        <AntDesign name='plus' size={24} color='#CB0C9F' />
+        <Text size={12}>Inclusion</Text>
+      </Button>
       {inclusionFields.map((inclusion, inclusionIndex) => (
         <Block
           key={inclusion.id}
@@ -406,6 +493,7 @@ const InclusionFields = ({
                   shadow={false}
                 >
                   <Ionicons name='trash' size={24} color='#CB0C9F' />
+                  <Text size={sizes.s}>Inclusion</Text>
                 </Button>
               </View>
             )}
@@ -421,17 +509,6 @@ const InclusionFields = ({
           )}
         </Block>
       ))}
-
-      <Button
-        onPress={() =>
-          appendInclusion({ name: '', description: '', quantity: 1 })
-        }
-        shadow={false}
-        outlined
-        primary
-      >
-        <Text bold>Add Inclusion</Text>
-      </Button>
     </Block>
   );
 };
