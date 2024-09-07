@@ -17,8 +17,9 @@ import Button from 'Components/Ui/Button';
 import { AntDesign } from '@expo/vector-icons';
 import Image from 'Components/Ui/Image';
 import Text from 'Components/Ui/Text';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import useTheme from '../../../core/theme';
-import { MenuFormScreenProps, ScreenProps } from 'types/types';
+import { MenuFormScreenProps, ScreenProps, VendorProfileFormScreenProps } from 'types/types';
 import PackageUpload from 'Components/Input/PackageUpload';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -45,6 +46,12 @@ interface PackageInput {
 
 interface FormValues {
   packages: PackageInput[];
+}
+
+interface VendorProfileFormProps extends VendorProfileFormScreenProps {
+  onConfirm: () => void;
+  onGoBack: () => void;
+  onSkip: () => void;
 }
 
 const inclusionSchema: yup.ObjectSchema<InclusionInput> = yup.object().shape({
@@ -88,7 +95,12 @@ const formSchema: yup.ObjectSchema<FormValues> = yup.object().shape({
     .min(1, 'At least one package is required'),
 });
 
-const MenuForm = ({ navigation }: MenuFormScreenProps) => {
+const MenuForm = ({
+  navigation,
+  onGoBack,
+  onConfirm,
+  onSkip,
+}: VendorProfileFormProps) => {
   const [loading, setLoading] = useState(false);
   const { sizes, assets } = useTheme();
 
@@ -127,7 +139,9 @@ const MenuForm = ({ navigation }: MenuFormScreenProps) => {
   };
 
   const onSubmit = async (data: FormValues) => {
-    console.log('Submitted Data:', data);
+    // console.log('Submitted Data:', data);
+    onConfirm();
+
 
     try {
       const response = await axios.post(
@@ -175,12 +189,7 @@ const MenuForm = ({ navigation }: MenuFormScreenProps) => {
             radius={sizes.cardRadius}
             source={assets.background}
           >
-            <Button
-              row
-              flex={0}
-              justify='flex-start'
-              onPress={() => navigation.goBack()}
-            >
+            <Button row flex={0} justify='flex-start' onPress={onGoBack}>
               <AntDesign name='back' size={24} color='white' />
               <Text p white marginLeft={sizes.s}>
                 Go back
@@ -375,15 +384,20 @@ const InclusionFields = ({
       </Button>
       {inclusionFields.map((inclusion, inclusionIndex) => (
         <Block
+          card
           key={inclusion.id}
-          paddingVertical={sizes.s}
-          style={{ flexDirection: 'column' }}
+          padding={sizes.s}
+          marginVertical={sizes.s}
+          shadow={false}
           outlined
+          style={{ flexDirection: 'column' }}
           padding={sizes.sm}
           radius={sizes.sm}
           marginVertical={sizes.sm}
         >
-          <Text>Name:</Text>
+          <Block className='flex flex-row justify-between'>
+            <Text>Name:</Text>
+          </Block>
           <Controller
             name={`packages.${packageIndex}.inclusions.${inclusionIndex}.name`}
             control={control}
