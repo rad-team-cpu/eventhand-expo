@@ -395,6 +395,7 @@ type VendorHomeScreenBottomTabsProps = {
   Bookings: undefined;
   ChatList: ChatListProps;
   Profile: undefined;
+  Reviews: undefined;
 };
 
 type EventListScreenProps = CompositeScreenProps<
