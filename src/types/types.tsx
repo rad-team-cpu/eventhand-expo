@@ -315,6 +315,7 @@ type ScreenProps = {
   Chat: Chat;
   VendorHome: HomeProps;
   VendorProfileForm: undefined;
+  MultiStepForm: undefined;
   UpcomingBookingList: undefined;
   BookingList: undefined;
   AboutForm: undefined;
@@ -440,6 +441,11 @@ type VendorProfileFormScreenProps = NativeStackScreenProps<
   "VendorProfileForm"
 >;
 
+type MultiStepFormScreenProps = NativeStackScreenProps<
+  ScreenProps,
+  "MultiStepForm"
+>;
+
 export {
   BookingStatus,
   BookingDetailsProps,
@@ -483,6 +489,7 @@ export {
   EventFormScreenProps,
   VendorHomeScreenProps,
   VendorProfileFormScreenProps,
+  MultiStepFormScreenProps,
   VendorHomeScreenBottomTabsProps,
   ChatListScreenPropsList,
   UserMode,

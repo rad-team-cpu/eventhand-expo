@@ -18,7 +18,11 @@ import Button from 'Components/Ui/Button';
 import Image from 'Components/Ui/Image';
 import Text from 'Components/Ui/Text';
 import useTheme from '../../../core/theme';
-import { ScreenProps, VerificationFormScreenProps } from '../../../types/types';
+import {
+  ScreenProps,
+  VendorProfileFormScreenProps,
+  VerificationFormScreenProps,
+} from '../../../types/types';
 import Loading from '../../Loading';
 import { VendorContext } from 'Contexts/VendorContext';
 import axios from 'axios';
@@ -26,44 +30,50 @@ import IDUpload from 'Components/Input/IdUpload';
 import { Picker } from '@react-native-picker/picker';
 
 const idTypes = [
-  { label: 'Business Permit - Barangay', value: 'barangay_permit' },
-  { label: "Business Permit - Mayor's Permit", value: 'mayors_permit' },
-  { label: 'BIR Registration', value: 'bir_registration' },
-  { label: 'DTI Registration', value: 'dti_registration' },
-  { label: 'Driver License', value: 'driver_license' },
-  { label: 'Passport', value: 'passport' },
-  { label: 'Other', value: 'other' },
+  { label: 'Business Permit - Barangay', value: 'BARANGAY_PERMIT' },
+  { label: "Business Permit - Mayor's Permit", value: 'MAYORS_PERMIT' },
+  { label: 'BIR Registration', value: 'BIR_REGISTRATION' },
+  { label: 'DTI Registration', value: 'DTI_REGISTRATION' },
+  { label: 'Driver License', value: 'DRIVER_LICENSE' },
+  { label: 'Passport', value: 'PASSPORT' },
+  { label: 'Other', value: 'OTHER' },
 ];
 
+interface VendorProfileFormProps extends VendorProfileFormScreenProps {
+  onSubmit: (data: VerificationInput) => void;
+  initialData: VerificationInput;
+}
+
 interface ImageInfo {
-  fileSize?: number;
-  uri?: string;
-  mimeType?: string;
-  fileExtension?: string;
+  fileSize: number;
+  uri: string;
+  mimeType: string;
+  fileExtension: string;
 }
 
 interface VerificationInput extends FieldValues {
   idType: string;
-  credentials: ImageInfo | null;
+  credentials: ImageInfo;
 }
 
 const verificationFormValidationSchema = object().shape({
   idType: string().required('ID Type is required'),
   credentials: object({
-    fileSize: number().max(5242880, 'File size too large, must be below 5mb'),
-    uri: string(),
-    mimeType: string().matches(/^image\/(png|jpeg)$/, {
+    fileSize: number().required('ID is required').max(5242880, 'File size too large, must be below 5mb'),
+    uri: string().required('ID is required').notOneOf([''], 'ID is required'), // Ensure uri is not an empty string
+    mimeType: string().required('ID is required').matches(/^image\/(png|jpeg)$/, {
       message: 'File must be a png or jpeg',
       excludeEmptyString: true,
     }),
-    fileExtension: string().matches(/^(png|jpe?g)$/, {
+    fileExtension: string().required('ID is required').matches(/^(png|jpe?g)$/, {
       message: 'File must be a png or jpeg',
       excludeEmptyString: true,
     }),
-  }).nullable(),
+  }).required('ID is required')
 });
 
-const VerificationForm = ({ navigation }: VerificationFormScreenProps) => {
+
+const VerificationForm = ({ navigation, onSubmit, initialData }: VendorProfileFormProps) => {
   const {
     control,
     register,
@@ -73,8 +83,13 @@ const VerificationForm = ({ navigation }: VerificationFormScreenProps) => {
     mode: 'onBlur',
     reValidateMode: 'onChange',
     defaultValues: {
-      idType: '',
-      credentials: null,
+      idType: '', // default empty string for idType
+      credentials: {
+        fileSize: 0, 
+        uri: '', 
+        mimeType: '', 
+        fileExtension: ''
+      }, // initializing credentials as empty object
     },
     resolver: yupResolver(verificationFormValidationSchema),
   });
@@ -100,8 +115,13 @@ const VerificationForm = ({ navigation }: VerificationFormScreenProps) => {
     const navigateToSuccessError = (props: ScreenProps['SuccessError']) => {
       navigation.navigate('SuccessError', { ...props });
     };
+    if (!input.credentials.uri) {
+      setSubmitErrMessage('ID upload is required.');
+      return; // Stop execution if no file is uploaded
+    }
 
     try {
+
       if (credentials !== null) {
         const firebaseService = FirebaseService.getInstance();
         const uploadResult = await firebaseService.uploadID(
@@ -137,12 +157,13 @@ const VerificationForm = ({ navigation }: VerificationFormScreenProps) => {
       switch (response.status) {
         case 200:
           setLoading(false);
-          navigateToSuccessError({
-            description: 'Your information was saved successfully.',
-            buttonText: 'Continue',
-            navigateTo: 'VendorHome',
-            status: 'success',
-          });
+          onSubmit(input);
+          // navigateToSuccessError({
+          //   description: 'Your information was saved successfully.',
+          //   buttonText: 'Continue',
+          //   navigateTo: 'VendorHome',
+          //   status: 'success',
+          // });
           break;
         case 403:
           setSubmitErrMessage('Forbidden - Access denied.');
@@ -186,19 +207,7 @@ const VerificationForm = ({ navigation }: VerificationFormScreenProps) => {
               paddingBottom={sizes.l}
               radius={sizes.cardRadius}
               source={assets.background}
-            >
-              <Button
-                row
-                flex={0}
-                justify='flex-start'
-                onPress={() => navigation.goBack()}
-              >
-                <AntDesign name='back' size={24} color='white' />
-                <Text p white marginLeft={sizes.s}>
-                  Go back
-                </Text>
-              </Button>
-            </Image>
+            ></Image>
           </Block>
           <Block
             flex={0}

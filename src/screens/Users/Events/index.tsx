@@ -136,7 +136,6 @@ const BudgetScreen = (props: BudgetScreenProps) => {
                   <View key={name} style={styles.budgetInputWrapper}>
                     <View style={styles.budgetInputLabelContainer}>
                       <FontAwesome
-                        name={icon}
                         size={20}
                         color={color}
                         style={styles.budgetInputIcon}
@@ -206,7 +205,6 @@ const SortTabBar = () => {
               onPress={() => handlePress(category.name)}
             >
               <FontAwesome
-                name={category.icon}
                 size={15}
                 color={
                   selectedCategory === category.name ? "#fff" : category.color
@@ -310,7 +308,6 @@ const EventUpdateMenu: React.FC<EventUpdateMenuProps> = ({
             ]}
           >
             <Ionicons
-              name={option.icon}
               size={20}
               color="white"
               style={styles.eventUpdateMenuIcon}
