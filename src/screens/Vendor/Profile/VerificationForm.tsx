@@ -40,39 +40,40 @@ const idTypes = [
 ];
 
 interface VendorProfileFormProps extends VendorProfileFormScreenProps {
-  onSubmit: () => void;
-  onGoBack: () => void;
+  onSubmit: (data: VerificationInput) => void;
+  initialData: VerificationInput;
 }
 
 interface ImageInfo {
-  fileSize?: number;
-  uri?: string;
-  mimeType?: string;
-  fileExtension?: string;
+  fileSize: number;
+  uri: string;
+  mimeType: string;
+  fileExtension: string;
 }
 
 interface VerificationInput extends FieldValues {
   idType: string;
-  credentials: ImageInfo | null;
+  credentials: ImageInfo;
 }
 
 const verificationFormValidationSchema = object().shape({
   idType: string().required('ID Type is required'),
   credentials: object({
-    fileSize: number().max(5242880, 'File size too large, must be below 5mb'),
-    uri: string(),
-    mimeType: string().matches(/^image\/(png|jpeg)$/, {
+    fileSize: number().required('ID is required').max(5242880, 'File size too large, must be below 5mb'),
+    uri: string().required('ID is required').notOneOf([''], 'ID is required'), // Ensure uri is not an empty string
+    mimeType: string().required('ID is required').matches(/^image\/(png|jpeg)$/, {
       message: 'File must be a png or jpeg',
       excludeEmptyString: true,
     }),
-    fileExtension: string().matches(/^(png|jpe?g)$/, {
+    fileExtension: string().required('ID is required').matches(/^(png|jpe?g)$/, {
       message: 'File must be a png or jpeg',
       excludeEmptyString: true,
     }),
-  }).nullable(),
+  }).required('ID is required')
 });
 
-const VerificationForm = ({ navigation, onSubmit, onGoBack }: VendorProfileFormProps) => {
+
+const VerificationForm = ({ navigation, onSubmit, initialData }: VendorProfileFormProps) => {
   const {
     control,
     register,
@@ -82,8 +83,13 @@ const VerificationForm = ({ navigation, onSubmit, onGoBack }: VendorProfileFormP
     mode: 'onBlur',
     reValidateMode: 'onChange',
     defaultValues: {
-      idType: '',
-      credentials: null,
+      idType: '', // default empty string for idType
+      credentials: {
+        fileSize: 0, 
+        uri: '', 
+        mimeType: '', 
+        fileExtension: ''
+      }, // initializing credentials as empty object
     },
     resolver: yupResolver(verificationFormValidationSchema),
   });
@@ -109,8 +115,13 @@ const VerificationForm = ({ navigation, onSubmit, onGoBack }: VendorProfileFormP
     const navigateToSuccessError = (props: ScreenProps['SuccessError']) => {
       navigation.navigate('SuccessError', { ...props });
     };
+    if (!input.credentials.uri) {
+      setSubmitErrMessage('ID upload is required.');
+      return; // Stop execution if no file is uploaded
+    }
 
     try {
+
       if (credentials !== null) {
         const firebaseService = FirebaseService.getInstance();
         const uploadResult = await firebaseService.uploadID(
@@ -146,7 +157,7 @@ const VerificationForm = ({ navigation, onSubmit, onGoBack }: VendorProfileFormP
       switch (response.status) {
         case 200:
           setLoading(false);
-          onSubmit();
+          onSubmit(input);
           // navigateToSuccessError({
           //   description: 'Your information was saved successfully.',
           //   buttonText: 'Continue',
@@ -196,19 +207,7 @@ const VerificationForm = ({ navigation, onSubmit, onGoBack }: VendorProfileFormP
               paddingBottom={sizes.l}
               radius={sizes.cardRadius}
               source={assets.background}
-            >
-              <Button
-                row
-                flex={0}
-                justify='flex-start'
-                onPress={onGoBack}
-              >
-                <AntDesign name='back' size={24} color='white' />
-                <Text p white marginLeft={sizes.s}>
-                  Go back
-                </Text>
-              </Button>
-            </Image>
+            ></Image>
           </Block>
           <Block
             flex={0}
