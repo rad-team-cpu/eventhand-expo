@@ -10,11 +10,19 @@ import { useFocusEffect } from '@react-navigation/native';
 
 const MultiStepForm = ({ navigation, route }: VendorProfileFormScreenProps) => {
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 5;
+  const totalSteps = 4;
 
   const [formData, setFormData] = useState({
-    vendorProfile: {},
-    verification: {},
+    vendorProfile: { logo: {} || null, name: '', email: '', contactNumber: '' },
+    verification: {
+      idType: '',
+      credentials: {
+        fileSize: 0,
+        uri: '',
+        mimeType: 'png',
+        fileExtension: 'png',
+      },
+    },
     about: { bio: '' },
     address: { street: '', city: '', region: '', postalCode: 0 },
     menu: {},
@@ -33,7 +41,7 @@ const MultiStepForm = ({ navigation, route }: VendorProfileFormScreenProps) => {
   };
 
   const handleNextStep = () => {
-    if (currentStep === 5) {
+    if (currentStep === 4) {
       navigateToSuccessError({
         description: 'Your information was saved successfully.',
         buttonText: 'Continue',
@@ -112,22 +120,24 @@ const MultiStepForm = ({ navigation, route }: VendorProfileFormScreenProps) => {
     <View style={{ flex: 1 }}>
       <Stepper currentStep={currentStep} totalSteps={totalSteps} />
 
-      {currentStep === 1 && (
+      {/* {currentStep === 1 && (
         <VendorProfileForm
           navigation={navigation}
           route={route}
           onSubmit={handleConfirm}
+          initialData={formData.vendorProfile}
+          onGoBack={handleGoBack}
         />
-      )}
-      {currentStep === 2 && (
+      )} */}
+      {currentStep === 1 && (
         <VerificationForm
           navigation={navigation}
           route={route}
           onSubmit={handleConfirm}
-          onGoBack={handleGoBack}
+          initialData={formData.verification}
         />
       )}
-      {currentStep === 3 && (
+      {currentStep === 2 && (
         <AboutForm
           navigation={navigation}
           route={route}
@@ -136,7 +146,7 @@ const MultiStepForm = ({ navigation, route }: VendorProfileFormScreenProps) => {
           initialData={formData.about}
         />
       )}
-      {currentStep === 4 && (
+      {currentStep === 3 && (
         <AddressForm
           navigation={navigation}
           route={route}
@@ -145,7 +155,7 @@ const MultiStepForm = ({ navigation, route }: VendorProfileFormScreenProps) => {
           initialData={formData.address}
         />
       )}
-      {currentStep === 5 && (
+      {currentStep === 4 && (
         <MenuForm
           navigation={navigation}
           route={route}
