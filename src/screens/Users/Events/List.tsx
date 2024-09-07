@@ -2,15 +2,16 @@ import { MaterialIcons, AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { UserContext } from "Contexts/UserContext";
 import { format } from "date-fns/format";
-import React, { useCallback, useContext, useMemo, useState } from "react";
-import { FlatList, Pressable, StatusBar, StyleSheet, Text, View } from "react-native";
+import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { ActivityIndicator, FlatList, Pressable, StatusBar, StyleSheet, Text, View } from "react-native";
 import Block from "Components/Ui/Block";
 import Image from "Components/Ui/Image";
 import useTheme from "../../../core/theme";
 
 import { EventInfo, HomeScreenNavigationProp } from "types/types";
-import { SceneMap, TabView, TabBar } from "react-native-tab-view";
-import { isAfter, isBefore, isToday } from "date-fns";
+import {isBefore } from "date-fns";
+import { useAuth } from "@clerk/clerk-expo";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 interface FloatingCreateButtonProps {
   onPress: () => void;
@@ -105,17 +106,19 @@ const EventListItem = ({
   );
 };
 
-interface EventsProps {
-  events: EventInfo[];
+interface ErrorState {
+  error: boolean;
+  message: string;
 }
-
-
 
 function EventList() {
   const userContext = useContext(UserContext);
   const { assets,  sizes } = useTheme();
+  const { getToken } = useAuth()
   const [selectedTab, setSelectedTab] = useState<'Upcoming' | 'Past'>('Upcoming');
+  const [loading, setLoading] = useState(false)
   const [page, setPage] = useState(1);
+  const  [error, setError] = useState<ErrorState>({error: false, message: ""})
 
   const navigation = useNavigation<HomeScreenNavigationProp>();
 
@@ -127,7 +130,64 @@ function EventList() {
 
   const onCreatePress = () => navigation.navigate("EventForm");
 
-  const { eventList } = userContext;
+  const { user, eventList, setEventList } = userContext;
+
+  const fetchMoreEvents =  async () => {
+    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/${user._id}?page=${page}&pageSize=10`;
+
+    const token = getToken({ template: "event-hand-jwt" });
+
+    const request = {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    try {
+      const res = await fetch(url, request);
+      const data = await res.json();
+
+      if (res.status === 200) {
+        setEventList(prevstate => {
+          return ({
+            ...data,
+            events: [
+              ...prevstate.events,
+              ...data.events
+            ]
+          })
+        })
+        console.log(data)
+
+        console.log("EVENT DATA SUCCESSFULLY LOADED");
+      } else if (res.status === 400) {
+        throw new Error("Bad request - Invalid data.");
+      } else if (res.status === 401) {
+        throw new Error("Unauthorized - Authentication failed.");
+      } else if (res.status === 404) {
+        throw new Error("Event Not Found");
+      } else {
+        throw new Error("Unexpected error occurred.");
+      }
+    } catch (error: any) {
+      console.error(`Error fetching event (${error.code}): ${error} `);
+      setError({error: true, message: `Error fetching event (${error.code}): ${error} `})
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() =>{
+    console.log(page)
+    // console.log(eventList.totalPages)
+    // console.log(eventList.events.length)
+    if(page > 2 && page < eventList.totalPages){
+      fetchMoreEvents();
+    }
+  }, [page])
 
 
   const events = useCallback(() => {
@@ -142,11 +202,42 @@ function EventList() {
         return upcomingEvents
     }
 
-  }, [selectedTab])
+  }, [selectedTab, eventList])
+
+  const renderFooter = () => {
+    if (loading) {
+      return <ActivityIndicator size='large' color='#CB0C9F' />;
+    }
+    if (page === eventList.totalPages) {
+      return (
+        <Text style={{ textAlign: 'center', padding: 10 }}>
+          No more events
+        </Text>
+      );
+    }
+
+    if(error.error){
+      return (
+        <Text style={{ textAlign: 'center', padding: 10 }}>
+          Error loading more events
+        </Text>
+      );
+    }
+
+    return null;
+  };
+
+  const onEndReached = () => {
+    if(page < eventList.totalPages){
+      setPage((page) => page + 1)
+    }
+  }
 
   if (events() && events().length > 0) {   
     return (
-      <Block safe>
+
+      <>
+            <SafeAreaView>
         <StatusBar/>
         <View style={styles.tabBarContainer}>
       <Pressable
@@ -173,8 +264,8 @@ function EventList() {
       </Pressable>
     </View>
 
-        <Block flex={0} style={{ zIndex: 0 }}>
-  <FlatList
+      </SafeAreaView>
+      <FlatList
     keyExtractor={(item) => item._id}
     contentContainerStyle={styles.listContainer}
     data={events()}
@@ -187,15 +278,19 @@ function EventList() {
         budget={item.budget}
         attendees={item.attendees} pendingBookings={item.pendingBookings} confirmedBookings={item.confirmedBookings} cancelledOrDeclinedBookings={item.cancelledOrDeclinedBookings}      />
     )}
-  />
-        </Block>
+    onEndReached={onEndReached}
+    // onEndReachedThreshold={0.5}
+    ListFooterComponent={renderFooter}
+  />          
+
         <FloatingCreateButton onPress={onCreatePress} />
-      </Block>
+
+      </>
     );
   }
 
   return (
-    <Block safe>
+    <SafeAreaView>
       <View testID="test-events" style={styles.container}>
         <Image
           background
@@ -208,7 +303,7 @@ function EventList() {
         <Text className="font-bold">You have no events!</Text>
       </View>
       <FloatingCreateButton onPress={onCreatePress} />
-    </Block>
+    </SafeAreaView>
   );
 }
 
@@ -253,7 +348,7 @@ const styles = StyleSheet.create({
   },
   itemContainer: {
     padding: 16,
-    marginVertical: 3,
+    marginVertical: 1,
     marginLeft: 1,
     backgroundColor: "#fff",
     borderLeftWidth: 10,
