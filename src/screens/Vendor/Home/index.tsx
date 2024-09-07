@@ -156,6 +156,7 @@ const VendorHome = ({ navigation, route }: VendorHomeScreenProps) => {
       if (res.status === 200) {
         console.log('FETCHING VENDOR DATA...');
         const data = await res.json();
+        const hasCredentials = data.credential && data.credential.length > 0;
         const vendor = {
           id: data._id,
           logo: data.logo,
@@ -164,6 +165,7 @@ const VendorHome = ({ navigation, route }: VendorHomeScreenProps) => {
           email: data.email,
           contactNumber: data.contactNumber,
           bookings: data.bookings,
+          credential: data.credential,
         };
         setVendor({ ...vendor });
         const getChatListInput: GetChatListInput = {
@@ -177,7 +179,12 @@ const VendorHome = ({ navigation, route }: VendorHomeScreenProps) => {
         sendMessage(getChatListInput);
 
         setLoading(false);
-        navigation.replace('MultiStepForm');
+        if (!hasCredentials) {
+          console.log(
+            'VENDOR CREDENTIALS ARE MISSING, PROCEEDING TO MULTI-STEP FORM'
+          );
+          navigation.navigate('MultiStepForm');
+        }
         console.log('VENDOR DATA SUCCESSFULLY LOADED');
       } else if (res.status === 400) {
         throw new Error('Bad request - Invalid data.');
@@ -185,7 +192,7 @@ const VendorHome = ({ navigation, route }: VendorHomeScreenProps) => {
         throw new Error('Unauthorized - Authentication failed.');
       } else if (res.status === 404) {
         setLoading(false);
-        navigation.replace('MultiStepForm');
+        navigation.replace('VendorProfileForm');
       } else {
         throw new Error('Unexpected error occurred.');
       }
