@@ -23,7 +23,6 @@ import {
   EventInfo,
   BookingType,
 } from "types/types";
-import Button from "Components/Ui/Button";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import Block from "Components/Ui/Block";
@@ -513,7 +512,10 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     pendingBookings,
     confirmedBookings,
     cancelledOrDeclinedBookings,
+    completedBookings
   } = event;
+
+  const pastBookings = (completedBookings)? [...confirmedBookings, ...completedBookings ] : confirmedBookings
 
   const dateString = format(date, "MMMM dd, yyyy");
 
@@ -726,7 +728,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
       )}
       {isBefore(event.date, new Date()) && (
         <BookingList
-          bookings={confirmedBookings}
+          bookings={pastBookings}
           onPress={(booking: BookingType) =>
             navigation.navigate("UserBookingView", { booking: { ...booking }, isPastEventDate: isAfter(new Date(), event.date) })
           }

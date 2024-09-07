@@ -63,7 +63,7 @@ interface BookingType {
     description: string;
     price: number;
     inclusions: {
-      id: string; 
+      _id: string; 
       imageUrl: string;
       name: string;
       description: string;
@@ -84,6 +84,7 @@ interface EventInfo {
   pendingBookings: BookingType[];
   confirmedBookings: BookingType[];
   cancelledOrDeclinedBookings: BookingType[];
+  completedBookings?: BookingType[]
 }
 interface EventList {
   events: EventInfo[];
@@ -115,7 +116,7 @@ interface Vendor {
 }
 
 interface Inclusion {
-  id: string; 
+  _id: string; 
   imageUrl: string;
   name: string;
   description: string;
@@ -320,8 +321,11 @@ type ScreenProps = {
   VerificationForm: undefined;
   MenuForm: undefined;
   Rating: undefined;
-  UserBookingView: {booking: BookingType, isPastEventDate?: boolean};
+  UserBookingView: {booking: BookingType, isPastEventDate?: boolean, event?: EventInfo};
+  UserReview: {booking: BookingType, event: EventInfo}
 };
+
+type UserReviewScreenProps = NativeStackScreenProps<ScreenProps, "UserReview">
 
 type UserBookingViewScreenProps = NativeStackScreenProps<ScreenProps, "UserBookingView">
 
@@ -486,5 +490,5 @@ export {
   UpdateEventFormScreenProps,
   UserBookingViewScreenProps,
   Inclusion,
-
+  UserReviewScreenProps
 };

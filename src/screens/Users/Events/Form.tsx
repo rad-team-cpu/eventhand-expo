@@ -1137,7 +1137,7 @@ const EventFormConfirmation = (props: EventInputProps) => {
 function EventForm({ navigation }: EventFormScreenProps) {
   const userContext = useContext(UserContext);
   const { userId, isLoaded, getToken } = useAuth();
-  const { assets, colors, sizes, gradients } = useTheme();
+  const { sizes } = useTheme();
 
   if (!isLoaded) {
     throw new Error("Clerk failed to load");

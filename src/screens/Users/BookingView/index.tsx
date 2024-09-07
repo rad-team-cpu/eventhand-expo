@@ -72,11 +72,12 @@ const Toolbar: React.FC<ToolbarProps> = ({
 interface BookingDetailsProps{
   booking: BookingType
   onBackPress: (event: GestureResponderEvent) => void | Boolean;
+  onReviewPress: (event: GestureResponderEvent) => void ;
   isPastEventDate?: boolean
 }
 
 const BookingDetails = (props: BookingDetailsProps) => {
-  const { booking, onBackPress, isPastEventDate} = props;
+  const { booking, onBackPress, isPastEventDate, onReviewPress} = props;
   const statusColors: { [key in BookingType['status']]: string } = {
     PENDING: 'orange',
     CONFIRMED: 'green',
@@ -99,6 +100,7 @@ const BookingDetails = (props: BookingDetailsProps) => {
   if(confirmCancelBooking){
     return <ConfirmationDialog title='Cancel Booking' description={`Do you wish to cancel your booking with ${booking.vendor.name}?`} onCancel={() => setConfirmCancelBooking(false)} onConfirm={() => console.log(confirm)}/>
   }
+
 
   return (
     <>
@@ -148,6 +150,11 @@ const BookingDetails = (props: BookingDetailsProps) => {
               <Text style={[styles.buttonText, {fontWeight:"bold"}]}>{booking.status !== "CONFIRMED"?"CANCEL":"CANCEL BOOKING"}</Text>
             </Pressable>
       ) }
+           {isPastEventDate && booking.status !== "COMPLETED" && (
+              <Pressable style={[styles.cancelButton, {backgroundColor: "purple"}]} onPress={onReviewPress}>
+              <Text style={[styles.buttonText, {fontWeight:"bold" }]}>REVIEW</Text>
+            </Pressable>
+      ) }
     </View>
     </>
    
@@ -156,11 +163,13 @@ const BookingDetails = (props: BookingDetailsProps) => {
 
 
 function  UserBookingView({navigation, route}: UserBookingViewScreenProps) {
-  const {booking, isPastEventDate} = route.params;
+  const {booking, isPastEventDate, event} = route.params;
 
   const onBackPress = () => navigation.goBack();
 
-  return <BookingDetails booking={booking} onBackPress={onBackPress} isPastEventDate={isPastEventDate}/>
+  const onReviewPress = () => navigation.navigate("UserReview", { booking, event: event!  })
+
+  return <BookingDetails booking={booking} onBackPress={onBackPress} isPastEventDate={isPastEventDate} onReviewPress={onReviewPress}/>
 }
 
 

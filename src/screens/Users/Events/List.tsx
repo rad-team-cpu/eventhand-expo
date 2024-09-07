@@ -130,7 +130,6 @@ function EventList() {
     "Upcoming"
   );
   const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(1);
   const [error, setError] = useState<ErrorState>({ error: false, message: "" });
 
   const navigation = useNavigation<HomeScreenNavigationProp>();
@@ -142,6 +141,8 @@ function EventList() {
   const onCreatePress = () => navigation.navigate("EventForm");
 
   const { user, eventList, setEventList } = userContext;
+  const [page, setPage] = useState(eventList.currentPage);
+
 
   const fetchMoreEvents = async () => {
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/${user._id}?page=${page}&pageSize=10`;
