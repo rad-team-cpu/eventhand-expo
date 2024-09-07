@@ -104,10 +104,10 @@ const addCommasToNumber = (number: number) => {
 
 const BudgetScreen = (props: BudgetScreenProps) => {
   const [isPressed, setIsPressed] = useState(false);
-  const {  sizes,} = useTheme();
+  const { sizes } = useTheme();
   const { budget, onBackBtnPress, onUpdateBtnPress } = props;
 
-  const eventBudget = {...budget, total: calculateTotal(budget)}
+  const eventBudget = { ...budget, total: calculateTotal(budget) };
 
   return (
     <>
@@ -295,20 +295,20 @@ const EventUpdateMenu: React.FC<EventUpdateMenuProps> = ({
       <View style={styles.eventUpdateMenuContainer}>
         <Text style={styles.budgetTitle}>EDIT EVENT</Text>
         <Text style={styles.budgetDescription}>
-          Cannot edit event date and name with confirmed or pending bookings and cannot edit address, if you have booked venue.
+          Cannot edit event date and name with confirmed or pending bookings and
+          cannot edit address, if you have booked venue.
         </Text>
         {options.map((option) => (
           <Pressable
             key={option.label}
             onPress={option.onPress}
             disabled={option.disabled}
-            style={[styles.eventUpdateMenuButton, {
-              
-                backgroundColor: option.disabled
-                  ? "#D3D3D3" 
-                    : "#CB0C9F",
-              
-            }]}
+            style={[
+              styles.eventUpdateMenuButton,
+              {
+                backgroundColor: option.disabled ? "#D3D3D3" : "#CB0C9F",
+              },
+            ]}
           >
             <Ionicons
               name={option.icon}
@@ -325,12 +325,12 @@ const EventUpdateMenu: React.FC<EventUpdateMenuProps> = ({
 };
 
 const checkArrayIfUndefinedOrEmpty = (array: any[] | undefined) => {
-  if(array){
+  if (array) {
     return array.length <= 0;
   }
 
   return true;
-}
+};
 
 interface BookingListProps {
   bookings: BookingType[];
@@ -338,14 +338,19 @@ interface BookingListProps {
 }
 
 const BookingList: React.FC<BookingListProps> = ({ bookings, onPress }) => {
-  const renderItem = ({ item }: { item: BookingType}) => (
+  const renderItem = ({ item }: { item: BookingType }) => (
     <Pressable style={styles.bookingListItem} onPress={() => onPress(item)}>
-            <Image source={{ uri: faker.image.url() }} style={styles.bookingListImage} />
+      <Image
+        source={{ uri: faker.image.url() }}
+        style={styles.bookingListImage}
+      />
       <View style={styles.bookingListTextContainer}>
         <Text style={styles.bookingListVendorName}>{item.vendor.name}</Text>
         <Text style={styles.bookingListPackageName}>{item.package.name}</Text>
         <View style={styles.bookingListRow}>
-          <Text style={styles.bookingListDate}>{format(item.date, "MMMM dd, yyyy")}</Text>
+          <Text style={styles.bookingListDate}>
+            {format(item.date, "MMMM dd, yyyy")}
+          </Text>
           <Text style={styles.bookingListPrice}>{item.package.capacity}</Text>
         </View>
       </View>
@@ -361,7 +366,6 @@ const BookingList: React.FC<BookingListProps> = ({ bookings, onPress }) => {
   );
 };
 
-
 function EventView({ route, navigation }: EventViewScreenProps) {
   const eventId = route.params._id;
   const { getToken } = useAuth();
@@ -370,14 +374,13 @@ function EventView({ route, navigation }: EventViewScreenProps) {
   const [openBudget, setOpenBudget] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [event, setEvent] = useState<EventInfo>({...route.params});
+  const [event, setEvent] = useState<EventInfo>({ ...route.params });
   const [error, setError] = useState(false);
-  const [errMessage, setErrMessage] = useState("")
+  const [errMessage, setErrMessage] = useState("");
   const [routes] = useState([
     { key: "confirmed", title: "Confirmed" },
     { key: "pending", title: "Pending" },
     { key: "cancelled", title: "Cancelled/Declined" },
-
   ]);
 
   const [eventBookings, setEventBookings] = useState<BookingDetailsProps[]>([]);
@@ -440,13 +443,13 @@ function EventView({ route, navigation }: EventViewScreenProps) {
   const fetchEvent = async () => {
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/${eventId}/bookings`;
 
-    const token = getToken({ template: 'event-hand-jwt' });
+    const token = getToken({ template: "event-hand-jwt" });
 
     const request = {
-      method: 'GET',
+      method: "GET",
       headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
+        Accept: "application/json",
+        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
     };
@@ -454,28 +457,27 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     try {
       const res = await fetch(url, request);
       const data = await res.json();
-      
-   
-      if (res.status === 200) {
-        setEvent({...data})
 
-        console.log('EVENT DATA SUCCESSFULLY LOADED');
+      if (res.status === 200) {
+        setEvent({ ...data });
+
+        console.log("EVENT DATA SUCCESSFULLY LOADED");
       } else if (res.status === 400) {
-        throw new Error('Bad request - Invalid data.');
+        throw new Error("Bad request - Invalid data.");
       } else if (res.status === 401) {
-        throw new Error('Unauthorized - Authentication failed.');
+        throw new Error("Unauthorized - Authentication failed.");
       } else if (res.status === 404) {
-        throw new Error('Event Not Found');
+        throw new Error("Event Not Found");
       } else {
-        throw new Error('Unexpected error occurred.');
+        throw new Error("Unexpected error occurred.");
       }
     } catch (error: any) {
       console.error(`Error fetching event (${error.code}): ${error} `);
-      setErrMessage(`Error fetching event (${error.code}): ${error} `)
+      setErrMessage(`Error fetching event (${error.code}): ${error} `);
       setError(true);
-    }finally{
+    } finally {
       setLoading(false);
-      console.log(error)
+      console.log(error);
     }
   };
 
@@ -947,28 +949,58 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     fetchEvent();
   }, []);
 
-  if(loading){
-    return <Loading/>
+  if (loading) {
+    return <Loading />;
   }
 
-  if(error){
-    return(
+  if (error) {
+    return (
       <ErrorScreen
-      description={errMessage}
-      buttonText='GO BACK'
-      onPress={() => navigation.goBack()}
-    />
-    )
-
+        description={errMessage}
+        buttonText="GO BACK"
+        onPress={() => navigation.goBack()}
+      />
+    );
   }
 
-  const { _id, name, attendees, budget, date, address, pendingBookings, confirmedBookings, cancelledOrDeclinedBookings } = event;
+  const {
+    _id,
+    name,
+    attendees,
+    budget,
+    date,
+    address,
+    pendingBookings,
+    confirmedBookings,
+    cancelledOrDeclinedBookings,
+  } = event;
 
-  const dateString = format(date, "MMMM dd, yyyy")
+  const dateString = format(date, "MMMM dd, yyyy");
 
-  const Confirmed = () => <BookingList bookings={confirmedBookings} onPress={(booking: BookingType) => navigation.navigate("UserBookingView", {booking: {...booking}})}/>
-  const Pending = () => <BookingList  bookings={pendingBookings} onPress={(booking: BookingType) => navigation.navigate("UserBookingView", {booking: {...booking}})}/>
-  const Cancelled = () => <BookingList  bookings={cancelledOrDeclinedBookings} onPress={(booking: BookingType) => navigation.navigate("UserBookingView", {booking: {...booking}})}/>
+  const Confirmed = () => (
+    <BookingList
+      bookings={confirmedBookings}
+      onPress={(booking: BookingType) =>
+        navigation.navigate("UserBookingView", { booking: { ...booking } })
+      }
+    />
+  );
+  const Pending = () => (
+    <BookingList
+      bookings={pendingBookings}
+      onPress={(booking: BookingType) =>
+        navigation.navigate("UserBookingView", { booking: { ...booking } })
+      }
+    />
+  );
+  const Cancelled = () => (
+    <BookingList
+      bookings={cancelledOrDeclinedBookings}
+      onPress={(booking: BookingType) =>
+        navigation.navigate("UserBookingView", { booking: { ...booking } })
+      }
+    />
+  );
 
   const renderScene = SceneMap({
     confirmed: Confirmed,
@@ -987,17 +1019,20 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     budget,
   };
 
-  const onUpdateBtnPress =  () => {
+  const onUpdateBtnPress = () => {
     navigation.navigate("UpdateEventForm", {
       eventInfo: { ...updateEventFormValues },
       updateValue: "BUDGET",
-    })
-  
-  }      
+    });
+  };
 
   if (openBudget) {
     return (
-      <BudgetScreen budget={budget} onBackBtnPress={onBudgetBackButtonPress} onUpdateBtnPress={onUpdateBtnPress}/>
+      <BudgetScreen
+        budget={budget}
+        onBackBtnPress={onBudgetBackButtonPress}
+        onUpdateBtnPress={onUpdateBtnPress}
+      />
     );
   }
 
@@ -1010,31 +1045,42 @@ function EventView({ route, navigation }: EventViewScreenProps) {
           eventInfo: { ...updateEventFormValues },
           updateValue: "NAME",
         }),
-      disabled: !checkArrayIfUndefinedOrEmpty(confirmedBookings) || !checkArrayIfUndefinedOrEmpty(pendingBookings)
+      disabled:
+        !checkArrayIfUndefinedOrEmpty(confirmedBookings) ||
+        !checkArrayIfUndefinedOrEmpty(pendingBookings),
     },
-    { label: 'EDIT DATE', icon: 'calendar',       onPress: () =>
-      navigation.navigate("UpdateEventForm", {
-        eventInfo: { ...updateEventFormValues },
-        updateValue: "DATE",
-      }),
-      disabled: !checkArrayIfUndefinedOrEmpty(confirmedBookings) || !checkArrayIfUndefinedOrEmpty(pendingBookings)
+    {
+      label: "EDIT DATE",
+      icon: "calendar",
+      onPress: () =>
+        navigation.navigate("UpdateEventForm", {
+          eventInfo: { ...updateEventFormValues },
+          updateValue: "DATE",
+        }),
+      disabled:
+        !checkArrayIfUndefinedOrEmpty(confirmedBookings) ||
+        !checkArrayIfUndefinedOrEmpty(pendingBookings),
     },
-    { label: 'EDIT ADDRESS', icon: 'location',       onPress: () =>
-      navigation.navigate("UpdateEventForm", {
-        eventInfo: { ...updateEventFormValues },
-        updateValue: "ADDRESS",
-      }),
-      disabled: address === undefined || budget.venue !== null
-
+    {
+      label: "EDIT ADDRESS",
+      icon: "location",
+      onPress: () =>
+        navigation.navigate("UpdateEventForm", {
+          eventInfo: { ...updateEventFormValues },
+          updateValue: "ADDRESS",
+        }),
+      disabled: address === undefined || budget.venue !== null,
     },
-    { label: 'EDIT GUESTS', icon: 'people',
+    {
+      label: "EDIT GUESTS",
+      icon: "people",
       onPress: () =>
         navigation.navigate("UpdateEventForm", {
           eventInfo: { ...updateEventFormValues },
           updateValue: "GUEST",
         }),
-        disabled: false
-     },
+      disabled: false,
+    },
   ];
 
   const onEditBackButtonPress = () => setOpenEdit(false);
@@ -1123,25 +1169,29 @@ function EventView({ route, navigation }: EventViewScreenProps) {
       </View>
 
       {!isBefore(event.date, new Date()) && (
-              <TabView
-              navigationState={{ index, routes }}
-              renderScene={renderScene}
-              onIndexChange={setIndex}
-              initialLayout={{ width: 300 }}
-              renderTabBar={(props) => (
-                <TabBar
-                  {...props}
-                  indicatorStyle={styles.indicator}
-                  style={styles.tabBar}
-                  labelStyle={styles.label}
-                />
-              )}
+        <TabView
+          navigationState={{ index, routes }}
+          renderScene={renderScene}
+          onIndexChange={setIndex}
+          initialLayout={{ width: 300 }}
+          renderTabBar={(props) => (
+            <TabBar
+              {...props}
+              indicatorStyle={styles.indicator}
+              style={styles.tabBar}
+              labelStyle={styles.label}
             />
+          )}
+        />
       )}
-
-      {isBefore(event.date, new Date()) && <BookingList bookings={confirmedBookings} onPress={(booking: BookingType) => navigation.navigate("UserBookingView", {booking: {...booking}})}/>}
-
-
+      {isBefore(event.date, new Date()) && (
+        <BookingList
+          bookings={confirmedBookings}
+          onPress={(booking: BookingType) =>
+            navigation.navigate("UserBookingView", { booking: { ...booking } })
+          }
+        />
+      )}
       {/* <HomeNav /> */}
     </>
   );
@@ -1337,12 +1387,12 @@ const styles = StyleSheet.create({
     fontWeight: "bold", // Make the text bold
   },
   bookingListItem: {
-    flexDirection: 'row',
+    flexDirection: "row",
     padding: 10,
     marginVertical: 5,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 5,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 5,
     shadowOffset: { width: 0, height: 2 },
@@ -1355,10 +1405,10 @@ const styles = StyleSheet.create({
   },
   bookingListTextContainer: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   bookingListVendorName: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     fontSize: 16,
     marginBottom: 2,
   },
@@ -1367,16 +1417,16 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   bookingListRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   bookingListDate: {
     fontSize: 12,
-    color: '#555',
+    color: "#555",
   },
   bookingListPrice: {
     fontSize: 12,
-    color: '#555',
+    color: "#555",
   },
 });
 
@@ -1426,7 +1476,6 @@ const listStyles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 8,
   },
-
 });
 
 export default EventView;
