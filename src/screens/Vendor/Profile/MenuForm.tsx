@@ -1,5 +1,12 @@
 import React from 'react';
-import { useForm, useFieldArray, Controller } from 'react-hook-form';
+import {
+  useForm,
+  useFieldArray,
+  Controller,
+  Control,
+  UseFormRegister,
+  FieldValues,
+} from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { ScrollView, TextInput, View, TouchableOpacity } from 'react-native';
@@ -10,6 +17,8 @@ import Image from 'Components/Ui/Image';
 import Text from 'Components/Ui/Text';
 import useTheme from '../../../core/theme';
 import { MenuFormScreenProps } from 'types/types';
+import PackageUpload from 'Components/Input/PackageUpload';
+import { Ionicons } from '@expo/vector-icons';
 
 interface InclusionInput {
   name: string;
@@ -56,6 +65,7 @@ const formSchema: yup.ObjectSchema<FormValues> = yup.object().shape({
 const MenuForm = ({ navigation }: MenuFormScreenProps) => {
   const {
     control,
+    register,
     handleSubmit,
     formState: { errors },
   } = useForm<FormValues>({
@@ -136,6 +146,19 @@ const MenuForm = ({ navigation }: MenuFormScreenProps) => {
             <Text bold marginBottom={sizes.xs} primary>
               Package {packageIndex + 1}
             </Text>
+            {/* <Controller
+              name={`packages.${packageIndex}.picture`}
+              control={control}
+              render={({ field: { onChange, value } }) => (
+                <PackageUpload
+                  name='credentials'
+                  label='Upload your ID photo'
+                  control={control as unknown as Control<FieldValues, unknown>}
+                  register={register as unknown as UseFormRegister<FieldValues>}
+                  errors={errors}
+                />
+              )}
+            /> */}
             <Text>Name:</Text>
 
             <Controller
@@ -160,14 +183,6 @@ const MenuForm = ({ navigation }: MenuFormScreenProps) => {
               <Text danger>{errors.packages[packageIndex].name?.message}</Text>
             )}
 
-            {/* 
-            <Controller
-              name={`packages.${packageIndex}.picture`}
-              control={control}
-              render={({ field: { onChange, value } }) => (
-                <ProfileUpload value={value} onChange={onChange} />
-              )}
-            /> */}
             {errors.packages?.[packageIndex]?.picture && (
               <Text danger>
                 {errors.packages[packageIndex].picture?.message}
@@ -276,6 +291,10 @@ const InclusionFields = ({
           key={inclusion.id}
           paddingVertical={sizes.s}
           style={{ flexDirection: 'column' }}
+          outlined
+          padding={sizes.sm}
+          radius={sizes.sm}
+          marginVertical={sizes.sm}
         >
           <Text>Name:</Text>
           <Controller
@@ -340,44 +359,54 @@ const InclusionFields = ({
             control={control}
             render={({ field: { onChange, value } }) => (
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <TouchableOpacity
-                  onPress={() => onChange(value - 1 >= 1 ? value - 1 : 1)}
-                  style={{
-                    borderWidth: 1,
-                    borderColor: 'gray',
-                    padding: sizes.s,
-                    borderRadius: sizes.sm,
-                    marginRight: sizes.xs,
-                  }}
+                <Block className='flex flex-row'>
+                  <TouchableOpacity
+                    onPress={() => onChange(value - 1 >= 1 ? value - 1 : 1)}
+                    style={{
+                      borderWidth: 1,
+                      borderColor: 'gray',
+                      padding: sizes.s,
+                      borderRadius: sizes.sm,
+                      marginRight: sizes.xs,
+                    }}
+                  >
+                    <Text>-</Text>
+                  </TouchableOpacity>
+                  <TextInput
+                    value={value.toString()}
+                    onChangeText={(text) => onChange(parseInt(text) || 1)}
+                    style={{
+                      borderWidth: 1,
+                      borderColor: 'gray',
+                      padding: sizes.s,
+                      textAlign: 'center',
+                      marginHorizontal: sizes.xs,
+                      borderRadius: sizes.sm,
+                      width: 60,
+                    }}
+                    keyboardType='numeric'
+                  />
+                  <TouchableOpacity
+                    onPress={() => onChange(value + 1)}
+                    style={{
+                      borderWidth: 1,
+                      borderColor: 'gray',
+                      padding: sizes.s,
+                      borderRadius: sizes.sm,
+                      marginLeft: sizes.xs,
+                    }}
+                  >
+                    <Text>+</Text>
+                  </TouchableOpacity>
+                </Block>
+                <Button
+                  onPress={() => removeInclusion(inclusionIndex)}
+                  danger
+                  outlined
+                  shadow={false}
                 >
-                  <Text>-</Text>
-                </TouchableOpacity>
-                <TextInput
-                  value={value.toString()}
-                  onChangeText={(text) => onChange(parseInt(text) || 1)}
-                  style={{
-                    borderWidth: 1,
-                    borderColor: 'gray',
-                    padding: sizes.s,
-                    textAlign: 'center',
-                    marginHorizontal: sizes.xs,
-                    borderRadius: sizes.sm,
-                    width: 60, 
-                  }}
-                  keyboardType='numeric'
-                />
-                <TouchableOpacity
-                  onPress={() => onChange(value + 1)}
-                  style={{
-                    borderWidth: 1,
-                    borderColor: 'gray',
-                    padding: sizes.s,
-                    borderRadius: sizes.sm,
-                    marginLeft: sizes.xs,
-                  }}
-                >
-                  <Text>+</Text>
-                </TouchableOpacity>
+                  <Ionicons name='trash' size={24} color='#CB0C9F' />
+                </Button>
               </View>
             )}
           />
@@ -390,16 +419,6 @@ const InclusionFields = ({
               }
             </Text>
           )}
-
-          <Button
-            onPress={() => removeInclusion(inclusionIndex)}
-            danger
-            outlined
-            marginTop={sizes.sm}
-            shadow={false}
-          >
-            <Text>Remove Inclusion</Text>
-          </Button>
         </Block>
       ))}
 
