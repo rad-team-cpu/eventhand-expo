@@ -2,14 +2,28 @@ import { MaterialIcons, AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { UserContext } from "Contexts/UserContext";
 import { format } from "date-fns/format";
-import React, { useContext, useMemo } from "react";
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
-import Block from "Components/Ui/Block";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import {
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import Image from "Components/Ui/Image";
 import useTheme from "../../../core/theme";
-import { StatusBar } from "expo-status-bar";
-
 import { EventInfo, HomeScreenNavigationProp } from "types/types";
+import { isBefore } from "date-fns";
+import { useAuth } from "@clerk/clerk-expo";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 interface FloatingCreateButtonProps {
   onPress: () => void;
@@ -38,7 +52,6 @@ const getRandomColor = () => {
   return color;
 };
 
-
 const EventListItem = ({
   _id,
   name,
@@ -48,7 +61,7 @@ const EventListItem = ({
   attendees,
   confirmedBookings,
   pendingBookings,
-  cancelledOrDeclinedBookings
+  cancelledOrDeclinedBookings,
 }: EventInfo) => {
   const borderColor = useMemo(() => getRandomColor(), []);
   const dateString = format(date, "MMMM dd, yyyy");
@@ -64,7 +77,7 @@ const EventListItem = ({
       attendees,
       confirmedBookings,
       pendingBookings,
-      cancelledOrDeclinedBookings
+      cancelledOrDeclinedBookings,
     });
 
   return (
@@ -104,30 +117,20 @@ const EventListItem = ({
   );
 };
 
-interface EventsProps {
-  events: EventInfo[];
+interface ErrorState {
+  error: boolean;
+  message: string;
 }
-
-const Events = ({ events }: EventsProps) => (
-  <FlatList
-    keyExtractor={(item) => item._id}
-    contentContainerStyle={styles.listContainer}
-    data={events}
-    renderItem={({ item }) => (
-      <EventListItem
-        _id={item._id}
-        name={item.name}
-        address={item.address}
-        date={item.date}
-        budget={item.budget}
-        attendees={item.attendees} pendingBookings={item.pendingBookings} confirmedBookings={item.confirmedBookings} cancelledOrDeclinedBookings={item.cancelledOrDeclinedBookings}      />
-    )}
-  />
-);
 
 function EventList() {
   const userContext = useContext(UserContext);
-  const { assets, colors, sizes, gradients } = useTheme();
+  const { assets, sizes } = useTheme();
+  const { getToken } = useAuth();
+  const [selectedTab, setSelectedTab] = useState<"Upcoming" | "Past">(
+    "Upcoming"
+  );
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<ErrorState>({ error: false, message: "" });
 
   const navigation = useNavigation<HomeScreenNavigationProp>();
 
@@ -137,27 +140,181 @@ function EventList() {
 
   const onCreatePress = () => navigation.navigate("EventForm");
 
-  const { eventList } = userContext;
-  // const { events } = user;
-  const events = eventList.events; // test data;
+  const { user, eventList, setEventList } = userContext;
+  const [page, setPage] = useState(eventList.currentPage);
 
-  if (events && events.length > 0) {
+
+  const fetchMoreEvents = async () => {
+    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/${user._id}?page=${page}&pageSize=10`;
+
+    const token = getToken({ template: "event-hand-jwt" });
+
+    const request = {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    try {
+      const res = await fetch(url, request);
+      const data = await res.json();
+
+      if (res.status === 200) {
+        setEventList((prevstate) => {
+          return {
+            ...data,
+            events: [...prevstate.events, ...data.events],
+          };
+        });
+        console.log(data);
+
+        console.log("EVENT DATA SUCCESSFULLY LOADED");
+      } else if (res.status === 400) {
+        throw new Error("Bad request - Invalid data.");
+      } else if (res.status === 401) {
+        throw new Error("Unauthorized - Authentication failed.");
+      } else if (res.status === 404) {
+        throw new Error("Event Not Found");
+      } else {
+        throw new Error("Unexpected error occurred.");
+      }
+    } catch (error: any) {
+      console.error(`Error fetching event (${error.code}): ${error} `);
+      setError({
+        error: true,
+        message: `Error fetching event (${error.code}): ${error} `,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    console.log(page);
+    // console.log(eventList.totalPages)
+    // console.log(eventList.events.length)
+    if (page > 2 && page < eventList.totalPages) {
+      fetchMoreEvents();
+    }
+  }, [page]);
+
+  const events = useCallback(() => {
+    const events = eventList.events;
+    const upcomingEvents = events.filter(
+      (event) => !isBefore(event.date, new Date())
+    );
+    const pastEvents = events.filter((event) =>
+      isBefore(event.date, new Date())
+    );
+
+    switch (selectedTab) {
+      case "Past":
+        return pastEvents;
+      case "Upcoming":
+        return upcomingEvents;
+    }
+  }, [selectedTab, eventList]);
+
+  const renderFooter = () => {
+    if (loading) {
+      return <ActivityIndicator size="large" color="#CB0C9F" />;
+    }
+    if (page === eventList.totalPages) {
+      return (
+        <Text style={{ textAlign: "center", padding: 10 }}>No more events</Text>
+      );
+    }
+
+    if (error.error) {
+      return (
+        <Text style={{ textAlign: "center", padding: 10 }}>
+          Error loading more events
+        </Text>
+      );
+    }
+
+    return null;
+  };
+
+  const onEndReached = () => {
+    if (page < eventList.totalPages) {
+      setPage((page) => page + 1);
+    }
+  };
+
+  if (events() && events().length > 0) {
     return (
-      <Block safe>
-        <StatusBar style="auto" />
-        <Block flex={0} style={{ zIndex: 0 }}>
-          <Text className="pt-10 pl-6 font-bold text-2xl text-pink-600">
-            Upcoming Events
-          </Text>
-          <Events events={events} />
-        </Block>
+      <>
+        <SafeAreaView>
+          <StatusBar />
+          <View style={styles.tabBarContainer}>
+            <Pressable
+              style={[
+                styles.tabBarButton,
+                selectedTab === "Upcoming" && styles.tabBarButtonSelected,
+              ]}
+              onPress={() => setSelectedTab("Upcoming")}
+            >
+              <Text
+                style={
+                  selectedTab === "Upcoming"
+                    ? styles.tabBarTextSelected
+                    : styles.tabBarText
+                }
+              >
+                Upcoming
+              </Text>
+            </Pressable>
+            <Pressable
+              style={[
+                styles.tabBarButton,
+                selectedTab === "Past" && styles.tabBarButtonSelected,
+              ]}
+              onPress={() => setSelectedTab("Past")}
+            >
+              <Text
+                style={
+                  selectedTab === "Past"
+                    ? styles.tabBarTextSelected
+                    : styles.tabBarText
+                }
+              >
+                Past
+              </Text>
+            </Pressable>
+          </View>
+        </SafeAreaView>
+        <FlatList
+          keyExtractor={(item) => item._id}
+          contentContainerStyle={styles.listContainer}
+          data={events()}
+          renderItem={({ item }) => (
+            <EventListItem
+              _id={item._id}
+              name={item.name}
+              address={item.address}
+              date={item.date}
+              budget={item.budget}
+              attendees={item.attendees}
+              pendingBookings={item.pendingBookings}
+              confirmedBookings={item.confirmedBookings}
+              cancelledOrDeclinedBookings={item.cancelledOrDeclinedBookings}
+            />
+          )}
+          onEndReached={onEndReached}
+          ListFooterComponent={renderFooter}
+        />
+
         <FloatingCreateButton onPress={onCreatePress} />
-      </Block>
+      </>
     );
   }
 
   return (
-    <Block safe>
+    <SafeAreaView>
       <View testID="test-events" style={styles.container}>
         <Image
           background
@@ -170,7 +327,7 @@ function EventList() {
         <Text className="font-bold">You have no events!</Text>
       </View>
       <FloatingCreateButton onPress={onCreatePress} />
-    </Block>
+    </SafeAreaView>
   );
 }
 
@@ -210,12 +367,12 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   listContainer: {
-    paddingVertical: 16,
+    // paddingVertical: 16,
     paddingHorizontal: 30,
   },
   itemContainer: {
     padding: 16,
-    marginVertical: 3,
+    marginVertical: 1,
     marginLeft: 1,
     backgroundColor: "#fff",
     borderLeftWidth: 10,
@@ -250,6 +407,32 @@ const styles = StyleSheet.create({
   },
   capacityText: {
     fontSize: 14,
+  },
+  tabBarContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    // paddingTop: 20, // Adjust to be below the status bar
+    backgroundColor: "#f8f8f8",
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+  },
+  tabBarButton: {
+    flex: 1,
+    alignItems: "center",
+    paddingVertical: 15,
+  },
+  tabBarButtonSelected: {
+    borderBottomWidth: 2,
+    borderBottomColor: "#CB0C9F", // Highlight color for selected tab
+  },
+  tabBarText: {
+    color: "#666",
+    fontSize: 16,
+  },
+  tabBarTextSelected: {
+    color: "#CB0C9F",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 

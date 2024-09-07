@@ -236,7 +236,6 @@ function Chat({ navigation, route }: ChatScreenProps) {
 
 
   useEffect(() => {
-    console.log(route.params)
     setOptions({
       headerTitle: senderName,
       headerLeft: () => headerIcon(senderImage),

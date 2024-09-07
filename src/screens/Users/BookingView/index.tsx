@@ -72,10 +72,12 @@ const Toolbar: React.FC<ToolbarProps> = ({
 interface BookingDetailsProps{
   booking: BookingType
   onBackPress: (event: GestureResponderEvent) => void | Boolean;
+  onReviewPress: (event: GestureResponderEvent) => void ;
+  isPastEventDate?: boolean
 }
 
 const BookingDetails = (props: BookingDetailsProps) => {
-  const { booking, onBackPress} = props;
+  const { booking, onBackPress, isPastEventDate, onReviewPress} = props;
   const statusColors: { [key in BookingType['status']]: string } = {
     PENDING: 'orange',
     CONFIRMED: 'green',
@@ -98,6 +100,7 @@ const BookingDetails = (props: BookingDetailsProps) => {
   if(confirmCancelBooking){
     return <ConfirmationDialog title='Cancel Booking' description={`Do you wish to cancel your booking with ${booking.vendor.name}?`} onCancel={() => setConfirmCancelBooking(false)} onConfirm={() => console.log(confirm)}/>
   }
+
 
   return (
     <>
@@ -122,8 +125,8 @@ const BookingDetails = (props: BookingDetailsProps) => {
       {/* OrderType and Status Row */}
       <View style={styles.statusContainer}>
         <Text style={styles.orderType}>{booking.package.orderType}</Text>
-        <Text style={[styles.status, { color: statusColors[booking.status] }]}>
-          {booking.status}
+        <Text style={[styles.status, { color: (isPastEventDate && booking.status !== "COMPLETED")?'purple':statusColors[booking.status] }]}>
+          {(isPastEventDate && booking.status !== "COMPLETED")? "PENDING REVIEW": booking.status}
         </Text>
       </View>
 
@@ -131,17 +134,25 @@ const BookingDetails = (props: BookingDetailsProps) => {
       <View style={styles.separator} />
       <View style={styles.packageContainer}>
         <Image source={{ uri: booking.package.imageUrl }} style={styles.packageImage} />
-        <Text style={styles.packageName}>{booking.package.name}:</Text>
+        <Text style={styles.packageName}>Package Name: {booking.package.name.toLocaleUpperCase()}</Text>
+        <View style={styles.separator} />
+        <Text  style={{fontWeight: "bold"}}>Inclusions:</Text>
         {booking.package.inclusions.map(item => <Text key={item.id} style={{fontWeight: "bold"}}>- {item.name} - {item.description} </Text>)}
+        <View style={styles.separator} />
         <Text>{booking.package.description}</Text>
         {/* Additional package details can go here */}
       </View>
 
       {/* Cancel Booking Button */}
       <View style={styles.separator} />
-      { booking.status !== "DECLINED" && (
+      { booking.status !== "DECLINED" && !isPastEventDate && (
               <Pressable style={styles.cancelButton} onPress={handleCancelBooking}>
-              <Text style={styles.buttonText}>Cancel Booking</Text>
+              <Text style={[styles.buttonText, {fontWeight:"bold"}]}>{booking.status !== "CONFIRMED"?"CANCEL":"CANCEL BOOKING"}</Text>
+            </Pressable>
+      ) }
+           {isPastEventDate && booking.status !== "COMPLETED" && (
+              <Pressable style={[styles.cancelButton, {backgroundColor: "purple"}]} onPress={onReviewPress}>
+              <Text style={[styles.buttonText, {fontWeight:"bold" }]}>REVIEW</Text>
             </Pressable>
       ) }
     </View>
@@ -150,45 +161,15 @@ const BookingDetails = (props: BookingDetailsProps) => {
   );
 };
 
-const sampleBookingData:Booking = {
-  vendor: {
-    _id: '66d197ce3e97cb8a64e1cb24', // example ObjectId
-    name: 'Elegant Events',
-    logo: faker.image.url(),
-    address: {
-      street: '123 Event St',
-      city: 'Eventville',
-      region: 'Central',
-      postalCode: 12345,
-    },
-    contactNum: '+1 (555) 123-4567',
-    email: 'info@elegantevents.com',
-  },
-    _id: '66d197ce3e97cb8a64e1cb24',
-    eventId: '66d197ce3e97cb8a64e1cb25',
-    date: new Date(),
-    status: 'CONFIRMED',
-    package: {
-      id: '66d197ce3e97cb8a64e1cb26',
-      name: 'Gold Wedding Package',
-      imageUrl: faker.image.url(),
-      capacity: 200,
-      orderType: 'In-Person',
-      description: 'A premium wedding package including venue, catering, decorations, and photography.',
-      inclusions: [
-        { id: '66d197ce3e97cb8a64e1cb27', name: 'Venue', description: 'Luxurious venue with a capacity of 200 guests.',  },
-        { id: '66d197ce3e97cb8a64e1cb28', name: 'Catering', description: 'Gourmet catering with a 5-course meal.' },
-        { id: '66d197ce3e97cb8a64e1cb29', name: 'Photography', description: 'Professional photography services for the entire event.' },
-      ],
-  },
-};
 
 function  UserBookingView({navigation, route}: UserBookingViewScreenProps) {
-  const {booking} = route.params;
+  const {booking, isPastEventDate, event} = route.params;
 
   const onBackPress = () => navigation.goBack();
 
-  return <BookingDetails booking={booking} onBackPress={onBackPress}/>
+  const onReviewPress = () => navigation.navigate("UserReview", { booking, event: event!  })
+
+  return <BookingDetails booking={booking} onBackPress={onBackPress} isPastEventDate={isPastEventDate} onReviewPress={onReviewPress}/>
 }
 
 
@@ -237,6 +218,7 @@ const styles = StyleSheet.create({
   packageName: {
     fontSize: 16,
     fontWeight: 'bold',
+    margin: 5
   },
   packageImage: {
     width: '100%',
