@@ -320,7 +320,7 @@ type ScreenProps = {
   VerificationForm: undefined;
   MenuForm: undefined;
   Rating: undefined;
-  UserBookingView: {booking: BookingType};
+  UserBookingView: {booking: BookingType, isPastEventDate?: boolean};
 };
 
 type UserBookingViewScreenProps = NativeStackScreenProps<ScreenProps, "UserBookingView">
