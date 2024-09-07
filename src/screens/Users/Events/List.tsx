@@ -2,14 +2,26 @@ import { MaterialIcons, AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { UserContext } from "Contexts/UserContext";
 import { format } from "date-fns/format";
-import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, FlatList, Pressable, StatusBar, StyleSheet, Text, View } from "react-native";
-import Block from "Components/Ui/Block";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import {
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import Image from "Components/Ui/Image";
 import useTheme from "../../../core/theme";
-
 import { EventInfo, HomeScreenNavigationProp } from "types/types";
-import {isBefore } from "date-fns";
+import { isBefore } from "date-fns";
 import { useAuth } from "@clerk/clerk-expo";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -40,7 +52,6 @@ const getRandomColor = () => {
   return color;
 };
 
-
 const EventListItem = ({
   _id,
   name,
@@ -50,7 +61,7 @@ const EventListItem = ({
   attendees,
   confirmedBookings,
   pendingBookings,
-  cancelledOrDeclinedBookings
+  cancelledOrDeclinedBookings,
 }: EventInfo) => {
   const borderColor = useMemo(() => getRandomColor(), []);
   const dateString = format(date, "MMMM dd, yyyy");
@@ -66,7 +77,7 @@ const EventListItem = ({
       attendees,
       confirmedBookings,
       pendingBookings,
-      cancelledOrDeclinedBookings
+      cancelledOrDeclinedBookings,
     });
 
   return (
@@ -113,12 +124,14 @@ interface ErrorState {
 
 function EventList() {
   const userContext = useContext(UserContext);
-  const { assets,  sizes } = useTheme();
-  const { getToken } = useAuth()
-  const [selectedTab, setSelectedTab] = useState<'Upcoming' | 'Past'>('Upcoming');
-  const [loading, setLoading] = useState(false)
+  const { assets, sizes } = useTheme();
+  const { getToken } = useAuth();
+  const [selectedTab, setSelectedTab] = useState<"Upcoming" | "Past">(
+    "Upcoming"
+  );
+  const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
-  const  [error, setError] = useState<ErrorState>({error: false, message: ""})
+  const [error, setError] = useState<ErrorState>({ error: false, message: "" });
 
   const navigation = useNavigation<HomeScreenNavigationProp>();
 
@@ -126,13 +139,11 @@ function EventList() {
     throw new Error("UserInfo must be used within a UserProvider");
   }
 
-  
-
   const onCreatePress = () => navigation.navigate("EventForm");
 
   const { user, eventList, setEventList } = userContext;
 
-  const fetchMoreEvents =  async () => {
+  const fetchMoreEvents = async () => {
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/${user._id}?page=${page}&pageSize=10`;
 
     const token = getToken({ template: "event-hand-jwt" });
@@ -151,16 +162,13 @@ function EventList() {
       const data = await res.json();
 
       if (res.status === 200) {
-        setEventList(prevstate => {
-          return ({
+        setEventList((prevstate) => {
+          return {
             ...data,
-            events: [
-              ...prevstate.events,
-              ...data.events
-            ]
-          })
-        })
-        console.log(data)
+            events: [...prevstate.events, ...data.events],
+          };
+        });
+        console.log(data);
 
         console.log("EVENT DATA SUCCESSFULLY LOADED");
       } else if (res.status === 400) {
@@ -174,51 +182,54 @@ function EventList() {
       }
     } catch (error: any) {
       console.error(`Error fetching event (${error.code}): ${error} `);
-      setError({error: true, message: `Error fetching event (${error.code}): ${error} `})
+      setError({
+        error: true,
+        message: `Error fetching event (${error.code}): ${error} `,
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() =>{
-    console.log(page)
+  useEffect(() => {
+    console.log(page);
     // console.log(eventList.totalPages)
     // console.log(eventList.events.length)
-    if(page > 2 && page < eventList.totalPages){
+    if (page > 2 && page < eventList.totalPages) {
       fetchMoreEvents();
     }
-  }, [page])
-
+  }, [page]);
 
   const events = useCallback(() => {
-    const events = eventList.events; 
-    const upcomingEvents = events.filter( event => !isBefore(event.date, new Date()))
-    const pastEvents = events.filter( event => isBefore(event.date, new Date()))
+    const events = eventList.events;
+    const upcomingEvents = events.filter(
+      (event) => !isBefore(event.date, new Date())
+    );
+    const pastEvents = events.filter((event) =>
+      isBefore(event.date, new Date())
+    );
 
     switch (selectedTab) {
       case "Past":
         return pastEvents;
       case "Upcoming":
-        return upcomingEvents
+        return upcomingEvents;
     }
-
-  }, [selectedTab, eventList])
+  }, [selectedTab, eventList]);
 
   const renderFooter = () => {
     if (loading) {
-      return <ActivityIndicator size='large' color='#CB0C9F' />;
+      return <ActivityIndicator size="large" color="#CB0C9F" />;
     }
     if (page === eventList.totalPages) {
       return (
-        <Text style={{ textAlign: 'center', padding: 10 }}>
-          No more events
-        </Text>
+        <Text style={{ textAlign: "center", padding: 10 }}>No more events</Text>
       );
     }
 
-    if(error.error){
+    if (error.error) {
       return (
-        <Text style={{ textAlign: 'center', padding: 10 }}>
+        <Text style={{ textAlign: "center", padding: 10 }}>
           Error loading more events
         </Text>
       );
@@ -228,62 +239,75 @@ function EventList() {
   };
 
   const onEndReached = () => {
-    if(page < eventList.totalPages){
-      setPage((page) => page + 1)
+    if (page < eventList.totalPages) {
+      setPage((page) => page + 1);
     }
-  }
+  };
 
-  if (events() && events().length > 0) {   
+  if (events() && events().length > 0) {
     return (
-
       <>
-            <SafeAreaView>
-        <StatusBar/>
-        <View style={styles.tabBarContainer}>
-      <Pressable
-        style={[
-          styles.tabBarButton,
-          selectedTab === 'Upcoming' && styles.tabBarButtonSelected,
-        ]}
-        onPress={() => setSelectedTab('Upcoming')}
-      >
-        <Text style={selectedTab === 'Upcoming' ? styles.tabBarTextSelected : styles.tabBarText}>
-          Upcoming
-        </Text>
-      </Pressable>
-      <Pressable
-        style={[
-          styles.tabBarButton,
-          selectedTab === 'Past' && styles.tabBarButtonSelected,
-        ]}
-        onPress={() => setSelectedTab('Past')}
-      >
-        <Text style={selectedTab === 'Past' ? styles.tabBarTextSelected : styles.tabBarText}>
-          Past
-        </Text>
-      </Pressable>
-    </View>
-
-      </SafeAreaView>
-      <FlatList
-    keyExtractor={(item) => item._id}
-    contentContainerStyle={styles.listContainer}
-    data={events()}
-    renderItem={({ item }) => (
-      <EventListItem
-        _id={item._id}
-        name={item.name}
-        address={item.address}
-        date={item.date}
-        budget={item.budget}
-        attendees={item.attendees} pendingBookings={item.pendingBookings} confirmedBookings={item.confirmedBookings} cancelledOrDeclinedBookings={item.cancelledOrDeclinedBookings}      />
-    )}
-    onEndReached={onEndReached}
-    ListFooterComponent={renderFooter}
-  />          
+        <SafeAreaView>
+          <StatusBar />
+          <View style={styles.tabBarContainer}>
+            <Pressable
+              style={[
+                styles.tabBarButton,
+                selectedTab === "Upcoming" && styles.tabBarButtonSelected,
+              ]}
+              onPress={() => setSelectedTab("Upcoming")}
+            >
+              <Text
+                style={
+                  selectedTab === "Upcoming"
+                    ? styles.tabBarTextSelected
+                    : styles.tabBarText
+                }
+              >
+                Upcoming
+              </Text>
+            </Pressable>
+            <Pressable
+              style={[
+                styles.tabBarButton,
+                selectedTab === "Past" && styles.tabBarButtonSelected,
+              ]}
+              onPress={() => setSelectedTab("Past")}
+            >
+              <Text
+                style={
+                  selectedTab === "Past"
+                    ? styles.tabBarTextSelected
+                    : styles.tabBarText
+                }
+              >
+                Past
+              </Text>
+            </Pressable>
+          </View>
+        </SafeAreaView>
+        <FlatList
+          keyExtractor={(item) => item._id}
+          contentContainerStyle={styles.listContainer}
+          data={events()}
+          renderItem={({ item }) => (
+            <EventListItem
+              _id={item._id}
+              name={item.name}
+              address={item.address}
+              date={item.date}
+              budget={item.budget}
+              attendees={item.attendees}
+              pendingBookings={item.pendingBookings}
+              confirmedBookings={item.confirmedBookings}
+              cancelledOrDeclinedBookings={item.cancelledOrDeclinedBookings}
+            />
+          )}
+          onEndReached={onEndReached}
+          ListFooterComponent={renderFooter}
+        />
 
         <FloatingCreateButton onPress={onCreatePress} />
-
       </>
     );
   }
@@ -384,32 +408,31 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   tabBarContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     // paddingTop: 20, // Adjust to be below the status bar
-    backgroundColor: '#f8f8f8',
+    backgroundColor: "#f8f8f8",
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    borderBottomColor: "#ddd",
   },
   tabBarButton: {
     flex: 1,
-    alignItems: 'center',
+    alignItems: "center",
     paddingVertical: 15,
   },
   tabBarButtonSelected: {
     borderBottomWidth: 2,
-    borderBottomColor: "#CB0C9F" // Highlight color for selected tab
+    borderBottomColor: "#CB0C9F", // Highlight color for selected tab
   },
   tabBarText: {
-    color: '#666',
+    color: "#666",
     fontSize: 16,
   },
   tabBarTextSelected: {
     color: "#CB0C9F",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
-
 });
 
 export default EventList;

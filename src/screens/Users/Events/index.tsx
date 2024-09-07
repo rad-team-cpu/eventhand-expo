@@ -369,7 +369,6 @@ const BookingList: React.FC<BookingListProps> = ({ bookings, onPress }) => {
 function EventView({ route, navigation }: EventViewScreenProps) {
   const eventId = route.params._id;
   const { getToken } = useAuth();
-  const { colors, sizes } = useTheme();
   const [index, setIndex] = useState(0);
   const [openBudget, setOpenBudget] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
