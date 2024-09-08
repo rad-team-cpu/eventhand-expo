@@ -338,7 +338,10 @@ type ScreenProps = {
   UserBookingView: {booking: BookingType, isPastEventDate?: boolean, event?: EventInfo};
   UserReview: {booking: BookingType, event: EventInfo}
   VendorReview: VendorReviewType
+  Welcome: undefined
 };
+
+type WelcomeScreenProps = NativeStackScreenProps<ScreenProps, "Welcome">
 
 type VendorReviewScreenProps = NativeStackScreenProps<ScreenProps, "VendorReview">
 
@@ -516,6 +519,6 @@ export {
   Inclusion,
   UserReviewScreenProps,
   VendorReviewType,
-  VendorReviewScreenProps
-
+  VendorReviewScreenProps,
+  WelcomeScreenProps
 };
