@@ -1,15 +1,5 @@
-import {
-  Alert,
-  GestureResponderEvent,
-  ImageBackground,
-  ScrollView,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import axios from 'axios';
+import { ScrollView, TouchableOpacity, View } from 'react-native';
 import Block from 'Components/Ui/Block';
-import Button from 'Components/Ui/Button';
 import Image from 'Components/Ui/Image';
 import useTheme from '../../../core/theme';
 import { Text } from 'react-native';
@@ -19,15 +9,9 @@ import { StatusBar } from 'expo-status-bar';
 import { UserContext } from 'Contexts/UserContext';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import {
-  BookingType,
-  CredibilityFactorsType,
-  HomeScreenNavigationProp,
-  PackageType,
-  ScreenProps,
-  Tag,
-} from 'types/types';
+import { HomeScreenNavigationProp, ScreenProps, Tag } from 'types/types';
 import { useAuth } from '@clerk/clerk-react';
+import Button from 'Components/Ui/Button';
 
 interface PackageAlgoType {
   _id: string;
@@ -47,6 +31,7 @@ interface Package {
   price: number;
   capacity: number;
   description: string;
+  tag: Tag[];
 }
 
 type PackageListRouteParams = {
@@ -56,7 +41,7 @@ type PackageListRouteParams = {
 export default function PackageList() {
   const userContext = useContext(UserContext);
   const [loading, setLoading] = useState(true);
-  const { getToken, userId } = useAuth();
+  const { getToken } = useAuth();
   const { assets, sizes } = useTheme();
   const navigation = useNavigation<HomeScreenNavigationProp>();
 
@@ -66,7 +51,6 @@ export default function PackageList() {
   useEffect(() => {
     if (eventID) {
       console.log(`Event ID received: ${eventID}`);
-      // You can use the eventId to fetch related data or filter the packages
     }
   }, [eventID]);
 
@@ -77,7 +61,7 @@ export default function PackageList() {
   }
 
   const fetchVendors = async () => {
-    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/packages/66dc881e40e01edb1e32d873/available`;
+    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/packages/${eventID}/available`;
 
     const token = getToken({ template: 'event-hand-jwt' });
 
@@ -117,33 +101,58 @@ export default function PackageList() {
 
   const handleBookPress = (packageId: string) => {
     console.log(`Book package with ID: ${packageId}`);
-    // Replace with navigation or functionality for booking
-    // navigation.navigate('BookingScreen', { packageId });
+    navigation.navigate('BookingDetails', { packageId });
+  };
+
+  const handleVendorPress = (vendorId: string) => {
+    console.log(`View vendor with ID: ${vendorId}`);
+    const vendorMenuProps: ScreenProps['VendorMenu'] = {
+      vendorId,
+    };
+
+    navigation.navigate('VendorMenu', vendorMenuProps);
+  };
+
+  const handlePackagePress = (packageId: string) => {
+    console.log(`View package with ID: ${packageId}`);
   };
 
   return (
     <Block testID='package-list' safe>
-      <StatusBar style='auto' />
-      <Block flex={0} style={{ zIndex: 0 }}>
+      {/* <StatusBar style='auto' /> */}
+      <Block flex={0}>
         <Image
           background
           resizeMode='cover'
           padding={sizes.md}
           source={assets.background}
-          height={60}
+          height={80}
         >
-          <Block paddingHorizontal={sizes.xs}></Block>
+          <Block row justify='flex-start' align='flex-start'>
+            <Button
+              row
+              onPress={() => navigation.goBack()}
+              style={{ marginLeft: 10 }}
+            >
+              <AntDesign name='back' size={24} color='white' />
+              <Text className='text-white ml-1'>Go back</Text>
+            </Button>
+          </Block>
         </Image>
       </Block>
+
       <ScrollView showsVerticalScrollIndicator={false}>
         <View className='p-3 w-full h-auto flex gap-y-3'>
-          <Text className='text-xl text-black font-bold'>
-            Available Packages
+          <Text className='text-xl font-bold'>
+            Here's what we've curated for you!!
           </Text>
           {vendors.map((vendor) => (
             <View key={`${vendor._id} - vendor`} className='w-full h-auto mb-6'>
               <View className='bg-slate-100 p-2 rounded-xl'>
-                <View className='flex flex-row mb-3'>
+                <TouchableOpacity
+                  className='flex flex-row mb-3'
+                  onPress={() => handleVendorPress(vendor._id)}
+                >
                   <Image
                     background
                     resizeMode='cover'
@@ -153,46 +162,45 @@ export default function PackageList() {
                     blurRadius={2}
                     className='h-24 w-24 rounded-xl'
                   />
-                  <View className='ml-3 pt-1'>
-                    <Text className='text-base font-bold'>
+                  <View className='ml-3 pt-1 flex-shrink'>
+                    <Text
+                      numberOfLines={1}
+                      ellipsizeMode='tail'
+                      className='text-base font-bold'
+                    >
                       {vendor.vendorName}
                     </Text>
-                    <Text className='text-sm pt-1'>
-                      {vendor.vendorAddress.city}
-                    </Text>
-                    <View className='flex flex-row pt-1'>
-                      <AntDesign name='star' size={14} color='gold' />
-                      <Text className='text-xs ml-1'>
-                        {vendor.averageRating
-                          ? vendor.averageRating.toFixed(1)
-                          : '0'}
+                    <View className='flex flex-row pt-1 justify-between'>
+                      <View className='flex flex-row'>
+                        <AntDesign name='star' size={14} color='gold' />
+                        <Text className='text-xs ml-1'>
+                          {vendor.averageRating
+                            ? vendor.averageRating.toFixed(1)
+                            : '0'}
+                        </Text>
+                      </View>
+                      <Text className='text-xs text-primary'>
+                        {vendor.vendorAddress.city}
                       </Text>
                     </View>
+
+                    <Text
+                      numberOfLines={2}
+                      ellipsizeMode='tail'
+                      style={{ maxWidth: 200, flexShrink: 1 }}
+                      className='text-xs w-auto mt-2'
+                    >
+                      {vendor.vendorBio}
+                    </Text>
                   </View>
-                </View>
+                </TouchableOpacity>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                   {vendor.vendorPackages.map((packageItem) => (
-                    <View
+                    <TouchableOpacity
                       key={`${packageItem._id} - package`}
+                      onPress={() => handleBookPress(packageItem._id)}
                       className='bg-slate-600 h-40 w-32 flex rounded-xl mr-4 relative'
                     >
-                      <TouchableOpacity
-                        onPress={() => handleBookPress(packageItem._id)}
-                        style={{
-                          position: 'absolute',
-                          bottom: -1,
-                          right: -3,
-                          backgroundColor: '#1E90FF',
-                          borderRadius: 50,
-                          width: 30,
-                          height: 30,
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}
-                      >
-                        <AntDesign name='plus' size={20} color='white' />
-                      </TouchableOpacity>
-
                       <Image
                         background
                         resizeMode='cover'
@@ -214,7 +222,24 @@ export default function PackageList() {
                           </Text>
                         </View>
                       </View>
-                    </View>
+                      <TouchableOpacity
+                        onPress={() => handleBookPress(packageItem._id)}
+                        style={{
+                          position: 'absolute',
+                          bottom: -1,
+                          right: -3,
+                          backgroundColor: '#cb0c9f',
+                          borderRadius: 50,
+                          width: 30,
+                          height: 30,
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          zIndex: 10, // Ensures the plus button is above everything else
+                        }}
+                      >
+                        <AntDesign name='plus' size={20} color='white' />
+                      </TouchableOpacity>
+                    </TouchableOpacity>
                   ))}
                 </ScrollView>
               </View>
