@@ -200,6 +200,11 @@ function EventList() {
     if (page > 2 && page < eventList.totalPages) {
       fetchMoreEvents();
     }
+
+    if(eventList.events.length <= 0){
+      navigation.replace("EventForm");
+    }
+
   }, [page]);
 
   const events = useCallback(() => {
