@@ -119,7 +119,6 @@ const AddressForm = ({
   const createAddress = async (input: AddressInput) => {
     setLoading(true);
     const vendorId = vendor?.id;
-    console.log(input);
 
     const navigateToSuccessError = (props: ScreenProps['SuccessError']) => {
       //   navigation.navigate('SuccessError', { ...props });
