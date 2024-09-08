@@ -133,6 +133,7 @@ const AddressForm = ({
         `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors/${vendorId}`,
         {
           address: { ...input },
+          visibility: true,
         },
         {
           headers: {
