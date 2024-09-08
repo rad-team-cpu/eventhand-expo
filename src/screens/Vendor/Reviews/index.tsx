@@ -145,14 +145,13 @@ const Toolbar: React.FC<ToolbarProps> = ({
   );
 };
 
-interface BookingDetailsProps{
+interface ReviewDetailsProps{
   onBackPress: () => void;
   review: VendorReviewType;
-  errorState: FormError;
 }
 
 
-const BookingDetails = (props: BookingDetailsProps) => {
+const ReviewDetails = (props: ReviewDetailsProps) => {
   const { review, onBackPress } = props;
 
 
@@ -165,11 +164,12 @@ const BookingDetails = (props: BookingDetailsProps) => {
         <Image source={{ uri: review.profilePicture? review.profilePicture: require("images/user.png") }} style={styles.vendorLogo} />
         <View style={styles.vendorDetails}>
           <Text style={styles.vendorName}>{review.clientFullName}</Text>
-          <Text style={styles.orderType}>{review.package.orderType}</Text>
-          <Text style={styles.packageName}>{review.package.name.toLocaleUpperCase()}</Text>
+
         </View>
       </View>
       <View style={styles.packageContainer}>
+      <Text style={styles.orderType}>Type: {review.package.orderType}</Text>
+      <Text style={styles.packageName}>{review.package.name.toLocaleUpperCase()}</Text>
         <View style={styles.separator} />
         <Text  style={{fontWeight: "bold"}}>Inclusions:</Text>
         {review.package.inclusions.map(item => <Text key={item._id} style={{fontWeight: "bold"}}>- {item.name} - {item.description} </Text>)}
@@ -177,19 +177,7 @@ const BookingDetails = (props: BookingDetailsProps) => {
 
       </View>
       <StarRating  disabled={true} initialRating={review.rating}/>
-      <Text style={styles.textBox}>{review.comment}</Text>
-      <View style={styles.separator} />
-        <Pressable  onPress={onConfirmPress}        disabled={review.rating < 1}
-        style={({ pressed }) => [
-          styles.cancelButton,
-          {
-            backgroundColor: review.rating < 1
-              ? "#D3D3D3" // Gray color when disabled
-                : "#CB0C9F"
-          },
-        ]}>
-            <Text style={[styles.buttonText, {fontWeight:"bold"}]}>CONFIRM</Text>
-        </Pressable>
+      <Text style={styles.textBox}>{review.comment? review.comment: ""}</Text>
     </View>
     
     </>
@@ -197,89 +185,8 @@ const BookingDetails = (props: BookingDetailsProps) => {
   );
 };
 
-interface Review {
-    rating: number;
-    comment: string;
-}
-
-
-interface ReviewConfirmationProps {
-  review: Review
-  booking: BookingType
-  onCancel: () => void;
-  onConfirm: () => void
-}
-
-const windowWidth = Dimensions.get("window").width;
-const windowHeight = Dimensions.get("window").height;
-
-const ReviewConfirmation = (props: ReviewConfirmationProps ) => {
-  const {review, onCancel, onConfirm, booking} = props;
-
-
-  return (
-    <>
-    <View style={{...styles.toolbarContainer, marginVertical: 20}}/>
-    <View style={styles.container}>
-      
-    <Text style={{...styles.title, marginBottom: 30}}>CONFIRM REVIEW</Text>
-    <View style={styles.vendorContainer}>
-        <Image source={{ uri: booking.vendor.logo }} style={styles.vendorLogo} />
-        <View style={styles.vendorDetails}>
-          <Text style={styles.vendorName}>{booking.vendor.name}</Text>
-          <Text style={styles.orderType}>{booking.package.orderType}</Text>
-          <Text style={styles.packageName}>{booking.package.name.toLocaleUpperCase()}</Text>
-        </View>
-      </View>
-      <View style={styles.separator} />
-      <StarRating initialRating={review.rating} disabled/>
-      <View style={styles.separator} />
-      <View style={styles.textBoxContainer}>
-        <Text style={styles.textBox}>{review.comment}</Text>
-      </View>
-    </View>
-      <View testID="test-confirmation-dialog" style={styles.confirmContainer}>
-      <View style={styles.buttonContainer}>
-        <Pressable style={styles.confirmCancelButton} onPress={onCancel}>
-          <FontAwesome name="times" size={24} color="white" />
-        </Pressable>
-        <Pressable style={styles.confirmButton} onPress={onConfirm}>
-          <FontAwesome name="check" size={24} color="white" />
-        </Pressable>
-      </View>
-    </View>
-    </>
-
-  );
-}
-
-
-interface FormError {
-  error: boolean;
-  message: string;
-}
-
-interface ReviewInputType{
-  bookingId: string
-  clientId: string;
-  vendorId: string;
-  rating: number;
-  comment: string;
-  package:  {
-    _id: string; 
-    name: string;
-    imageUrl: string;
-    capacity: number;
-    tags: string[]; 
-    orderType: string;
-    description: string;
-    price: number;
-    inclusions: Inclusion[];
-  };
-}
-
-function  UserReview({navigation, route}: VendorReviewScreenProps) {
-  const { review } = route.params;
+function  VendorReview({navigation, route}: VendorReviewScreenProps) {
+  const  review  = route.params;
   const { userId, isLoaded, getToken } = useAuth();
   // const [review, setReview] = useState<Review>({rating: 0, comment: ""})
   // const [confirmReview, setConfirmReview] = useState(false)
@@ -302,7 +209,7 @@ function  UserReview({navigation, route}: VendorReviewScreenProps) {
 
 
 
-  return <BookingDetails review={review}  onBackPress={onBackPress} onTextChange={handleTextChange} onRatingChange={handleRatingChange} onConfirmPress={handleConfirm} errorState={error}/>
+  return <ReviewDetails review={review}  onBackPress={onBackPress} />
 }
 
 
@@ -471,4 +378,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default UserReview
+export default VendorReview

@@ -4,14 +4,16 @@ import { FontAwesome } from '@expo/vector-icons'; // For star icons
 import { VendorContext } from 'Contexts/VendorContext';
 import { useAuth } from '@clerk/clerk-expo';
 import Loading from 'screens/Loading';
-import { VendorReviewType } from 'types/types';
+import { HomeScreenNavigationProp, VendorReviewType } from 'types/types';
+import { useNavigation } from '@react-navigation/native';
 
 
 // Props for the component
-interface ReviewListProps {
+interface ReviewList {
   averageRating: number;
   reviews: VendorReviewType[];
 }
+
 
 const StarRating = ({ rating }: { rating: number }) => {
     return (
@@ -21,14 +23,19 @@ const StarRating = ({ rating }: { rating: number }) => {
             key={index}
             name={index < rating ? 'star' : 'star-o'}
             size={16}
-            color="gold"
+            color={index < rating ? "#CB0C9F" : '#E875C3'}
           />
         ))}
       </View>
     );
   };
 
-const ReviewList: React.FC<ReviewListProps> = ({ averageRating, reviews }) => {
+  interface ReviewListProps extends ReviewList {
+    onItemPress: (item: VendorReviewType) => void;
+  }
+
+
+const ReviewList: React.FC<ReviewListProps> = ({ averageRating, reviews, onItemPress }) => {
   // Helper function to render star ratings
   const renderReview = ({ item }: { item: any }) => (
     <View style={styles.reviewContainer}>
@@ -40,7 +47,7 @@ const ReviewList: React.FC<ReviewListProps> = ({ averageRating, reviews }) => {
         }
         style={styles.profileImage}
       />
-      <Pressable  onPress={()=> console.log(item)}style={styles.reviewContent}>
+      <Pressable  onPress={() => onItemPress(item)} style={styles.reviewContent}>
         {/* First row: Reviewer's name and their rating */}
         <View style={styles.reviewRow}>
           <Text style={styles.reviewerName}>{item.clientFullName}</Text>
@@ -75,8 +82,9 @@ const ReviewList: React.FC<ReviewListProps> = ({ averageRating, reviews }) => {
 };
 
 function VendorReviews() {
+    const navigation = useNavigation<HomeScreenNavigationProp>();
     const [loading, setLoading] = useState(true);
-    const [reviewList, setReviewList] = useState<ReviewListProps>({reviews: [], averageRating: 0})
+    const [reviewList, setReviewList] = useState<ReviewList>({reviews: [], averageRating: 0 })
     const vendorContext = useContext(VendorContext);
     const { getToken } = useAuth();
 
@@ -87,13 +95,6 @@ function VendorReviews() {
     const { vendor,  } = vendorContext;
     const {  id } = vendor;
   
-    const reviews = [
-        { id: '1', reviewerName: 'John Doe', rating: 4, reviewText: 'Great experience! The service was excellent.', profileImage: 'https://via.placeholder.com/50' },
-        { id: '2', reviewerName: 'Jane Smith', rating: 5, reviewText: 'Absolutely loved it! Will come back for sure.', profileImage: null },
-        { id: '3', reviewerName: 'Bob Johnson', rating: 3, reviewText: 'It was okay, nothing too special.', profileImage: 'https://via.placeholder.com/50' },
-        { id: '4', reviewerName: 'Alice Brown', rating: 5, reviewText: 'Fantastic! Highly recommended.', profileImage: 'https://via.placeholder.com/50' },
-        { id: '5', reviewerName: 'Mike Wilson', rating: 2, reviewText: 'Not what I expected, could be improved.', profileImage: null },
-      ];
 
       const fetchReviews = async () => {
         const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/reviews/${id}/list`;
@@ -150,7 +151,7 @@ function VendorReviews() {
 
     return (
       <SafeAreaView style={{ flex: 1 }}>
-        <ReviewList averageRating={reviewList.averageRating} reviews={reviewList.reviews} />
+        <ReviewList averageRating={reviewList.averageRating} reviews={reviewList.reviews} onItemPress={(review: VendorReviewType) => navigation.navigate("VendorReview", {...review})} />
       </SafeAreaView>
     );
   };
