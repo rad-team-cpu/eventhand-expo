@@ -127,21 +127,11 @@ function VendorProfile() {
               </Block>
               <Block className='flex flex-row justify-center items-center mb-5'>
                 <Block className='items-center'>
-                  <Pressable
-                    onPress={() => navigation.navigate('VerificationForm')}
-                  >
-                    <Block className='items-center'>
-                      <AntDesign name='idcard' size={24} color='white' />
-                    </Block>
-                    <Text white>Verify Account</Text>
-                  </Pressable>
-                </Block>
-                <Block className='items-center'>
                   <Pressable onPress={() => navigation.navigate('AboutForm')}>
                     <Block className='items-center'>
                       <Entypo name='news' size={24} color='white' />
                     </Block>
-                    <Text white>Add bio</Text>
+                    <Text white>Edit bio</Text>
                   </Pressable>
                 </Block>
                 <Block className='items-center'>
@@ -149,17 +139,7 @@ function VendorProfile() {
                     <Block className='items-center'>
                       <MaterialIcons name='menu-book' size={24} color='white' />
                     </Block>
-
-                    <Text white>Add Menu</Text>
-                  </Pressable>
-                </Block>
-                <Block className='items-center'>
-                  <Pressable onPress={() => navigation.navigate('Rating')}>
-                    <Block className='items-center'>
-                      <MaterialIcons name='menu-book' size={24} color='white' />
-                    </Block>
-
-                    <Text white>Rating</Text>
+                    <Text white>Edit Menu</Text>
                   </Pressable>
                 </Block>
               </Block>
