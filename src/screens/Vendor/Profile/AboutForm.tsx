@@ -31,7 +31,12 @@ const aboutFormValidationSchema = object().shape({
   bio: string().required('Enter bio'),
 });
 
-const AboutForm = ({ navigation, onSubmit, onGoBack, initialData }: AboutFormProps) => {
+const AboutForm = ({
+  navigation,
+  onSubmit,
+  onGoBack,
+  initialData,
+}: AboutFormProps) => {
   const {
     control,
     handleSubmit,
@@ -67,6 +72,7 @@ const AboutForm = ({ navigation, onSubmit, onGoBack, initialData }: AboutFormPro
         `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors/${vendorId}`,
         {
           ...input,
+          visibility: true,
         },
         {
           headers: {
@@ -75,7 +81,7 @@ const AboutForm = ({ navigation, onSubmit, onGoBack, initialData }: AboutFormPro
           },
         }
       );
-      
+
       setLoading(false);
       if (response.status === 200 || response.status === 201) {
         onSubmit(input);
@@ -113,12 +119,7 @@ const AboutForm = ({ navigation, onSubmit, onGoBack, initialData }: AboutFormPro
                 radius={sizes.cardRadius}
                 source={assets.background}
               >
-                <Button
-                  row
-                  flex={0}
-                  justify='flex-start'
-                  onPress={onGoBack}
-                >
+                <Button row flex={0} justify='flex-start' onPress={onGoBack}>
                   <AntDesign name='back' size={24} color='white' />
                   <Text p white marginLeft={sizes.s}>
                     Go back
