@@ -7,10 +7,11 @@ import AboutForm from './AboutForm';
 import AddressForm from './AddressForm';
 import MenuForm from './MenuForm';
 import { useFocusEffect } from '@react-navigation/native';
+import BlockedDays from './BlockedDays';
 
 const MultiStepForm = ({ navigation, route }: VendorProfileFormScreenProps) => {
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 4;
+  const totalSteps = 5;
 
   const [formData, setFormData] = useState({
     vendorProfile: { logo: {} || null, name: '', email: '', contactNumber: '' },
@@ -23,9 +24,10 @@ const MultiStepForm = ({ navigation, route }: VendorProfileFormScreenProps) => {
         fileExtension: 'png',
       },
     },
-    about: { bio: '' },
+    about: { bio: '', tags: [] },
     address: { street: '', city: '', region: '', postalCode: 0 },
     menu: {},
+    blockedDays: { days: [] },
   });
 
   const navigateToSuccessError = (props: ScreenProps['SuccessError']) => {
@@ -41,7 +43,7 @@ const MultiStepForm = ({ navigation, route }: VendorProfileFormScreenProps) => {
   };
 
   const handleNextStep = () => {
-    if (currentStep === 4) {
+    if (currentStep === 5) {
       navigateToSuccessError({
         description: 'Your information was saved successfully.',
         buttonText: 'Continue',
@@ -156,6 +158,15 @@ const MultiStepForm = ({ navigation, route }: VendorProfileFormScreenProps) => {
         />
       )}
       {currentStep === 4 && (
+        <BlockedDays
+          navigation={navigation}
+          route={route}
+          onSubmit={(data) => handleFormSubmit(data, 'blockedDays')}
+          onGoBack={handleGoBack}
+          initialData={formData.blockedDays}
+        />
+      )}
+      {currentStep === 5 && (
         <MenuForm
           navigation={navigation}
           route={route}

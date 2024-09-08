@@ -170,12 +170,17 @@ const Rating = ({ navigation }: RatingScreenProps) => {
                 control={control}
                 render={({ field: { onChange, value } }) => (
                   <TextInput
-                    multiline
+                    multiline={true}
                     numberOfLines={5}
-                    placeholder='Enter your comments'
-                    onChangeText={onChange}
-                    value={value}
-                    className='border rounded-lg border-purple-700 m-3'
+                    placeholder='How can we improve?'
+                    style={{
+                      borderWidth: 1,
+                      borderColor: 'purple',
+                      borderRadius: 10,
+                      padding: 10,
+                      textAlignVertical: 'top',
+                      margin: 10,
+                    }}
                   />
                 )}
               />
