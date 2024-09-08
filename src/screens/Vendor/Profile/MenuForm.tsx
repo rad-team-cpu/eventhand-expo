@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   useForm,
   useFieldArray,
@@ -19,14 +19,21 @@ import Image from 'Components/Ui/Image';
 import Text from 'Components/Ui/Text';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import useTheme from '../../../core/theme';
-import { MenuFormScreenProps, ScreenProps, VendorProfileFormScreenProps } from 'types/types';
+import { VendorContext } from 'Contexts/VendorContext';
+import { UploadResult } from 'firebase/storage';
 import PackageUpload from 'Components/Input/PackageUpload';
 import { Ionicons } from '@expo/vector-icons';
+import { VendorProfileFormScreenProps } from 'types/types';
 
 interface InclusionInput {
   name: string;
   description: string;
   quantity: number;
+}
+
+interface OrderType {
+  name: string;
+  disabled?: boolean;
 }
 
 interface ImageInfo {
@@ -42,6 +49,7 @@ interface PackageInput {
   capacity: number;
   price: number;
   inclusions: InclusionInput[];
+  orderTypes?: OrderType[];
 }
 
 interface FormValues {
@@ -60,12 +68,17 @@ const inclusionSchema: yup.ObjectSchema<InclusionInput> = yup.object().shape({
   quantity: yup.number().required('Quantity is required').min(1),
 });
 
+const ordertypeSchema: yup.ObjectSchema<OrderType> = yup.object().shape({
+  name: yup.string().required('Order type name is required'),
+  disabled: yup.boolean(),
+});
+
 const packageSchema: yup.ObjectSchema<PackageInput> = yup.object().shape({
   imageUrl: yup
     .object({
       fileSize: yup
         .number()
-        .max(5242880, 'File size too large, must be below 5mb'),
+        .max(5242880, 'File size too large, must be below 5MB'),
       uri: yup.string(),
       mimeType: yup.string().matches(/^image\/(png|jpeg)$/, {
         message: 'File must be a png or jpeg',
@@ -77,7 +90,7 @@ const packageSchema: yup.ObjectSchema<PackageInput> = yup.object().shape({
       }),
     })
     .nullable(),
-  name: yup.string().required('Package picture is required'),
+  name: yup.string().required('Package name is required'),
   price: yup.number().required('Price is required').min(1),
   capacity: yup.number().required('Capacity is required').min(1),
   inclusions: yup
@@ -85,6 +98,10 @@ const packageSchema: yup.ObjectSchema<PackageInput> = yup.object().shape({
     .of(inclusionSchema)
     .required()
     .min(1, 'At least one inclusion is required'),
+  orderTypes: yup
+    .array()
+    .of(ordertypeSchema)
+    .min(1, 'At least one order type is required'),
 });
 
 const formSchema: yup.ObjectSchema<FormValues> = yup.object().shape({
@@ -99,16 +116,14 @@ const MenuForm = ({
   navigation,
   onGoBack,
   onConfirm,
-  onSkip,
 }: VendorProfileFormProps) => {
   const [loading, setLoading] = useState(false);
   const { sizes, assets } = useTheme();
-
   const {
     control,
-    register,
     handleSubmit,
-    formState: { errors },
+    register,
+    formState: { errors, isValid },
   } = useForm<FormValues>({
     mode: 'onBlur',
     resolver: yupResolver(formSchema),
@@ -117,8 +132,14 @@ const MenuForm = ({
         {
           name: '',
           capacity: 0,
-          imageUrl: null,
+          imageUrl: {
+            fileSize: 0,
+            uri: '',
+            mimeType: '',
+            fileExtension: '',
+          },
           price: 0,
+          orderTypes: [{ name: '', disabled: false }],
           inclusions: [{ name: '', description: '', quantity: 1 }],
         },
       ],
@@ -134,30 +155,69 @@ const MenuForm = ({
     name: 'packages',
   });
 
-  const navigateToSuccessError = (props: ScreenProps['SuccessError']) => {
-    navigation.navigate('SuccessError', { ...props });
-  };
+  const vendorContext = useContext(VendorContext);
 
-  const onSubmit = async (data: FormValues) => {
-    // console.log('Submitted Data:', data);
-    onConfirm();
+  if (!vendorContext) {
+    throw new Error('Component must be under User Provider!!!');
+  }
 
+  const { vendor } = vendorContext;
+
+  const onSubmit = async (input: FormValues) => {
+    setLoading(true);
+    console.log(input)
+    const vendorId = vendor?.id;
+    const { packages } = input;
+    const firebaseService = FirebaseService.getInstance();
+    const formattedPackages = [];
 
     try {
+      for (const pkg of packages) {
+        let uploadPath: string | null = null;
+
+        if (pkg.imageUrl?.uri) {
+          const uploadResult = await firebaseService.uploadPackageImageUrl(
+            vendorId,
+            pkg.imageUrl
+          );
+          uploadPath = uploadResult
+            ? (uploadResult as UploadResult).metadata.fullPath
+            : null;
+        }
+
+        formattedPackages.push({
+          name: pkg.name,
+          price: Number(pkg.price),
+          capacity: Number(pkg.capacity),
+          imageUrl: uploadPath, // Store the upload path or null
+          inclusions: pkg.inclusions.map((inc) => ({
+            name: inc.name,
+            description: inc.description,
+            quantity: Number(inc.quantity),
+          })),
+          orderTypes: pkg.orderTypes?.length
+            ? pkg.orderTypes.map((ord) => ({
+                name: ord.name,
+                disabled: ord.disabled ?? false,
+              }))
+            : [{ name: 'Default Order Type', disabled: false }],
+        });
+      }
+
+      // Send formatted data to the backend
       const response = await axios.post(
         `${process.env.EXPO_PUBLIC_BACKEND_URL}/packages`,
-        data,
+        { packages: formattedPackages },
         {
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
         }
       );
 
       if (response.status === 200) {
-        setLoading(false);
         console.log('Packages created successfully:', response.data);
-        navigateToSuccessError({
+        setLoading(false);
+        onConfirm();
+        navigation.navigate('SuccessError', {
           description: 'Your information was saved successfully.',
           buttonText: 'Continue',
           navigateTo: 'VendorHome',
@@ -165,11 +225,15 @@ const MenuForm = ({
         });
       } else {
         console.error('Failed to create packages:', response.data);
+        setLoading(false);
       }
     } catch (error) {
       console.error('Error creating packages:', error);
+      setLoading(false);
     }
   };
+
+  const onSubmitPress = handleSubmit(onSubmit);
 
   return (
     <Block safe marginTop={sizes.md}>
@@ -178,7 +242,6 @@ const MenuForm = ({
           paddingBottom: sizes.padding,
           paddingHorizontal: sizes.s,
         }}
-        showsVerticalScrollIndicator={false}
       >
         <Block flex={0} style={{ zIndex: 0 }}>
           <Image
@@ -246,6 +309,7 @@ const MenuForm = ({
                 </Button>
               </Block>
             </Block>
+
             <Block className='flex flex-row h-20'>
               <Controller
                 name={`packages.${packageIndex}.imageUrl`}
@@ -266,7 +330,6 @@ const MenuForm = ({
               />
               <Block>
                 <Text marginLeft={sizes.sm}>Name:</Text>
-
                 <Controller
                   name={`packages.${packageIndex}.name`}
                   control={control}
@@ -290,7 +353,6 @@ const MenuForm = ({
                     {errors.packages[packageIndex].name?.message}
                   </Text>
                 )}
-
                 {errors.packages?.[packageIndex]?.imageUrl && (
                   <Text danger>
                     {errors.packages[packageIndex].imageUrl?.message}
@@ -335,7 +397,7 @@ const MenuForm = ({
 
         <Button
           primary
-          onPress={handleSubmit(onSubmit)}
+          onPress={onSubmitPress}
           shadow={false}
           marginHorizontal={sizes.sm}
         >
@@ -361,11 +423,7 @@ const InclusionFields = ({
     fields: inclusionFields,
     append: appendInclusion,
     remove: removeInclusion,
-  } = useFieldArray({
-    control,
-    name: `packages.${packageIndex}.inclusions`,
-  });
-
+  } = useFieldArray({ control, name: `packages.${packageIndex}.inclusions` });
   const { sizes } = useTheme();
 
   return (
@@ -384,16 +442,14 @@ const InclusionFields = ({
       </Button>
       {inclusionFields.map((inclusion, inclusionIndex) => (
         <Block
-          card
           key={inclusion.id}
+          card
           padding={sizes.s}
           marginVertical={sizes.s}
           shadow={false}
           outlined
           style={{ flexDirection: 'column' }}
-          padding={sizes.sm}
           radius={sizes.sm}
-          marginVertical={sizes.sm}
         >
           <Block className='flex flex-row justify-between'>
             <Text>Name:</Text>
@@ -425,6 +481,7 @@ const InclusionFields = ({
               }
             </Text>
           )}
+
           <Text>Description:</Text>
           <Controller
             name={`packages.${packageIndex}.inclusions.${inclusionIndex}.description`}
