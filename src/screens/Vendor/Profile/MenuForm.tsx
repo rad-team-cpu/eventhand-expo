@@ -165,7 +165,7 @@ const MenuForm = ({
 
   const onSubmit = async (input: FormValues) => {
     setLoading(true);
-    console.log(input)
+    console.log(input);
     const vendorId = vendor?.id;
     const { packages } = input;
     const firebaseService = FirebaseService.getInstance();
@@ -368,6 +368,28 @@ const MenuForm = ({
               render={({ field: { onChange, value } }) => (
                 <TextInput
                   placeholder='Package Price'
+                  keyboardType='numeric'
+                  value={value.toString()}
+                  onChangeText={(text) => onChange(parseFloat(text) || 0)}
+                  style={{
+                    borderWidth: 1,
+                    borderColor: 'gray',
+                    padding: sizes.s,
+                    borderRadius: sizes.sm,
+                  }}
+                />
+              )}
+            />
+            {errors.packages?.[packageIndex]?.price && (
+              <Text danger>{errors.packages[packageIndex].price?.message}</Text>
+            )}
+            <Text>Capacity:</Text>
+            <Controller
+              name={`packages.${packageIndex}.capacity`}
+              control={control}
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  placeholder='Capacity'
                   keyboardType='numeric'
                   value={value.toString()}
                   onChangeText={(text) => onChange(parseFloat(text) || 0)}
