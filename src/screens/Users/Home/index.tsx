@@ -20,6 +20,7 @@ import {
 } from 'Contexts/WebSocket';
 import ErrorScreen from 'Components/Error';
 import ConfirmationDialog from 'Components/ConfirmationDialog';
+import PackageList from '../Packages/PackageList';
 
 interface HomeNavProps {
   initialRouteName?: keyof HomeScreenBottomTabsProps;
@@ -73,6 +74,11 @@ const HomeNav = ({ initialRouteName = 'Events' }: HomeNavProps) => {
       <Tab.Screen
         name='Vendors'
         component={VendorList}
+        options={vendorIconOptions}
+      />
+      <Tab.Screen
+        name='Packages'
+        component={PackageList}
         options={vendorIconOptions}
       />
       <Tab.Screen
@@ -141,8 +147,7 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
     try {
       const res = await fetch(url, request);
       const data = await res.json();
-      
-   
+
       if (res.status === 200) {
         const resEventList = data.events
         setUser({ ...data.user });

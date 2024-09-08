@@ -113,7 +113,9 @@ const BlockedDaysForm = ({
     try {
       const token = await getToken({ template: 'event-hand-jwt' });
 
-      const blockedDays = selectedDays.map((dayId) => dayId);
+      const blockedDays = selectedDays.map(
+        (dayId) => days.find((day) => day.id === dayId)?.name
+      );
 
       const payload = {
         blockedDays,
@@ -191,7 +193,7 @@ const BlockedDaysForm = ({
               </Block>
 
               <Block>
-                <Text marginLeft={sizes.sm}>Select your days:</Text>
+                <Text marginLeft={sizes.sm}>Select days that you are unavailable:</Text>
                 <ScrollView showsHorizontalScrollIndicator={false}>
                   {days.map((day) => (
                     <TouchableOpacity
