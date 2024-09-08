@@ -20,6 +20,7 @@ import {
 } from 'Contexts/WebSocket';
 import ErrorScreen from 'Components/Error';
 import ConfirmationDialog from 'Components/ConfirmationDialog';
+import PackageList from '../Packages/PackageList';
 
 interface HomeNavProps {
   initialRouteName?: keyof HomeScreenBottomTabsProps;
@@ -76,6 +77,11 @@ const HomeNav = ({ initialRouteName = 'Events' }: HomeNavProps) => {
         options={vendorIconOptions}
       />
       <Tab.Screen
+        name='Packages'
+        component={PackageList}
+        options={vendorIconOptions}
+      />
+      <Tab.Screen
         name='ChatList'
         component={ChatList}
         initialParams={{ mode: 'CLIENT' }}
@@ -121,7 +127,15 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
     throw new Error('Failed to load clerk');
   }
 
-  const { user, setUser, setSwitching, switching, setMode, mode, setEventList } = userContext;
+  const {
+    user,
+    setUser,
+    setSwitching,
+    switching,
+    setMode,
+    mode,
+    setEventList,
+  } = userContext;
   const { connectionTimeout, isConnected, reconnect, sendMessage } = webSocket;
 
   const fetchUserId = async () => {
@@ -141,11 +155,10 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
     try {
       const res = await fetch(url, request);
       const data = await res.json();
-      
-   
+
       if (res.status === 200) {
         setUser({ ...data.user });
-        setEventList({...data.events})
+        setEventList({ ...data.events });
         const getChatListInput: GetChatListInput = {
           senderId: data.user._id,
           senderType: 'CLIENT',
