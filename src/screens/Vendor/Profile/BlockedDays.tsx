@@ -67,7 +67,7 @@ const BlockedDaysForm = ({
   const {
     control,
     handleSubmit,
-    setValue, // Add setValue to update days field
+    setValue,
     formState: { errors, isValid },
   } = useForm<BlockedDaysInput>({
     mode: 'onBlur',
@@ -95,7 +95,7 @@ const BlockedDaysForm = ({
     const selectedDayObjects = days.filter((day) =>
       selectedDays.includes(day.id)
     );
-    setValue('days', selectedDayObjects); // Update form data with selected days
+    setValue('days', selectedDayObjects);
   }, [selectedDays, setValue]);
 
   const toggleDaySelection = (dayId: string) => {
@@ -113,12 +113,16 @@ const BlockedDaysForm = ({
     try {
       const token = await getToken({ template: 'event-hand-jwt' });
 
+      const blockedDays = selectedDays.map((dayId) => dayId);
+
+      const payload = {
+        blockedDays,
+        visibility: true,
+      };
+
       const response = await axios.patch(
         `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors/${vendorId}`,
-        {
-          ...input,
-          visibility: true,
-        },
+        payload,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -126,14 +130,15 @@ const BlockedDaysForm = ({
           },
         }
       );
+
       setLoading(false);
       if (response.status === 200 || response.status === 201) {
-        onSubmit(input);
+        onSubmit(input); // Trigger form submission callback
       } else {
         throw new Error('Unexpected error occurred.');
       }
     } catch (error) {
-      console.error(error);
+      console.error('Error:', error);
       setLoading(false);
       setSubmitErrMessage('An error occurred while saving the data.');
     }
@@ -149,8 +154,8 @@ const BlockedDaysForm = ({
       {!loading && (
         <Block safe marginTop={sizes.md}>
           <Block
-            id="blocked-days-form"
-            testID="test-blocked-days-form"
+            id='blocked-days-form'
+            testID='test-blocked-days-form'
             scroll
             paddingHorizontal={sizes.s}
             showsVerticalScrollIndicator={false}
@@ -159,14 +164,14 @@ const BlockedDaysForm = ({
             <Block flex={0} style={{ zIndex: 0 }}>
               <Image
                 background
-                resizeMode="cover"
+                resizeMode='cover'
                 padding={sizes.sm}
                 paddingBottom={sizes.l}
                 radius={sizes.cardRadius}
                 source={assets.background}
               >
-                <Button row flex={0} justify="flex-start" onPress={onGoBack}>
-                  <AntDesign name="back" size={24} color="white" />
+                <Button row flex={0} justify='flex-start' onPress={onGoBack}>
+                  <AntDesign name='back' size={24} color='white' />
                   <Text p white marginLeft={sizes.s}>
                     Go back
                   </Text>
@@ -178,11 +183,11 @@ const BlockedDaysForm = ({
               flex={0}
               radius={sizes.sm}
               marginTop={-sizes.l}
-              marginHorizontal="8%"
-              color="rgba(255,255,255,1)"
+              marginHorizontal='8%'
+              color='rgba(255,255,255,1)'
             >
-              <Block align="flex-start" className="m-3">
-                <Text transform="uppercase">Set up your Blocked Days:</Text>
+              <Block align='flex-start' className='m-3'>
+                <Text transform='uppercase'>Set up your Blocked Days:</Text>
               </Block>
 
               <Block>
@@ -214,7 +219,7 @@ const BlockedDaysForm = ({
               </Block>
 
               <Button
-                testID="next-btn"
+                testID='next-btn'
                 onPress={onSubmitPress}
                 primary
                 outlined
@@ -223,7 +228,7 @@ const BlockedDaysForm = ({
                 shadow={false}
                 disabled={!isValid}
               >
-                <Text bold primary transform="uppercase">
+                <Text bold primary transform='uppercase'>
                   Save Blocked Days
                 </Text>
               </Button>
