@@ -21,7 +21,7 @@ import {
 import Image from "Components/Ui/Image";
 import useTheme from "../../../core/theme";
 import { EventInfo, HomeScreenNavigationProp } from "types/types";
-import { isBefore } from "date-fns";
+import { isAfter, isBefore, isToday } from "date-fns";
 import { useAuth } from "@clerk/clerk-expo";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Block from "Components/Ui/Block";
@@ -206,10 +206,10 @@ function EventList() {
   const events = useCallback(() => {
     const events = eventList.events;
     const upcomingEvents = events.filter(
-      (event) => !isBefore(event.date, new Date())
+      (event) => isAfter(event.date, new Date()) || isToday(event.date)
     );
     const pastEvents = events.filter((event) =>
-      isBefore(event.date, new Date())
+      isBefore(event.date, new Date()) && !isToday(event.date)
     );
 
     switch (selectedTab) {
