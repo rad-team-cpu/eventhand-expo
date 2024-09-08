@@ -73,11 +73,12 @@ interface BookingDetailsProps{
   booking: BookingType
   onBackPress: (event: GestureResponderEvent) => void | Boolean;
   onReviewPress: (event: GestureResponderEvent) => void ;
+  handleViewVendor: () => void;
   isPastEventDate?: boolean
 }
 
 const BookingDetails = (props: BookingDetailsProps) => {
-  const { booking, onBackPress, isPastEventDate, onReviewPress} = props;
+  const { booking, onBackPress, isPastEventDate, onReviewPress, handleViewVendor} = props;
   const statusColors: { [key in BookingType['status']]: string } = {
     PENDING: 'orange',
     CONFIRMED: 'green',
@@ -93,9 +94,6 @@ const BookingDetails = (props: BookingDetailsProps) => {
     setConfirmCancelBooking(true);
   };
 
-  const handleViewVendor = () => {
-    Alert.alert('View Vendor', `Viewing vendor: ${booking.vendor.name}`);
-  };
 
   if(confirmCancelBooking){
     return <ConfirmationDialog title='Cancel Booking' description={`Do you wish to cancel your booking with ${booking.vendor.name}?`} onCancel={() => setConfirmCancelBooking(false)} onConfirm={() => console.log(confirm)}/>
@@ -137,7 +135,7 @@ const BookingDetails = (props: BookingDetailsProps) => {
         <Text style={styles.packageName}>Package Name: {booking.package.name.toLocaleUpperCase()}</Text>
         <View style={styles.separator} />
         <Text  style={{fontWeight: "bold"}}>Inclusions:</Text>
-        {booking.package.inclusions.map(item => <Text key={item.id} style={{fontWeight: "bold"}}>- {item.name} - {item.description} </Text>)}
+        {booking.package.inclusions.map(item => <Text key={item._id} style={{fontWeight: "bold"}}>- {item.name} - {item.description} </Text>)}
         <View style={styles.separator} />
         <Text>{booking.package.description}</Text>
         {/* Additional package details can go here */}
@@ -168,8 +166,10 @@ function  UserBookingView({navigation, route}: UserBookingViewScreenProps) {
   const onBackPress = () => navigation.goBack();
 
   const onReviewPress = () => navigation.navigate("UserReview", { booking, event: event!  })
+  
+  const handleViewVendor = () => navigation.navigate("VendorMenu", {vendorId: booking.vendor._id})
 
-  return <BookingDetails booking={booking} onBackPress={onBackPress} isPastEventDate={isPastEventDate} onReviewPress={onReviewPress}/>
+  return <BookingDetails handleViewVendor={handleViewVendor} booking={booking} onBackPress={onBackPress} isPastEventDate={isPastEventDate} onReviewPress={onReviewPress}/>
 }
 
 

@@ -146,6 +146,7 @@ function EventList() {
 
   const fetchMoreEvents = async () => {
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/${user._id}?page=${page}&pageSize=10`;
+    console.log(url)
 
     const token = getToken({ template: "event-hand-jwt" });
 
@@ -194,7 +195,7 @@ function EventList() {
   useEffect(() => {
     // console.log(eventList.totalPages)
     // console.log(eventList.events.length)
-    if (page > 1 && eventList.hasMore) {
+    if (page > 1 &&  page < eventList.totalPages) {
       fetchMoreEvents();
     }
 
@@ -242,12 +243,10 @@ function EventList() {
   };
 
   const onEndReached = () => {
-    if (eventList.hasMore) {
+    if (page < eventList.totalPages) {
       setPage((page) => page + 1);
     }
   };
-
-  console.log(eventList.events);
 
   if (eventList.events.length > 0) {
     return (
