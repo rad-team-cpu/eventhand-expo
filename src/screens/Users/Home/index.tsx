@@ -121,12 +121,12 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
     throw new Error('Failed to load clerk');
   }
 
-  const { user, setUser, setSwitching, switching, setMode, mode, setEventList } = userContext;
+  const { user, setUser, setSwitching, switching, setMode, mode, setEventList, eventList } = userContext;
   const { connectionTimeout, isConnected, reconnect, sendMessage } = webSocket;
 
   const fetchUserId = async () => {
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/${userId}/events`;
-
+    console.log(url)
     const token = getToken({ template: 'event-hand-jwt' });
 
     const request = {
@@ -144,8 +144,9 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
       
    
       if (res.status === 200) {
+        const resEventList = data.events
         setUser({ ...data.user });
-        setEventList({...data.events})
+        setEventList({...resEventList})
         const getChatListInput: GetChatListInput = {
           senderId: data.user._id,
           senderType: 'CLIENT',
@@ -153,9 +154,7 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
           pageSize: 10,
           inputType: 'GET_CHAT_LIST',
         };
-
         sendMessage(getChatListInput);
-
         setLoading(false);
         console.log('USER DATA SUCCESSFULLY LOADED');
       } else if (res.status === 400) {
@@ -172,6 +171,8 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
       console.error(`Error fetching user (${error.code}): ${error} `);
       setError(true);
       setLoading(false);
+    }finally{
+
     }
   };
 
@@ -191,6 +192,7 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
       setError(true);
       setLoading(false);
     }
+
   }, [connectionTimeout, isConnected]);
 
   if (loading) {
