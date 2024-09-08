@@ -144,7 +144,6 @@ function EventList() {
   const { user, eventList, setEventList } = userContext;
   const [page, setPage] = useState(eventList.currentPage);
 
-
   const fetchMoreEvents = async () => {
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/${user._id}?page=${page}&pageSize=10`;
 
@@ -170,7 +169,7 @@ function EventList() {
             events: [...prevstate.events, ...data.events],
           };
         });
- 
+
         console.log("EVENT DATA SUCCESSFULLY LOADED");
       } else if (res.status === 400) {
         throw new Error("Bad request - Invalid data.");
@@ -199,17 +198,19 @@ function EventList() {
       fetchMoreEvents();
     }
 
-    if(eventList.events.length <= 0){
+    if (eventList.events.length <= 0) {
       navigation.replace("EventForm");
     }
-
   }, [page]);
 
   const events = useCallback(() => {
     const events = eventList.events;
     const upcomingEvents = events.filter(
-      (event) =>!isBefore(event.date, new Date()));
-    const pastEvents = events.filter((event) => isBefore(event.date, new Date()));
+      (event) => !isBefore(event.date, new Date())
+    );
+    const pastEvents = events.filter((event) =>
+      isBefore(event.date, new Date())
+    );
 
     switch (selectedTab) {
       case "Past":
@@ -246,7 +247,7 @@ function EventList() {
     }
   };
 
-  console.log(eventList.events)
+  console.log(eventList.events);
 
   if (eventList.events.length > 0) {
     return (
