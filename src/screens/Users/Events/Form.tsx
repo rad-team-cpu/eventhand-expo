@@ -78,6 +78,51 @@ type Category = {
   color: string;
 };
 
+interface EventInputWelcomeProps {
+  onBackBtnPress: () => boolean | void;
+  onBtnPress: () => void;
+
+}
+
+const EventFormWelcome = (props: EventInputWelcomeProps) => {
+  const {
+    onBackBtnPress,
+    onBtnPress,
+  } = props;
+  const [isPressed, setIsPressed] = useState(false);
+  const {  sizes,  } = useTheme();
+
+
+
+  return (
+    <Block card paddingVertical={sizes.md} paddingHorizontal={sizes.md}>
+      <Pressable onPress={onBackBtnPress}>
+        <Block className="flex flex-row mb-2">
+          <AntDesign name="back" size={20} color={"#CB0C9F"} />
+          <Text className="ml-1 text-primary">Go back</Text>
+        </Block>
+      </Pressable>
+      <Text style={{...styles.title, textAlign: "center" }}>EVENT CREATION</Text>
+      <Text style={{...styles.description, textAlign: "center" }}>You'll be answering a series of prompts, your answers to this prompts will allow us to find the best possible event vendors</Text>
+      <Pressable
+        onPressIn={() => setIsPressed(true)}
+        onPressOut={() => setIsPressed(false)}
+        onPress={onBtnPress}
+        style={({ pressed }) => [
+          styles.inputButton,
+          {
+            backgroundColor:  pressed || isPressed
+                ? "#E91E8E"
+                : "#CB0C9F",
+          },
+        ]}
+      >
+        <Text style={styles.inputButtonText}>PROCEED</Text>
+      </Pressable>
+    </Block>
+  );
+}
+
 interface EventInputProps {
   title: string;
   description: string;
@@ -1178,7 +1223,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
     },
   });
 
-  const totalSteps = eventFormInputRef.current.categories.venue ? 6 : 7;
+  const totalSteps = eventFormInputRef.current.categories.venue ? 7 : 8;
 
   const [step, setStep] = useState(0);
   const [result, setResult] = useState<EventInfo>({
@@ -1230,6 +1275,13 @@ function EventForm({ navigation }: EventFormScreenProps) {
       switch (step) {
         case 0:
           return (
+            <EventFormWelcome
+              onBtnPress={onNextBtnPress}
+              onBackBtnPress={backAction}
+            />
+          );
+        case 1:
+          return (
             <EventDateInput
               title="When is the date of your event?"
               description="Please select the date of your event"
@@ -1240,7 +1292,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
               mode="CREATE"
             />
           );
-        case 1:
+        case 2:
           return (
             <EventNameInput
               title="What is the name for your event?"
@@ -1253,7 +1305,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
               mode="CREATE"
             />
           );
-        case 2:
+        case 3:
           return (
             <EventGuestsInput
               title="How many do you think will attend?"
@@ -1265,101 +1317,11 @@ function EventForm({ navigation }: EventFormScreenProps) {
               mode="CREATE"
             />
           );
-        case 3:
+        case 4:
           return (
             <EventCategorySelect
               title="What type of vendors are you looking for?"
               description="Please select at least one"
-              buttonLabel="NEXT"
-              onBtnPress={onNextBtnPress}
-              onBackBtnPress={backAction}
-              eventFormValuesRef={eventFormInputRef}
-              mode="CREATE"
-            />
-          );
-        case 4:
-          return (
-            <EventBudgetInput
-              title="How much is your budget?"
-              description="Please enter the budget for each category."
-              buttonLabel="NEXT"
-              onBtnPress={onNextBtnPress}
-              onBackBtnPress={backAction}
-              eventFormValuesRef={eventFormInputRef}
-              mode="CREATE"
-            />
-          );
-        case 5:
-          return (
-            <EventFormConfirmation
-              title="CONFIRMATION"
-              description="Please confirm your details."
-              buttonLabel="SUBMIT"
-              onBtnPress={onSubmitPress}
-              onBackBtnPress={backAction}
-              eventFormValuesRef={eventFormInputRef}
-              mode="CREATE"
-            />
-          );
-        default:
-          return null;
-      }
-    } else {
-      switch (step) {
-        case 0:
-          return (
-            <EventDateInput
-              title="When is the date of your event?"
-              description="Please select the date of your event"
-              buttonLabel="NEXT"
-              onBtnPress={onNextBtnPress}
-              onBackBtnPress={backAction}
-              eventFormValuesRef={eventFormInputRef}
-              mode="CREATE"
-            />
-          );
-        case 1:
-          return (
-            <EventNameInput
-              title="What is the name for your event?"
-              description="Please enter the name of your event"
-              buttonLabel="NEXT"
-              onBtnPress={onNextBtnPress}
-              onBackBtnPress={backAction}
-              eventFormValuesRef={eventFormInputRef}
-              user={user}
-              mode="CREATE"
-            />
-          );
-        case 2:
-          return (
-            <EventGuestsInput
-              title="How many do you think will attend?"
-              description="Please enter your estimated number of guests."
-              buttonLabel="NEXT"
-              onBtnPress={onNextBtnPress}
-              onBackBtnPress={backAction}
-              eventFormValuesRef={eventFormInputRef}
-              mode="CREATE"
-            />
-          );
-        case 3:
-          return (
-            <EventCategorySelect
-              title="What type of vendors are you looking for?"
-              description="Please select at least one"
-              buttonLabel="NEXT"
-              onBtnPress={onNextBtnPress}
-              onBackBtnPress={backAction}
-              eventFormValuesRef={eventFormInputRef}
-              mode="CREATE"
-            />
-          );
-        case 4:
-          return (
-            <EventAddressInput
-              title="Where will your event be held?"
-              description="Please enter the address of your event venue"
               buttonLabel="NEXT"
               onBtnPress={onNextBtnPress}
               onBackBtnPress={backAction}
@@ -1380,6 +1342,103 @@ function EventForm({ navigation }: EventFormScreenProps) {
             />
           );
         case 6:
+          return (
+            <EventFormConfirmation
+              title="CONFIRMATION"
+              description="Please confirm your details."
+              buttonLabel="SUBMIT"
+              onBtnPress={onSubmitPress}
+              onBackBtnPress={backAction}
+              eventFormValuesRef={eventFormInputRef}
+              mode="CREATE"
+            />
+          );
+        default:
+          return null;
+      }
+    } else {
+      switch (step) {
+        case 0:
+          return (
+            <EventFormWelcome
+              onBtnPress={onNextBtnPress}
+              onBackBtnPress={backAction}
+            />
+          );
+        case 1:
+          return (
+            <EventDateInput
+              title="When is the date of your event?"
+              description="Please select the date of your event"
+              buttonLabel="NEXT"
+              onBtnPress={onNextBtnPress}
+              onBackBtnPress={backAction}
+              eventFormValuesRef={eventFormInputRef}
+              mode="CREATE"
+            />
+          );
+        case 2:
+          return (
+            <EventNameInput
+              title="What is the name for your event?"
+              description="Please enter the name of your event"
+              buttonLabel="NEXT"
+              onBtnPress={onNextBtnPress}
+              onBackBtnPress={backAction}
+              eventFormValuesRef={eventFormInputRef}
+              user={user}
+              mode="CREATE"
+            />
+          );
+        case 3:
+          return (
+            <EventGuestsInput
+              title="How many do you think will attend?"
+              description="Please enter your estimated number of guests."
+              buttonLabel="NEXT"
+              onBtnPress={onNextBtnPress}
+              onBackBtnPress={backAction}
+              eventFormValuesRef={eventFormInputRef}
+              mode="CREATE"
+            />
+          );
+        case 4:
+          return (
+            <EventCategorySelect
+              title="What type of vendors are you looking for?"
+              description="Please select at least one"
+              buttonLabel="NEXT"
+              onBtnPress={onNextBtnPress}
+              onBackBtnPress={backAction}
+              eventFormValuesRef={eventFormInputRef}
+              mode="CREATE"
+            />
+          );
+        case 5:
+          return (
+            <EventAddressInput
+              title="Where will your event be held?"
+              description="Please enter the address of your event venue"
+              buttonLabel="NEXT"
+              onBtnPress={onNextBtnPress}
+              onBackBtnPress={backAction}
+              eventFormValuesRef={eventFormInputRef}
+              mode="CREATE"
+            />
+          );
+        case 6:
+          return (
+            <EventBudgetInput
+              title="How much is your budget?"
+              description="Please enter the budget for each category."
+              buttonLabel="NEXT"
+              onBtnPress={onNextBtnPress}
+              onBackBtnPress={backAction}
+              eventFormValuesRef={eventFormInputRef}
+              mode="CREATE"
+            />
+          );
+        case 7:
           return (
             <EventFormConfirmation
               title="CONFIRMATION"
