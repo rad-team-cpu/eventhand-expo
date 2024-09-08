@@ -8,6 +8,7 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
+  View,
 } from 'react-native';
 import * as yup from 'yup';
 
@@ -22,7 +23,7 @@ import { VendorContext } from 'Contexts/VendorContext';
 import axios from 'axios';
 
 interface VendorTag {
-  id: string;
+  _id: string;
   name: string;
 }
 
@@ -43,7 +44,7 @@ const aboutFormValidationSchema = yup.object().shape({
     .array()
     .of(
       yup.object().shape({
-        id: yup.string().required('Tag ID is required'),
+        _id: yup.string().required('Tag ID is required'),
         name: yup.string().required('Tag name is required'),
       })
     )
@@ -51,22 +52,11 @@ const aboutFormValidationSchema = yup.object().shape({
     .required('Tags are required'),
 });
 
-// Predefined tag list
-const predefinedTags: VendorTag[] = [
-  { id: '1', name: 'Photography' },
-  { id: '2', name: 'Videography' },
-  { id: '3', name: 'Venue' },
-  { id: '4', name: 'Event Coordination' },
-  { id: '5', name: 'Planning' },
-  { id: '6', name: 'Catering' },
-  { id: '7', name: 'Decoration' },
-];
-
 const AboutForm = ({ onSubmit, onGoBack, initialData }: AboutFormProps) => {
   const {
     control,
     handleSubmit,
-    setValue, // Add setValue to update tags field
+    setValue,
     formState: { errors, isValid },
   } = useForm<AboutInput>({
     mode: 'onBlur',
@@ -76,12 +66,14 @@ const AboutForm = ({ onSubmit, onGoBack, initialData }: AboutFormProps) => {
   });
 
   const [selectedTags, setSelectedTags] = useState<string[]>(
-    initialData?.tags.map((tag) => tag.id) || []
+    initialData?.tags.map((tag) => tag._id) || []
   );
   const [submitErrMessage, setSubmitErrMessage] = useState('');
   const { getToken } = useAuth();
   const [loading, setLoading] = useState(false);
   const { assets, sizes } = useTheme();
+  const [predefinedTags, setPredefinedTags] = useState<VendorTag[]>([]);
+
   const vendorContext = useContext(VendorContext);
 
   if (!vendorContext) {
@@ -90,34 +82,77 @@ const AboutForm = ({ onSubmit, onGoBack, initialData }: AboutFormProps) => {
 
   const { vendor } = vendorContext;
 
+  const fetchTags = async () => {
+    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/tags`;
+
+    const token = getToken({ template: 'event-hand-jwt' });
+
+    const request = {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    try {
+      const res = await fetch(url, request);
+      const data = await res.json();
+      if (res.status === 200) {
+        setPredefinedTags(data);
+      } else {
+        throw new Error('Error loading tags');
+      }
+    } catch (error: any) {
+      console.error(`Error fetching tags: ${error} `);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTags();
+  }, []);
+
   useEffect(() => {
     const selectedTagObjects = predefinedTags.filter((tag) =>
-      selectedTags.includes(tag.id)
+      selectedTags.includes(tag._id)
     );
-    setValue('tags', selectedTagObjects); 
+    setValue('tags', selectedTagObjects);
   }, [selectedTags, setValue]);
 
   const toggleTagSelection = (tagId: string) => {
-    setSelectedTags((prev) =>
-      prev.includes(tagId)
-        ? prev.filter((id) => id !== tagId)
-        : [...prev, tagId]
-    );
+    setSelectedTags((prevSelectedTags) => {
+      const updatedTags = prevSelectedTags.includes(tagId)
+        ? prevSelectedTags.filter((id) => id !== tagId)
+        : [...prevSelectedTags, tagId];
+
+      const selectedTagObjects = predefinedTags.filter((tag) =>
+        updatedTags.includes(tag._id)
+      );
+      setValue('tags', selectedTagObjects);
+      return updatedTags;
+    });
   };
 
-  const createAbout = async (input: AboutInput) => {
+  const updateBio = async (bio: string) => {
     setLoading(true);
     const vendorId = vendor?.id;
 
+    if (!vendorId) {
+      setSubmitErrMessage('Vendor ID is missing');
+      setLoading(false);
+      return;
+    }
+
     try {
       const token = await getToken({ template: 'event-hand-jwt' });
+      console.log('Token:', token);
 
       const response = await axios.patch(
         `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors/${vendorId}`,
-        {
-          ...input,
-          visibility: true,
-        },
+        { bio: bio, visibility: true },
         {
           headers: {
             'Content-Type': 'application/json',
@@ -125,22 +160,52 @@ const AboutForm = ({ onSubmit, onGoBack, initialData }: AboutFormProps) => {
           },
         }
       );
-      console.log(input);
-      setLoading(false);
+
       if (response.status === 200 || response.status === 201) {
-        onSubmit(input);
+        setLoading(false);
       } else {
-        throw new Error('Unexpected error occurred.');
+        throw new Error('Error updating bio');
+      }
+    } catch (error) {
+      setLoading(false);
+      setSubmitErrMessage('An error occurred while saving the bio.');
+    }
+  };
+
+  const updateTags = async (tags: VendorTag[]) => {
+    setLoading(true);
+    const vendorId = vendor?.id;
+    const tagIds = tags.map((tag) => tag._id);
+
+    try {
+      const token = await getToken({ template: 'event-hand-jwt' });
+
+      const response = await axios.patch(
+        `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors/${vendorId}/tags`,
+        { tags: tagIds },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.status === 200 || response.status === 201) {
+        setLoading(false);
+      } else {
+        throw new Error('Error updating tags');
       }
     } catch (error) {
       console.error(error);
       setLoading(false);
-      setSubmitErrMessage('An error occurred while saving the data.');
+      setSubmitErrMessage('An error occurred while saving the tags.');
     }
   };
 
-  const onSubmitPress = handleSubmit((data: AboutInput) => {
-    createAbout(data);
+  const onSubmitPress = handleSubmit(async (data: AboutInput) => {
+    await updateBio(data.bio);
+    await updateTags(data.tags);
+    onSubmit(data);
   });
 
   return (
@@ -192,25 +257,25 @@ const AboutForm = ({ onSubmit, onGoBack, initialData }: AboutFormProps) => {
                 control={control}
                 render={({ field: { onChange, onBlur, value } }) => (
                   <TextInput
-                  multiline={true}
-                  numberOfLines={5}
-                  id='bio-text-input'
-                  testID='test-bio-input'
-                  placeholder='Bio'
-                  onBlur={onBlur}
-                  value={value}
-                  onChangeText={onChange}
-                  autoCapitalize='none'
-                  returnKeyType='next'
-                  style={{
-                    borderWidth: 1,
-                    borderColor: 'purple',
-                    borderRadius: 10,
-                    padding: 10,
-                    textAlignVertical: 'top', 
-                    margin: 10
-                  }}
-                />
+                    multiline={true}
+                    numberOfLines={5}
+                    id='bio-text-input'
+                    testID='test-bio-input'
+                    placeholder='Bio'
+                    onBlur={onBlur}
+                    value={value}
+                    onChangeText={onChange}
+                    autoCapitalize='none'
+                    returnKeyType='next'
+                    style={{
+                      borderWidth: 1,
+                      borderColor: 'purple',
+                      borderRadius: 10,
+                      padding: 10,
+                      textAlignVertical: 'top',
+                      margin: 10,
+                    }}
+                  />
                 )}
               />
               {errors.bio && (
@@ -221,29 +286,29 @@ const AboutForm = ({ onSubmit, onGoBack, initialData }: AboutFormProps) => {
 
               <Block>
                 <Text marginLeft={sizes.sm}>Select your tags:</Text>
-                <ScrollView showsHorizontalScrollIndicator={false}>
+                <View style={styles.tagsContainer}>
                   {predefinedTags.map((tag) => (
                     <TouchableOpacity
-                      key={tag.id}
+                      key={tag._id}
                       style={[
                         styles.tagButton,
-                        selectedTags.includes(tag.id) &&
+                        selectedTags.includes(tag._id) &&
                           styles.selectedTagButton,
                       ]}
-                      onPress={() => toggleTagSelection(tag.id)}
+                      onPress={() => toggleTagSelection(tag._id)}
                     >
                       <Text
                         color={
-                          selectedTags.includes(tag.id) ? 'white' : 'purple'
+                          selectedTags.includes(tag._id) ? 'white' : 'purple'
                         }
-                        bold={selectedTags.includes(tag.id)}
+                        bold={selectedTags.includes(tag._id)}
                         center
                       >
                         {tag.name}
                       </Text>
                     </TouchableOpacity>
                   ))}
-                </ScrollView>
+                </View>
                 {errors.tags && <Text danger>{errors.tags.message}</Text>}
               </Block>
 
@@ -275,23 +340,23 @@ const AboutForm = ({ onSubmit, onGoBack, initialData }: AboutFormProps) => {
 };
 
 const styles = StyleSheet.create({
+  tagsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap', // Allow tags to wrap to the next line
+    justifyContent: 'flex-start', // Align to the left
+    padding: 10,
+  },
   tagButton: {
     padding: 8,
     borderWidth: 1,
     borderColor: 'purple',
     borderRadius: 25,
-    marginHorizontal: 30,
-    marginVertical: 5,
+    margin: 5,
+    minWidth: 100,
+    textAlign: 'center',
   },
   selectedTagButton: {
     backgroundColor: 'purple',
-  },
-  tagText: {
-    color: 'purple',
-    textAlign: 'center',
-  },
-  selectedTagText: {
-    color: 'white',
   },
 });
 
