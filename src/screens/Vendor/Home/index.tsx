@@ -26,7 +26,7 @@ import ConfirmationDialog from 'Components/ConfirmationDialog';
 import { UserContext } from 'Contexts/UserContext';
 import BookingList from '../Bookings/List';
 import UpcomingBookingList from '../Bookings/UpcomingBookings';
-import VendorReviews from '../Reviews';
+import VendorReviews from '../Reviews/List';
 
 interface VendorHomeNavProps {
   initialTab?: keyof VendorHomeScreenBottomTabsProps;

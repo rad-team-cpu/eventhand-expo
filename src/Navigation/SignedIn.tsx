@@ -176,6 +176,11 @@ const SignedInNav = () => {
         component={Rating}
         options={{ headerShown: false }}
       />
+      <SignedInStack.Screen
+        name='VendorReview'
+        component={Rating}
+        options={{ headerShown: false }}
+      />
     </SignedInStack.Navigator>
   );
 };

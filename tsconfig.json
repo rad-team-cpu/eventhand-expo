@@ -12,7 +12,8 @@
       "Components/*": ["./src/Components/*"],
       "Contexts/*": ["./src/Contexts/*"],
       "types/*": ["./src/types/*"],
-      "service/*": ["./src/service/*"]
+      "service/*": ["./src/service/*"],
+      "images/*": ["./src/assets/images/*"]
     }
   },
   "extends": "expo/tsconfig.base",

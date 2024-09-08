@@ -117,7 +117,7 @@ interface Vendor {
 
 interface Inclusion {
   _id: string; 
-  imageUrl: string;
+  imageUrl?: string;
   name: string;
   description: string;
   quantity: number
@@ -126,7 +126,7 @@ interface PackageType
   {
     _id: string; 
     name: string;
-    imageUrl: string;
+    imageUrl?: string;
     capacity: number;
     tags: Tag[]; 
     orderType: string;
@@ -247,6 +247,7 @@ interface ReviewType {
 }
 
 
+
 interface VendorMenuType {
 _id: string;
 logo: string
@@ -297,6 +298,18 @@ interface UpdateEventFormProps {
   updateValue: EventUpdateValueType;
 }
 
+
+type VendorReviewType = {
+  _id: string;
+  clientId: string;
+  clientFullName: string;
+  profilePicture: string | null;
+  contactNumber: string;
+  package: PackageType;
+  rating: number;
+  comment: string | null;
+};
+
 type ScreenProps = {
   SignUp: undefined;
   Login: undefined;
@@ -324,7 +337,10 @@ type ScreenProps = {
   Rating: undefined;
   UserBookingView: {booking: BookingType, isPastEventDate?: boolean, event?: EventInfo};
   UserReview: {booking: BookingType, event: EventInfo}
+  VendorReview: VendorReviewType
 };
+
+type VendorReviewScreenProps = NativeStackScreenProps<ScreenProps, "VendorReview">
 
 type UserReviewScreenProps = NativeStackScreenProps<ScreenProps, "UserReview">
 
@@ -498,5 +514,8 @@ export {
   UpdateEventFormScreenProps,
   UserBookingViewScreenProps,
   Inclusion,
-  UserReviewScreenProps
+  UserReviewScreenProps,
+  VendorReviewType,
+  VendorReviewScreenProps
+
 };
