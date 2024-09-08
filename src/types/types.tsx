@@ -202,6 +202,7 @@ interface SuccessErrorProps {
   description: string;
   buttonText: string;
   navigateTo?: string;
+  replace?: boolean;
   logOut?: keyof ScreenProps;
   status: 'success' | 'error';
   navParams?: ScreenProps[keyof ScreenProps];
@@ -331,14 +332,15 @@ type ScreenProps = {
   VerificationForm: undefined;
   MenuForm: undefined;
   Rating: undefined;
-  UserBookingView: {
-    booking: BookingType;
-    isPastEventDate?: boolean;
-    event?: EventInfo;
-  };
-  UserReview: { booking: BookingType; event: EventInfo };
-  VendorReview: VendorReviewType;
+  UserBookingView: {booking: BookingType, isPastEventDate?: boolean, event?: EventInfo};
+  UserReview: {booking: BookingType, event: EventInfo}
+  VendorReview: VendorReviewType
+  Welcome: undefined
 };
+
+
+
+type WelcomeScreenProps = NativeStackScreenProps<ScreenProps, "Welcome">
 
 type VendorReviewScreenProps = NativeStackScreenProps<
   ScreenProps,
@@ -529,4 +531,5 @@ export {
   UserReviewScreenProps,
   VendorReviewType,
   VendorReviewScreenProps,
+  WelcomeScreenProps
 };

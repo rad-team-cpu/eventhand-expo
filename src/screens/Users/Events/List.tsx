@@ -144,7 +144,6 @@ function EventList() {
   const { user, eventList, setEventList } = userContext;
   const [page, setPage] = useState(eventList.currentPage);
 
-
   const fetchMoreEvents = async () => {
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/${user._id}?page=${page}&pageSize=10`;
 
@@ -170,7 +169,6 @@ function EventList() {
             events: [...prevstate.events, ...data.events],
           };
         });
-        console.log(data);
 
         console.log("EVENT DATA SUCCESSFULLY LOADED");
       } else if (res.status === 400) {
@@ -194,11 +192,14 @@ function EventList() {
   };
 
   useEffect(() => {
-    console.log(page);
     // console.log(eventList.totalPages)
     // console.log(eventList.events.length)
-    if (page > 2 && page < eventList.totalPages) {
+    if (page > 1 && eventList.hasMore) {
       fetchMoreEvents();
+    }
+
+    if (eventList.events.length <= 0) {
+      navigation.replace("EventForm");
     }
   }, [page]);
 
@@ -241,12 +242,14 @@ function EventList() {
   };
 
   const onEndReached = () => {
-    if (page < eventList.totalPages) {
+    if (eventList.hasMore) {
       setPage((page) => page + 1);
     }
   };
 
-  if (events() && events().length > 0) {
+  console.log(eventList.events);
+
+  if (eventList.events.length > 0) {
     return (
       <>
         <SafeAreaView>
