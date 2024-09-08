@@ -13,9 +13,9 @@ import {
   StyleSheet,
   Text,
   View,
-} from "react-native";
-import { TabView, SceneMap, TabBar } from "react-native-tab-view";
-import useTheme from "src/core/theme";
+} from 'react-native';
+import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
+import useTheme from 'src/core/theme';
 import {
   EventViewScreenProps,
   BookingDetailsProps,
@@ -41,43 +41,43 @@ type Category = {
 
 const categories: Category[] = [
   {
-    name: "eventPlanning",
-    label: "Event Planning",
-    icon: "calendar",
-    color: "#FF6347",
+    name: 'eventPlanning',
+    label: 'Event Planning',
+    icon: 'calendar',
+    color: '#FF6347',
   },
   {
-    name: "eventCoordination",
-    label: "Event Coordination",
-    icon: "handshake-o",
-    color: "#4682B4",
+    name: 'eventCoordination',
+    label: 'Event Coordination',
+    icon: 'handshake-o',
+    color: '#4682B4',
   },
-  { name: "venue", label: "Venue", icon: "building", color: "#32CD32" },
+  { name: 'venue', label: 'Venue', icon: 'building', color: '#32CD32' },
   {
-    name: "decorations",
-    label: "Decorations",
-    icon: "paint-brush",
-    color: "#FF4500",
+    name: 'decorations',
+    label: 'Decorations',
+    icon: 'paint-brush',
+    color: '#FF4500',
   },
-  { name: "catering", label: "Catering", icon: "cutlery", color: "#FFD700" },
+  { name: 'catering', label: 'Catering', icon: 'cutlery', color: '#FFD700' },
   {
-    name: "photography",
-    label: "Photography",
-    icon: "camera",
-    color: "#FF69B4",
+    name: 'photography',
+    label: 'Photography',
+    icon: 'camera',
+    color: '#FF69B4',
   },
   {
-    name: "videography",
-    label: "Videography",
-    icon: "video-camera",
-    color: "#8A2BE2",
+    name: 'videography',
+    label: 'Videography',
+    icon: 'video-camera',
+    color: '#8A2BE2',
   },
-  { name: "total", label: "Total", icon: "calculator", color: "#4CAF50" },
+  { name: 'total', label: 'Total', icon: 'calculator', color: '#4CAF50' },
 ];
 
 const calculateTotal = (budget: { [key: string]: number | null }): number => {
   return Object.keys(budget)
-    .filter((key) => key !== "total") // Exclude the total key
+    .filter((key) => key !== 'total') // Exclude the total key
     .reduce((sum, key) => sum + (budget[key] ?? 0), 0); // Sum up non-null values
 };
 
@@ -92,13 +92,13 @@ const addCommasToNumber = (number: number) => {
   let numberString = number.toFixed(2);
 
   // Split the string into the integer and decimal parts
-  let parts = numberString.split(".");
+  let parts = numberString.split('.');
 
   // Format the integer part with commas
-  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
   // Join the parts back together
-  return parts.join(".");
+  return parts.join('.');
 };
 
 const BudgetScreen = (props: BudgetScreenProps) => {
@@ -135,9 +135,9 @@ const BudgetScreen = (props: BudgetScreenProps) => {
       >
         <Block card paddingVertical={sizes.md} paddingHorizontal={sizes.md}>
           <Pressable onPress={onBackBtnPress}>
-            <Block className="flex flex-row mb-2">
-              <AntDesign name="back" size={20} color={"#CB0C9F"} />
-              <Text className="ml-1 text-primary">Go back</Text>
+            <Block className='flex flex-row mb-2'>
+              <AntDesign name='back' size={20} color={'#CB0C9F'} />
+              <Text className='ml-1 text-primary'>Go back</Text>
             </Block>
           </Pressable>
           <Text style={styles.budgetTitle}>Budget Breakdown</Text>
@@ -181,7 +181,7 @@ const BudgetScreen = (props: BudgetScreenProps) => {
             style={({ pressed }) => [
               styles.inputButton,
               {
-                backgroundColor: pressed || isPressed ? "#E91E8E" : "#CB0C9F",
+                backgroundColor: pressed || isPressed ? '#E91E8E' : '#CB0C9F',
               },
             ]}
           >
@@ -203,7 +203,7 @@ const SortTabBar = () => {
   return (
     <View style={styles.sortTabContainer}>
       {categories.map((category) => {
-        if (category.name !== "total") {
+        if (category.name !== 'total') {
           return (
             <Pressable
               key={category.name}
@@ -214,8 +214,8 @@ const SortTabBar = () => {
                     selectedCategory === category.name
                       ? category.color
                       : pressed
-                        ? category.color + "80" // Adding transparency on press
-                        : "#fff",
+                        ? category.color + '80' // Adding transparency on press
+                        : '#fff',
                   borderColor: category.color,
                 },
               ]}
@@ -224,7 +224,7 @@ const SortTabBar = () => {
               <FontAwesome
                 size={15}
                 color={
-                  selectedCategory === category.name ? "#fff" : category.color
+                  selectedCategory === category.name ? '#fff' : category.color
                 }
               />
             </Pressable>
@@ -249,15 +249,15 @@ const Toolbar: React.FC<ToolbarProps> = ({
   return (
     <View style={styles.toolbarContainer}>
       <Pressable onPress={onBackPress} style={styles.toolbarButton}>
-        <Ionicons name="arrow-back" size={24} color="#CB0C9F" />
+        <Ionicons name='arrow-back' size={24} color='#CB0C9F' />
       </Pressable>
       <View style={styles.toolbarSpacer} />
       <View style={styles.toolbarActions}>
         <Pressable onPress={onEditPress} style={styles.toolbarButton}>
-          <Ionicons name="pencil" size={24} color="#CB0C9F" />
+          <Ionicons name='pencil' size={24} color='#CB0C9F' />
         </Pressable>
         <Pressable onPress={onDeletePress} style={styles.toolbarButton}>
-          <Ionicons name="trash" size={24} color="#CB0C9F" />
+          <Ionicons name='trash' size={24} color='#CB0C9F' />
         </Pressable>
       </View>
     </View>
@@ -291,7 +291,7 @@ const EventUpdateMenu: React.FC<EventUpdateMenuProps> = ({
   useFocusEffect(
     useCallback(() => {
       const backHandler = BackHandler.addEventListener(
-        "hardwareBackPress",
+        'hardwareBackPress',
         backAction
       );
 
@@ -303,7 +303,7 @@ const EventUpdateMenu: React.FC<EventUpdateMenuProps> = ({
     <>
       <View style={styles.toolbarContainer}>
         <Pressable onPress={onBackPress} style={styles.toolbarButton}>
-          <Ionicons name="arrow-back" size={24} color="#CB0C9F" />
+          <Ionicons name='arrow-back' size={24} color='#CB0C9F' />
         </Pressable>
       </View>
       <View style={styles.eventUpdateMenuContainer}>
@@ -312,6 +312,9 @@ const EventUpdateMenu: React.FC<EventUpdateMenuProps> = ({
           Cannot edit event date and name with confirmed or pending bookings and
           cannot edit address, if you have booked venue.
         </Text>
+        <Text style={styles.budgetDescription}>
+          Cannot edit address, if you have booked venue.
+        </Text> */}
         {options.map((option) => (
           <Pressable
             key={option.label}
@@ -326,7 +329,7 @@ const EventUpdateMenu: React.FC<EventUpdateMenuProps> = ({
           >
             <Ionicons
               size={20}
-              color="white"
+              color='white'
               style={styles.eventUpdateMenuIcon}
             />
             <Text style={styles.eventUpdateMenuLabel}>{option.label}</Text>
@@ -400,28 +403,28 @@ function EventView({ route, navigation }: EventViewScreenProps) {
 
   const handleRemoveBooking = (id: string) => {
     Alert.alert(
-      "Confirm Cancellation",
-      "Are you sure you want to cancel this request to book?",
+      'Confirm Cancellation',
+      'Are you sure you want to cancel this request to book?',
       [
         {
-          text: "NO",
-          style: "cancel",
+          text: 'NO',
+          style: 'cancel',
         },
         {
-          text: "YES",
+          text: 'YES',
           onPress: async () => {
             try {
               await axios.delete(
                 `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking/${id}`,
                 {
                   headers: {
-                    "Content-Type": "application/json",
+                    'Content-Type': 'application/json',
                   },
                 }
               );
               fetchBookings(_id);
             } catch (error: any) {
-              console.error("Error removing booking:", error.message);
+              console.error('Error removing booking:', error.message);
             }
           },
         },
@@ -435,7 +438,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
         `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking?event=${eventId}`,
         {
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
         }
       );
@@ -444,10 +447,10 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     } catch (error: any) {
       if (error instanceof TypeError) {
         console.error(
-          "Network request failed. Possible causes: CORS issues, network issues, or incorrect URL."
+          'Network request failed. Possible causes: CORS issues, network issues, or incorrect URL.'
         );
       } else {
-        console.error("Error fetching bookings:", error.message);
+        console.error('Error fetching bookings:', error.message);
       }
     }
   };
@@ -494,7 +497,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
   };
 
   const handleFindSupplier = () => {
-    navigation.navigate("Home", { initialTab: "Vendors" });
+    navigation.navigate('Home', { initialTab: 'Vendors' });
   };
 
 
@@ -594,12 +597,12 @@ function EventView({ route, navigation }: EventViewScreenProps) {
 
   const eventUpdateOptions = [
     {
-      label: "EDIT NAME",
-      icon: "pencil-sharp",
+      label: 'EDIT NAME',
+      icon: 'pencil-sharp',
       onPress: () =>
-        navigation.navigate("UpdateEventForm", {
+        navigation.navigate('UpdateEventForm', {
           eventInfo: { ...updateEventFormValues },
-          updateValue: "NAME",
+          updateValue: 'NAME',
         }),
       disabled:
         !checkArrayIfUndefinedOrEmpty(confirmedBookings) ||
@@ -631,9 +634,9 @@ function EventView({ route, navigation }: EventViewScreenProps) {
       label: "EDIT GUESTS",
       icon: "people",
       onPress: () =>
-        navigation.navigate("UpdateEventForm", {
+        navigation.navigate('UpdateEventForm', {
           eventInfo: { ...updateEventFormValues },
-          updateValue: "GUEST",
+          updateValue: 'GUEST',
         }),
       disabled: false,
     },
@@ -663,7 +666,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
         onEditPress={onEditButtonPress}
       />
       <View style={listStyles.eventContainer}>
-        <View className="flex flex-row justify-between">
+        <View className='flex flex-row justify-between'>
           <Text style={listStyles.dateText}>{dateString}</Text>
           {/* <Button
             row
@@ -677,13 +680,13 @@ function EventView({ route, navigation }: EventViewScreenProps) {
           <View style={styles.container}>
             <Pressable
               style={styles.button}
-              android_ripple={{ color: "#c0c0c0" }}
+              android_ripple={{ color: '#c0c0c0' }}
               onPress={() => handleFindSupplier()}
             >
               <FontAwesome
-                name="search"
+                name='search'
                 size={10}
-                color="white"
+                color='white'
                 style={styles.icon}
               />
               <Text style={styles.buttonText}>Find Supplier</Text>
@@ -707,11 +710,11 @@ function EventView({ route, navigation }: EventViewScreenProps) {
           <Pressable
             style={({ pressed }) => [
               {
-                backgroundColor: pressed ? "#9B47FF" : "#6200EE",
+                backgroundColor: pressed ? '#9B47FF' : '#6200EE',
                 padding: 5,
                 borderRadius: 5,
-                alignItems: "center",
-                justifyContent: "center",
+                alignItems: 'center',
+                justifyContent: 'center',
               },
             ]}
             onPress={() => setOpenBudget(true)}
@@ -719,7 +722,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
             <Text style={listStyles.budgetText}>View Budget</Text>
           </Pressable>
           <Text style={listStyles.capacityText}>
-            Capacity: {attendees !== 0 ? `${attendees}` : "TBD"}
+            Capacity: {attendees !== 0 ? `${attendees}` : 'TBD'}
           </Text>
         </View>
       </View>
@@ -758,9 +761,9 @@ const styles = StyleSheet.create({
     marginVertical: 1,
   },
   button: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#6200EE",
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#6200EE',
     paddingVertical: 10,
     paddingHorizontal: 10,
     borderRadius: 5,
@@ -769,7 +772,7 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },
   buttonText: {
-    color: "white",
+    color: 'white',
     fontSize: 12,
   },
   listContainer: {
@@ -778,29 +781,29 @@ const styles = StyleSheet.create({
   },
   roundedContainer: {
     borderRadius: 10,
-    backgroundColor: "#fff",
-    overflow: "hidden",
+    backgroundColor: '#fff',
+    overflow: 'hidden',
     elevation: 5,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
   vendorContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 10,
-    position: "relative",
+    position: 'relative',
   },
   floatingRemoveButton: {
-    position: "absolute",
+    position: 'absolute',
     top: -10,
     right: -10,
-    backgroundColor: "white",
+    backgroundColor: 'white',
     borderRadius: 50,
     padding: 1,
     elevation: 5,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
@@ -815,20 +818,20 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   tabBar: {
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     marginTop: 5, // Add margin top for TabBar
     marginHorizontal: 6,
     elevation: 4, // Optional shadow for TabBar on Android
-    shadowColor: "#000", // Optional shadow for TabBar on iOS
+    shadowColor: '#000', // Optional shadow for TabBar on iOS
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
   indicator: {
-    backgroundColor: "#CB0C9F",
+    backgroundColor: '#CB0C9F',
   },
   label: {
-    color: "#CB0C9F",
+    color: '#CB0C9F',
   },
 
   budgetInputContainer: {
@@ -838,8 +841,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   budgetInputLabelContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 5,
   },
   budgetInputIcon: {
@@ -847,7 +850,7 @@ const styles = StyleSheet.create({
   },
   budgetInputLabel: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   budgetInputField: {
     borderWidth: 1,
@@ -856,50 +859,50 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   budgetInputError: {
-    color: "red",
+    color: 'red',
     marginTop: 5,
   },
   budgetTitle: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginBottom: 10,
   },
   budgetDescription: {
     fontSize: 16,
     marginBottom: 20,
-    textAlign: "center",
+    textAlign: 'center',
     paddingHorizontal: 2,
   },
   inputButton: {
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 8,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   inputButtonText: {
-    color: "white",
+    color: 'white',
     fontSize: 16,
-    fontWeight: "bold",
-    textAlign: "center",
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
   sortTabContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
+    flexDirection: 'row',
+    justifyContent: 'space-around',
     paddingVertical: 10,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: '#f5f5f5',
   },
   sortTabButton: {
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     padding: 10,
     borderWidth: 2,
     borderRadius: 50,
   },
   toolbarContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 8,
     // backgroundColor: '#6200EE', // Example toolbar background color
@@ -917,30 +920,30 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   toolbarActions: {
-    flexDirection: "row",
+    flexDirection: 'row',
   },
   eventUpdateMenuContainer: {
     flex: 1,
     // justifyContent: 'center', // Center vertically
-    alignItems: "center", // Center horizontally
+    alignItems: 'center', // Center horizontally
     paddingVertical: 10,
   },
   eventUpdateMenuButton: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 10,
     marginVertical: 5,
-    backgroundColor: "#6200EE", // Example button background color
+    backgroundColor: '#6200EE', // Example button background color
     borderRadius: 5,
-    width: "65%", // Set a fixed width to prevent extending the whole width
+    width: '65%', // Set a fixed width to prevent extending the whole width
   },
   eventUpdateMenuIcon: {
     marginRight: 10,
   },
   eventUpdateMenuLabel: {
     fontSize: 16,
-    color: "white",
-    fontWeight: "bold", // Make the text bold
+    color: 'white',
+    fontWeight: 'bold', // Make the text bold
   },
   bookingListItem: {
     flexDirection: "row",
@@ -992,40 +995,40 @@ const listStyles = StyleSheet.create({
     paddingVertical: 10,
     // marginTop: 30,
     marginHorizontal: 5,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     borderLeftWidth: 8,
     borderTopLeftRadius: 16,
     borderBottomLeftRadius: 16,
-    borderLeftColor: "#CB0C9F",
+    borderLeftColor: '#CB0C9F',
     borderRightWidth: 8,
     borderTopRightRadius: 16,
     borderBottomRightRadius: 16,
-    borderRightColor: "#CB0C9F",
+    borderRightColor: '#CB0C9F',
     elevation: 10, // Add shadow for floating effect
-    shadowColor: "black",
+    shadowColor: 'black',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 10,
   },
   nameText: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   dateText: {
     fontSize: 14,
   },
   separator: {
     borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
+    borderBottomColor: '#ccc',
     marginBottom: 8,
   },
   row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     marginBottom: 12,
   },
   budgetText: {
-    color: "white",
+    color: 'white',
     fontSize: 14,
   },
   capacityText: {

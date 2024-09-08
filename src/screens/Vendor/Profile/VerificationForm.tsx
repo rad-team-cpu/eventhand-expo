@@ -59,21 +59,30 @@ interface VerificationInput extends FieldValues {
 const verificationFormValidationSchema = object().shape({
   idType: string().required('ID Type is required'),
   credentials: object({
-    fileSize: number().required('ID is required').max(5242880, 'File size too large, must be below 5mb'),
+    fileSize: number()
+      .required('ID is required')
+      .max(5242880, 'File size too large, must be below 5mb'),
     uri: string().required('ID is required').notOneOf([''], 'ID is required'), // Ensure uri is not an empty string
-    mimeType: string().required('ID is required').matches(/^image\/(png|jpeg)$/, {
-      message: 'File must be a png or jpeg',
-      excludeEmptyString: true,
-    }),
-    fileExtension: string().required('ID is required').matches(/^(png|jpe?g)$/, {
-      message: 'File must be a png or jpeg',
-      excludeEmptyString: true,
-    }),
-  }).required('ID is required')
+    mimeType: string()
+      .required('ID is required')
+      .matches(/^image\/(png|jpeg)$/, {
+        message: 'File must be a png or jpeg',
+        excludeEmptyString: true,
+      }),
+    fileExtension: string()
+      .required('ID is required')
+      .matches(/^(png|jpe?g)$/, {
+        message: 'File must be a png or jpeg',
+        excludeEmptyString: true,
+      }),
+  }).required('ID is required'),
 });
 
-
-const VerificationForm = ({ navigation, onSubmit, initialData }: VendorProfileFormProps) => {
+const VerificationForm = ({
+  navigation,
+  onSubmit,
+  initialData,
+}: VendorProfileFormProps) => {
   const {
     control,
     register,
@@ -85,10 +94,10 @@ const VerificationForm = ({ navigation, onSubmit, initialData }: VendorProfileFo
     defaultValues: {
       idType: '', // default empty string for idType
       credentials: {
-        fileSize: 0, 
-        uri: '', 
-        mimeType: '', 
-        fileExtension: ''
+        fileSize: 0,
+        uri: '',
+        mimeType: '',
+        fileExtension: '',
       }, // initializing credentials as empty object
     },
     resolver: yupResolver(verificationFormValidationSchema),
@@ -117,11 +126,10 @@ const VerificationForm = ({ navigation, onSubmit, initialData }: VendorProfileFo
     };
     if (!input.credentials.uri) {
       setSubmitErrMessage('ID upload is required.');
-      return; // Stop execution if no file is uploaded
+      return;
     }
 
     try {
-
       if (credentials !== null) {
         const firebaseService = FirebaseService.getInstance();
         const uploadResult = await firebaseService.uploadID(
@@ -146,6 +154,7 @@ const VerificationForm = ({ navigation, onSubmit, initialData }: VendorProfileFo
               verified: 'false',
             },
           ],
+          visibility: true,
         },
         {
           headers: {

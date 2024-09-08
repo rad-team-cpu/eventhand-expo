@@ -119,7 +119,6 @@ const AddressForm = ({
   const createAddress = async (input: AddressInput) => {
     setLoading(true);
     const vendorId = vendor?.id;
-    console.log(input);
 
     const navigateToSuccessError = (props: ScreenProps['SuccessError']) => {
       //   navigation.navigate('SuccessError', { ...props });
@@ -133,6 +132,7 @@ const AddressForm = ({
         `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors/${vendorId}`,
         {
           address: { ...input },
+          visibility: true,
         },
         {
           headers: {
