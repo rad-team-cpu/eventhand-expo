@@ -17,7 +17,6 @@ import Button from 'Components/Ui/Button';
 import { AntDesign } from '@expo/vector-icons';
 import Image from 'Components/Ui/Image';
 import Text from 'Components/Ui/Text';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import useTheme from '../../../core/theme';
 import { VendorContext } from 'Contexts/VendorContext';
 import { UploadResult } from 'firebase/storage';
@@ -139,7 +138,7 @@ const MenuForm = ({
             fileExtension: '',
           },
           price: 0,
-          orderTypes: [{ name: '', disabled: false }],
+          orderTypes: [],
           inclusions: [{ name: '', description: '', quantity: 1 }],
         },
       ],
@@ -156,7 +155,6 @@ const MenuForm = ({
   });
 
   const vendorContext = useContext(VendorContext);
-
   if (!vendorContext) {
     throw new Error('Component must be under User Provider!!!');
   }
@@ -165,11 +163,9 @@ const MenuForm = ({
 
   const onSubmit = async (input: FormValues) => {
     setLoading(true);
-    console.log(input);
     const vendorId = vendor?.id;
     const { packages } = input;
     const firebaseService = FirebaseService.getInstance();
-    const formattedPackages = [];
 
     try {
       for (const pkg of packages) {
@@ -185,55 +181,60 @@ const MenuForm = ({
             : null;
         }
 
-        formattedPackages.push({
+        const packagePayload = {
+          vendorId: vendorId,
           name: pkg.name,
           price: Number(pkg.price),
           capacity: Number(pkg.capacity),
-          imageUrl: uploadPath, // Store the upload path or null
+          imageUrl: uploadPath,
           inclusions: pkg.inclusions.map((inc) => ({
             name: inc.name,
             description: inc.description,
             quantity: Number(inc.quantity),
           })),
-          orderTypes: pkg.orderTypes?.length
-            ? pkg.orderTypes.map((ord) => ({
-                name: ord.name,
-                disabled: ord.disabled ?? false,
-              }))
-            : [{ name: 'Default Order Type', disabled: false }],
-        });
-      }
+          orderTypes: pkg.orderTypes?.map((ord) => ({
+            name: ord.name,
+            disabled: ord.disabled ?? false,
+          })),
+        };
 
-      // Send formatted data to the backend
-      const response = await axios.post(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/packages`,
-        { packages: formattedPackages },
-        {
-          headers: { 'Content-Type': 'application/json' },
+        console.log(packagePayload);
+        const response = await axios.post(
+          `${process.env.EXPO_PUBLIC_BACKEND_URL}/packages`,
+          packagePayload,
+          {
+            headers: { 'Content-Type': 'application/json' },
+          }
+        );
+
+        if (response.status !== 200 && response.status !== 201) {
+          throw new Error('Error creating package');
         }
-      );
-
-      if (response.status === 200) {
-        console.log('Packages created successfully:', response.data);
-        setLoading(false);
-        onConfirm();
-        navigation.navigate('SuccessError', {
-          description: 'Your information was saved successfully.',
-          buttonText: 'Continue',
-          navigateTo: 'VendorHome',
-          status: 'success',
-        });
-      } else {
-        console.error('Failed to create packages:', response.data);
-        setLoading(false);
       }
+
+      setLoading(false);
+      onConfirm();
+      navigation.navigate('SuccessError', {
+        description: 'Your information was saved successfully.',
+        buttonText: 'Continue',
+        navigateTo: 'VendorHome',
+        status: 'success',
+      });
     } catch (error) {
       console.error('Error creating packages:', error);
       setLoading(false);
     }
   };
 
-  const onSubmitPress = handleSubmit(onSubmit);
+  const onSubmitPress = handleSubmit((data) => {
+    onSubmit(data);
+  });
+
+  const orderTypeOptions = [
+    { name: 'pick-up', disabled: false },
+    { name: 'delivery', disabled: false },
+    { name: 'service', disabled: false },
+  ];
 
   return (
     <Block safe marginTop={sizes.md}>
@@ -383,6 +384,7 @@ const MenuForm = ({
             {errors.packages?.[packageIndex]?.price && (
               <Text danger>{errors.packages[packageIndex].price?.message}</Text>
             )}
+
             <Text>Capacity:</Text>
             <Controller
               name={`packages.${packageIndex}.capacity`}
@@ -402,8 +404,76 @@ const MenuForm = ({
                 />
               )}
             />
-            {errors.packages?.[packageIndex]?.price && (
-              <Text danger>{errors.packages[packageIndex].price?.message}</Text>
+            {errors.packages?.[packageIndex]?.capacity && (
+              <Text danger>
+                {errors.packages[packageIndex].capacity?.message}
+              </Text>
+            )}
+
+            <Controller
+              name={`packages.${packageIndex}.orderTypes`}
+              control={control}
+              defaultValue={[]}
+              render={({ field: { onChange, value = [] } }) => {
+                const toggleOrderType = (type: OrderType) => {
+                  const updatedValue = value.some(
+                    (item: OrderType) => item.name === type.name
+                  )
+                    ? value.filter((item: OrderType) => item.name !== type.name)
+                    : [...value, type];
+                  onChange(updatedValue);
+                };
+
+                return (
+                  <View className='flex flex-row justify-between'>
+                    <Text>Order Type:</Text>
+                    {orderTypeOptions.map((type) => (
+                      <TouchableOpacity
+                        key={type.name}
+                        onPress={() => toggleOrderType(type)}
+                        style={[
+                          {
+                            borderWidth: 1,
+                            borderRadius: 10,
+                            padding: 8,
+                            marginTop: 10,
+                            marginBottom: 10,
+                          },
+                          value.some(
+                            (item: OrderType) => item.name === type.name
+                          )
+                            ? {
+                                backgroundColor: 'purple',
+                                borderColor: 'purple',
+                              }
+                            : {
+                                backgroundColor: 'white',
+                                borderColor: 'gray',
+                              },
+                        ]}
+                      >
+                        <Text
+                          color={
+                            value.some(
+                              (item: OrderType) => item.name === type.name
+                            )
+                              ? 'white'
+                              : 'black'
+                          }
+                        >
+                          {type.name}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                );
+              }}
+            />
+
+            {errors.packages?.[packageIndex]?.orderTypes && (
+              <Text danger>
+                {errors.packages[packageIndex].orderTypes?.message}
+              </Text>
             )}
 
             <Text bold primary>
