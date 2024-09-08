@@ -28,6 +28,7 @@ interface InclusionInput {
   name: string;
   description: string;
   quantity: number;
+  imageUrl?: ImageInfo | null;
 }
 
 interface OrderType {
@@ -65,6 +66,7 @@ const inclusionSchema: yup.ObjectSchema<InclusionInput> = yup.object().shape({
   name: yup.string().required('Inclusion name is required'),
   description: yup.string().required('Description is required'),
   quantity: yup.number().required('Quantity is required').min(1),
+  imageUrl: yup.object().nullable(),
 });
 
 const ordertypeSchema: yup.ObjectSchema<OrderType> = yup.object().shape({
@@ -139,7 +141,9 @@ const MenuForm = ({
           },
           price: 0,
           orderTypes: [],
-          inclusions: [{ name: '', description: '', quantity: 1 }],
+          inclusions: [
+            { name: '', description: '', quantity: 1, imageUrl: null },
+          ],
         },
       ],
     },
@@ -187,18 +191,33 @@ const MenuForm = ({
           price: Number(pkg.price),
           capacity: Number(pkg.capacity),
           imageUrl: uploadPath,
-          inclusions: pkg.inclusions.map((inc) => ({
-            name: inc.name,
-            description: inc.description,
-            quantity: Number(inc.quantity),
-          })),
+          inclusions: await Promise.all(
+            pkg.inclusions.map(async (inc) => {
+              let inclusionImageUrl: string | null = null;
+              if (inc.imageUrl?.uri) {
+                const inclusionUploadResult =
+                  await firebaseService.uploadInclusionImageUrl(
+                    vendorId,
+                    inc.imageUrl
+                  );
+                inclusionImageUrl = inclusionUploadResult
+                  ? (inclusionUploadResult as UploadResult).metadata.fullPath
+                  : null;
+              }
+              return {
+                name: inc.name,
+                description: inc.description,
+                quantity: Number(inc.quantity),
+                imageUrl: inclusionImageUrl,
+              };
+            })
+          ),
           orderTypes: pkg.orderTypes?.map((ord) => ({
             name: ord.name,
             disabled: ord.disabled ?? false,
           })),
         };
 
-        console.log(packagePayload);
         const response = await axios.post(
           `${process.env.EXPO_PUBLIC_BACKEND_URL}/packages`,
           packagePayload,
@@ -276,7 +295,7 @@ const MenuForm = ({
           >
             <Block className='flex flex-row'>
               <Text bold marginBottom={sizes.xs} primary>
-                Package {packageIndex + 1}
+                Package {packageIndex + 1}:
               </Text>
               <Block className='flex flex-row justify-end'>
                 <Button
@@ -286,7 +305,14 @@ const MenuForm = ({
                       imageUrl: null,
                       capacity: 0,
                       price: 0,
-                      inclusions: [{ name: '', description: '', quantity: 1 }],
+                      inclusions: [
+                        {
+                          name: '',
+                          description: '',
+                          quantity: 1,
+                          imageUrl: null,
+                        },
+                      ],
                     })
                   }
                   shadow={false}
@@ -483,6 +509,7 @@ const MenuForm = ({
               control={control}
               packageIndex={packageIndex}
               errors={errors}
+              register={register}
             />
           </Block>
         ))}
@@ -506,10 +533,12 @@ const InclusionFields = ({
   control,
   packageIndex,
   errors,
+  register,
 }: {
   control: any;
   packageIndex: number;
   errors: any;
+  register: UseFormRegister<any>;
 }) => {
   const {
     fields: inclusionFields,
@@ -522,7 +551,12 @@ const InclusionFields = ({
     <Block>
       <Button
         onPress={() =>
-          appendInclusion({ name: '', description: '', quantity: 1 })
+          appendInclusion({
+            name: '',
+            description: '',
+            quantity: 1,
+            imageUrl: null,
+          })
         }
         shadow={false}
         outlined
@@ -543,27 +577,44 @@ const InclusionFields = ({
           style={{ flexDirection: 'column' }}
           radius={sizes.sm}
         >
-          <Block className='flex flex-row justify-between'>
-            <Text>Name:</Text>
-          </Block>
-          <Controller
-            name={`packages.${packageIndex}.inclusions.${inclusionIndex}.name`}
-            control={control}
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                placeholder='Inclusion Name'
-                value={value}
-                onChangeText={onChange}
-                style={{
-                  borderWidth: 1,
-                  borderColor: 'gray',
-                  padding: sizes.s,
-                  marginVertical: sizes.xs,
-                  borderRadius: sizes.sm,
-                }}
+          <Block className='flex flex-row h-20'>
+            <Controller
+              name={`packages.${packageIndex}.inclusions.${inclusionIndex}.imageUrl`}
+              control={control}
+              render={({ field: { onChange, value } }) => (
+                <PackageUpload
+                  name={`inclusion.${packageIndex}.${inclusionIndex}`}
+                  label='Inclusion Image'
+                  control={control}
+                  register={register}
+                  errors={errors}
+                />
+              )}
+            />
+            <Block>
+              <Text marginLeft={sizes.sm}>Name:</Text>
+              <Controller
+                name={`packages.${packageIndex}.inclusions.${inclusionIndex}.name`}
+                control={control}
+                render={({ field: { onChange, value } }) => (
+                  <TextInput
+                    placeholder='Inclusion Name'
+                    value={value}
+                    onChangeText={onChange}
+                    style={{
+                      borderWidth: 1,
+                      borderColor: 'gray',
+                      padding: sizes.s,
+                      marginVertical: sizes.xs,
+                      marginLeft: sizes.sm,
+                      borderRadius: sizes.sm,
+                    }}
+                  />
+                )}
               />
-            )}
-          />
+            </Block>
+          </Block>
+
           {errors.packages?.[packageIndex]?.inclusions?.[inclusionIndex]
             ?.name && (
             <Text danger>
