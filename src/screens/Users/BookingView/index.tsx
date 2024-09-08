@@ -136,7 +136,7 @@ const BookingDetails = (props: BookingDetailsProps) => {
 
       {/* Cancel Booking Button */}
       <View style={styles.separator} />
-      { booking.status !== "DECLINED" && !isPastEventDate && (
+      { booking.status !== "DECLINED" && booking.status !== "CANCELLED" && !isPastEventDate && (
               <Pressable style={styles.cancelButton} onPress={handleCancelBtn}>
               <Text style={[styles.buttonText, {fontWeight:"bold"}]}>{booking.status !== "CONFIRMED"?"CANCEL":"CANCEL BOOKING"}</Text>
             </Pressable>

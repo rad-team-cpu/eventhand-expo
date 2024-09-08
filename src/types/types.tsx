@@ -52,7 +52,7 @@ interface BookingType {
     }
   }; // Reference to a Vendor
   date: Date;
-  status: 'PENDING' | 'CONFIRMED' | 'CANCELED' | 'DECLINED' | 'COMPLETED';
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'DECLINED' | 'COMPLETED';
   package: {
     _id: string; 
     name: string;
