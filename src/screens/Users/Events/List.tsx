@@ -205,10 +205,20 @@ function EventList() {
   const events = useCallback(() => {
     const events = eventList.events;
     const upcomingEvents = events.filter(
-      (event) => !isBefore(event.date, new Date())
-    );
-    const pastEvents = events.filter((event) =>
-      isBefore(event.date, new Date())
+      (event) => {
+        if(event){
+          return   !isBefore(event.date, new Date())
+        } else{
+          return false
+        }
+       });
+    const pastEvents = events.filter((event) =>{
+      if(event){
+        return  isBefore(event.date, new Date())
+      }else{
+        return false
+      }}
+     
     );
 
     switch (selectedTab) {

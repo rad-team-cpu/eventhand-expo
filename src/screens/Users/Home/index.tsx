@@ -121,7 +121,7 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
     throw new Error('Failed to load clerk');
   }
 
-  const { user, setUser, setSwitching, switching, setMode, mode, setEventList } = userContext;
+  const { user, setUser, setSwitching, switching, setMode, mode, setEventList, eventList } = userContext;
   const { connectionTimeout, isConnected, reconnect, sendMessage } = webSocket;
 
   const fetchUserId = async () => {
@@ -155,6 +155,10 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
         };
 
         sendMessage(getChatListInput);
+        
+        if(eventList.events.length === 0){
+          navigation.navigate("EventForm");
+        }
 
         setLoading(false);
         console.log('USER DATA SUCCESSFULLY LOADED');

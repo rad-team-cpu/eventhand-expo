@@ -204,6 +204,7 @@ interface SuccessErrorProps {
   description: string;
   buttonText: string;
   navigateTo?: string;
+  replace?: boolean;
   logOut?: keyof ScreenProps;
   status: "success" | "error";
   navParams?: ScreenProps[keyof ScreenProps];

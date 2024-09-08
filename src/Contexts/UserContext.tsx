@@ -28,7 +28,7 @@ const UserProvider = (props: UserProviderProps) => {
     firstName: "",
     contactNumber: "",
   });
-  const [ eventList, setEventList ] = useState<EventInfo[]>([]);
+  const [ eventList, setEventList ] = useState<EventList>({events: [], totalPages: 0, currentPage: 1, hasMore: true});
 
 
   const { children } = props;

@@ -197,12 +197,7 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
         case 201:
           setUser({ _id: data._id as string, ...user });
           setLoading(false);
-          navigateToSuccessError({
-            description: 'Your information was saved successfully.',
-            buttonText: 'Continue',
-            navigateTo: 'Home',
-            status: 'success',
-          });
+          navigation.reset({index: 0, routes: [{name: "EventForm"}]})
           break;
         case 403:
           setSubmitErrMessage('Forbidden - Access denied.');
@@ -455,24 +450,24 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
           color="rgba(255,255,255,1)"
         >
           <Block align="flex-start" className="pl-4 pt-4">
-            <Text p>Name</Text>
+            <Text p>First Name</Text>
             <Text
               id="name"
               testID="test-name"
               className="capitalize font-bold"
             >
-              {getValues('name')}
+              {getValues('firstName')}
             </Text>
           </Block>
   
           <Block align="flex-start" className="pl-4 pt-4">
-            <Text p>Email</Text>
+            <Text p>Last Name</Text>
             <Text
-              id="email"
+              id="last-name"
               testID="test-email"
               className="capitalize"
             >
-              {getValues('email')}
+              {getValues('lastName')}
             </Text>
           </Block>
   

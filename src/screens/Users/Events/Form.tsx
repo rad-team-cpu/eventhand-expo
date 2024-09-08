@@ -1253,7 +1253,11 @@ function EventForm({ navigation }: EventFormScreenProps) {
     if (step !== 0) {
       setStep(step - 1);
     } else {
-      navigation.goBack();
+      if(navigation.canGoBack()){
+        navigation.goBack();
+      }else{
+        navigation.replace("Home", {})
+      }
     }
 
     return true;
