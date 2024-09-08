@@ -1181,7 +1181,7 @@ const EventFormConfirmation = (props: EventInputProps) => {
 
 function EventForm({ navigation }: EventFormScreenProps) {
   const userContext = useContext(UserContext);
-  const { userId, isLoaded, getToken } = useAuth();
+  const { userId, isLoaded, getToken, signOut } = useAuth();
   const { sizes } = useTheme();
 
   if (!isLoaded) {
@@ -1256,7 +1256,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
       if(navigation.canGoBack()){
         navigation.goBack();
       }else{
-        navigation.replace("Home", {})
+        signOut();
       }
     }
 

@@ -108,6 +108,23 @@ const BudgetScreen = (props: BudgetScreenProps) => {
 
   const eventBudget = { ...budget, total: calculateTotal(budget) };
 
+  const backAction = () => {
+    onBackBtnPress();
+
+    return true;
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      const backHandler = BackHandler.addEventListener(
+        "hardwareBackPress",
+        backAction
+      );
+
+      return () => backHandler.remove();
+    }, [])
+  );
+
   return (
     <>
       <Block
@@ -634,7 +651,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     );
   }
 
-  const onBackBtnPress = () => navigation.goBack();
+  const onBackBtnPress = () => (navigation.canGoBack())? navigation.goBack(): navigation.replace("Home", {});
   const onEditButtonPress = () => setOpenEdit(true);
 
   return (

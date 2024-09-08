@@ -157,7 +157,7 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
         sendMessage(getChatListInput);
         
         if(eventList.events.length === 0){
-          navigation.navigate("EventForm");
+          navigation.replace("EventForm");
         }
 
         setLoading(false);
