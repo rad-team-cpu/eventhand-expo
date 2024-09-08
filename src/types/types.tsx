@@ -336,7 +336,7 @@ type ScreenProps = {
   VerificationForm: undefined;
   MenuForm: undefined;
   Rating: undefined;
-  UserBookingView: {booking: BookingType, isPastEventDate?: boolean, event?: EventInfo};
+  UserBookingView: {booking: BookingType, isPastEventDate?: boolean, event: EventInfo};
   UserReview: {booking: BookingType, event: EventInfo}
   VendorReview: VendorReviewType
   Welcome: undefined

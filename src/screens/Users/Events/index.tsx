@@ -540,7 +540,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     <BookingList
       bookings={confirmedBookings}
       onPress={(booking: BookingType) =>
-        navigation.navigate("UserBookingView", { booking: { ...booking } })
+        navigation.navigate("UserBookingView", { booking: { ...booking }, event })
       }
     />
   );
@@ -548,7 +548,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     <BookingList
       bookings={pendingBookings}
       onPress={(booking: BookingType) =>
-        navigation.navigate("UserBookingView", { booking: { ...booking } })
+        navigation.navigate("UserBookingView", { booking: { ...booking }, event })
       }
     />
   );
@@ -556,7 +556,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     <BookingList
       bookings={cancelledOrDeclinedBookings}
       onPress={(booking: BookingType) =>
-        navigation.navigate("UserBookingView", { booking: { ...booking } })
+        navigation.navigate("UserBookingView", { booking: { ...booking, }, event})
       }
     />
   );
