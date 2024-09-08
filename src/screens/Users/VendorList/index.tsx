@@ -30,7 +30,7 @@ interface VendorListItem {
   _id: string;
   name: string;
   logo: string;
-  rating: number
+  averageRating: number
 }
 
 export default function VendorList() {
@@ -77,6 +77,8 @@ export default function VendorList() {
   const fetchVendors = async () => {
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors/${userId}/list`;
 
+    console.log(url)
+
     const token = getToken({ template: 'event-hand-jwt' });
 
     const request = {
@@ -92,7 +94,6 @@ export default function VendorList() {
       const res = await fetch(url, request);
       const data = await res.json();
       
-   
       if (res.status === 200) {
         setCateringVendors(data.catering);
         setVenueVendors(data.venue);
@@ -100,6 +101,7 @@ export default function VendorList() {
         setPlanningVendors(data.planning);
         setDecorationVendors(data.decorations);
         setRealVendors(data.realVendors);
+
 
         console.log('EVENT DATA SUCCESSFULLY LOADED');
       } else if (res.status === 400) {
@@ -211,8 +213,8 @@ export default function VendorList() {
                     </Text>
                     <View className="flex flex-row items-center self-end">
                       <Text className="text-xs">
-                        {vendor.rating
-                          ? vendor.rating.toFixed(1)
+                        {vendor.averageRating
+                          ? vendor.averageRating.toFixed(1)
                           : "0"}
                       </Text>
                       <AntDesign
@@ -252,8 +254,8 @@ export default function VendorList() {
                     </Text>
                     <View className="flex flex-row items-center self-end">
                       <Text className="text-xs">
-                        {vendor.rating
-                          ? vendor.rating.toFixed(1)
+                        {vendor.averageRating
+                          ? vendor.averageRating.toFixed(1)
                           : "0"}
                       </Text>
                       <AntDesign
@@ -295,8 +297,8 @@ export default function VendorList() {
                     </Text>
                     <View className="flex flex-row items-center self-end">
                       <Text className="text-xs">
-                        {vendor.rating
-                          ? vendor.rating.toFixed(1)
+                        {vendor.averageRating
+                          ? vendor.averageRating.toFixed(1)
                           : "0"}
                       </Text>
                       <AntDesign
@@ -343,8 +345,8 @@ export default function VendorList() {
                   </Text>
                   <View className="flex flex-row items-center self-end">
                     <Text className="text-xs">
-                      {vendor.rating
-                        ? vendor.rating.toFixed(1)
+                      {vendor.averageRating
+                        ? vendor.averageRating.toFixed(1)
                         : "0"}
                     </Text>
                     <AntDesign
@@ -391,8 +393,8 @@ export default function VendorList() {
                     </Text>
                     <View className="flex flex-row items-center self-end">
                       <Text className="text-xs">
-                        {vendor.rating
-                          ? vendor.rating.toFixed(1)
+                        {vendor.averageRating
+                          ? vendor.averageRating.toFixed(1)
                           : "0"}
                       </Text>
                       <AntDesign

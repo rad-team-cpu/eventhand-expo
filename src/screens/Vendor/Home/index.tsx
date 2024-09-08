@@ -1,5 +1,5 @@
 import { useAuth } from '@clerk/clerk-expo';
-import { AntDesign, FontAwesome } from '@expo/vector-icons';
+import { AntDesign, FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import {
   BottomTabNavigationOptions,
   createBottomTabNavigator,
@@ -26,6 +26,7 @@ import ConfirmationDialog from 'Components/ConfirmationDialog';
 import { UserContext } from 'Contexts/UserContext';
 import BookingList from '../Bookings/List';
 import UpcomingBookingList from '../Bookings/UpcomingBookings';
+import VendorReviews from '../Reviews';
 
 interface VendorHomeNavProps {
   initialTab?: keyof VendorHomeScreenBottomTabsProps;
@@ -41,6 +42,7 @@ const VendorHomeNav = ({ initialTab }: VendorHomeNavProps) => {
       <FontAwesome name='search' color={color} size={size} />
     ),
     tabBarActiveBackgroundColor: 'EE2AE2',
+    tabBarActiveTintColor: "#E91E8E"
   };
 
   const bookingsIconOptions: BottomTabNavigationOptions = {
@@ -50,6 +52,7 @@ const VendorHomeNav = ({ initialTab }: VendorHomeNavProps) => {
       <AntDesign name='calendar' color={color} size={size} />
     ),
     tabBarActiveBackgroundColor: 'EE2AE2',
+    tabBarActiveTintColor: "#E91E8E"
   };
 
   const chatIconOptions: BottomTabNavigationOptions = {
@@ -59,6 +62,7 @@ const VendorHomeNav = ({ initialTab }: VendorHomeNavProps) => {
       <AntDesign name='message1' color={color} size={size} />
     ),
     tabBarActiveBackgroundColor: 'EE2AE2',
+    tabBarActiveTintColor: "#E91E8E"
   };
 
   const profileIconOptions: BottomTabNavigationOptions = {
@@ -67,6 +71,17 @@ const VendorHomeNav = ({ initialTab }: VendorHomeNavProps) => {
     tabBarIcon: ({ color, size }) => (
       <FontAwesome name='user-circle-o' color={color} size={size} />
     ),
+    tabBarActiveTintColor: "#E91E8E"
+  };
+
+  const reviewIconOptions: BottomTabNavigationOptions = {
+    tabBarTestID: `profile-nav-btn`,
+    headerShown: false,
+    tabBarIcon: ({ color, size }) => (
+      <MaterialIcons name="rate-review" size={size} color={color} />
+    ),
+    tabBarActiveBackgroundColor: 'EE2AE2',
+     tabBarActiveTintColor: "#E91E8E"
   };
 
   return (
@@ -88,10 +103,16 @@ const VendorHomeNav = ({ initialTab }: VendorHomeNavProps) => {
         options={chatIconOptions}
       />
       <Tab.Screen
+        name='Reviews'
+        component={VendorReviews}
+        options={reviewIconOptions}
+      />
+      <Tab.Screen
         name='Profile'
         component={VendorProfile}
         options={profileIconOptions}
       />
+
     </Tab.Navigator>
   );
 };

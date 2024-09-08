@@ -1,10 +1,9 @@
-import { FontAwesome } from '@expo/vector-icons';
-import axios from 'axios';
-import { format } from 'date-fns/format';
-import ExpoStatusBar from 'expo-status-bar/build/ExpoStatusBar';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import Image from 'Components/Ui/Image';
-import Entypo from '@expo/vector-icons/Entypo';
+import { FontAwesome } from "@expo/vector-icons";
+import axios from "axios";
+import { format } from "date-fns/format";
+import ExpoStatusBar from "expo-status-bar/build/ExpoStatusBar";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import Image from "Components/Ui/Image";
 import {
   Alert,
   BackHandler,
@@ -19,25 +18,19 @@ import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import useTheme from 'src/core/theme';
 import {
   EventViewScreenProps,
-  ScreenProps,
-  BookingStatus,
   BookingDetailsProps,
-  PackageType,
-  Product,
-  HomeScreenBottomTabsProps,
-  HomeScreenNavigationProp,
   EventBudget,
   EventInfo,
   BookingType,
-} from 'types/types';
-import Button from 'Components/Ui/Button';
-import { AntDesign, Ionicons } from '@expo/vector-icons';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import Block from 'Components/Ui/Block';
-import { faker } from '@faker-js/faker';
-import { useAuth } from '@clerk/clerk-expo';
-import Loading from 'screens/Loading';
-import ErrorScreen from 'Components/Error';
+} from "types/types";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import Block from "Components/Ui/Block";
+import { faker } from "@faker-js/faker";
+import { useAuth } from "@clerk/clerk-expo";
+import Loading from "screens/Loading";
+import ErrorScreen from "Components/Error";
+import { isAfter, isBefore } from "date-fns";
 
 type Category = {
   name: string;
@@ -298,8 +291,9 @@ const EventUpdateMenu: React.FC<EventUpdateMenuProps> = ({
       </View>
       <View style={styles.eventUpdateMenuContainer}>
         <Text style={styles.budgetTitle}>EDIT EVENT</Text>
-        {/* <Text>
-          Cannot edit event date and name with confirmed or pending bookings.
+        <Text style={styles.budgetDescription}>
+          Cannot edit event date and name with confirmed or pending bookings and
+          cannot edit address, if you have booked venue.
         </Text>
         <Text style={styles.budgetDescription}>
           Cannot edit address, if you have booked venue.
@@ -312,7 +306,7 @@ const EventUpdateMenu: React.FC<EventUpdateMenuProps> = ({
             style={[
               styles.eventUpdateMenuButton,
               {
-                backgroundColor: option.disabled ? '#D3D3D3' : '#CB0C9F',
+                backgroundColor: option.disabled ? "#D3D3D3" : "#CB0C9F",
               },
             ]}
           >
@@ -354,7 +348,7 @@ const BookingList: React.FC<BookingListProps> = ({ bookings, onPress }) => {
         <Text style={styles.bookingListPackageName}>{item.package.name}</Text>
         <View style={styles.bookingListRow}>
           <Text style={styles.bookingListDate}>
-            {format(item.date, 'MMMM dd, yyyy')}
+            {format(item.date, "MMMM dd, yyyy")}
           </Text>
           <Text style={styles.bookingListPrice}>{item.package.capacity}</Text>
         </View>
@@ -374,18 +368,17 @@ const BookingList: React.FC<BookingListProps> = ({ bookings, onPress }) => {
 function EventView({ route, navigation }: EventViewScreenProps) {
   const eventId = route.params._id;
   const { getToken } = useAuth();
-  const { colors, sizes } = useTheme();
   const [index, setIndex] = useState(0);
   const [openBudget, setOpenBudget] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [loading, setLoading] = useState(true);
   const [event, setEvent] = useState<EventInfo>({ ...route.params });
   const [error, setError] = useState(false);
-  const [errMessage, setErrMessage] = useState('');
+  const [errMessage, setErrMessage] = useState("");
   const [routes] = useState([
-    { key: 'confirmed', title: 'Confirmed' },
-    { key: 'pending', title: 'Pending' },
-    { key: 'cancelled', title: 'Cancelled/Declined' },
+    { key: "confirmed", title: "Confirmed" },
+    { key: "pending", title: "Pending" },
+    { key: "cancelled", title: "Cancelled/Declined" },
   ]);
 
   const [eventBookings, setEventBookings] = useState<BookingDetailsProps[]>([]);
@@ -448,13 +441,13 @@ function EventView({ route, navigation }: EventViewScreenProps) {
   const fetchEvent = async () => {
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/${eventId}/bookings`;
 
-    const token = getToken({ template: 'event-hand-jwt' });
+    const token = getToken({ template: "event-hand-jwt" });
 
     const request = {
-      method: 'GET',
+      method: "GET",
       headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
+        Accept: "application/json",
+        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
     };
@@ -466,15 +459,15 @@ function EventView({ route, navigation }: EventViewScreenProps) {
       if (res.status === 200) {
         setEvent({ ...data });
 
-        console.log('EVENT DATA SUCCESSFULLY LOADED');
+        console.log("EVENT DATA SUCCESSFULLY LOADED");
       } else if (res.status === 400) {
-        throw new Error('Bad request - Invalid data.');
+        throw new Error("Bad request - Invalid data.");
       } else if (res.status === 401) {
-        throw new Error('Unauthorized - Authentication failed.');
+        throw new Error("Unauthorized - Authentication failed.");
       } else if (res.status === 404) {
-        throw new Error('Event Not Found');
+        throw new Error("Event Not Found");
       } else {
-        throw new Error('Unexpected error occurred.');
+        throw new Error("Unexpected error occurred.");
       }
     } catch (error: any) {
       console.error(`Error fetching event (${error.code}): ${error} `);
@@ -490,467 +483,8 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     navigation.navigate('Home', { initialTab: 'Vendors' });
   };
 
-  //   // PENDING
-  //   {
-  //     id: '1',
-  //     vendor: { _id: 'v1', name: 'Vendor A' },
-  //     eventId: 'e1',
-  //     date: '2024-09-05',
-  //     status: 'PENDING',
-  //     package: {
-  //       name: 'Basic Package',
-  //       capacity: 100,
-  //       orderType: 'Online',
-  //       description: 'Basic event package',
-  //       inclusions: [
-  //         { id: 'inc1', name: 'Inclusion 1', description: 'Inclusion 1 description' },
-  //       ],
-  //     },
-  //     createdAt: '2024-08-01',
-  //     updatedAt: '2024-08-02',
-  //   },
-  //   {
-  //     id: '2',
-  //     vendor: { _id: 'v2', name: 'Vendor B' },
-  //     eventId: 'e2',
-  //     date: '2024-09-06',
-  //     status: 'PENDING',
-  //     package: {
-  //       name: 'Standard Package',
-  //       capacity: 150,
-  //       orderType: 'In-Person',
-  //       description: 'Standard event package',
-  //       inclusions: [
-  //         { id: 'inc2', name: 'Inclusion 2', description: 'Inclusion 2 description' },
-  //       ],
-  //     },
-  //     createdAt: '2024-08-03',
-  //     updatedAt: '2024-08-04',
-  //   },
-  //   {
-  //     id: '3',
-  //     vendor: { _id: 'v3', name: 'Vendor C' },
-  //     eventId: 'e3',
-  //     date: '2024-09-07',
-  //     status: 'PENDING',
-  //     package: {
-  //       name: 'Premium Package',
-  //       capacity: 200,
-  //       orderType: 'Online',
-  //       description: 'Premium event package',
-  //       inclusions: [
-  //         { id: 'inc3', name: 'Inclusion 3', description: 'Inclusion 3 description' },
-  //       ],
-  //     },
-  //     createdAt: '2024-08-05',
-  //     updatedAt: '2024-08-06',
-  //   },
-  //   {
-  //     id: '4',
-  //     vendor: { _id: 'v4', name: 'Vendor D' },
-  //     eventId: 'e4',
-  //     date: '2024-09-08',
-  //     status: 'PENDING',
-  //     package: {
-  //       name: 'Deluxe Package',
-  //       capacity: 250,
-  //       orderType: 'In-Person',
-  //       description: 'Deluxe event package',
-  //       inclusions: [
-  //         { id: 'inc4', name: 'Inclusion 4', description: 'Inclusion 4 description' },
-  //       ],
-  //     },
-  //     createdAt: '2024-08-07',
-  //     updatedAt: '2024-08-08',
-  //   },
-  //   {
-  //     id: '5',
-  //     vendor: { _id: 'v5', name: 'Vendor E' },
-  //     eventId: 'e5',
-  //     date: '2024-09-09',
-  //     status: 'PENDING',
-  //     package: {
-  //       name: 'Ultimate Package',
-  //       capacity: 300,
-  //       orderType: 'Online',
-  //       description: 'Ultimate event package',
-  //       inclusions: [
-  //         { id: 'inc5', name: 'Inclusion 5', description: 'Inclusion 5 description' },
-  //       ],
-  //     },
-  //     createdAt: '2024-08-09',
-  //     updatedAt: '2024-08-10',
-  //   },
-  //   // CONFIRMED
-  //   {
-  //     id: '6',
-  //     vendor: { _id: 'v1', name: 'Vendor A' },
-  //     eventId: 'e6',
-  //     date: '2024-09-10',
-  //     status: 'CONFIRMED',
-  //     package: {
-  //       name: 'Basic Package',
-  //       capacity: 100,
-  //       orderType: 'Online',
-  //       description: 'Basic event package',
-  //       inclusions: [
-  //         { id: 'inc1', name: 'Inclusion 1', description: 'Inclusion 1 description' },
-  //       ],
-  //     },
-  //     createdAt: '2024-08-11',
-  //     updatedAt: '2024-08-12',
-  //   },
-  //   {
-  //     id: '7',
-  //     vendor: { _id: 'v2', name: 'Vendor B' },
-  //     eventId: 'e7',
-  //     date: '2024-09-11',
-  //     status: 'CONFIRMED',
-  //     package: {
-  //       name: 'Standard Package',
-  //       capacity: 150,
-  //       orderType: 'In-Person',
-  //       description: 'Standard event package',
-  //       inclusions: [
-  //         { id: 'inc2', name: 'Inclusion 2', description: 'Inclusion 2 description' },
-  //       ],
-  //     },
-  //     createdAt: '2024-08-13',
-  //     updatedAt: '2024-08-14',
-  //   },
-  //   {
-  //     id: '8',
-  //     vendor: { _id: 'v3', name: 'Vendor C' },
-  //     eventId: 'e8',
-  //     date: '2024-09-12',
-  //     status: 'CONFIRMED',
-  //     package: {
-  //       name: 'Premium Package',
-  //       capacity: 200,
-  //       orderType: 'Online',
-  //       description: 'Premium event package',
-  //       inclusions: [
-  //         { id: 'inc3', name: 'Inclusion 3', description: 'Inclusion 3 description' },
-  //       ],
-  //     },
-  //     createdAt: '2024-08-15',
-  //     updatedAt: '2024-08-16',
-  //   },
-  //   {
-  //     id: '9',
-  //     vendor: { _id: 'v4', name: 'Vendor D' },
-  //     eventId: 'e9',
-  //     date: '2024-09-13',
-  //     status: 'CONFIRMED',
-  //     package: {
-  //       name: 'Deluxe Package',
-  //       capacity: 250,
-  //       orderType: 'In-Person',
-  //       description: 'Deluxe event package',
-  //       inclusions: [
-  //         { id: 'inc4', name: 'Inclusion 4', description: 'Inclusion 4 description' },
-  //       ],
-  //     },
-  //     createdAt: '2024-08-17',
-  //     updatedAt: '2024-08-18',
-  //   },
-  //   {
-  //     id: '10',
-  //     vendor: { _id: 'v5', name: 'Vendor E' },
-  //     eventId: 'e10',
-  //     date: '2024-09-14',
-  //     status: 'CONFIRMED',
-  //     package: {
-  //       name: 'Ultimate Package',
-  //       capacity: 300,
-  //       orderType: 'Online',
-  //       description: 'Ultimate event package',
-  //       inclusions: [
-  //         { id: 'inc5', name: 'Inclusion 5', description: 'Inclusion 5 description' },
-  //       ],
-  //     },
-  //     createdAt: '2024-08-19',
-  //     updatedAt: '2024-08-20',
-  //   },
-  //   // CANCELED
-  //   {
-  //     id: '11',
-  //     vendor: { _id: 'v1', name: 'Vendor A' },
-  //     eventId: 'e11',
-  //     date: '2024-09-15',
-  //     status: 'CANCELED',
-  //     package: {
-  //       name: 'Basic Package',
-  //       capacity: 100,
-  //       orderType: 'Online',
-  //       description: 'Basic event package',
-  //       inclusions: [
-  //         { id: 'inc1', name: 'Inclusion 1', description: 'Inclusion 1 description' },
-  //       ],
-  //     },
-  //     createdAt: '2024-08-21',
-  //     updatedAt: '2024-08-22',
-  //   },
-  //   {
-  //     id: '12',
-  //     vendor: { _id: 'v2', name: 'Vendor B' },
-  //     eventId: 'e12',
-  //     date: '2024-09-16',
-  //     status: 'CANCELED',
-  //     package: {
-  //       name: 'Standard Package',
-  //       capacity: 150,
-  //       orderType: 'In-Person',
-  //       description: 'Standard event package',
-  //       inclusions: [
-  //         { id: 'inc2', name: 'Inclusion 2', description: 'Inclusion 2 description' },
-  //       ],
-  //     },
-  //     createdAt: '2024-08-23',
-  //     updatedAt: '2024-08-24',
-  //   },
-  //   {
-  //     id: '13',
-  //     vendor: { _id: 'v3', name: 'Vendor C' },
-  //     eventId: 'e13',
-  //     date: '2024-09-17',
-  //     status: 'CANCELED',
-  //     package: {
-  //       name: 'Premium Package',
-  //       capacity: 200,
-  //       orderType: 'Online',
-  //       description: 'Premium event package',
-  //       inclusions: [
-  //         { id: 'inc3', name: 'Inclusion 3', description: 'Inclusion 3 description' },
-  //       ],
-  //     },
-  //     createdAt: '2024-08-25',
-  //     updatedAt: '2024-08-26',
-  //   },
-  //   {
-  //     id: '14',
-  //     vendor: { _id: 'v4', name: 'Vendor D' },
-  //     eventId: 'e14',
-  //     date: '2024-09-18',
-  //     status: 'CANCELED',
-  //     package: {
-  //       name: 'Deluxe Package',
-  //       capacity: 250,
-  //       orderType: 'In-Person',
-  //       description: 'Deluxe event package',
-  //       inclusions: [
-  //         { id: 'inc4', name: 'Inclusion 4', description: 'Inclusion 4 description' },
-  //       ],
-  //     },
-  //     createdAt: '2024-08-27',
-  //     updatedAt: '2024-08-28',
-  //   },
-  //   {
-  //     id: '15',
-  //     vendor: { _id: 'v5', name: 'Vendor E' },
-  //     eventId: 'e15',
-  //     date: '2024-09-19',
-  //     status: 'CANCELED',
-  //     package: {
-  //       name: 'Ultimate Package',
-  //       capacity: 300,
-  //       orderType: 'Online',
-  //       description: 'Ultimate event package',
-  //       inclusions: [
-  //         { id: 'inc5', name: 'Inclusion 5', description: 'Inclusion 5 description' },
-  //       ],
-  //     },
-  //     createdAt: '2024-08-29',
-  //     updatedAt: '2024-08-30',
-  //   },
-  //   // DECLINED
-  //   {
-  //     id: '16',
-  //     vendor: { _id: 'v1', name: 'Vendor A' },
-  //     eventId: 'e16',
-  //     date: '2024-09-20',
-  //     status: 'DECLINED',
-  //     package: {
-  //       name: 'Basic Package',
-  //       capacity: 100,
-  //       orderType: 'Online',
-  //       description: 'Basic event package',
-  //       inclusions: [
-  //         { id: 'inc1', name: 'Inclusion 1', description: 'Inclusion 1 description' },
-  //       ],
-  //     },
-  //     createdAt: '2024-08-31',
-  //     updatedAt: '2024-09-01',
-  //   },
-  //   {
-  //     id: '17',
-  //     vendor: { _id: 'v2', name: 'Vendor B' },
-  //     eventId: 'e17',
-  //     date: '2024-09-21',
-  //     status: 'DECLINED',
-  //     package: {
-  //       name: 'Standard Package',
-  //       capacity: 150,
-  //       orderType: 'In-Person',
-  //       description: 'Standard event package',
-  //       inclusions: [
-  //         { id: 'inc2', name: 'Inclusion 2', description: 'Inclusion 2 description' },
-  //       ],
-  //     },
-  //     createdAt: '2024-09-02',
-  //     updatedAt: '2024-09-03',
-  //   },
-  //   {
-  //     id: '18',
-  //     vendor: { _id: 'v3', name: 'Vendor C' },
-  //     eventId: 'e18',
-  //     date: '2024-09-22',
-  //     status: 'DECLINED',
-  //     package: {
-  //       name: 'Premium Package',
-  //       capacity: 200,
-  //       orderType: 'Online',
-  //       description: 'Premium event package',
-  //       inclusions: [
-  //         { id: 'inc3', name: 'Inclusion 3', description: 'Inclusion 3 description' },
-  //       ],
-  //     },
-  //     createdAt: '2024-09-04',
-  //     updatedAt: '2024-09-05',
-  //   },
-  //   {
-  //     id: '19',
-  //     vendor: { _id: 'v4', name: 'Vendor D' },
-  //     eventId: 'e19',
-  //     date: '2024-09-23',
-  //     status: 'DECLINED',
-  //     package: {
-  //       name: 'Deluxe Package',
-  //       capacity: 250,
-  //       orderType: 'In-Person',
-  //       description: 'Deluxe event package',
-  //       inclusions: [
-  //         { id: 'inc4', name: 'Inclusion 4', description: 'Inclusion 4 description' },
-  //       ],
-  //     },
-  //     createdAt: '2024-09-06',
-  //     updatedAt: '2024-09-07',
-  //   },
-  //   {
-  //     id: '20',
-  //     vendor: { _id: 'v5', name: 'Vendor E' },
-  //     eventId: 'e20',
-  //     date: '2024-09-24',
-  //     status: 'DECLINED',
-  //     package: {
-  //       name: 'Ultimate Package',
-  //       capacity: 300,
-  //       orderType: 'Online',
-  //       description: 'Ultimate event package',
-  //       inclusions: [
-  //         { id: 'inc5', name: 'Inclusion 5', description: 'Inclusion 5 description' },
-  //       ],
-  //     },
-  //     createdAt: '2024-09-08',
-  //     updatedAt: '2024-09-09',
-  //   },
-  //   // COMPLETED
-  //   {
-  //     id: '21',
-  //     vendor: { _id: 'v1', name: 'Vendor A' },
-  //     eventId: 'e21',
-  //     date: '2024-09-25',
-  //     status: 'COMPLETED',
-  //     package: {
-  //       name: 'Basic Package',
-  //       capacity: 100,
-  //       orderType: 'Online',
-  //       description: 'Basic event package',
-  //       inclusions: [
-  //         { id: 'inc1', name: 'Inclusion 1', description: 'Inclusion 1 description' },
-  //       ],
-  //     },
-  //     createdAt: '2024-09-10',
-  //     updatedAt: '2024-09-11',
-  //   },
-  //   {
-  //     id: '22',
-  //     vendor: { _id: 'v2', name: 'Vendor B' },
-  //     eventId: 'e22',
-  //     date: '2024-09-26',
-  //     status: 'COMPLETED',
-  //     package: {
-  //       name: 'Standard Package',
-  //       capacity: 150,
-  //       orderType: 'In-Person',
-  //       description: 'Standard event package',
-  //       inclusions: [
-  //         { id: 'inc2', name: 'Inclusion 2', description: 'Inclusion 2 description' },
-  //       ],
-  //     },
-  //     createdAt: '2024-09-12',
-  //     updatedAt: '2024-09-13',
-  //   },
-  //   {
-  //     id: '23',
-  //     vendor: { _id: 'v3', name: 'Vendor C' },
-  //     eventId: 'e23',
-  //     date: '2024-09-27',
-  //     status: 'COMPLETED',
-  //     package: {
-  //       name: 'Premium Package',
-  //       capacity: 200,
-  //       orderType: 'Online',
-  //       description: 'Premium event package',
-  //       inclusions: [
-  //         { id: 'inc3', name: 'Inclusion 3', description: 'Inclusion 3 description' },
-  //       ],
-  //     },
-  //     createdAt: '2024-09-14',
-  //     updatedAt: '2024-09-15',
-  //   },
-  //   {
-  //     id: '24',
-  //     vendor: { _id: 'v4', name: 'Vendor D' },
-  //     eventId: 'e24',
-  //     date: '2024-09-28',
-  //     status: 'COMPLETED',
-  //     package: {
-  //       name: 'Deluxe Package',
-  //       capacity: 250,
-  //       orderType: 'In-Person',
-  //       description: 'Deluxe event package',
-  //       inclusions: [
-  //         { id: 'inc4', name: 'Inclusion 4', description: 'Inclusion 4 description' },
-  //       ],
-  //     },
-  //     createdAt: '2024-09-16',
-  //     updatedAt: '2024-09-17',
-  //   },
-  //   {
-  //     id: '25',
-  //     vendor: { _id: 'v5', name: 'Vendor E' },
-  //     eventId: 'e25',
-  //     date: '2024-09-29',
-  //     status: 'COMPLETED',
-  //     package: {
-  //       name: 'Ultimate Package',
-  //       capacity: 300,
-  //       orderType: 'Online',
-  //       description: 'Ultimate event package',
-  //       inclusions: [
-  //         { id: 'inc5', name: 'Inclusion 5', description: 'Inclusion 5 description' },
-  //       ],
-  //     },
-  //     createdAt: '2024-09-18',
-  //     updatedAt: '2024-09-19',
-  //   },
-  // ];
 
   useEffect(() => {
-    // const eventId = _id;
-    // console.log(eventId);
-    // fetchBookings(eventId);
     fetchEvent();
   }, []);
 
@@ -962,7 +496,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     return (
       <ErrorScreen
         description={errMessage}
-        buttonText='GO BACK'
+        buttonText="GO BACK"
         onPress={() => navigation.goBack()}
       />
     );
@@ -978,15 +512,18 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     pendingBookings,
     confirmedBookings,
     cancelledOrDeclinedBookings,
+    completedBookings
   } = event;
 
-  const dateString = format(date, 'MMMM dd, yyyy');
+  const pastBookings = (completedBookings)? [...confirmedBookings, ...completedBookings ] : confirmedBookings
+
+  const dateString = format(date, "MMMM dd, yyyy");
 
   const Confirmed = () => (
     <BookingList
       bookings={confirmedBookings}
       onPress={(booking: BookingType) =>
-        navigation.navigate('UserBookingView', { booking: { ...booking } })
+        navigation.navigate("UserBookingView", { booking: { ...booking } })
       }
     />
   );
@@ -994,7 +531,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     <BookingList
       bookings={pendingBookings}
       onPress={(booking: BookingType) =>
-        navigation.navigate('UserBookingView', { booking: { ...booking } })
+        navigation.navigate("UserBookingView", { booking: { ...booking } })
       }
     />
   );
@@ -1002,7 +539,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     <BookingList
       bookings={cancelledOrDeclinedBookings}
       onPress={(booking: BookingType) =>
-        navigation.navigate('UserBookingView', { booking: { ...booking } })
+        navigation.navigate("UserBookingView", { booking: { ...booking } })
       }
     />
   );
@@ -1025,9 +562,9 @@ function EventView({ route, navigation }: EventViewScreenProps) {
   };
 
   const onUpdateBtnPress = () => {
-    navigation.navigate('UpdateEventForm', {
+    navigation.navigate("UpdateEventForm", {
       eventInfo: { ...updateEventFormValues },
-      updateValue: 'BUDGET',
+      updateValue: "BUDGET",
     });
   };
 
@@ -1055,30 +592,30 @@ function EventView({ route, navigation }: EventViewScreenProps) {
         !checkArrayIfUndefinedOrEmpty(pendingBookings),
     },
     {
-      label: 'EDIT DATE',
-      icon: 'calendar',
+      label: "EDIT DATE",
+      icon: "calendar",
       onPress: () =>
-        navigation.navigate('UpdateEventForm', {
+        navigation.navigate("UpdateEventForm", {
           eventInfo: { ...updateEventFormValues },
-          updateValue: 'DATE',
+          updateValue: "DATE",
         }),
       disabled:
         !checkArrayIfUndefinedOrEmpty(confirmedBookings) ||
         !checkArrayIfUndefinedOrEmpty(pendingBookings),
     },
     {
-      label: 'EDIT ADDRESS',
-      icon: 'location',
+      label: "EDIT ADDRESS",
+      icon: "location",
       onPress: () =>
-        navigation.navigate('UpdateEventForm', {
+        navigation.navigate("UpdateEventForm", {
           eventInfo: { ...updateEventFormValues },
-          updateValue: 'ADDRESS',
+          updateValue: "ADDRESS",
         }),
       disabled: address === undefined || budget.venue !== null,
     },
     {
-      label: 'EDIT GUESTS',
-      icon: 'people',
+      label: "EDIT GUESTS",
+      icon: "people",
       onPress: () =>
         navigation.navigate('UpdateEventForm', {
           eventInfo: { ...updateEventFormValues },
@@ -1173,20 +710,30 @@ function EventView({ route, navigation }: EventViewScreenProps) {
         </View>
       </View>
 
-      <TabView
-        navigationState={{ index, routes }}
-        renderScene={renderScene}
-        onIndexChange={setIndex}
-        initialLayout={{ width: 300 }}
-        renderTabBar={(props) => (
-          <TabBar
-            {...props}
-            indicatorStyle={styles.indicator}
-            style={styles.tabBar}
-            labelStyle={styles.label}
-          />
-        )}
-      />
+      {!isBefore(event.date, new Date()) && (
+        <TabView
+          navigationState={{ index, routes }}
+          renderScene={renderScene}
+          onIndexChange={setIndex}
+          initialLayout={{ width: 300 }}
+          renderTabBar={(props) => (
+            <TabBar
+              {...props}
+              indicatorStyle={styles.indicator}
+              style={styles.tabBar}
+              labelStyle={styles.label}
+            />
+          )}
+        />
+      )}
+      {isBefore(event.date, new Date()) && (
+        <BookingList
+          bookings={pastBookings}
+          onPress={(booking: BookingType) =>
+            navigation.navigate("UserBookingView", { booking: { ...booking }, isPastEventDate: isAfter(new Date(), event.date) })
+          }
+        />
+      )}
       {/* <HomeNav /> */}
     </>
   );
@@ -1382,12 +929,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold', // Make the text bold
   },
   bookingListItem: {
-    flexDirection: 'row',
+    flexDirection: "row",
     padding: 10,
     marginVertical: 5,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 5,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 5,
     shadowOffset: { width: 0, height: 2 },
@@ -1400,10 +947,10 @@ const styles = StyleSheet.create({
   },
   bookingListTextContainer: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   bookingListVendorName: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     fontSize: 16,
     marginBottom: 2,
   },
@@ -1412,16 +959,16 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   bookingListRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   bookingListDate: {
     fontSize: 12,
-    color: '#555',
+    color: "#555",
   },
   bookingListPrice: {
     fontSize: 12,
-    color: '#555',
+    color: "#555",
   },
 });
 
