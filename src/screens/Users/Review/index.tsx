@@ -454,7 +454,7 @@ const createReview = async (input: ReviewInputType ) => {
   }
 
   const onSuccessPress = () => {
-    navigation.navigate("EventView", {...event});
+    navigation.replace("EventView", {...event});
   }
 
   if (success) {
