@@ -170,8 +170,7 @@ function EventList() {
             events: [...prevstate.events, ...data.events],
           };
         });
-        console.log(data);
-
+ 
         console.log("EVENT DATA SUCCESSFULLY LOADED");
       } else if (res.status === 400) {
         throw new Error("Bad request - Invalid data.");
@@ -194,10 +193,9 @@ function EventList() {
   };
 
   useEffect(() => {
-    console.log(page);
     // console.log(eventList.totalPages)
     // console.log(eventList.events.length)
-    if (page > 2 && page < eventList.totalPages) {
+    if (page > 1 && eventList.hasMore) {
       fetchMoreEvents();
     }
 
@@ -210,21 +208,8 @@ function EventList() {
   const events = useCallback(() => {
     const events = eventList.events;
     const upcomingEvents = events.filter(
-      (event) => {
-        if(event){
-          return   !isBefore(event.date, new Date())
-        } else{
-          return false
-        }
-       });
-    const pastEvents = events.filter((event) =>{
-      if(event){
-        return  isBefore(event.date, new Date())
-      }else{
-        return false
-      }}
-     
-    );
+      (event) =>!isBefore(event.date, new Date()));
+    const pastEvents = events.filter((event) => isBefore(event.date, new Date()));
 
     switch (selectedTab) {
       case "Past":
@@ -256,12 +241,14 @@ function EventList() {
   };
 
   const onEndReached = () => {
-    if (page < eventList.totalPages) {
+    if (eventList.hasMore) {
       setPage((page) => page + 1);
     }
   };
 
-  if (events() && events().length > 0) {
+  console.log(eventList.events)
+
+  if (eventList.events.length > 0) {
     return (
       <>
         <SafeAreaView>

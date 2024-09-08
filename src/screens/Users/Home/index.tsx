@@ -146,7 +146,7 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
       if (res.status === 200) {
         const resEventList = data.events
         setUser({ ...data.user });
-        setEventList({...resEventList})
+        setEventList({ ...resEventList })
         const getChatListInput: GetChatListInput = {
           senderId: data.user._id,
           senderType: 'CLIENT',
