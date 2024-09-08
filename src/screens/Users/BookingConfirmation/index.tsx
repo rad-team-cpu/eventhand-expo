@@ -22,7 +22,7 @@ import { GetMessagesInput, WebSocketContext } from 'Contexts/WebSocket';
 import { UserContext } from 'Contexts/UserContext';
 import { ObjectId } from 'bson';
 
-const BookingConfirmation = ({route}: BookingConfirmationScreenProps) => {
+const BookingConfirmation = ({ route }: BookingConfirmationScreenProps) => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const { assets, colors, sizes, gradients } = useTheme();
   const [loading, setLoading] = useState(true);
@@ -52,8 +52,6 @@ const BookingConfirmation = ({route}: BookingConfirmationScreenProps) => {
 
     navigation.navigate('BookingDetails', BookingDetailsProps);
   };
-
-
 
   const onMessagePress = () => {
     if (!vendor) {
@@ -214,8 +212,9 @@ const BookingConfirmation = ({route}: BookingConfirmationScreenProps) => {
         ))}
         {vendorPackage && (
           <Button
-            onPress={() => onPressBook(packageId, vendorPackage.vendorId)}
+            // onPress={() => onPressBook(packageId, vendorPackage.vendorId)}
             gradient={gradients.primary}
+            disabled
           >
             <Text className='text-white uppercase'>Book now</Text>
           </Button>

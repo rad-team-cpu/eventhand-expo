@@ -140,9 +140,9 @@ export default function VendorList() {
           resizeMode="cover"
           padding={sizes.md}
           source={assets.background}
-          height={110}
+          height={80}
         >
-          <Block paddingHorizontal={sizes.xs}>
+          {/* <Block paddingHorizontal={sizes.xs}>
             <TextInput
               id="email-text-input"
               testID="test-email-input"
@@ -153,7 +153,7 @@ export default function VendorList() {
               textContentType="emailAddress"
               className="mt-5 pl-3 rounded-full bg-white h-10"
             />
-          </Block>
+          </Block> */}
         </Image>
       </Block>
       <ScrollView>
