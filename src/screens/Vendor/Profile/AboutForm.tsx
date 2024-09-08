@@ -148,7 +148,6 @@ const AboutForm = ({ onSubmit, onGoBack, initialData }: AboutFormProps) => {
 
     try {
       const token = await getToken({ template: 'event-hand-jwt' });
-      console.log('Token:', token);
 
       const response = await axios.patch(
         `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors/${vendorId}`,
