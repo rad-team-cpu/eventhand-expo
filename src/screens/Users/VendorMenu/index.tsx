@@ -72,8 +72,18 @@ const VendorMenu = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const route = useRoute();
   const { assets, colors, sizes, gradients } = useTheme();
-  const [vendor, setVendor] = useState<VendorMenuType>({});
-  const [reviews, setReviews] = useState<ReviewType[]>([]);
+  const [vendor, setVendor] = useState<VendorMenuType>({
+    _id: "",
+    name: '',
+    logo: "",
+    bio: "",
+    tags: [],
+    email: "",
+    packages: [],
+    averageRatings: 0,
+    totalBookings: 0,
+    reviews: []
+  });
   const { getToken } = useAuth();
   const [loading, setLoading] = useState(true);
 
@@ -142,8 +152,7 @@ const VendorMenu = () => {
       const data = await res.json();
 
       if (res.status === 200) {
-        console.log(data.packages);
-        setVendor({ ...data });
+        setVendor({...data})
         // setReviews({...data.reviews})
 
         console.log('VENDOR DATA SUCCESSFULLY LOADED');
@@ -303,7 +312,7 @@ const VendorMenu = () => {
                 </Block>
                 <Block align='center'>
                   <Text className='text-sm font-bold'>
-                    {vendor.averageRatings.toFixed(2) || 0}
+                    {(vendor.averageRatings)?vendor.averageRatings.toFixed(2): 0}
                   </Text>
                   <Text>Ratings</Text>
                 </Block>
@@ -421,8 +430,8 @@ const VendorMenu = () => {
                 ))}
               </ScrollView>
             </Block>
-
-            <Block paddingHorizontal={sizes.sm} className='mt-2'>
+  
+            {/* <Block paddingHorizontal={sizes.sm} className='mt-2'>
               <Block row align='center' justify='space-between'>
                 <Text className='text-xl font-bold'>Portfolio</Text>
                 <Button>
@@ -458,7 +467,7 @@ const VendorMenu = () => {
                   />
                 </Block>
               </Block>
-            </Block>
+            </Block> */}
           </Block>
         </Block>
       </Block>

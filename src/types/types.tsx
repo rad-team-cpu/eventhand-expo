@@ -52,7 +52,7 @@ interface BookingType {
     };
   }; // Reference to a Vendor
   date: Date;
-  status: 'PENDING' | 'CONFIRMED' | 'CANCELED' | 'DECLINED' | 'COMPLETED';
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'DECLINED' | 'COMPLETED';
   package: {
     _id: string;
     name: string;
@@ -332,7 +332,7 @@ type ScreenProps = {
   VerificationForm: undefined;
   MenuForm: undefined;
   Rating: undefined;
-  UserBookingView: {booking: BookingType, isPastEventDate?: boolean, event?: EventInfo};
+  UserBookingView: {booking: BookingType, isPastEventDate?: boolean, event: EventInfo};
   UserReview: {booking: BookingType, event: EventInfo}
   VendorReview: VendorReviewType
   Welcome: undefined
