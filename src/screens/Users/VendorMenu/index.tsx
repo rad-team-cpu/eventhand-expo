@@ -29,53 +29,61 @@ import { faker } from '@faker-js/faker';
 import { useAuth } from '@clerk/clerk-react';
 import VendorHome from 'screens/Vendor/Home';
 
-interface PackageType 
-  {
-    _id: string; 
-    name: string;
-    imageUrl: string;
-    capacity: number;
-    tags: Tag[]; 
-    orderType: string;
-    description: string;
-    price: number;
-    inclusions: {
-      id: string; 
-      imageUrl: string;
-      name: string;
-      description: string;
-      quantity: number
-    }[];
-  }
-
-  interface ReviewType {
+interface PackageType {
+  _id: string;
+  name: string;
+  imageUrl: string;
+  capacity: number;
+  tags: Tag[];
+  orderType: string;
+  description: string;
+  price: number;
+  inclusions: {
     _id: string;
-    client: {_id: string, name: string};
-    comment: string;
-    rating: number;
-    package: PackageType;
-  }
+    imageUrl: string;
+    name: string;
+    description: string;
+    quantity: number;
+  }[];
+}
 
+interface ReviewType {
+  _id: string;
+  client: { _id: string; name: string };
+  comment: string;
+  rating: number;
+  package: PackageType;
+}
 
 interface VendorMenuType {
   _id: string;
-  logo: string
+  logo: string;
   name: string;
   bio: string;
   email: string;
   tags: Tag[];
   packages: PackageType[];
-  averageRatings: number
-  totalBookings: number
-  reviews:  ReviewType[]
+  averageRatings: number;
+  totalBookings: number;
+  reviews: ReviewType[];
 }
 
 const VendorMenu = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const route = useRoute();
   const { assets, colors, sizes, gradients } = useTheme();
-  const [vendor, setVendor] = useState<VendorMenuType>({});
-  const [reviews, setReviews] = useState<ReviewType[]>([]);
+  const [vendor, setVendor] = useState<VendorMenuType>({
+    _id: "",
+    name: '',
+    logo: "",
+    bio: "",
+    tags: [],
+    email: "",
+    packages: [],
+    averageRatings: 0,
+    totalBookings: 0,
+    reviews: []
+  });
   const { getToken } = useAuth();
   const [loading, setLoading] = useState(true);
 
@@ -142,7 +150,7 @@ const VendorMenu = () => {
     try {
       const res = await fetch(url, request);
       const data = await res.json();
-   
+
       if (res.status === 200) {
         setVendor({...data})
         // setReviews({...data.reviews})
@@ -161,15 +169,15 @@ const VendorMenu = () => {
       console.error(`Error fetching vendor (${error.code}): ${error} `);
       // setErrMessage(`Error fetching event (${error.code}): ${error} `)
       // setError(true);
-    }finally{
+    } finally {
       setLoading(false);
     }
   }, [vendorId]);
 
   const onPressPackage = (vendorPackage: PackageType) => {
     const BookingConfirmationProps: ScreenProps['BookingConfirmation'] = {
-      vendor: {...vendor},
-      vendorPackage
+      vendor: { ...vendor },
+      vendorPackage,
     };
 
     navigation.navigate('BookingConfirmation', BookingConfirmationProps);
@@ -201,8 +209,8 @@ const VendorMenu = () => {
     // fetchReviews();
   }, []);
 
-  if(loading || !VendorHome){
-    return <Loading/>
+  if (loading || !VendorHome) {
+    return <Loading />;
   }
 
   // if (!vendor) {
@@ -213,7 +221,7 @@ const VendorMenu = () => {
   //   );
   // }
 
-  if(vendor){
+  if (vendor) {
     return (
       <Block safe marginTop={sizes.md}>
         <Block
@@ -258,18 +266,18 @@ const VendorMenu = () => {
                   {vendor.name}
                 </Text>
                 <Block row align='center'>
-                 {vendor.tags.map((tag: Tag, index) => (
+                  {/* {vendor.tags.map((tag: Tag, index) => (
                     <Text
                       key={`${tag._id} - ${index}`}
                       className='items-center text-white mx-0.5 capitalize font-light text-xs'
                     >
                       - {tag.name} -
                     </Text>
-                  ))} 
+                  ))}  */}
                 </Block>
               </Block>
             </Image>
-  
+
             {/* profile: stats */}
             <Block
               flex={0}
@@ -297,7 +305,9 @@ const VendorMenu = () => {
                   <Text>Bookings</Text>
                 </Block>
                 <Block align='center'>
-                  <Text className='text-sm font-bold'>{vendor.reviews.length || 0}</Text>
+                  <Text className='text-sm font-bold'>
+                    {vendor.reviews.length || 0}
+                  </Text>
                   <Text>Reviews</Text>
                 </Block>
                 <Block align='center'>
@@ -309,7 +319,11 @@ const VendorMenu = () => {
               </Block>
             </Block>
             {/* profile: about me */}
-            <Block paddingHorizontal={sizes.sm} marginTop={sizes.m} className=''>
+            <Block
+              paddingHorizontal={sizes.sm}
+              marginTop={sizes.m}
+              className=''
+            >
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 {vendor.reviews.length > 0 && (
                   <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
@@ -378,14 +392,13 @@ const VendorMenu = () => {
               </Text>
             </Block>
             <Block paddingHorizontal={sizes.sm}>
-              <Text className='text-xl font-bold pb-2'>Choose a Package</Text>
+              <Text className='text-xl font-bold pb-2'>Packages</Text>
               <ScrollView showsHorizontalScrollIndicator={false}>
                 {vendor.packages.map((vendorPackage: PackageType) => (
                   <TouchableOpacity
                     key={vendorPackage._id}
                     className='h-24 w-full rounded-xl border border-primary flex flex-row mt-2'
                     onPress={() => onPressPackage(vendorPackage)}
-                    disabled
                   >
                     <Image
                       background
@@ -406,7 +419,10 @@ const VendorMenu = () => {
                       {vendorPackage.inclusions.slice(0, 3).map((inclusion) => (
                         <View className='w-52 flex flex-row justify-between mx-2'>
                           <Text className='text-xs '> {inclusion.name} </Text>
-                          <Text className='text-xs'> x{inclusion.quantity} </Text>
+                          <Text className='text-xs'>
+                            {' '}
+                            x{inclusion.quantity}{' '}
+                          </Text>
                         </View>
                       ))}
                     </View>
@@ -457,8 +473,6 @@ const VendorMenu = () => {
       </Block>
     );
   }
-
- 
 };
 
 export default VendorMenu;

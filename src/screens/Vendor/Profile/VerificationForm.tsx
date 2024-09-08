@@ -39,7 +39,7 @@ const idTypes = [
   { label: 'Other', value: 'OTHER' },
 ];
 
-interface VendorProfileFormProps extends VendorProfileFormScreenProps {
+interface VerificationFormProps extends VerificationFormScreenProps {
   onSubmit: (data: VerificationInput) => void;
   initialData: VerificationInput;
 }
@@ -82,7 +82,7 @@ const VerificationForm = ({
   navigation,
   onSubmit,
   initialData,
-}: VendorProfileFormProps) => {
+}: VerificationFormProps) => {
   const {
     control,
     register,

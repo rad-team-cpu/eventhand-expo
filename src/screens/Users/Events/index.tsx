@@ -1,9 +1,9 @@
-import { FontAwesome } from "@expo/vector-icons";
-import axios from "axios";
-import { format } from "date-fns/format";
-import ExpoStatusBar from "expo-status-bar/build/ExpoStatusBar";
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import Image from "Components/Ui/Image";
+import { FontAwesome } from '@expo/vector-icons';
+import axios from 'axios';
+import { format } from 'date-fns/format';
+import ExpoStatusBar from 'expo-status-bar/build/ExpoStatusBar';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import Image from 'Components/Ui/Image';
 import {
   Alert,
   BackHandler,
@@ -22,15 +22,15 @@ import {
   EventBudget,
   EventInfo,
   BookingType,
-} from "types/types";
-import { AntDesign, Ionicons } from "@expo/vector-icons";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import Block from "Components/Ui/Block";
-import { faker } from "@faker-js/faker";
-import { useAuth } from "@clerk/clerk-expo";
-import Loading from "screens/Loading";
-import ErrorScreen from "Components/Error";
-import { isAfter, isBefore } from "date-fns";
+} from 'types/types';
+import { AntDesign, Ionicons } from '@expo/vector-icons';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import Block from 'Components/Ui/Block';
+import { faker } from '@faker-js/faker';
+import { useAuth } from '@clerk/clerk-expo';
+import Loading from 'screens/Loading';
+import ErrorScreen from 'Components/Error';
+import { isAfter, isBefore } from 'date-fns';
 
 type Category = {
   name: string;
@@ -314,7 +314,7 @@ const EventUpdateMenu: React.FC<EventUpdateMenuProps> = ({
         </Text>
         <Text style={styles.budgetDescription}>
           Cannot edit address, if you have booked venue.
-        </Text> */}
+        </Text>
         {options.map((option) => (
           <Pressable
             key={option.label}
@@ -323,7 +323,7 @@ const EventUpdateMenu: React.FC<EventUpdateMenuProps> = ({
             style={[
               styles.eventUpdateMenuButton,
               {
-                backgroundColor: option.disabled ? "#D3D3D3" : "#CB0C9F",
+                backgroundColor: option.disabled ? '#D3D3D3' : '#CB0C9F',
               },
             ]}
           >
@@ -365,7 +365,7 @@ const BookingList: React.FC<BookingListProps> = ({ bookings, onPress }) => {
         <Text style={styles.bookingListPackageName}>{item.package.name}</Text>
         <View style={styles.bookingListRow}>
           <Text style={styles.bookingListDate}>
-            {format(item.date, "MMMM dd, yyyy")}
+            {format(item.date, 'MMMM dd, yyyy')}
           </Text>
           <Text style={styles.bookingListPrice}>{item.package.capacity}</Text>
         </View>
@@ -391,11 +391,11 @@ function EventView({ route, navigation }: EventViewScreenProps) {
   const [loading, setLoading] = useState(true);
   const [event, setEvent] = useState<EventInfo>({ ...route.params });
   const [error, setError] = useState(false);
-  const [errMessage, setErrMessage] = useState("");
+  const [errMessage, setErrMessage] = useState('');
   const [routes] = useState([
-    { key: "confirmed", title: "Confirmed" },
-    { key: "pending", title: "Pending" },
-    { key: "cancelled", title: "Cancelled/Declined" },
+    { key: 'confirmed', title: 'Confirmed' },
+    { key: 'pending', title: 'Pending' },
+    { key: 'cancelled', title: 'Cancelled/Declined' },
   ]);
 
   const [eventBookings, setEventBookings] = useState<BookingDetailsProps[]>([]);
@@ -458,13 +458,13 @@ function EventView({ route, navigation }: EventViewScreenProps) {
   const fetchEvent = async () => {
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/${eventId}/bookings`;
 
-    const token = getToken({ template: "event-hand-jwt" });
+    const token = getToken({ template: 'event-hand-jwt' });
 
     const request = {
-      method: "GET",
+      method: 'GET',
       headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
     };
@@ -476,15 +476,15 @@ function EventView({ route, navigation }: EventViewScreenProps) {
       if (res.status === 200) {
         setEvent({ ...data });
 
-        console.log("EVENT DATA SUCCESSFULLY LOADED");
+        console.log('EVENT DATA SUCCESSFULLY LOADED');
       } else if (res.status === 400) {
-        throw new Error("Bad request - Invalid data.");
+        throw new Error('Bad request - Invalid data.');
       } else if (res.status === 401) {
-        throw new Error("Unauthorized - Authentication failed.");
+        throw new Error('Unauthorized - Authentication failed.');
       } else if (res.status === 404) {
-        throw new Error("Event Not Found");
+        throw new Error('Event Not Found');
       } else {
-        throw new Error("Unexpected error occurred.");
+        throw new Error('Unexpected error occurred.');
       }
     } catch (error: any) {
       console.error(`Error fetching event (${error.code}): ${error} `);
@@ -497,9 +497,9 @@ function EventView({ route, navigation }: EventViewScreenProps) {
   };
 
   const handleFindSupplier = () => {
-    navigation.navigate('Home', { initialTab: 'Vendors' });
+    const eventID = eventId;
+    navigation.navigate('PackageList', { eventID });
   };
-
 
   useEffect(() => {
     fetchEvent();
@@ -513,7 +513,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     return (
       <ErrorScreen
         description={errMessage}
-        buttonText="GO BACK"
+        buttonText='GO BACK'
         onPress={() => navigation.goBack()}
       />
     );
@@ -529,12 +529,14 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     pendingBookings,
     confirmedBookings,
     cancelledOrDeclinedBookings,
-    completedBookings
+    completedBookings,
   } = event;
 
-  const pastBookings = (completedBookings)? [...confirmedBookings, ...completedBookings ] : confirmedBookings
+  const pastBookings = completedBookings
+    ? [...confirmedBookings, ...completedBookings]
+    : confirmedBookings;
 
-  const dateString = format(date, "MMMM dd, yyyy");
+  const dateString = format(date, 'MMMM dd, yyyy');
 
   const Confirmed = () => (
     <BookingList
@@ -576,12 +578,15 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     date,
     attendees,
     budget,
+    pendingBookings: [],
+    confirmedBookings: [],
+    cancelledOrDeclinedBookings: []
   };
 
   const onUpdateBtnPress = () => {
-    navigation.navigate("UpdateEventForm", {
+    navigation.navigate('UpdateEventForm', {
       eventInfo: { ...updateEventFormValues },
-      updateValue: "BUDGET",
+      updateValue: 'BUDGET',
     });
   };
 
@@ -609,30 +614,30 @@ function EventView({ route, navigation }: EventViewScreenProps) {
         !checkArrayIfUndefinedOrEmpty(pendingBookings),
     },
     {
-      label: "EDIT DATE",
-      icon: "calendar",
+      label: 'EDIT DATE',
+      icon: 'calendar',
       onPress: () =>
-        navigation.navigate("UpdateEventForm", {
+        navigation.navigate('UpdateEventForm', {
           eventInfo: { ...updateEventFormValues },
-          updateValue: "DATE",
+          updateValue: 'DATE',
         }),
       disabled:
         !checkArrayIfUndefinedOrEmpty(confirmedBookings) ||
         !checkArrayIfUndefinedOrEmpty(pendingBookings),
     },
     {
-      label: "EDIT ADDRESS",
-      icon: "location",
+      label: 'EDIT ADDRESS',
+      icon: 'location',
       onPress: () =>
-        navigation.navigate("UpdateEventForm", {
+        navigation.navigate('UpdateEventForm', {
           eventInfo: { ...updateEventFormValues },
-          updateValue: "ADDRESS",
+          updateValue: 'ADDRESS',
         }),
       disabled: address === undefined || budget.venue !== null,
     },
     {
-      label: "EDIT GUESTS",
-      icon: "people",
+      label: 'EDIT GUESTS',
+      icon: 'people',
       onPress: () =>
         navigation.navigate('UpdateEventForm', {
           eventInfo: { ...updateEventFormValues },
@@ -747,7 +752,11 @@ function EventView({ route, navigation }: EventViewScreenProps) {
         <BookingList
           bookings={pastBookings}
           onPress={(booking: BookingType) =>
-            navigation.navigate("UserBookingView", { booking: { ...booking }, isPastEventDate: isAfter(new Date(), event.date) })
+            navigation.navigate('UserBookingView', {
+              booking: { ...booking },
+              isPastEventDate: isAfter(new Date(), event.date),
+              event
+            })
           }
         />
       )}
@@ -946,12 +955,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold', // Make the text bold
   },
   bookingListItem: {
-    flexDirection: "row",
+    flexDirection: 'row',
     padding: 10,
     marginVertical: 5,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     borderRadius: 5,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 5,
     shadowOffset: { width: 0, height: 2 },
@@ -964,10 +973,10 @@ const styles = StyleSheet.create({
   },
   bookingListTextContainer: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: 'center',
   },
   bookingListVendorName: {
-    fontWeight: "bold",
+    fontWeight: 'bold',
     fontSize: 16,
     marginBottom: 2,
   },
@@ -976,16 +985,16 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   bookingListRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   bookingListDate: {
     fontSize: 12,
-    color: "#555",
+    color: '#555',
   },
   bookingListPrice: {
     fontSize: 12,
-    color: "#555",
+    color: '#555',
   },
 });
 

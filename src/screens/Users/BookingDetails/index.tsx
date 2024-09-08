@@ -10,39 +10,35 @@ import axios from 'axios';
 import {
   Vendor,
   PackageType,
-  Product,
-  EventInfo,
   ScreenProps,
   BookingStatus,
   HomeScreenNavigationProp,
+  Inclusion,
 } from 'types/types';
 import { UserContext } from 'Contexts/UserContext';
-import formatDate from 'src/core/helpers';
 import Loading from 'screens/Loading';
 import SuccessScreen from 'Components/Success';
-import { format } from 'date-fns';
 
 const BookingDetails = () => {
   const userContext = useContext(UserContext);
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const route = useRoute();
-  const { assets, colors, sizes, gradients } = useTheme();
+  const { assets, sizes, gradients } = useTheme();
   const [vendorPackage, setVendorPackage] = useState<PackageType | null>(null);
-  const [vendor, setVendor] = useState<Vendor | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedEvents, setSelectedEvents] = useState<EventInfo[]>([]);
   const [success, setSuccess] = useState(false);
 
   if (!userContext) {
     throw new Error('UserInfo must be used within a UserProvider');
   }
-  const { user, eventList } = userContext;
-  const events = eventList.events;
+  const { user } = userContext;
 
-  const { packageId, vendorId } = route.params as {
+  const { packageId, vendorId, eventId } = route.params as {
     packageId: string;
     vendorId: string;
+    eventId: string;
+
   };
 
   const fetchPackage = useCallback(async () => {
@@ -62,39 +58,6 @@ const BookingDetails = () => {
     }
   }, [packageId]);
 
-  const fetchVendor = useCallback(async (vendorId: string) => {
-    try {
-      const response = await axios.get(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors/${vendorId}`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-      setVendor(response.data);
-    } catch (error: any) {
-      setError(error.message || 'Error fetching vendor');
-      setLoading(false);
-    }
-  }, []);
-
-  const handleEventSelect = (eventInfo: EventInfo) => {
-    setSelectedEvents((prevSelectedEvents) => {
-      const isSelected = prevSelectedEvents.some(
-        (event) => event._id === eventInfo._id
-      );
-
-      if (isSelected) {
-        return prevSelectedEvents.filter(
-          (event) => event._id !== eventInfo._id
-        );
-      } else {
-        return [...prevSelectedEvents, eventInfo];
-      }
-    });
-  };
-
   useEffect(() => {
     const loadPackage = async () => {
       setLoading(true);
@@ -112,29 +75,22 @@ const BookingDetails = () => {
   }, [fetchPackage]);
 
   const onPressConfirm = async () => {
-    if (!selectedEvents.length) {
-      setError('Please select at least one event');
-      return;
-    }
-
     try {
-      for (const event of selectedEvents) {
-        await axios.post(
-          `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking`,
-          {
-            package: packageId,
-            vendorId: vendorId,
-            event: event._id,
-            clientId: user._id,
-            bookingStatus: BookingStatus.Pending,
+      await axios.post(
+        `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking`,
+        {
+          package: packageId,
+          vendorId: vendorId,
+          clientId: user._id,
+          event: eventId,
+          bookingStatus: BookingStatus.Pending,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
           },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        );
-      }
+        }
+      );
       setSuccess(true);
     } catch (error: any) {
       console.error('Error confirming booking:', error.message);
@@ -142,36 +98,8 @@ const BookingDetails = () => {
     }
   };
 
-  useEffect(() => {
-    if (vendorPackage && vendorPackage.vendorId) {
-      fetchVendor(vendorPackage.vendorId);
-    }
-  }, [vendorPackage, fetchVendor]);
-
   const onSuccessPress = () => {
-    if (selectedEvents.length) {
-      const selectedEvent = selectedEvents[0]; // Get the first selected event
-      const eventViewProps: ScreenProps['EventView'] = {
-        _id: selectedEvent._id,
-        date: format(new Date(selectedEvent.date), 'MMMM dd, yyyy'),
-        budget: selectedEvent.budget,
-        attendees: selectedEvent.attendees,
-        name: '',
-        pending: [
-          {
-            packageId: packageId,
-            vendorId: vendorId,
-            eventId: selectedEvent._id,
-            clientId: user._id,
-            bookingStatus: BookingStatus.Pending,
-          },
-        ],
-      };
-
-      navigation.navigate('EventView', eventViewProps);
-    } else {
-      setError('No event selected');
-    }
+    // navigation.navigate('Home'); // Navigate to the home screen or another appropriate screen
   };
 
   if (loading) {
@@ -209,51 +137,17 @@ const BookingDetails = () => {
           <AntDesign name='back' size={24} color='#ec4899' />
           <Text className='text-primary ml-1'>Go back</Text>
         </Button>
-        <Text className='font-bold text-lg p-2'>1. Choose event/s:</Text>
-        <Block>
-          {events?.map((eventInfo: EventInfo) => {
-            const isSelected = selectedEvents.some(
-              (event) => event._id === eventInfo._id
-            );
+        <Text className='font-bold text-lg p-2'>Confirm Booking Details:</Text>
 
-            return (
-              <TouchableOpacity
-                key={eventInfo._id}
-                onPress={() => handleEventSelect(eventInfo)}
-              >
-                <Block
-                  className={`${
-                    isSelected ? 'bg-primary text-white' : 'bg-white text-black'
-                  } p-2 my-1 rounded-lg border border-gold`}
-                >
-                  <Text
-                    className={`${isSelected ? 'text-white' : 'text-black'}`}
-                  >
-                    {format(eventInfo?.date, 'MMMM dd, yyyy')}
-                  </Text>
-                  <Text
-                    className={`${isSelected ? 'text-white' : 'text-black'}`}
-                  >
-                    {eventInfo?.attendees} pax
-                  </Text>
-                </Block>
-              </TouchableOpacity>
-            );
-          })}
-        </Block>
-        <Text className='font-bold text-lg p-2'>
-          2. Confirm Booking Details:
-        </Text>
-
-        {vendorPackage?.inclusions.map((inclusion: Product) => (
+        {vendorPackage?.inclusions.map((inclusion: Inclusion) => (
           <Block
-            key={inclusion.id}
+            key={inclusion._id}
             className='h-18 w-full rounded-xl flex flex-row my-5'
           >
             <Image
               background
               padding={sizes.md}
-              source={assets.card1}
+              src={inclusion.imageUrl}
               rounded
               className='rounded-xl h-18 w-18'
             ></Image>
@@ -288,13 +182,7 @@ const BookingDetails = () => {
             Total: ₱{vendorPackage?.price.toFixed(2)}
           </Text>
         </Block>
-        <Button
-          gradient={
-            selectedEvents.length > 0 ? gradients.primary : gradients.dark
-          }
-          onPress={onPressConfirm}
-          disabled={selectedEvents.length === 0}
-        >
+        <Button gradient={gradients.primary} onPress={onPressConfirm}>
           <Text className='text-white uppercase'>Confirm</Text>
         </Button>
       </Block>
