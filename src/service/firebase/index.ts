@@ -114,6 +114,23 @@ class FirebaseService {
     return result;
   }
 
+  async uploadInclusionImageUrl(
+    vendorId: string,
+    image?: ImageInfo,
+  ): Promise<UploadResult | undefined> {
+    let fileName: string = '';
+
+    if (!image?.uri || image.uri == '') {
+      throw new Error('Invalid Uri');
+    }
+
+    fileName = `images/${vendorId}/profile/vendor/packages/inclusions${vendorId}.${image.fileExtension}`;
+
+    const result = await this.uploadFile(fileName, image.uri);
+
+    return result;
+  }
+
   async uploadMessageImage(
     chatId: string,
     messageId: string,
