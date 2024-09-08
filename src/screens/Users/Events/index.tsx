@@ -367,7 +367,7 @@ const BookingList: React.FC<BookingListProps> = ({ bookings, onPress }) => {
           <Text style={styles.bookingListDate}>
             {format(item.date, 'MMMM dd, yyyy')}
           </Text>
-          <Text style={styles.bookingListPrice}>{item.package.capacity}</Text>
+          <Text style={styles.bookingListPrice}>₱{addCommasToNumber(item.package.price)}</Text>
         </View>
       </View>
     </Pressable>
