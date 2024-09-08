@@ -24,6 +24,7 @@ import { EventInfo, HomeScreenNavigationProp } from "types/types";
 import { isBefore } from "date-fns";
 import { useAuth } from "@clerk/clerk-expo";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Block from "Components/Ui/Block";
 
 interface FloatingCreateButtonProps {
   onPress: () => void;
@@ -314,7 +315,7 @@ function EventList() {
   }
 
   return (
-    <SafeAreaView>
+    <Block safe>
       <View testID="test-events" style={styles.container}>
         <Image
           background
@@ -327,7 +328,7 @@ function EventList() {
         <Text className="font-bold">You have no events!</Text>
       </View>
       <FloatingCreateButton onPress={onCreatePress} />
-    </SafeAreaView>
+    </Block>
   );
 }
 

@@ -188,7 +188,7 @@ const BookingDetails = (props: BookingDetailsProps) => {
       <View style={styles.packageContainer}>
         <View style={styles.separator} />
         <Text  style={{fontWeight: "bold"}}>Inclusions:</Text>
-        {booking.package.inclusions.map(item => <Text key={item.id} style={{fontWeight: "bold"}}>- {item.name} - {item.description} </Text>)}
+        {booking.package.inclusions.map(item => <Text key={item._id} style={{fontWeight: "bold"}}>- {item.name} - {item.description} </Text>)}
         <View style={styles.separator} />
 
       </View>
