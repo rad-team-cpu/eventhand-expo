@@ -180,7 +180,7 @@ const VendorMenu = () => {
       vendorPackage,
     };
 
-    navigation.navigate('BookingConfirmation', BookingConfirmationProps);
+    // navigation.navigate('BookingConfirmation', BookingConfirmationProps);
   };
 
   const onMessagePress = () => {
