@@ -27,6 +27,8 @@ const BookingDetails = () => {
   const [vendorPackage, setVendorPackage] = useState<PackageType | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
+
 
   if (!userContext) {
     throw new Error('UserInfo must be used within a UserProvider');
@@ -38,8 +40,7 @@ const BookingDetails = () => {
     vendorId: string;
     eventId: string;
   };
-  console.log(pkg)
-
+  console.log(pkg);
 
   // const fetchPackage = useCallback(async () => {
   //   try {
@@ -74,6 +75,7 @@ const BookingDetails = () => {
   //   loadPackage();
   // }, [fetchPackage]);
   const onPressConfirm = async () => {
+    setLoading(true)
     const bookingData = {
       package: {
         _id: pkg._id,
@@ -82,26 +84,18 @@ const BookingDetails = () => {
         capacity: pkg.capacity,
         price: pkg.price,
         description: pkg.description,
-        orderType: 'SERVICE', 
-        tags: pkg.tags.map((tag) => (typeof tag === 'string' ? tag : tag._id)), 
-        inclusions: pkg.inclusions.map((inclusion) => ({
-          _id: inclusion._id,
-          imageUrl: inclusion.imageUrl,
-          name: inclusion.name,
-          description: inclusion.description,
-          quantity: inclusion.quantity,
-        })),
+        orderType: 'SERVICE',
+        tags: pkg.tags.map((tag) => (typeof tag === 'string' ? tag : tag._id)),
+        inclusions: pkg.inclusions,
       },
       vendorId: vendorId,
       eventId: eventId,
       status: BookingStatus.Pending,
       date: new Date().toISOString(), // Date in ISO format
     };
-  
-    console.log(bookingData); // Debugging: check structure before sending it to the backend
-  
+
     try {
-      await axios.post(
+      const response = await axios.post(
         `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking`,
         bookingData,
         {
@@ -110,19 +104,22 @@ const BookingDetails = () => {
           },
         }
       );
+
       setSuccess(true);
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
       setError('Error confirming booking');
     }
   };
 
   const onSuccessPress = () => {
-    // navigation.navigate('Home');
+    navigation.replace('Home', {});
   };
 
-  // if (loading) {
-  //   return <Loading />;
-  // }
+  if (loading) {
+    return <Loading />;
+  }
 
   if (error) {
     return <Text>{error}</Text>;
