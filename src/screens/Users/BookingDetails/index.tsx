@@ -25,7 +25,6 @@ const BookingDetails = () => {
   const route = useRoute();
   const { assets, sizes, gradients } = useTheme();
   const [vendorPackage, setVendorPackage] = useState<PackageType | null>(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
@@ -34,57 +33,68 @@ const BookingDetails = () => {
   }
   const { user } = userContext;
 
-  const { packageId, vendorId, eventId } = route.params as {
-    packageId: string;
+  const { pkg, vendorId, eventId } = route.params as {
+    pkg: PackageType;
     vendorId: string;
     eventId: string;
-
   };
+  console.log(pkg);
 
-  const fetchPackage = useCallback(async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/packages/${packageId}`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-      setVendorPackage(response.data);
-    } catch (error: any) {
-      setError(error.message || 'Error fetching package');
-      setLoading(false);
-    }
-  }, [packageId]);
+  // const fetchPackage = useCallback(async () => {
+  //   try {
+  //     const response = await axios.get(
+  //       `${process.env.EXPO_PUBLIC_BACKEND_URL}/packages/${packageId}`,
+  //       {
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //         },
+  //       }
+  //     );
+  //     setVendorPackage(response.data);
+  //   } catch (error: any) {
+  //     setError(error.message || 'Error fetching package');
+  //     setLoading(false);
+  //   }
+  // }, [packageId]);
 
-  useEffect(() => {
-    const loadPackage = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        await fetchPackage();
-      } catch (err) {
-        setLoading(false);
-        return;
-      }
-      setLoading(false);
+  // useEffect(() => {
+  //   const loadPackage = async () => {
+  //     setLoading(true);
+  //     setError(null);
+  //     try {
+  //       await fetchPackage();
+  //     } catch (err) {
+  //       setLoading(false);
+  //       return;
+  //     }
+  //     setLoading(false);
+  //   };
+
+  //   loadPackage();
+  // }, [fetchPackage]);
+  const onPressConfirm = async () => {
+    const bookingData = {
+      package: {
+        inclusions: pkg.inclusions.map((inclusion) => ({
+          _id: inclusion._id,
+          imageUrl: inclusion.imageUrl,
+          name: inclusion.name,
+          description: inclusion.description,
+          quantity: inclusion.quantity,
+        })),
+      },
+      vendorId: vendorId, // Keep this field as is
+      eventId: eventId, // Keep this field as is
+      status: BookingStatus.Pending, // Keep the status as a valid string
+      date: new Date().toISOString(), // Set the current date in ISO format
     };
 
-    loadPackage();
-  }, [fetchPackage]);
+    console.log(bookingData); // Debugging: check structure before sending it to the backend
 
-  const onPressConfirm = async () => {
     try {
       await axios.post(
         `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking`,
-        {
-          package: packageId,
-          vendorId: vendorId,
-          clientId: user._id,
-          event: eventId,
-          bookingStatus: BookingStatus.Pending,
-        },
+        bookingData,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -92,19 +102,18 @@ const BookingDetails = () => {
         }
       );
       setSuccess(true);
-    } catch (error: any) {
-      console.error('Error confirming booking:', error.message);
+    } catch (error) {
       setError('Error confirming booking');
     }
   };
 
   const onSuccessPress = () => {
-    // navigation.navigate('Home'); // Navigate to the home screen or another appropriate screen
+    // navigation.navigate('Home');
   };
 
-  if (loading) {
-    return <Loading />;
-  }
+  // if (loading) {
+  //   return <Loading />;
+  // }
 
   if (error) {
     return <Text>{error}</Text>;
@@ -139,7 +148,7 @@ const BookingDetails = () => {
         </Button>
         <Text className='font-bold text-lg p-2'>Confirm Booking Details:</Text>
 
-        {vendorPackage?.inclusions.map((inclusion: Inclusion) => (
+        {pkg?.inclusions.map((inclusion: Inclusion) => (
           <Block
             key={inclusion._id}
             className='h-18 w-full rounded-xl flex flex-row my-5'
@@ -175,11 +184,9 @@ const BookingDetails = () => {
           justify='space-between'
           marginVertical={sizes.sm}
         >
-          <Text className='font-bold text-xl flex-1'>
-            {vendorPackage?.name}
-          </Text>
+          <Text className='font-bold text-xl flex-1'>{pkg?.name}</Text>
           <Text className='font-bold text-primary'>
-            Total: ₱{vendorPackage?.price.toFixed(2)}
+            Total: ₱{pkg?.price.toFixed(2)}
           </Text>
         </Block>
         <Button gradient={gradients.primary} onPress={onPressConfirm}>

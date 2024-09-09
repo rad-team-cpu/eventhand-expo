@@ -272,7 +272,7 @@ interface BookingConfirmationProps {
 
 interface BookingDetailsProps {
   _id?: string;
-  package?: PackageType;
+  pkg?: PackageType;
   packageId?: string;
   vendor?: Vendor;
   vendorId?: string;

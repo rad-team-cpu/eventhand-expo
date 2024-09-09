@@ -9,7 +9,7 @@ import { StatusBar } from 'expo-status-bar';
 import { UserContext } from 'Contexts/UserContext';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import { HomeScreenNavigationProp, ScreenProps, Tag } from 'types/types';
+import { HomeScreenNavigationProp, PackageType, ScreenProps, Tag } from 'types/types';
 import { useAuth } from '@clerk/clerk-react';
 import Button from 'Components/Ui/Button';
 
@@ -20,7 +20,7 @@ interface PackageAlgoType {
   vendorContactNum: string;
   vendorBio: string;
   vendorAddress: { city: string };
-  vendorPackages: Package[];
+  vendorPackages: PackageType[];
   averageRating: number;
 }
 
@@ -99,9 +99,11 @@ export default function PackageList() {
     return <Loading />;
   }
 
-  const handleBookPress = (packageId: string) => {
-    console.log(`Book package with ID: ${packageId}`);
-    navigation.navigate('BookingDetails', { packageId });
+  const handleBookPress = (pkg: PackageType, eventId: string, vendorId: string) => {
+    console.log(`Book package: ${pkg._id}`);
+    console.log(eventId)
+    console.log(vendorId)
+    navigation.navigate('BookingDetails', { pkg, eventId, vendorId});
   };
 
   const handleVendorPress = (vendorId: string) => {
@@ -195,10 +197,10 @@ export default function PackageList() {
                   </View>
                 </TouchableOpacity>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  {vendor.vendorPackages.map((packageItem) => (
+                  {vendor.vendorPackages.map((packageItem: PackageType) => (
                     <TouchableOpacity
                       key={`${packageItem._id} - package`}
-                      onPress={() => handleBookPress(packageItem._id)}
+                      onPress={() => handleBookPress(packageItem, eventID, vendor._id)}
                       className='bg-slate-600 h-40 w-32 flex rounded-xl mr-4 relative'
                     >
                       <Image
@@ -223,7 +225,7 @@ export default function PackageList() {
                         </View>
                       </View>
                       <TouchableOpacity
-                        onPress={() => handleBookPress(packageItem._id)}
+                        onPress={() => handleBookPress(packageItem, vendor._id, eventID)}
                         style={{
                           position: 'absolute',
                           bottom: -1,
