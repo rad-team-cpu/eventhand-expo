@@ -38,7 +38,8 @@ const BookingDetails = () => {
     vendorId: string;
     eventId: string;
   };
-  console.log(pkg);
+  console.log(pkg)
+
 
   // const fetchPackage = useCallback(async () => {
   //   try {
@@ -75,6 +76,14 @@ const BookingDetails = () => {
   const onPressConfirm = async () => {
     const bookingData = {
       package: {
+        _id: pkg._id,
+        imageUrl: pkg.imageUrl,
+        name: pkg.name,
+        capacity: pkg.capacity,
+        price: pkg.price,
+        description: pkg.description,
+        orderType: 'SERVICE', 
+        tags: pkg.tags.map((tag) => (typeof tag === 'string' ? tag : tag._id)), 
         inclusions: pkg.inclusions.map((inclusion) => ({
           _id: inclusion._id,
           imageUrl: inclusion.imageUrl,
@@ -83,14 +92,14 @@ const BookingDetails = () => {
           quantity: inclusion.quantity,
         })),
       },
-      vendorId: vendorId, // Keep this field as is
-      eventId: eventId, // Keep this field as is
-      status: BookingStatus.Pending, // Keep the status as a valid string
-      date: new Date().toISOString(), // Set the current date in ISO format
+      vendorId: vendorId,
+      eventId: eventId,
+      status: BookingStatus.Pending,
+      date: new Date().toISOString(), // Date in ISO format
     };
-
+  
     console.log(bookingData); // Debugging: check structure before sending it to the backend
-
+  
     try {
       await axios.post(
         `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking`,
