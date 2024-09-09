@@ -30,7 +30,7 @@ import { faker } from '@faker-js/faker';
 import { useAuth } from '@clerk/clerk-expo';
 import Loading from 'screens/Loading';
 import ErrorScreen from 'Components/Error';
-import { isAfter, isBefore } from 'date-fns';
+import { isAfter, isBefore, isToday } from 'date-fns';
 
 type Category = {
   name: string;
@@ -732,7 +732,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
         </View>
       </View>
 
-      {!isBefore(event.date, new Date()) && (
+      {isAfter(event.date, new Date()) || isToday(event.date) && (
         <TabView
           navigationState={{ index, routes }}
           renderScene={renderScene}
