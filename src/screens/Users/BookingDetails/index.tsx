@@ -4,78 +4,35 @@ import Block from 'Components/Ui/Block';
 import Image from 'Components/Ui/Image';
 import useTheme from 'src/core/theme';
 import Button from 'Components/Ui/Button';
-import { ScrollView, Text, TouchableOpacity } from 'react-native';
+import { Text } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import axios from 'axios';
 import {
-  Vendor,
   PackageType,
-  ScreenProps,
   BookingStatus,
   HomeScreenNavigationProp,
   Inclusion,
 } from 'types/types';
-import { UserContext } from 'Contexts/UserContext';
 import Loading from 'screens/Loading';
 import SuccessScreen from 'Components/Success';
 
 const BookingDetails = () => {
-  const userContext = useContext(UserContext);
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const route = useRoute();
   const { assets, sizes, gradients } = useTheme();
-  const [vendorPackage, setVendorPackage] = useState<PackageType | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
-
-
-  if (!userContext) {
-    throw new Error('UserInfo must be used within a UserProvider');
-  }
-  const { user } = userContext;
 
   const { pkg, vendorId, eventId } = route.params as {
     pkg: PackageType;
     vendorId: string;
     eventId: string;
   };
-  console.log(pkg);
+  console.log('package:', pkg);
 
-  // const fetchPackage = useCallback(async () => {
-  //   try {
-  //     const response = await axios.get(
-  //       `${process.env.EXPO_PUBLIC_BACKEND_URL}/packages/${packageId}`,
-  //       {
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //         },
-  //       }
-  //     );
-  //     setVendorPackage(response.data);
-  //   } catch (error: any) {
-  //     setError(error.message || 'Error fetching package');
-  //     setLoading(false);
-  //   }
-  // }, [packageId]);
-
-  // useEffect(() => {
-  //   const loadPackage = async () => {
-  //     setLoading(true);
-  //     setError(null);
-  //     try {
-  //       await fetchPackage();
-  //     } catch (err) {
-  //       setLoading(false);
-  //       return;
-  //     }
-  //     setLoading(false);
-  //   };
-
-  //   loadPackage();
-  // }, [fetchPackage]);
   const onPressConfirm = async () => {
-    setLoading(true)
+    setLoading(true);
     const bookingData = {
       package: {
         _id: pkg._id,
@@ -91,8 +48,9 @@ const BookingDetails = () => {
       vendorId: vendorId,
       eventId: eventId,
       status: BookingStatus.Pending,
-      date: new Date().toISOString(), // Date in ISO format
+      date: new Date().toISOString(),
     };
+    console.log('Booking data:', bookingData);
 
     try {
       const response = await axios.post(
@@ -104,7 +62,7 @@ const BookingDetails = () => {
           },
         }
       );
-
+      console.log('Sent data to backend:', response);
       setSuccess(true);
       setLoading(false);
     } catch (error) {
