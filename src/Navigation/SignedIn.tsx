@@ -15,7 +15,6 @@ import VendorProfileForm from 'screens/Vendor/Profile/Form';
 import { ScreenProps } from 'types/types';
 import BookingConfirmation from 'screens/Users/BookingConfirmation';
 import BookingDetails from 'screens/Users/BookingDetails';
-import BookingView from 'screens/Vendor/Bookings';
 import AboutForm from 'screens/Vendor/Profile/AboutForm';
 import MenuForm from 'screens/Vendor/Profile/MenuForm';
 import VerificationForm from 'screens/Vendor/Profile/VerificationForm';
@@ -23,9 +22,9 @@ import Rating from 'Components/Ratings/Rating';
 import UserBookingView from 'screens/Users/BookingView';
 import MultiStepForm from 'screens/Vendor/Profile/MultiStepForm';
 import UserReview from 'screens/Users/Review';
-import VendorReviews from 'screens/Vendor/Reviews/List';
 import VendorReview from 'screens/Vendor/Reviews';
 import PackageList from 'screens/Users/Packages/PackageList';
+import VendorBookingView from 'screens/Vendor/Bookings';
 
 const SignedInStack = createNativeStackNavigator<ScreenProps>();
 
@@ -138,8 +137,8 @@ const SignedInNav = () => {
         initialParams={vendorHomeInitialParams}
       />
       <SignedInStack.Screen
-        name='BookingView'
-        component={BookingView}
+        name='VendorBookingView'
+        component={VendorBookingView}
         options={{ headerShown: false }}
       />
       <SignedInStack.Screen

@@ -91,6 +91,10 @@ const BookingListItem = (props: BookingListItemProps) => {
     COMPLETED: "blue",
   };
 
+  const handleItemPress = () => {
+    navigation.navigate("BookingView");
+  }
+
   return (
     <Pressable
       key={_id}
@@ -490,6 +494,23 @@ function VendorPendingBookingList() {
       <>
         <SafeAreaView>
           <StatusBar />
+          <View style={styles.tabBarContainer}>
+            <Pressable
+              style={[
+                styles.tabBarButton,
+                styles.tabBarButtonSelected,
+              ]}
+            >
+              <Text
+                style={
+                    styles.tabBarTextSelected
+                }
+              >
+                PENDING
+              </Text>
+            </Pressable>
+
+          </View>
         </SafeAreaView>
         {loading && <Loading />}
         {!loading && (

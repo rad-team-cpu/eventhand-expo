@@ -153,6 +153,7 @@ interface Inclusion {
   quantity: number;
 }
 interface PackageType {
+  [x: string]: ReactNode;
   _id: string;
   name: string;
   imageUrl?: string;
@@ -342,6 +343,8 @@ type VendorReviewType = {
   comment: string | null;
 };
 
+
+
 type ScreenProps = {
   SignUp: undefined;
   Login: undefined;
@@ -350,7 +353,7 @@ type ScreenProps = {
   EventForm: undefined;
   UpdateEventForm: UpdateEventFormProps;
   EventView: EventInfo;
-  BookingView: BookingViewProps;
+  VendorBookingView: undefined
   VendorList: undefined;
   PackageList: { event: EventInfo };
   VendorMenu: VendorMenuProps;
@@ -423,7 +426,7 @@ type EventViewScreenProps = NativeStackScreenProps<ScreenProps, 'EventView'>;
 
 type BookingViewScreenProps = NativeStackScreenProps<
   ScreenProps,
-  'BookingView'
+  'VendorBookingView'
 >;
 
 type ChatScreenProps = NativeStackScreenProps<ScreenProps, 'Chat'>;

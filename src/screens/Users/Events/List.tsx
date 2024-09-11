@@ -102,7 +102,7 @@ const EventListItem = ({
         </Text> */}
         <Text style={styles.budgetText}>{dateString}</Text>
         <Text style={styles.capacityText}>
-          Capacity: {attendees !== 0 ? `${attendees} pax` : "TBD"}
+          Guests: {attendees !== 0 ? `${attendees} pax` : "TBD"}
         </Text>
       </View>
     </Pressable>
@@ -183,17 +183,17 @@ function EventList() {
     }
   };
 
-  useEffect(() => {
-    // console.log(eventList.totalPages)
-    // console.log(eventList.events.length)
-    if (page > 1 &&  page < eventList.totalPages) {
-      fetchMoreEvents();
-    }
+  // useEffect(() => {
+  //   // console.log(eventList.totalPages)
+  //   // console.log(eventList.events.length)
+  //   if (page > 1 &&  page < eventList.totalPages) {
+  //     fetchMoreEvents();
+  //   }
 
-    if (eventList.events.length <= 0) {
-      navigation.replace("EventForm");
-    }
-  }, [page]);
+  //   if (eventList.events.length <= 0) {
+  //     navigation.replace("EventForm");
+  //   }
+  // }, [page]);
 
   const events = useCallback(() => {
     const events = eventList.events;
@@ -213,22 +213,22 @@ function EventList() {
   }, [selectedTab, eventList]);
 
   const renderFooter = () => {
-    if (loading) {
-      return <ActivityIndicator size="large" color="#CB0C9F" />;
-    }
+    // if (loading) {
+    //   return <ActivityIndicator size="large" color="#CB0C9F" />;
+    // }
     if (page === eventList.totalPages) {
       return (
         <Text style={{ textAlign: "center", padding: 10 }}>No more events</Text>
       );
     }
 
-    if (error.error) {
-      return (
-        <Text style={{ textAlign: "center", padding: 10 }}>
-          Error loading more events
-        </Text>
-      );
-    }
+    // if (error.error) {
+    // return (
+    //     <Text style={{ textAlign: "center", padding: 10 }}>
+    //         Error loading more events
+    //     </Text>
+    //   );
+    // }
 
     return null;
   };
@@ -369,7 +369,6 @@ const styles = StyleSheet.create({
     marginVertical: 1,
     marginLeft: 1,
     backgroundColor: "#fff",
-    borderLeftWidth: 10,
     borderTopLeftRadius: 8,
     borderBottomLeftRadius: 8,
     borderRightColor: "#fff",
