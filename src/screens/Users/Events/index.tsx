@@ -497,8 +497,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
   };
 
   const handleFindSupplier = () => {
-    const eventID = eventId;
-    navigation.navigate('PackageList', { eventID });
+    navigation.navigate('PackageList', { event });
   };
 
   useEffect(() => {
