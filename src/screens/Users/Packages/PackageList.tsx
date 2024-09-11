@@ -10,7 +10,9 @@ import { UserContext } from 'Contexts/UserContext';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import {
+  EventInfo,
   HomeScreenNavigationProp,
+  PackageAlgoType,
   PackageType,
   ScreenProps,
   Tag,
@@ -18,29 +20,10 @@ import {
 import { useAuth } from '@clerk/clerk-react';
 import Button from 'Components/Ui/Button';
 
-interface PackageAlgoType {
-  _id: string;
-  vendorName: string;
-  vendorLogo: string;
-  vendorContactNum: string;
-  vendorBio: string;
-  vendorAddress: { city: string };
-  vendorPackages: PackageType[];
-  averageRating: number;
-}
 
-interface Package {
-  _id: string;
-  name: string;
-  imageUrl: string;
-  price: number;
-  capacity: number;
-  description: string;
-  tag: Tag[];
-}
 
 type PackageListRouteParams = {
-  PackageList: { eventID: string };
+  PackageList: { event: EventInfo };
 };
 
 export default function PackageList() {
@@ -51,13 +34,13 @@ export default function PackageList() {
   const navigation = useNavigation<HomeScreenNavigationProp>();
 
   const route = useRoute<RouteProp<PackageListRouteParams, 'PackageList'>>();
-  const { eventID } = route.params;
+  const { event } = route.params;
 
   useEffect(() => {
-    if (eventID) {
-      console.log(`Event ID received: ${eventID}`);
+    if (event) {
+      console.log(`Event ID received: ${event._id}`);
     }
-  }, [eventID]);
+  }, [event]);
 
   const [vendors, setVendors] = useState<PackageAlgoType[]>([]);
 
@@ -66,7 +49,7 @@ export default function PackageList() {
   }
 
   const fetchVendors = async () => {
-    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/packages/${eventID}/available`;
+    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/packages/${event._id}/available`;
 
     const token = getToken({ template: 'event-hand-jwt' });
 
@@ -106,10 +89,10 @@ export default function PackageList() {
 
   const handleBookPress = (
     pkg: PackageType,
-    eventId: string,
-    vendorId: string
+    event: EventInfo,
+    vendor: PackageAlgoType
   ) => {
-    navigation.navigate('BookingDetails', { pkg, eventId, vendorId });
+    navigation.navigate('BookingDetails', { pkg, event, vendor });
   };
 
   const handleVendorPress = (vendorId: string) => {
@@ -132,9 +115,9 @@ export default function PackageList() {
         <Image
           background
           resizeMode='cover'
-          padding={sizes.md}
           source={assets.background}
           height={80}
+          paddingTop={sizes.md}
         >
           <Block row justify='flex-start' align='flex-start'>
             <Button
@@ -207,7 +190,7 @@ export default function PackageList() {
                     <TouchableOpacity
                       key={`${index} - package`}
                       onPress={() =>
-                        handleBookPress(packageItem, eventID, vendor._id)
+                        handleBookPress(packageItem, event, vendor)
                       }
                       className='bg-slate-600 h-40 w-32 flex rounded-xl mr-4 relative'
                     >
@@ -234,7 +217,7 @@ export default function PackageList() {
                       </View>
                       <TouchableOpacity
                         onPress={() =>
-                          handleBookPress(packageItem, vendor._id, eventID)
+                          handleBookPress(packageItem, event, vendor)
                         }
                         style={{
                           position: 'absolute',
