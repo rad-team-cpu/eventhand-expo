@@ -22,6 +22,17 @@ type PaginationInfo = {
   totalPages: number;
 };
 
+interface PackageAlgoType {
+  _id: string;
+  vendorName: string;
+  vendorLogo: string;
+  vendorContactNum: string;
+  vendorBio: string;
+  vendorAddress: { city: string };
+  vendorPackages: PackageType[];
+  averageRating: number;
+}
+
 type EventBudget = {
   eventPlanning: number | null;
   eventCoordination: number | null;
@@ -72,6 +83,24 @@ interface BookingType {
   };
   createdAt: Date;
   updatedAt: Date;
+}
+
+interface BookingPackageType {
+  _id: string;
+  name: string;
+  imageUrl: string;
+  capacity: number;
+  tags: Tag[];
+  orderType: string;
+  description: string;
+  price: number;
+  inclusions: {
+    _id: string;
+    imageUrl: string;
+    name: string;
+    description: string;
+    quantity: number;
+  }[];
 }
 
 interface EventInfo {
@@ -127,10 +156,15 @@ interface PackageType {
   imageUrl?: string;
   capacity: number;
   tags: Tag[];
-  orderType: string;
+  orderTypes: OrderType[];
   description: string;
   price: number;
   inclusions: Inclusion[];
+}
+
+interface OrderType{
+  name: string;
+  disabled: boolean;
 }
 
 interface Product {
@@ -274,7 +308,7 @@ interface BookingDetailsProps {
   _id?: string;
   pkg?: PackageType;
   packageId?: string;
-  vendor?: Vendor;
+  vendor?: Vendor | PackageAlgoType;
   vendorId?: string;
   client?: UserProfile;
   clientId?: string | UserProfile;
@@ -316,7 +350,7 @@ type ScreenProps = {
   EventView: EventInfo;
   BookingView: BookingViewProps;
   VendorList: undefined;
-  PackageList: { eventID: string };
+  PackageList: { event: EventInfo };
   VendorMenu: VendorMenuProps;
   BookingConfirmation: BookingConfirmationProps;
   BookingDetails: BookingDetailsProps;
@@ -332,15 +366,17 @@ type ScreenProps = {
   VerificationForm: undefined;
   MenuForm: undefined;
   Rating: undefined;
-  UserBookingView: {booking: BookingType, isPastEventDate?: boolean, event: EventInfo};
-  UserReview: {booking: BookingType, event: EventInfo}
-  VendorReview: VendorReviewType
-  Welcome: undefined
+  UserBookingView: {
+    booking: BookingType;
+    isPastEventDate?: boolean;
+    event: EventInfo;
+  };
+  UserReview: { booking: BookingType; event: EventInfo };
+  VendorReview: VendorReviewType;
+  Welcome: undefined;
 };
 
-
-
-type WelcomeScreenProps = NativeStackScreenProps<ScreenProps, "Welcome">
+type WelcomeScreenProps = NativeStackScreenProps<ScreenProps, 'Welcome'>;
 
 type VendorReviewScreenProps = NativeStackScreenProps<
   ScreenProps,
@@ -489,6 +525,7 @@ export {
   ImageInfo,
   ImageUploadResult,
   PackageType,
+  PackageAlgoType,
   Product,
   Tag,
   Review,
@@ -531,5 +568,7 @@ export {
   UserReviewScreenProps,
   VendorReviewType,
   VendorReviewScreenProps,
-  WelcomeScreenProps
+  WelcomeScreenProps,
+  BookingPackageType,
+  OrderType
 };
