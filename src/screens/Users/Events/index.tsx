@@ -730,8 +730,24 @@ function EventView({ route, navigation }: EventViewScreenProps) {
           </Text>
         </View>
       </View>
+      {isToday(event.date) && (
+        <TabView
+          navigationState={{ index, routes }}
+          renderScene={renderScene}
+          onIndexChange={setIndex}
+          initialLayout={{ width: 300 }}
+          renderTabBar={(props) => (
+            <TabBar
+              {...props}
+              indicatorStyle={styles.indicator}
+              style={styles.tabBar}
+              labelStyle={styles.label}
+            />
+          )}
+        />
+      )}
 
-      {isAfter(event.date, new Date()) || isToday(event.date) && (
+      {isAfter(event.date, new Date())  && (
         <TabView
           navigationState={{ index, routes }}
           renderScene={renderScene}
