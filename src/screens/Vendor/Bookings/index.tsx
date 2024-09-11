@@ -267,7 +267,7 @@ function BookingView() {
               <Image
                 background
                 padding={sizes.md}
-                src={inclusion.imageURL}
+                src={inclusion.imageUrl}
                 rounded
                 className='rounded-xl h-18 w-18 mr-2'
               ></Image>

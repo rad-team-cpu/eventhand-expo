@@ -58,6 +58,7 @@ const VendorHomeNav = ({ initialTab }: VendorHomeNavProps) => {
   const chatIconOptions: BottomTabNavigationOptions = {
     tabBarTestID: `chat-nav-btn`,
     headerShown: false,
+    tabBarBadge: 5,
     tabBarIcon: ({ color, size }) => (
       <AntDesign name='message1' color={color} size={size} />
     ),
@@ -93,7 +94,7 @@ const VendorHomeNav = ({ initialTab }: VendorHomeNavProps) => {
       />
       <Tab.Screen
         name='Bookings'
-        component={UpcomingBookingList}
+        component={BookingList}
         options={bookingsIconOptions}
       />
       <Tab.Screen
