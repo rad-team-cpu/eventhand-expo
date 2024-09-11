@@ -135,64 +135,66 @@ function EventList() {
   const { user, eventList, setEventList } = userContext;
   const [page, setPage] = useState(eventList.currentPage);
 
-  const fetchMoreEvents = async () => {
-    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/${user._id}?page=${page}&pageSize=10`;
-    console.log(url)
+  // const fetchMoreEvents = async () => {
+  //   const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/${user._id}?page=${page}&limit=50`;
+  //   console.log(url)
 
-    const token = getToken({ template: "event-hand-jwt" });
+  //   const token = getToken({ template: "eventhand-client" });
 
-    const request = {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    };
+  //   const request = {
+  //     method: "GET",
+  //     headers: {
+  //       Accept: "application/json",
+  //       "Content-Type": "application/json",
+  //       Authorization: `Bearer ${token}`,
+  //     },
+  //   };
 
-    try {
-      const res = await fetch(url, request);
-      const data = await res.json();
+  //   try {
+  //     const res = await fetch(url, request);
+  //     const data = await res.json();
 
-      if (res.status === 200) {
-        setEventList((prevstate) => {
-          return {
-            ...data,
-            events: [...prevstate.events, ...data.events],
-          };
-        });
+  //     if (res.status === 200) {
+  //       setEventList((prevstate) => {
+  //         return {
+  //           ...data,
+  //           events: [...prevstate.events, ...data.events],
+  //         };
+  //       });
 
-        console.log("EVENT DATA SUCCESSFULLY LOADED");
-      } else if (res.status === 400) {
-        throw new Error("Bad request - Invalid data.");
-      } else if (res.status === 401) {
-        throw new Error("Unauthorized - Authentication failed.");
-      } else if (res.status === 404) {
-        throw new Error("Event Not Found");
-      } else {
-        throw new Error("Unexpected error occurred.");
-      }
-    } catch (error: any) {
-      console.error(`Error fetching event (${error.code}): ${error} `);
-      setError({
-        error: true,
-        message: `Error fetching event (${error.code}): ${error} `,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  //       console.log("EVENT DATA SUCCESSFULLY LOADED");
+  //     } else if (res.status === 400) {
+  //       throw new Error("Bad request - Invalid data.");
+  //     } else if (res.status === 401) {
+  //       throw new Error("Unauthorized - Authentication failed.");
+  //     } else if (res.status === 404) {
+  //       throw new Error("Event Not Found");
+  //     } else {
+  //       throw new Error("Unexpected error occurred.");
+  //     }
+  //   } catch (error: any) {
+  //     console.error(`Error fetching event (${error.code}): ${error} `);
+  //     setError({
+  //       error: true,
+  //       message: `Error fetching event (${error.code}): ${error} `,
+  //     });
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   // useEffect(() => {
-  //   // console.log(eventList.totalPages)
-  //   // console.log(eventList.events.length)
-  //   if (page > 1 &&  page < eventList.totalPages) {
-  //     fetchMoreEvents();
-  //   }
+    // console.log(eventList.totalPages)
+    // console.log(eventList.events.length)
+    // if (page > 1 &&  page < eventList.totalPages) {
+  
+    // }
 
-  //   if (eventList.events.length <= 0) {
-  //     navigation.replace("EventForm");
-  //   }
+    // if (eventList.events.length <= 0) {
+    //   navigation.replace("EventForm");
+    // }
+
+    // fetchMoreEvents();
   // }, [page]);
 
   const events = useCallback(() => {
