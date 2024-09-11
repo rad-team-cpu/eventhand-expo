@@ -35,7 +35,7 @@ interface PackageType {
   imageUrl: string;
   capacity: number;
   tags: Tag[];
-  orderType: string;
+  orderTypes: OrderType[];
   description: string;
   price: number;
   inclusions: {
@@ -45,6 +45,11 @@ interface PackageType {
     description: string;
     quantity: number;
   }[];
+}
+
+interface OrderType {
+  name: string;
+  disabled: boolean;
 }
 
 interface ReviewType {
