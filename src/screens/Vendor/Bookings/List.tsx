@@ -126,7 +126,7 @@ interface ErrorState {
   message: string;
 }
 
-function BookingList() {
+function VendorBookingList() {
   const vendorContext = useContext(VendorContext);
   const { assets, sizes } = useTheme();
   const { getToken } = useAuth();
@@ -147,7 +147,6 @@ function BookingList() {
   if (!vendorContext) {
     throw new Error("VendorBookingList must be used within a UserProvider");
   }
-
 
   const { vendor } = vendorContext;
   const [page, setPage] = useState(1);
@@ -344,7 +343,6 @@ function BookingList() {
       </>
     );
   }
-  
 
   return (
     <Block safe>
@@ -358,6 +356,168 @@ function BookingList() {
           className="rounded-xl h-72 w-72"
         ></Image>
         <Text className="font-bold">You have no Bookings!</Text>
+      </View>
+    </Block>
+  );
+}
+
+function VendorPendingBookingList() {
+  const vendorContext = useContext(VendorContext);
+  const { assets, sizes } = useTheme();
+  const { getToken } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<ErrorState>({ error: false, message: "" });
+  const [bookingList, setBookingList] = useState<BookingListType>({
+    bookings: [],
+    currentPage: 1,
+    totalPages: 1,
+    hasMore: false,
+  });
+
+  const navigation = useNavigation<HomeScreenNavigationProp>();
+
+  if (!vendorContext) {
+    throw new Error("VendorBookingList must be used within a UserProvider");
+  }
+
+  const { vendor } = vendorContext;
+  const [page, setPage] = useState(1);
+
+  const fetchBookings = async (
+    vendorId: string,
+    page: number,
+    limit: number,
+    status: BookingStatus
+  ) => {
+    setLoading(true);
+    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking/vendor/${vendorId}?page=${page}&limit=${limit}&status=${status}`;
+
+    const token = getToken({ template: "eventhand-vendor" });
+
+    const request = {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    try {
+      const res = await fetch(url, request);
+      const data = await res.json();
+
+      if (res.status === 200) {
+        setBookingList(data);
+
+        console.log("BOOKING DATA SUCCESSFULLY LOADED");
+      } else if (res.status === 400) {
+        throw new Error("Bad request - Invalid data.");
+      } else if (res.status === 401) {
+        throw new Error("Unauthorized - Authentication failed.");
+      } else if (res.status === 404) {
+        throw new Error("Bookings Not Found");
+      } else {
+        throw new Error("Unexpected error occurred.");
+      }
+    } catch (error: any) {
+      console.error(`Error fetching event (${error.code}): ${error} `);
+      setError({
+        error: true,
+        message: `Error fetching event (${error.code}): ${error} `,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBookings(vendor.id, page, 50, BookingStatus.Pending);
+
+    // }
+  }, []);
+
+  // const events = useCallback(() => {
+  //   const events = eventList.events;
+  //   const upcomingEvents = events.filter(
+  //     (event) => isAfter(event.date, new Date()) || isToday(event.date)
+  //   );
+  //   const pastEvents = events.filter((event) =>
+  //     isBefore(event.date, new Date()) && !isToday(event.date)
+  //   );
+
+  //   switch (selectedTab) {
+  //     case "Past":
+  //       return pastEvents;
+  //     case "Upcoming":
+  //       return upcomingEvents;
+  //   }
+  // }, [selectedTab, eventList]);
+  // };
+
+  // const bookings: BookingListItemType[] = fakeBookingDataArray
+  const { bookings, hasMore } = bookingList;
+
+  const renderFooter = () => {
+    // if (loading) {
+    //   return <ActivityIndicator size="large" color="#CB0C9F" />;
+    // }
+
+    return (
+      <Text style={{ textAlign: "center", padding: 10 }}>No more events</Text>
+    );
+
+    // if (error.error) {
+    //   return (
+    //     <Text style={{ textAlign: "center", padding: 10 }}>
+    //       Error loading more event
+    //     </Text>
+    //   );
+    // }
+
+    return null;
+  };
+
+  // const onEndReached = () => {
+  //   if (hasMore) {
+  //     setPage((page) => page + 1);
+  //     fetchBookings(vendor.id, page + 1, 10, selectedTab);
+  //   }
+  // };
+
+  if (bookings.length > 0) {
+    return (
+      <>
+        <SafeAreaView>
+          <StatusBar />
+        </SafeAreaView>
+        {loading && <Loading />}
+        {!loading && (
+          <FlatList
+            keyExtractor={(item) => item._id}
+            contentContainerStyle={styles.listContainer}
+            data={bookings}
+            renderItem={({ item }) => <BookingListItem booking={item} />}
+            // onEndReached={onEndReached}
+            ListFooterComponent={renderFooter}
+          />
+        )}
+      </>
+    );
+  }
+
+  return (
+    <Block safe>
+      <View testID="test-events" style={styles.container}>
+        <Image
+          background
+          resizeMode="cover"
+          padding={sizes.md}
+          source={assets.noEvents}
+          rounded
+          className="rounded-xl h-72 w-72"
+        ></Image>
+        <Text className="font-bold">You have no Pending Bookings!</Text>
       </View>
     </Block>
   );
@@ -469,4 +629,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default BookingList;
+export { VendorBookingList, VendorPendingBookingList };

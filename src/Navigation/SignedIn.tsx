@@ -16,8 +16,6 @@ import { ScreenProps } from 'types/types';
 import BookingConfirmation from 'screens/Users/BookingConfirmation';
 import BookingDetails from 'screens/Users/BookingDetails';
 import BookingView from 'screens/Vendor/Bookings';
-import UpcomingBookingList from 'screens/Vendor/Bookings/UpcomingBookings';
-import BookingList from 'screens/Vendor/Bookings/List';
 import AboutForm from 'screens/Vendor/Profile/AboutForm';
 import MenuForm from 'screens/Vendor/Profile/MenuForm';
 import VerificationForm from 'screens/Vendor/Profile/VerificationForm';
@@ -152,16 +150,6 @@ const SignedInNav = () => {
       <SignedInStack.Screen
         name='MultiStepForm'
         component={MultiStepForm}
-        options={{ headerShown: false }}
-      />
-      <SignedInStack.Screen
-        name='UpcomingBookingList'
-        component={UpcomingBookingList}
-        options={{ headerShown: false }}
-      />
-      <SignedInStack.Screen
-        name='BookingList'
-        component={BookingList}
         options={{ headerShown: false }}
       />
       <SignedInStack.Screen
