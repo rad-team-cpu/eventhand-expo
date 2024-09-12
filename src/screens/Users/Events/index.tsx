@@ -117,7 +117,7 @@ const BudgetScreen = (props: BudgetScreenProps) => {
   useFocusEffect(
     useCallback(() => {
       const backHandler = BackHandler.addEventListener(
-        "hardwareBackPress",
+        'hardwareBackPress',
         backAction
       );
 
@@ -367,7 +367,9 @@ const BookingList: React.FC<BookingListProps> = ({ bookings, onPress }) => {
           <Text style={styles.bookingListDate}>
             {format(item.date, 'MMMM dd, yyyy')}
           </Text>
-          <Text style={styles.bookingListPrice}>₱{addCommasToNumber(item.package.price)}</Text>
+          <Text style={styles.bookingListPrice}>
+            ₱{addCommasToNumber(item.package.price)}
+          </Text>
         </View>
       </View>
     </Pressable>
@@ -541,7 +543,10 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     <BookingList
       bookings={confirmedBookings}
       onPress={(booking: BookingType) =>
-        navigation.navigate("UserBookingView", { booking: { ...booking }, event })
+        navigation.navigate('UserBookingView', {
+          booking: { ...booking },
+          event,
+        })
       }
     />
   );
@@ -549,7 +554,10 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     <BookingList
       bookings={pendingBookings}
       onPress={(booking: BookingType) =>
-        navigation.navigate("UserBookingView", { booking: { ...booking }, event })
+        navigation.navigate('UserBookingView', {
+          booking: { ...booking },
+          event,
+        })
       }
     />
   );
@@ -557,7 +565,10 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     <BookingList
       bookings={cancelledOrDeclinedBookings}
       onPress={(booking: BookingType) =>
-        navigation.navigate("UserBookingView", { booking: { ...booking, }, event})
+        navigation.navigate('UserBookingView', {
+          booking: { ...booking },
+          event,
+        })
       }
     />
   );
@@ -579,7 +590,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     budget,
     pendingBookings: [],
     confirmedBookings: [],
-    cancelledOrDeclinedBookings: []
+    cancelledOrDeclinedBookings: [],
   };
 
   const onUpdateBtnPress = () => {
@@ -658,7 +669,10 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     );
   }
 
-  const onBackBtnPress = () => (navigation.canGoBack())? navigation.goBack(): navigation.replace("Home", {});
+  const onBackBtnPress = () =>
+    navigation.canGoBack()
+      ? navigation.goBack()
+      : navigation.replace('Home', {});
   const onEditButtonPress = () => setOpenEdit(true);
 
   return (
@@ -731,7 +745,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
         </View>
       </View>
 
-      {isAfter(event.date, new Date()) || isToday(event.date) && (
+      {(isAfter(event.date, new Date()) || isToday(event.date)) && (
         <TabView
           navigationState={{ index, routes }}
           renderScene={renderScene}
@@ -754,7 +768,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
             navigation.navigate('UserBookingView', {
               booking: { ...booking },
               isPastEventDate: isAfter(new Date(), event.date),
-              event
+              event,
             })
           }
         />

@@ -20,8 +20,6 @@ import {
 import { useAuth } from '@clerk/clerk-react';
 import Button from 'Components/Ui/Button';
 
-
-
 type PackageListRouteParams = {
   PackageList: { event: EventInfo };
 };
@@ -104,13 +102,9 @@ export default function PackageList() {
     navigation.navigate('VendorMenu', vendorMenuProps);
   };
 
-  const handlePackagePress = (packageId: string) => {
-    console.log(`View package with ID: ${packageId}`);
-  };
 
   return (
     <Block testID='package-list' safe>
-      {/* <StatusBar style='auto' /> */}
       <Block flex={0}>
         <Image
           background
@@ -229,7 +223,7 @@ export default function PackageList() {
                           height: 30,
                           alignItems: 'center',
                           justifyContent: 'center',
-                          zIndex: 10, // Ensures the plus button is above everything else
+                          zIndex: 10,
                         }}
                       >
                         <AntDesign name='plus' size={20} color='white' />

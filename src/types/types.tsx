@@ -346,6 +346,7 @@ type ScreenProps = {
   Home: HomeProps;
   ProfileForm: undefined;
   EventForm: undefined;
+  MyMenu: undefined;
   UpdateEventForm: UpdateEventFormProps;
   EventView: EventInfo;
   BookingView: BookingViewProps;
@@ -455,6 +456,7 @@ type VendorHomeScreenBottomTabsProps = {
   Home: NavigatorScreenParams<ScreenProps>;
   Requests: undefined;
   Bookings: undefined;
+  MyMenu: undefined;
   ChatList: ChatListProps;
   Profile: undefined;
   Reviews: undefined;
