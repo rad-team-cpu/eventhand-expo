@@ -64,26 +64,22 @@ interface BookingType {
   }; // Reference to a Vendor
   date: Date;
   status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'DECLINED' | 'COMPLETED';
-  package: {
-    _id: string;
-    name: string;
-    imageUrl: string;
-    capacity: number;
-    tags: Tag[];
-    orderType: string;
-    description: string;
-    price: number;
-    inclusions: {
-      _id: string;
-      imageUrl: string;
-      name: string;
-      description: string;
-      quantity: number;
-    }[];
-  };
+  package: PackageBookingType;
   createdAt: Date;
   updatedAt: Date;
 }
+
+type PackageBookingType = {
+  _id: string;
+  name: string;
+  imageUrl: string;
+  capacity: number;
+  tags: Tag[];
+  orderType: string;
+  description: string;
+  price: number;
+  inclusions: Inclusion[]
+};
 
 interface BookingPackageType {
   _id: string;
@@ -153,7 +149,6 @@ interface Inclusion {
   quantity: number;
 }
 interface PackageType {
-  [x: string]: ReactNode;
   _id: string;
   name: string;
   imageUrl?: string;
@@ -320,9 +315,8 @@ interface BookingDetailsProps {
   bookingStatus?: BookingStatus;
 }
 
-interface BookingViewProps {
+interface VendorBookingViewProps {
   _id: string;
-  fromPending: boolean;
 }
 
 type EventUpdateValueType = 'NAME' | 'ADDRESS' | 'DATE' | 'GUEST' | 'BUDGET';
@@ -338,7 +332,7 @@ type VendorReviewType = {
   clientFullName: string;
   profilePicture: string | null;
   contactNumber: string;
-  package: PackageType;
+  package: PackageBookingType;
   rating: number;
   comment: string | null;
 };
@@ -353,7 +347,7 @@ type ScreenProps = {
   EventForm: undefined;
   UpdateEventForm: UpdateEventFormProps;
   EventView: EventInfo;
-  VendorBookingView: undefined
+  VendorBookingView: VendorBookingViewProps;
   VendorList: undefined;
   PackageList: { event: EventInfo };
   VendorMenu: VendorMenuProps;
@@ -424,7 +418,7 @@ type UpdateEventFormScreenProps = NativeStackScreenProps<
 
 type EventViewScreenProps = NativeStackScreenProps<ScreenProps, 'EventView'>;
 
-type BookingViewScreenProps = NativeStackScreenProps<
+type VendorBookingViewScreenProps = NativeStackScreenProps<
   ScreenProps,
   'VendorBookingView'
 >;
@@ -551,7 +545,7 @@ export {
   EventListScreenProps,
   EventListNavigationProps,
   EventViewScreenProps,
-  BookingViewScreenProps,
+  VendorBookingViewScreenProps,
   ChatScreenProps,
   ChatNavigationProps,
   VendorListScreenProps,
@@ -575,5 +569,6 @@ export {
   VendorReviewScreenProps,
   WelcomeScreenProps,
   BookingPackageType,
-  OrderType
+  OrderType,
+  PackageBookingType
 };
