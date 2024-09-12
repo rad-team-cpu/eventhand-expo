@@ -91,8 +91,8 @@ const BookingListItem = (props: BookingListItemProps) => {
     COMPLETED: "blue",
   };
 
-  const handleItemPress = () => {
-    navigation.navigate("BookingView");
+  const handleItemPress = (_id: string) => {
+    navigation.navigate("VendorBookingView", {_id});
   }
 
   return (
@@ -100,7 +100,7 @@ const BookingListItem = (props: BookingListItemProps) => {
       key={_id}
       style={[styles.itemContainer]}
       android_ripple={{ color: "#c0c0c0" }}
-      // onPress={onPress}
+      onPress={() => handleItemPress(_id)}
     >
       <Text style={styles.dateText}>Client: {client.name}</Text>
       <View style={styles.separator} />
@@ -369,7 +369,7 @@ function VendorPendingBookingList() {
   const vendorContext = useContext(VendorContext);
   const { assets, sizes } = useTheme();
   const { getToken } = useAuth();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<ErrorState>({ error: false, message: "" });
   const [bookingList, setBookingList] = useState<BookingListType>({
     bookings: [],
@@ -393,7 +393,6 @@ function VendorPendingBookingList() {
     limit: number,
     status: BookingStatus
   ) => {
-    setLoading(true);
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking/vendor/${vendorId}?page=${page}&limit=${limit}&status=${status}`;
 
     const token = getToken({ template: "eventhand-vendor" });
