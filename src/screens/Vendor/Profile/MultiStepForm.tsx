@@ -11,7 +11,7 @@ import BlockedDays from './BlockedDays';
 
 const MultiStepForm = ({ navigation, route }: VendorProfileFormScreenProps) => {
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 5;
+  const totalSteps = 4;
 
   const [formData, setFormData] = useState({
     vendorProfile: { logo: {} || null, name: '', email: '', contactNumber: '' },
@@ -43,7 +43,7 @@ const MultiStepForm = ({ navigation, route }: VendorProfileFormScreenProps) => {
   };
 
   const handleNextStep = () => {
-    if (currentStep === 5) {
+    if (currentStep === 4) {
       navigateToSuccessError({
         description: 'Your information was saved successfully.',
         buttonText: 'Continue',
@@ -166,7 +166,7 @@ const MultiStepForm = ({ navigation, route }: VendorProfileFormScreenProps) => {
           initialData={formData.blockedDays}
         />
       )}
-      {currentStep === 5 && (
+      {/* {currentStep === 5 && (
         <MenuForm
           navigation={navigation}
           route={route}
@@ -174,7 +174,7 @@ const MultiStepForm = ({ navigation, route }: VendorProfileFormScreenProps) => {
           onGoBack={handleGoBack}
           onSkip={handleConfirm}
         />
-      )}
+      )} */}
     </View>
   );
 };
