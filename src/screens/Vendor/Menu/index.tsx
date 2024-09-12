@@ -479,7 +479,9 @@ const MyMenu = () => {
               <Block className='flex flex-row justify-between'>
                 <Text className='text-xl font-bold self-center'>Packages</Text>
                 <Button
-                // onPress={()=>{navigation.navigate(MenuForm)}}
+                  onPress={() => {
+                    navigation.navigate('MenuForm');
+                  }}
                 >
                   <AntDesign name='plus' size={24} color='#CB0C9F' />
                 </Button>
@@ -488,7 +490,7 @@ const MyMenu = () => {
                 {vendorDetails.packages.map((vendorPackage: PackageType) => (
                   <TouchableOpacity
                     key={vendorPackage._id}
-                    className='h-24 w-full rounded-xl border border-primary flex flex-row mt-2'
+                    className='h-28 w-full rounded-xl border border-primary flex flex-row mt-2'
                   >
                     <Image
                       background
@@ -533,7 +535,6 @@ const MyMenu = () => {
               </ScrollView>
             </Block>
 
-            {/* Edit Package Modal */}
             <Modal
               visible={modalVisible}
               transparent={true}
@@ -597,29 +598,88 @@ const MyMenu = () => {
                           color: 'black',
                         }}
                       />
-                      <Text className='font-bold text-base'>Inclusions:</Text>
+                      <View className='flex flex-row justify-between items-center'>
+                        <Text className='font-bold text-base'>Inclusions:</Text>
+                        <Button
+                          outlined
+                          primary
+              
+                          shadow={false}
+                          onPress={() => {
+                            const newInclusion = {
+                              _id: '',
+                              name: '',
+                              description: '',
+                              imageUrl: '',
+                              quantity: 1,
+                            };
+                            setEditedPackage((prev) =>
+                              prev
+                                ? {
+                                    ...prev,
+                                    inclusions: [
+                                      ...prev.inclusions,
+                                      newInclusion,
+                                    ],
+                                  }
+                                : null
+                            );
+                          }}
+                        >
+                          <AntDesign name='plus' size={18} color='#CB0C9F' />
+                        </Button>
+                      </View>
                       <ScrollView style={{ maxHeight: 250 }}>
                         {editedPackage.inclusions.map((inclusion, index) => (
-                          <>
+                          <View key={inclusion._id}>
                             <Text>Inclusion Name:</Text>
                             <TextInput
-                              key={inclusion._id}
                               value={inclusion.name}
                               onChangeText={(text) =>
-                                setEditedPackage(
-                                  (prev) =>
-                                    prev && {
-                                      ...prev,
-                                      inclusions: prev.inclusions.map(
-                                        (inc, i) =>
-                                          i === index
-                                            ? { ...inc, name: text }
-                                            : inc
-                                      ),
-                                    }
+                                setEditedPackage((prev) =>
+                                  prev
+                                    ? {
+                                        ...prev,
+                                        inclusions: prev.inclusions.map(
+                                          (inc, i) =>
+                                            i === index
+                                              ? { ...inc, name: text }
+                                              : inc
+                                        ),
+                                      }
+                                    : null
                                 )
                               }
                               placeholder='Inclusion Name'
+                              style={{
+                                borderWidth: 1,
+                                borderColor: colors.primary,
+                                padding: sizes.xs,
+                                borderRadius: sizes.sm,
+                                marginLeft: sizes.sm,
+                                marginBottom: 10,
+                                color: 'black',
+                              }}
+                            />
+                            <Text>Inclusion Description:</Text>
+                            <TextInput
+                              value={inclusion.description}
+                              onChangeText={(text) =>
+                                setEditedPackage((prev) =>
+                                  prev
+                                    ? {
+                                        ...prev,
+                                        inclusions: prev.inclusions.map(
+                                          (inc, i) =>
+                                            i === index
+                                              ? { ...inc, description: text }
+                                              : inc
+                                        ),
+                                      }
+                                    : null
+                                )
+                              }
+                              placeholder='Inclusion Description'
                               style={{
                                 borderWidth: 1,
                                 borderColor: colors.primary,
@@ -690,7 +750,7 @@ const MyMenu = () => {
                                 <Text>+</Text>
                               </TouchableOpacity>
                             </Block>
-                          </>
+                          </View>
                         ))}
                       </ScrollView>
                       <Button
