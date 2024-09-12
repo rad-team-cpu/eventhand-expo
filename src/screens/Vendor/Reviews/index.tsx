@@ -161,7 +161,7 @@ const ReviewDetails = (props: ReviewDetailsProps) => {
        <View style={styles.container}>
       {/* Vendor Information */}
       <View style={styles.vendorContainer}>
-        <Image source={{ uri: review.profilePicture? review.profilePicture: require("images/user.png") }} style={styles.vendorLogo} />
+        <Image source={review.profilePicture?{ uri:  review.profilePicture  }: require("images/user.png")} style={styles.vendorLogo} />
         <View style={styles.vendorDetails}>
           <Text style={styles.vendorName}>{review.clientFullName}</Text>
 

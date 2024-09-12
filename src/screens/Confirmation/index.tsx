@@ -42,8 +42,9 @@ function Confirmation({ navigation, route }: ConfirmationScreenProps) {
 
     if(isSwitching && !switchingTo){
       const message: SocketRegisterInput = {
-        senderId: switchingTo == "CLIENT"? vendor._id : user._id,
-        senderType: switchingTo == "CLIENT"? "VENDOR" : "CLIENT"
+        senderId: switchingTo == "CLIENT"? vendor.id : user._id,
+        senderType: switchingTo == "CLIENT"? "VENDOR" : "CLIENT",
+        inputType: "REGISTER"
       }
 
       sendMessage(message);
