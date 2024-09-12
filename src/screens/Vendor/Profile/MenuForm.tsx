@@ -48,6 +48,7 @@ interface PackageInput {
   imageUrl?: ImageInfo | null;
   capacity: number;
   price: number;
+  description: string;
   inclusions: InclusionInput[];
   orderTypes?: OrderType[];
 }
@@ -92,6 +93,7 @@ const packageSchema: yup.ObjectSchema<PackageInput> = yup.object().shape({
     })
     .nullable(),
   name: yup.string().required('Package name is required'),
+  description: yup.string().required('Package description is required'),
   price: yup.number().required('Price is required').min(1),
   capacity: yup.number().required('Capacity is required').min(1),
   inclusions: yup
@@ -133,6 +135,7 @@ const MenuForm = ({
         {
           name: '',
           capacity: 0,
+          description: '',
           imageUrl: {
             fileSize: 0,
             uri: '',
@@ -188,6 +191,7 @@ const MenuForm = ({
         const packagePayload = {
           vendorId: vendorId,
           name: pkg.name,
+          description: pkg.description,
           price: Number(pkg.price),
           capacity: Number(pkg.capacity),
           imageUrl: uploadPath,
@@ -305,6 +309,7 @@ const MenuForm = ({
                       imageUrl: null,
                       capacity: 0,
                       price: 0,
+                      description: '',
                       inclusions: [
                         {
                           name: '',
@@ -386,6 +391,36 @@ const MenuForm = ({
                   </Text>
                 )}
               </Block>
+            </Block>
+            <Block>
+              <Text>Description:</Text>
+              <Controller
+                name={`packages.${packageIndex}.description`}
+                control={control}
+                render={({ field: { onChange, value } }) => (
+                  <TextInput
+                    placeholder='Package Description'
+                    value={value}
+                    onChangeText={onChange}
+                    style={{
+                      borderWidth: 1,
+                      borderColor: 'gray',
+                      padding: sizes.s,
+                      borderRadius: sizes.sm,
+                    }}
+                  />
+                )}
+              />
+              {errors.packages?.[packageIndex]?.description && (
+                <Text danger>
+                  {errors.packages[packageIndex].description?.message}
+                </Text>
+              )}
+              {errors.packages?.[packageIndex]?.imageUrl && (
+                <Text danger>
+                  {errors.packages[packageIndex].imageUrl?.message}
+                </Text>
+              )}
             </Block>
 
             <Text>Price:</Text>
@@ -569,15 +604,13 @@ const InclusionFields = ({
       {inclusionFields.map((inclusion, inclusionIndex) => (
         <Block
           key={inclusion.id}
-          card
           padding={sizes.s}
           marginVertical={sizes.s}
-          shadow={false}
           outlined
           style={{ flexDirection: 'column' }}
           radius={sizes.sm}
         >
-          <Block className='flex flex-row h-20'>
+          <Block className='flex flex-row h-20' shadow={false}>
             <Controller
               name={`packages.${packageIndex}.inclusions.${inclusionIndex}.imageUrl`}
               control={control}
