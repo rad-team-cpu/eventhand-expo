@@ -129,14 +129,12 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
     switching,
     setMode,
     mode,
-    setEventList,
-    eventList,
   } = userContext;
   const { connectionTimeout, isConnected, reconnect, sendMessage } = webSocket;
 
   const fetchUserId = async () => {
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/${userId}/events`;
-    console.log(url);
+
     const token = getToken({ template: 'eventhand-client' });
 
     const request = {
@@ -153,9 +151,8 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
       const data = await res.json();
 
       if (res.status === 200) {
-        const resEventList = data.events;
         setUser({ ...data.user });
-        setEventList({ ...resEventList });
+
         const getChatListInput: GetChatListInput = {
           senderId: data.user._id,
           senderType: 'CLIENT',

@@ -180,6 +180,8 @@ const BookingDetails = (props: BookingDetailsProps) => {
       
     };
 
+  const handleViewEventPress = () => navigation.navigate("VendorEventView", {eventId: booking.event._id});
+
   return (
     <>
       <Toolbar handleBackPress={handleBackPress} />
@@ -201,7 +203,7 @@ const BookingDetails = (props: BookingDetailsProps) => {
           <Text style={{...styles.buttonText, fontWeight: "bold"}}>CHAT</Text>
         </Pressable>
         <Pressable style={styles.viewEventButton} >
-          <Text style={{...styles.buttonText, fontWeight: "bold"}}>VIEW EVENT</Text>
+          <Text style={{...styles.buttonText, fontWeight: "bold"}} onPress={handleViewEventPress}>VIEW EVENT</Text>
         </Pressable>
 
         
@@ -241,11 +243,11 @@ const BookingDetails = (props: BookingDetailsProps) => {
               <Text style={[styles.buttonText, {fontWeight:"bold"}]}>{booking.status !== "CONFIRMED"?"CANCEL REQUEST":"CANCEL BOOKING"}</Text>
             </Pressable>
       ) }
-           {booking.status === "COMPLETED" && (
+           {/* {booking.status === "COMPLETED" && (
               <Pressable style={[styles.cancelButton, {backgroundColor: "purple"}]}>
               <Text style={[styles.buttonText, {fontWeight:"bold" }]}>VIEW REVIEW</Text>
             </Pressable>
-      ) }
+      ) } */}
     </ScrollView>
     </>
   );
@@ -315,7 +317,7 @@ function  VendorBookingView({navigation, route}: VendorBookingViewScreenProps) {
 
   useEffect(() =>{
     fetchBooking()
-  }, [])
+  }, [reload])
 
 
   const handleBackPress = () => navigation.replace("VendorHome", {initialTab: booking?.status === "PENDING"?"Requests":"Bookings"});

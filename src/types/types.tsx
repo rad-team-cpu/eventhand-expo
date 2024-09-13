@@ -337,6 +337,10 @@ type VendorReviewType = {
   comment: string | null;
 };
 
+interface VendorEventViewProps {
+  eventId: string
+}
+
 
 
 type ScreenProps = {
@@ -373,7 +377,10 @@ type ScreenProps = {
   UserReview: { booking: BookingType; event: EventInfo };
   VendorReview: VendorReviewType;
   Welcome: undefined;
+  VendorEventView: VendorEventViewProps;
 };
+
+type VendorEventViewScreenProps = NativeStackScreenProps<ScreenProps, "VendorEventView">;
 
 type WelcomeScreenProps = NativeStackScreenProps<ScreenProps, 'Welcome'>;
 
@@ -570,5 +577,6 @@ export {
   WelcomeScreenProps,
   BookingPackageType,
   OrderType,
-  PackageBookingType
+  PackageBookingType,
+  VendorEventViewScreenProps
 };

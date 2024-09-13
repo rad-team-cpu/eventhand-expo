@@ -25,6 +25,7 @@ import UserReview from 'screens/Users/Review';
 import VendorReview from 'screens/Vendor/Reviews';
 import PackageList from 'screens/Users/Packages/PackageList';
 import VendorBookingView from 'screens/Vendor/Bookings';
+import VendorEventView from 'screens/Vendor/Event';
 
 const SignedInStack = createNativeStackNavigator<ScreenProps>();
 
@@ -174,6 +175,11 @@ const SignedInNav = () => {
       <SignedInStack.Screen
         name='VendorReview'
         component={VendorReview}
+        options={{ headerShown: false }}
+      />
+      <SignedInStack.Screen
+        name='VendorEventView'
+        component={VendorEventView}
         options={{ headerShown: false }}
       />
     </SignedInStack.Navigator>
