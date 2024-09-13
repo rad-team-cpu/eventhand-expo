@@ -114,34 +114,8 @@ function VendorProfile() {
               paddingBottom={sizes.l}
               source={assets.background}
             >
-              <Block flex={0} align='flex-end' marginVertical={sizes.sm}>
-                <Text white>{isVisible ? 'Visible' : 'Hidden'}</Text>
-                <Switch
-                  value={isVisible}
-                  onValueChange={handleToggleVisibility}
-                  disabled={loading}
-                />
-              </Block>
               <Block flex={0} align='center' marginVertical={sizes.sm}>
                 <Avatar uri={avatarImage} label={name} />
-              </Block>
-              <Block className='flex flex-row justify-center items-center mb-5'>
-                <Block className='items-center'>
-                  <Pressable onPress={() => navigation.navigate('AboutForm')}>
-                    <Block className='items-center'>
-                      <Entypo name='news' size={24} color='white' />
-                    </Block>
-                    <Text white>Edit bio</Text>
-                  </Pressable>
-                </Block>
-                <Block className='items-center'>
-                  <Pressable onPress={() => navigation.navigate('MenuForm')}>
-                    <Block className='items-center'>
-                      <MaterialIcons name='menu-book' size={24} color='white' />
-                    </Block>
-                    <Text white>Edit Menu</Text>
-                  </Pressable>
-                </Block>
               </Block>
             </Image>
           </Block>
@@ -149,14 +123,23 @@ function VendorProfile() {
             flex={0}
             radius={sizes.sm}
             marginTop={-sizes.l}
-            paddingVertical={sizes.sm}
             marginHorizontal='8%'
             color='rgba(255,255,255,1)'
           >
-            <Block>
-              <Text bold h5 className='uppercase pl-4 pt-2'>
-                Contact Details
+            <Block className='flex flex-row'>
+              <Text bold h5 className='uppercase pl-4 pt-2 self-center'>
+                Contact Details:
               </Text>
+              <Block className='flex-end'>
+                <Switch
+                  value={isVisible}
+                  onValueChange={handleToggleVisibility}
+                  disabled={loading}
+                />
+                <Text className='self-end pr-1 text-xs'>
+                  {isVisible ? 'Visible' : 'Hidden'}
+                </Text>
+              </Block>
             </Block>
             <Block align='flex-start' className='pl-4 pt-4'>
               <Text
@@ -181,6 +164,7 @@ function VendorProfile() {
                 {email}
               </Text>
             </Block>
+
             <Button
               testID='test-vendor-btn'
               color='#FFA500'

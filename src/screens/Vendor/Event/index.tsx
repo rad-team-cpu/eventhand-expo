@@ -288,20 +288,11 @@ const BookingList: React.FC<BookingListProps> = ({ bookings, onPress }) => {
 function VendorEventView({ route, navigation }: VendorEventViewScreenProps) {
   const eventId = route.params.eventId;
   const { getToken } = useAuth();
-  const [index, setIndex] = useState(0);
   const [openBudget, setOpenBudget] = useState(false);
   const [loading, setLoading] = useState(true);
   const [event, setEvent] = useState<EventInfo | undefined>();
   const [error, setError] = useState(false);
   const [errMessage, setErrMessage] = useState('');
-  const [routes] = useState([
-    { key: 'confirmed', title: 'Confirmed' },
-    { key: 'pending', title: 'Pending' },
-    { key: 'cancelled', title: 'Cancelled/Declined' },
-  ]);
-
-  const [eventBookings, setEventBookings] = useState<BookingDetailsProps[]>([]);
-
 
   const fetchEvent = async () => {
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/${eventId}/bookings`;
@@ -376,9 +367,7 @@ function VendorEventView({ route, navigation }: VendorEventViewScreenProps) {
     budget,
     date,
     address,
-    pendingBookings,
     confirmedBookings,
-    cancelledOrDeclinedBookings,
     completedBookings,
   } = event;
 
@@ -388,36 +377,6 @@ function VendorEventView({ route, navigation }: VendorEventViewScreenProps) {
 
   const dateString = format(date, 'MMMM dd, yyyy');
 
-  const Confirmed = () => (
-    <BookingList
-      bookings={confirmedBookings}
-      onPress={(booking: BookingType) =>
-        navigation.navigate("UserBookingView", { booking: { ...booking }, event })
-      }
-    />
-  );
-  const Pending = () => (
-    <BookingList
-      bookings={pendingBookings}
-      onPress={(booking: BookingType) =>
-        navigation.navigate("UserBookingView", { booking: { ...booking }, event })
-      }
-    />
-  );
-  const Cancelled = () => (
-    <BookingList
-      bookings={cancelledOrDeclinedBookings}
-      onPress={(booking: BookingType) =>
-        navigation.navigate("UserBookingView", { booking: { ...booking, }, event})
-      }
-    />
-  );
-
-  const renderScene = SceneMap({
-    confirmed: Confirmed,
-    pending: Pending,
-    cancelled: Cancelled,
-  });
 
   const onBudgetBackButtonPress = () => setOpenBudget(false);
 
@@ -445,15 +404,6 @@ function VendorEventView({ route, navigation }: VendorEventViewScreenProps) {
       <View style={listStyles.eventContainer}>
         <View className='flex flex-row justify-between'>
           <Text style={listStyles.dateText}>{dateString}</Text>
-          {/* <Button
-            row
-            flex={0}
-            justify="flex-start"
-            onPress={onBackBtnPress}
-          >
-            <AntDesign name="back" size={24} color="#CB0C9F" />
-            <Text className="text-primary ml-1">Go back</Text>
-          </Button> */}
           <View style={styles.container}>
           </View>
         </View>
@@ -465,10 +415,6 @@ function VendorEventView({ route, navigation }: VendorEventViewScreenProps) {
             <Text style={listStyles.capacityText}>{address}</Text>
           </>
         )}
-        {/* <View style={listStyles.row}>
-          <Text style={listStyles.dateText}>{dateString}</Text>
-
-        </View> */}
         <View style={listStyles.separator} />
         <View style={listStyles.row}>
           <Pressable
@@ -490,40 +436,6 @@ function VendorEventView({ route, navigation }: VendorEventViewScreenProps) {
           </Text>
         </View>
       </View>
-      {isToday(event.date) && (
-        <TabView
-          navigationState={{ index, routes }}
-          renderScene={renderScene}
-          onIndexChange={setIndex}
-          initialLayout={{ width: 300 }}
-          renderTabBar={(props) => (
-            <TabBar
-              {...props}
-              indicatorStyle={styles.indicator}
-              style={styles.tabBar}
-              labelStyle={styles.label}
-            />
-          )}
-        />
-      )}
-
-      {isAfter(event.date, new Date())  && (
-        <TabView
-          navigationState={{ index, routes }}
-          renderScene={renderScene}
-          onIndexChange={setIndex}
-          initialLayout={{ width: 300 }}
-          renderTabBar={(props) => (
-            <TabBar
-              {...props}
-              indicatorStyle={styles.indicator}
-              style={styles.tabBar}
-              labelStyle={styles.label}
-            />
-          )}
-        />
-      )}
-      {isBefore(event.date, new Date()) && (
         <BookingList
           bookings={pastBookings}
           onPress={(booking: BookingType) =>
@@ -534,7 +446,6 @@ function VendorEventView({ route, navigation }: VendorEventViewScreenProps) {
             })
           }
         />
-      )}
       {/* <HomeNav /> */}
     </>
   );

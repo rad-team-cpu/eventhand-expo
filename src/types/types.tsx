@@ -259,6 +259,14 @@ interface HomeProps {
 
 interface VendorMenuProps {
   vendorId: string;
+
+}
+
+interface VendorListItem {
+  _id: string;
+  name: string;
+  logo: string;
+  averageRating: number;
 }
 
 // interface VendorListProps {
@@ -349,6 +357,7 @@ type ScreenProps = {
   Home: HomeProps;
   ProfileForm: undefined;
   EventForm: undefined;
+  MyMenu: undefined;
   UpdateEventForm: UpdateEventFormProps;
   EventView: EventInfo;
   VendorBookingView: VendorBookingViewProps;
@@ -461,6 +470,7 @@ type VendorHomeScreenBottomTabsProps = {
   Home: NavigatorScreenParams<ScreenProps>;
   Requests: undefined;
   Bookings: undefined;
+  MyMenu: undefined;
   ChatList: ChatListProps;
   Profile: undefined;
   Reviews: undefined;

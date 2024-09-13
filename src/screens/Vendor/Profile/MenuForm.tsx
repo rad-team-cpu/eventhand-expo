@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   useForm,
   useFieldArray,
@@ -22,7 +22,14 @@ import { VendorContext } from 'Contexts/VendorContext';
 import { UploadResult } from 'firebase/storage';
 import PackageUpload from 'Components/Input/PackageUpload';
 import { Ionicons } from '@expo/vector-icons';
-import { VendorProfileFormScreenProps } from 'types/types';
+import {
+  HomeScreenNavigationProp,
+  Tag,
+  VendorProfileFormScreenProps,
+} from 'types/types';
+import { useNavigation } from '@react-navigation/native';
+import { previousDay } from 'date-fns';
+import { useAuth } from '@clerk/clerk-react';
 
 interface InclusionInput {
   name: string;
@@ -48,6 +55,8 @@ interface PackageInput {
   imageUrl?: ImageInfo | null;
   capacity: number;
   price: number;
+  tags: Tag[];
+  description: string;
   inclusions: InclusionInput[];
   orderTypes?: OrderType[];
 }
@@ -56,11 +65,10 @@ interface FormValues {
   packages: PackageInput[];
 }
 
-interface VendorProfileFormProps extends VendorProfileFormScreenProps {
-  onConfirm: () => void;
-  onGoBack: () => void;
-  onSkip: () => void;
-}
+const tagSchema: yup.ObjectSchema<Tag> = yup.object().shape({
+  _id: yup.string().required('Tag ID is required'),
+  name: yup.string().required('Tag name is required'),
+});
 
 const inclusionSchema: yup.ObjectSchema<InclusionInput> = yup.object().shape({
   name: yup.string().required('Inclusion name is required'),
@@ -92,6 +100,7 @@ const packageSchema: yup.ObjectSchema<PackageInput> = yup.object().shape({
     })
     .nullable(),
   name: yup.string().required('Package name is required'),
+  description: yup.string().required('Package description is required'),
   price: yup.number().required('Price is required').min(1),
   capacity: yup.number().required('Capacity is required').min(1),
   inclusions: yup
@@ -103,6 +112,11 @@ const packageSchema: yup.ObjectSchema<PackageInput> = yup.object().shape({
     .array()
     .of(ordertypeSchema)
     .min(1, 'At least one order type is required'),
+  tags: yup
+    .array()
+    .of(tagSchema)
+    .required('Tags are required')
+    .min(1, 'At least one tag is required'),
 });
 
 const formSchema: yup.ObjectSchema<FormValues> = yup.object().shape({
@@ -113,13 +127,12 @@ const formSchema: yup.ObjectSchema<FormValues> = yup.object().shape({
     .min(1, 'At least one package is required'),
 });
 
-const MenuForm = ({
-  navigation,
-  onGoBack,
-  onConfirm,
-}: VendorProfileFormProps) => {
+const MenuForm = () => {
   const [loading, setLoading] = useState(false);
+  const navigation = useNavigation<HomeScreenNavigationProp>();
   const { sizes, assets } = useTheme();
+  const [predefinedTags, setPredefinedTags] = useState<Tag[]>([]);
+  const { getToken } = useAuth();
   const {
     control,
     handleSubmit,
@@ -133,6 +146,8 @@ const MenuForm = ({
         {
           name: '',
           capacity: 0,
+          description: '',
+          tags: [],
           imageUrl: {
             fileSize: 0,
             uri: '',
@@ -188,6 +203,7 @@ const MenuForm = ({
         const packagePayload = {
           vendorId: vendorId,
           name: pkg.name,
+          description: pkg.description,
           price: Number(pkg.price),
           capacity: Number(pkg.capacity),
           imageUrl: uploadPath,
@@ -232,7 +248,6 @@ const MenuForm = ({
       }
 
       setLoading(false);
-      onConfirm();
       navigation.navigate('SuccessError', {
         description: 'Your information was saved successfully.',
         buttonText: 'Continue',
@@ -255,6 +270,39 @@ const MenuForm = ({
     { name: 'service', disabled: false },
   ];
 
+  const fetchTags = async () => {
+    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/tags`;
+
+    const token = getToken({ template: 'event-hand-jwt' });
+
+    const request = {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    try {
+      const res = await fetch(url, request);
+      const data = await res.json();
+      if (res.status === 200) {
+        setPredefinedTags(data);
+      } else {
+        throw new Error('Error loading tags');
+      }
+    } catch (error: any) {
+      console.error(`Error fetching tags: ${error} `);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTags();
+  }, []);
+
   return (
     <Block safe marginTop={sizes.md}>
       <ScrollView
@@ -272,7 +320,12 @@ const MenuForm = ({
             radius={sizes.cardRadius}
             source={assets.background}
           >
-            <Button row flex={0} justify='flex-start' onPress={onGoBack}>
+            <Button
+              row
+              flex={0}
+              justify='flex-start'
+              onPress={() => navigation.goBack()}
+            >
               <AntDesign name='back' size={24} color='white' />
               <Text p white marginLeft={sizes.s}>
                 Go back
@@ -305,6 +358,8 @@ const MenuForm = ({
                       imageUrl: null,
                       capacity: 0,
                       price: 0,
+                      description: '',
+                      tags: [],
                       inclusions: [
                         {
                           name: '',
@@ -386,6 +441,36 @@ const MenuForm = ({
                   </Text>
                 )}
               </Block>
+            </Block>
+            <Block>
+              <Text>Description:</Text>
+              <Controller
+                name={`packages.${packageIndex}.description`}
+                control={control}
+                render={({ field: { onChange, value } }) => (
+                  <TextInput
+                    placeholder='Package Description'
+                    value={value}
+                    onChangeText={onChange}
+                    style={{
+                      borderWidth: 1,
+                      borderColor: 'gray',
+                      padding: sizes.s,
+                      borderRadius: sizes.sm,
+                    }}
+                  />
+                )}
+              />
+              {errors.packages?.[packageIndex]?.description && (
+                <Text danger>
+                  {errors.packages[packageIndex].description?.message}
+                </Text>
+              )}
+              {errors.packages?.[packageIndex]?.imageUrl && (
+                <Text danger>
+                  {errors.packages[packageIndex].imageUrl?.message}
+                </Text>
+              )}
             </Block>
 
             <Text>Price:</Text>
@@ -479,6 +564,7 @@ const MenuForm = ({
                         ]}
                       >
                         <Text
+                          className='capitalize'
                           color={
                             value.some(
                               (item: OrderType) => item.name === type.name
@@ -500,6 +586,78 @@ const MenuForm = ({
               <Text danger>
                 {errors.packages[packageIndex].orderTypes?.message}
               </Text>
+            )}
+            <Text>Tags:</Text>
+
+            <Controller
+              name={`packages.${packageIndex}.tags`}
+              control={control}
+              defaultValue={[]}
+              render={({ field: { onChange, value = [] } }) => {
+                const toggleTag = (tag: Tag) => {
+                  const updatedTags = value.some(
+                    (selectedTag: Tag) => selectedTag.name === tag.name
+                  )
+                    ? value.filter(
+                        (selectedTag: Tag) => selectedTag.name !== tag.name
+                      )
+                    : [...value, tag];
+                  onChange(updatedTags);
+                };
+
+                return (
+                  <ScrollView horizontal>
+                    <View className='flex flex-row justify-between'>
+                      {predefinedTags.map((tag) => (
+                        <TouchableOpacity
+                          key={tag.name}
+                          onPress={() => toggleTag(tag)}
+                          style={[
+                            {
+                              borderWidth: 1,
+                              borderRadius: 10,
+                              padding: 8,
+                              marginTop: 10,
+                              marginRight: 4,
+                              marginBottom: 10,
+                            },
+                            value.some(
+                              (selectedTag: Tag) =>
+                                selectedTag.name === tag.name
+                            )
+                              ? {
+                                  backgroundColor: 'purple',
+                                  borderColor: 'purple',
+                                }
+                              : {
+                                  backgroundColor: 'white',
+                                  borderColor: 'gray',
+                                },
+                          ]}
+                        >
+                          <Text
+                            className='capitalize'
+                            color={
+                              value.some(
+                                (selectedTag: Tag) =>
+                                  selectedTag.name === tag.name
+                              )
+                                ? 'white'
+                                : 'black'
+                            }
+                          >
+                            {tag.name}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  </ScrollView>
+                );
+              }}
+            />
+
+            {errors.packages?.[packageIndex]?.tags && (
+              <Text danger>{errors.packages[packageIndex].tags?.message}</Text>
             )}
 
             <Text bold primary>
@@ -569,15 +727,13 @@ const InclusionFields = ({
       {inclusionFields.map((inclusion, inclusionIndex) => (
         <Block
           key={inclusion.id}
-          card
           padding={sizes.s}
           marginVertical={sizes.s}
-          shadow={false}
           outlined
           style={{ flexDirection: 'column' }}
           radius={sizes.sm}
         >
-          <Block className='flex flex-row h-20'>
+          <Block className='flex flex-row h-20' shadow={false}>
             <Controller
               name={`packages.${packageIndex}.inclusions.${inclusionIndex}.imageUrl`}
               control={control}

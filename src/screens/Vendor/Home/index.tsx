@@ -25,6 +25,7 @@ import ConfirmationDialog from "Components/ConfirmationDialog";
 import { UserContext } from "Contexts/UserContext";
 import { VendorBookingList, VendorPendingBookingList } from "../Bookings/List";
 import VendorReviews from "../Reviews/List";
+import MyMenu from '../Menu';
 
 interface VendorHomeNavProps {
   initialTab?: keyof VendorHomeScreenBottomTabsProps;
@@ -50,7 +51,17 @@ const VendorHomeNav = ({ initialTab }: VendorHomeNavProps) => {
       <AntDesign name="calendar" color={color} size={size} />
     ),
     tabBarActiveBackgroundColor: "EE2AE2",
-    tabBarActiveTintColor: "#E91E8E",
+    tabBarActiveTintColor: '#E91E8E',
+  };
+
+  const menuIconOptions: BottomTabNavigationOptions = {
+    tabBarTestID: `events-nav-btn`,
+    headerShown: false,
+    tabBarIcon: ({ color, size }) => (
+      <MaterialIcons name='menu-book' size={size} color={color} />
+    ),
+    tabBarActiveBackgroundColor: 'EE2AE2',
+    tabBarActiveTintColor: '#E91E8E',,
   };
 
   const chatIconOptions: BottomTabNavigationOptions = {
@@ -76,7 +87,7 @@ const VendorHomeNav = ({ initialTab }: VendorHomeNavProps) => {
     tabBarTestID: `profile-nav-btn`,
     headerShown: false,
     tabBarIcon: ({ color, size }) => (
-      <MaterialIcons name="rate-review" size={size} color={color} />
+      <MaterialIcons name='rate-review' size={size} color={color} />
     ),
     tabBarActiveBackgroundColor: "EE2AE2",
     tabBarActiveTintColor: "#E91E8E",
@@ -94,6 +105,7 @@ const VendorHomeNav = ({ initialTab }: VendorHomeNavProps) => {
         component={VendorBookingList}
         options={bookingsIconOptions}
       />
+      <Tab.Screen name='MyMenu' component={MyMenu} options={menuIconOptions} />
       <Tab.Screen
         name="ChatList"
         component={ChatList}

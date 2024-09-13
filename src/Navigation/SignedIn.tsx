@@ -26,6 +26,7 @@ import VendorReview from 'screens/Vendor/Reviews';
 import PackageList from 'screens/Users/Packages/PackageList';
 import VendorBookingView from 'screens/Vendor/Bookings';
 import VendorEventView from 'screens/Vendor/Event';
+import MyMenu from 'screens/Vendor/Menu';
 
 const SignedInStack = createNativeStackNavigator<ScreenProps>();
 
@@ -170,6 +171,11 @@ const SignedInNav = () => {
       <SignedInStack.Screen
         name='Rating'
         component={Rating}
+        options={{ headerShown: false }}
+      />
+      <SignedInStack.Screen
+        name='MyMenu'
+        component={MyMenu}
         options={{ headerShown: false }}
       />
       <SignedInStack.Screen

@@ -6,6 +6,7 @@ import Image from 'Components/Ui/Image';
 import useTheme from 'src/core/theme';
 import Button from 'Components/Ui/Button';
 import {
+  Modal,
   Pressable,
   ScrollView,
   Text,
@@ -19,6 +20,8 @@ import {
   HomeScreenNavigationProp,
   Tag,
   Review,
+  EventInfo,
+  PackageAlgoType,
 } from 'types/types';
 import Loading from 'screens/Loading';
 
@@ -28,6 +31,7 @@ import StarRating from 'Components/Ui/StarRating';
 import { faker } from '@faker-js/faker';
 import { useAuth } from '@clerk/clerk-react';
 import VendorHome from 'screens/Vendor/Home';
+import { format, isAfter, isToday } from 'date-fns';
 
 interface PackageType {
   _id: string;
@@ -78,17 +82,18 @@ const VendorMenu = () => {
   const route = useRoute();
   const { assets, colors, sizes, gradients } = useTheme();
   const [vendor, setVendor] = useState<VendorMenuType>({
-    _id: "",
+    _id: '',
     name: '',
-    logo: "",
-    bio: "",
+    logo: '',
+    bio: '',
     tags: [],
-    email: "",
+    email: '',
     packages: [],
     averageRatings: 0,
     totalBookings: 0,
-    reviews: []
+    reviews: [],
   });
+  const [selectedEvent, setSelectedEvent] = useState<EventInfo>();
   const { getToken } = useAuth();
   const [loading, setLoading] = useState(true);
 
@@ -106,7 +111,13 @@ const VendorMenu = () => {
   }
 
   const { sendMessage } = webSocket;
-  const { user } = userContext;
+  const { user, eventList } = userContext;
+  const events = eventList.events;
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const upcomingEvents = events.filter(
+    (event) => isAfter(event.date, new Date()) || isToday(event.date)
+  );
 
   const IMAGE_SIZE = (sizes.width - (sizes.padding + sizes.sm) * 2) / 3;
   const IMAGE_VERTICAL_SIZE =
@@ -157,7 +168,7 @@ const VendorMenu = () => {
       const data = await res.json();
 
       if (res.status === 200) {
-        setVendor({...data})
+        setVendor({ ...data });
         // setReviews({...data.reviews})
 
         console.log('VENDOR DATA SUCCESSFULLY LOADED');
@@ -179,14 +190,48 @@ const VendorMenu = () => {
     }
   }, [vendorId]);
 
-  const onPressPackage = (vendorPackage: PackageType) => {
-    const BookingConfirmationProps: ScreenProps['BookingConfirmation'] = {
-      vendor: { ...vendor },
-      vendorPackage,
-    };
+  const [selectedPackage, setSelectedPackage] = useState<PackageType | null>(
+    null
+  );
 
-    // navigation.navigate('BookingConfirmation', BookingConfirmationProps);
+  const onPressPackage = (pkg: PackageType, vendor: VendorMenuType) => {
+    setSelectedPackage(pkg);
+    if (upcomingEvents.length > 1) {
+      setIsModalVisible(true);
+    } else if (upcomingEvents.length === 1) {
+      setSelectedEvent(upcomingEvents[0]);
+      navigation.navigate('BookingDetails', {
+        pkg,
+        event: upcomingEvents[0],
+        vendor: transformVendorToPackageAlgoType(vendor),
+      });
+    } else {
+      navigation.navigate('EventForm');
+    }
   };
+  const handleEventSelection = (event: EventInfo) => {
+    if (selectedPackage) {
+      setSelectedEvent(event);
+      setIsModalVisible(false);
+      navigation.navigate('BookingDetails', {
+        pkg: selectedPackage,
+        event,
+        vendor: transformVendorToPackageAlgoType(vendor),
+      });
+    }
+  };
+  const transformVendorToPackageAlgoType = (
+    vendor: VendorMenuType
+  ): PackageAlgoType => ({
+    _id: vendor._id,
+    vendorName: vendor.name,
+    vendorLogo: vendor.logo,
+    vendorContactNum: '', // Add vendor contact number if available
+    vendorBio: vendor.bio,
+    vendorAddress: { city: '' }, // Add vendor address if available
+    vendorPackages: vendor.packages,
+    averageRating: vendor.averageRatings,
+  });
 
   const onMessagePress = () => {
     const getMessagesInput: GetMessagesInput = {
@@ -282,8 +327,6 @@ const VendorMenu = () => {
                 </Block>
               </Block>
             </Image>
-
-            {/* profile: stats */}
             <Block
               flex={0}
               radius={sizes.md}
@@ -317,13 +360,14 @@ const VendorMenu = () => {
                 </Block>
                 <Block align='center'>
                   <Text className='text-sm font-bold'>
-                    {(vendor.averageRatings)?vendor.averageRatings.toFixed(2): 0}
+                    {vendor.averageRatings
+                      ? vendor.averageRatings.toFixed(2)
+                      : 0}
                   </Text>
                   <Text>Ratings</Text>
                 </Block>
               </Block>
             </Block>
-            {/* profile: about me */}
             <Block
               paddingHorizontal={sizes.sm}
               marginTop={sizes.m}
@@ -344,7 +388,7 @@ const VendorMenu = () => {
                           borderRadius: 12,
                           marginRight: 16,
                           position: 'relative',
-                          padding: 8, // Add padding for internal spacing
+                          padding: 8,
                         }}
                       >
                         <View
@@ -391,6 +435,68 @@ const VendorMenu = () => {
                   </View>
                 )}
               </ScrollView>
+              <Modal
+                visible={isModalVisible}
+                transparent={true}
+                animationType='slide'
+                onRequestClose={() => setIsModalVisible(false)}
+              >
+                <View
+                  style={{
+                    flex: 1,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                  }}
+                >
+                  <View
+                    style={{
+                      width: '90%',
+                      backgroundColor: 'white',
+                      borderRadius: 10,
+                      padding: 20,
+                      maxHeight: '80%',
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontSize: 18,
+                        fontWeight: 'bold',
+                        marginBottom: 10,
+                      }}
+                    >
+                      Select an Event
+                    </Text>
+                    <ScrollView>
+                      {upcomingEvents.map((event) => (
+                        <TouchableOpacity
+                          key={event._id}
+                          onPress={() => handleEventSelection(event)}
+                          className='border-primary border rounded-md mb-2 pl-2'
+                        >
+                          <Text style={{ fontSize: 16 }}>{event.name}</Text>
+                          <Text style={{ fontSize: 14, color: 'gray' }}>
+                            {format(event.date, 'MMMM dd, yyyy')}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+                    <TouchableOpacity
+                      onPress={() => setIsModalVisible(false)}
+                      style={{
+                        marginTop: 20,
+                        padding: 10,
+                        backgroundColor: 'red',
+                        borderRadius: 10,
+                      }}
+                    >
+                      <Text style={{ color: 'white', textAlign: 'center' }}>
+                        Cancel
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </Modal>
               <Text className='text-xl text-black font-bold mb-1'>About</Text>
               <Text className='font-normal text-justify leading-5'>
                 {vendor.bio}
@@ -403,15 +509,17 @@ const VendorMenu = () => {
                   <TouchableOpacity
                     key={vendorPackage._id}
                     className='h-24 w-full rounded-xl border border-primary flex flex-row mt-2'
-                    onPress={() => onPressPackage(vendorPackage)}
+                    onPress={() => onPressPackage(vendorPackage, vendor)}
                   >
-                    <Image
-                      background
-                      padding={sizes.md}
-                      src={vendorPackage.imageUrl}
-                      rounded
-                      className='rounded-xl h-20 w-20 self-center ml-1'
-                    ></Image>
+                    <View className='bg-slate-500/30 w-20 h-20 rounded-xl align-middle self-center ml-1'>
+                      <Image
+                        background
+                        padding={sizes.md}
+                        src={vendorPackage.imageUrl}
+                        rounded
+                        className='rounded-xl h-20 w-20 self-center ml-1'
+                      ></Image>
+                    </View>
                     <View>
                       <View className=' w-52 rounded-xl flex flex-row justify-between m-2'>
                         <Text className='text-xs text-center font-semibold'>
@@ -435,44 +543,6 @@ const VendorMenu = () => {
                 ))}
               </ScrollView>
             </Block>
-  
-            {/* <Block paddingHorizontal={sizes.sm} className='mt-2'>
-              <Block row align='center' justify='space-between'>
-                <Text className='text-xl font-bold'>Portfolio</Text>
-                <Button>
-                  <Text className='font-semibold'>View All</Text>
-                </Button>
-              </Block>
-              <Block row justify='space-between' wrap='wrap'>
-                <Image
-                  resizeMode='cover'
-                  src={faker.image.url()}
-                  style={{
-                    width: IMAGE_VERTICAL_SIZE + IMAGE_MARGIN / 2,
-                    height: IMAGE_VERTICAL_SIZE * 2 + IMAGE_VERTICAL_MARGIN,
-                  }}
-                />
-                <Block marginLeft={sizes.m}>
-                  <Image
-                    resizeMode='cover'
-                    src={faker.image.url()}
-                    marginBottom={IMAGE_VERTICAL_MARGIN}
-                    style={{
-                      height: IMAGE_VERTICAL_SIZE,
-                      width: IMAGE_VERTICAL_SIZE,
-                    }}
-                  />
-                  <Image
-                    resizeMode='cover'
-                    src={faker.image.url()}
-                    style={{
-                      height: IMAGE_VERTICAL_SIZE,
-                      width: IMAGE_VERTICAL_SIZE,
-                    }}
-                  />
-                </Block>
-              </Block>
-            </Block> */}
           </Block>
         </Block>
       </Block>
