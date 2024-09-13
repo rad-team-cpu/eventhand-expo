@@ -1,23 +1,22 @@
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import {
-  ImageBackground,
   ScrollView,
   TextInput,
   TouchableOpacity,
   View,
-} from "react-native";
-import axios from "axios";
-import Block from "Components/Ui/Block";
-import Image from "Components/Ui/Image";
-import useTheme from "../../../core/theme";
-import { Text } from "react-native";
-import React, { useCallback, useContext, useEffect, useState } from "react";
-import Loading from "screens/Loading";
-import { StatusBar } from "expo-status-bar";
-import { UserContext } from "Contexts/UserContext";
-import AntDesign from "@expo/vector-icons/AntDesign";
-import { useNavigation } from "@react-navigation/native";
-import { HomeScreenNavigationProp, Vendor } from "types/types";
-import { useAuth } from "@clerk/clerk-react";
+  Text,
+} from 'react-native';
+import axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
+import { StatusBar } from 'expo-status-bar';
+import { UserContext } from 'Contexts/UserContext';
+import { useAuth } from '@clerk/clerk-react';
+import Block from 'Components/Ui/Block';
+import Image from 'Components/Ui/Image';
+import useTheme from '../../../core/theme';
+import AntDesign from '@expo/vector-icons/AntDesign';
+import Loading from 'screens/Loading';
+import { HomeScreenNavigationProp, Vendor } from 'types/types';
 
 interface VendorListItem {
   _id: string;
@@ -25,7 +24,7 @@ interface VendorListItem {
   logo: string;
   averageRating: number;
   category: string;
-  address: { city: string; street: "string" };
+  address: { city: string; street: string };
 }
 
 const Section = ({
@@ -123,9 +122,6 @@ const FirstSection = ({
                 />
               </View>
             </View>
-            <View>
-              {/* <Text>{vendor.address.city ? vendor.address.city : ''}</Text> */}
-            </View>
           </View>
         </TouchableOpacity>
       ))}
@@ -141,13 +137,11 @@ export default function VendorList() {
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredVendors, setFilteredVendors] = useState<VendorListItem[]>([]);
+  const [allVendors, setAllVendors] = useState<VendorListItem[]>([]);
 
   if (!userContext) {
     throw new Error("UserContext must be used within a UserProvider");
   }
-
-  const { user, eventList } = userContext;
-  const events = eventList.events;
 
   const onPressVendor = (vendorId: string) => {
     navigation.navigate("VendorMenu", { vendorId });
@@ -169,7 +163,6 @@ export default function VendorList() {
     try {
       const res = await fetch(url, request);
       const data = await res.json();
-      console.log(data);
       if (res.status === 200) {
         const allVendors = [
           ...data.catering.map((vendor: VendorListItem) => ({
@@ -197,6 +190,7 @@ export default function VendorList() {
             category: "real",
           })),
         ];
+        setAllVendors(allVendors);
         setFilteredVendors(allVendors);
       } else {
         throw new Error("Error fetching vendors");
@@ -209,7 +203,8 @@ export default function VendorList() {
   };
 
   const fetchVendorsSearch = useCallback(async () => {
-    if (searchQuery.trim() === "") {
+    if (searchQuery.trim() === '') {
+      setFilteredVendors([]); // Clear vendors if search query is empty
       return;
     }
 
@@ -217,6 +212,7 @@ export default function VendorList() {
       const response = await axios.get(
         `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors/search?query=${searchQuery}`
       );
+      console.log('Search response data:', response.data);
       setFilteredVendors(response.data);
     } catch (error) {
       console.error("Error fetching vendors:", error);
@@ -237,10 +233,9 @@ export default function VendorList() {
     if (searchQuery.trim() !== "") {
       fetchVendorsSearch();
     } else {
-      // Re-fetch all vendors if search query is empty
-      fetchVendors();
+      setFilteredVendors(allVendors); // Show all vendors if search query is empty
     }
-  }, [searchQuery]);
+  }, [searchQuery, allVendors]);
 
   if (loading) {
     return <Loading />;
@@ -271,40 +266,92 @@ export default function VendorList() {
         </Image>
       </Block>
       <ScrollView>
-        <View className="p-3 w-full h-auto flex gap-y-3">
-          <FirstSection
-            title="Trending Vendors"
-            vendors={filteredVendors.filter((v) => v.category === "real")}
-            onPressVendor={onPressVendor}
-          />
-          <Section
-            title="Discover Amazing Caterers"
-            vendors={filteredVendors.filter((v) => v.category === "catering")}
-            onPressVendor={onPressVendor}
-          />
-
-          <Section
-            title="Trendy Venues"
-            vendors={filteredVendors.filter((v) => v.category === "venue")}
-            onPressVendor={onPressVendor}
-          />
-          <Section
-            title="Top-Rated Photographers"
-            vendors={filteredVendors.filter(
-              (v) => v.category === "photography"
-            )}
-            onPressVendor={onPressVendor}
-          />
-          <Section
-            title="Need help planning?"
-            vendors={filteredVendors.filter((v) => v.category === "planning")}
-            onPressVendor={onPressVendor}
-          />
-          <Section
-            title="Design and Decoration"
-            vendors={filteredVendors.filter((v) => v.category === "decoration")}
-            onPressVendor={onPressVendor}
-          />
+        <View className='p-3 w-full h-auto flex gap-y-3'>
+          {searchQuery.trim() === '' ? (
+            <>
+              <FirstSection
+                title='Trending Vendors'
+                vendors={filteredVendors.filter((v) => v.category === 'real')}
+                onPressVendor={onPressVendor}
+              />
+              <Section
+                title='Discover Amazing Caterers'
+                vendors={filteredVendors.filter(
+                  (v) => v.category === 'catering'
+                )}
+                onPressVendor={onPressVendor}
+              />
+              <Section
+                title='Trendy Venues'
+                vendors={filteredVendors.filter((v) => v.category === 'venue')}
+                onPressVendor={onPressVendor}
+              />
+              <Section
+                title='Top-Rated Photographers'
+                vendors={filteredVendors.filter(
+                  (v) => v.category === 'photography'
+                )}
+                onPressVendor={onPressVendor}
+              />
+              <Section
+                title='Need help planning?'
+                vendors={filteredVendors.filter(
+                  (v) => v.category === 'planning'
+                )}
+                onPressVendor={onPressVendor}
+              />
+              <Section
+                title='Design and Decoration'
+                vendors={filteredVendors.filter(
+                  (v) => v.category === 'decoration'
+                )}
+                onPressVendor={onPressVendor}
+              />
+            </>
+          ) : (
+            <View>
+              {filteredVendors.length === 0 ? (
+                <Text>No results found for "{searchQuery}"</Text>
+              ) : (
+                <Section
+                  title={`Search Results for "${searchQuery}"`}
+                  vendors={filteredVendors}
+                  onPressVendor={onPressVendor}
+                />
+              )}
+              {/* Always show other vendors below search results */}
+              <FirstSection
+                title='Trending Vendors'
+                vendors={allVendors.filter((v) => v.category === 'real')}
+                onPressVendor={onPressVendor}
+              />
+              <Section
+                title='Discover Amazing Caterers'
+                vendors={allVendors.filter((v) => v.category === 'catering')}
+                onPressVendor={onPressVendor}
+              />
+              <Section
+                title='Trendy Venues'
+                vendors={allVendors.filter((v) => v.category === 'venue')}
+                onPressVendor={onPressVendor}
+              />
+              <Section
+                title='Top-Rated Photographers'
+                vendors={allVendors.filter((v) => v.category === 'photography')}
+                onPressVendor={onPressVendor}
+              />
+              <Section
+                title='Need help planning?'
+                vendors={allVendors.filter((v) => v.category === 'planning')}
+                onPressVendor={onPressVendor}
+              />
+              <Section
+                title='Design and Decoration'
+                vendors={allVendors.filter((v) => v.category === 'decoration')}
+                onPressVendor={onPressVendor}
+              />
+            </View>
+          )}
         </View>
       </ScrollView>
     </Block>
