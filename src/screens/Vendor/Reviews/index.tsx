@@ -12,35 +12,6 @@ import SuccessScreen from 'Components/Success';
 import ErrorScreen from 'Components/Error';
 
 
-
-interface Vendor {
-  _id: string;
-  name: string;
-  logo: string;
-  address: {
-    street: string;
-    city: string;
-    region: string;
-    postalCode: number;
-  };
-  contactNum: string;
-  email: string;
-}
-
-interface Package {
-  id: string;
-  name: string;
-  imageUrl: string;
-  capacity: number;
-  orderType: string;
-  description: string;
-  inclusions: {
-    id: string;
-    name: string;
-    description: string;
-  }[];
-}
-
 type StarRatingProps = {
     maxStars?: number;
     initialRating?: number;

@@ -47,7 +47,7 @@ export default function PackageList() {
   }
 
   const fetchVendors = async () => {
-    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/packages/${event._id}/available`;
+    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/matchmaker/${event._id}`;
 
     const token = getToken({ template: 'event-hand-jwt' });
 
