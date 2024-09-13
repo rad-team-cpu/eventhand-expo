@@ -61,7 +61,7 @@ const VendorHomeNav = ({ initialTab }: VendorHomeNavProps) => {
       <MaterialIcons name='menu-book' size={size} color={color} />
     ),
     tabBarActiveBackgroundColor: 'EE2AE2',
-    tabBarActiveTintColor: '#E91E8E',,
+    tabBarActiveTintColor: '#E91E8E',
   };
 
   const chatIconOptions: BottomTabNavigationOptions = {
