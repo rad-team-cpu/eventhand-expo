@@ -25,6 +25,7 @@ interface VendorListItem {
   logo: string;
   averageRating: number;
   category: string;
+  address: { city: string; street: 'string' };
 }
 
 const Section = ({
@@ -77,6 +78,61 @@ const Section = ({
   </View>
 );
 
+const FirstSection = ({
+  title,
+  vendors,
+  onPressVendor,
+}: {
+  title: string;
+  vendors: VendorListItem[];
+  onPressVendor: (vendorId: string) => void;
+}) => (
+  <View className='h-auto flex items-left justify-left gap-y-3 mt-2'>
+    <Text className='text-xl text-black font-bold'>{title}</Text>
+    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+      {vendors.slice(0, 11).map((vendor) => (
+        <TouchableOpacity
+          key={`${vendor._id} - ${title.toLowerCase()}`}
+          className='w-40 h-40 flex flex-row rounded-xl mr-4'
+          onPress={() => onPressVendor(vendor._id)}
+        >
+          <View className='bg-slate-500/30 w-40 h-32 rounded-xl align-middle'>
+            <Image
+              background
+              resizeMode='cover'
+              padding={10}
+              src={vendor.logo}
+              rounded
+              className='h-32 w-40 rounded-xl'
+            />
+            <View className='flex flex-row justify-between'>
+              <Text className='text-xs text-center'>
+                {vendor.name.length > 20
+                  ? `${vendor.name.substring(0, 10)}...`
+                  : vendor.name}
+              </Text>
+              <View className='flex flex-row items-center self-end'>
+                <Text className='text-xs'>
+                  {vendor.averageRating ? vendor.averageRating.toFixed(1) : '0'}
+                </Text>
+                <AntDesign
+                  name='star'
+                  size={12}
+                  color='gold'
+                  style={{ marginLeft: 4 }}
+                />
+              </View>
+            </View>
+            <View>
+              {/* <Text>{vendor.address.city ? vendor.address.city : ''}</Text> */}
+            </View>
+          </View>
+        </TouchableOpacity>
+      ))}
+    </ScrollView>
+  </View>
+);
+
 export default function VendorList() {
   const userContext = useContext(UserContext);
   const [loading, setLoading] = useState(true);
@@ -113,7 +169,7 @@ export default function VendorList() {
     try {
       const res = await fetch(url, request);
       const data = await res.json();
-
+      console.log(data);
       if (res.status === 200) {
         const allVendors = [
           ...data.catering.map((vendor: VendorListItem) => ({
@@ -216,11 +272,10 @@ export default function VendorList() {
       </Block>
       <ScrollView>
         <View className='p-3 w-full h-auto flex gap-y-3'>
-        <Section
+          <FirstSection
             title='Trending Vendors'
             vendors={filteredVendors.filter((v) => v.category === 'real')}
             onPressVendor={onPressVendor}
-            
           />
           <Section
             title='Discover Amazing Caterers'

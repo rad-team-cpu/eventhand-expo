@@ -511,13 +511,15 @@ const VendorMenu = () => {
                     className='h-24 w-full rounded-xl border border-primary flex flex-row mt-2'
                     onPress={() => onPressPackage(vendorPackage, vendor)}
                   >
-                    <Image
-                      background
-                      padding={sizes.md}
-                      src={vendorPackage.imageUrl}
-                      rounded
-                      className='rounded-xl h-20 w-20 self-center ml-1'
-                    ></Image>
+                    <View className='bg-slate-500/30 w-20 h-20 rounded-xl align-middle self-center ml-1'>
+                      <Image
+                        background
+                        padding={sizes.md}
+                        src={vendorPackage.imageUrl}
+                        rounded
+                        className='rounded-xl h-20 w-20 self-center ml-1'
+                      ></Image>
+                    </View>
                     <View>
                       <View className=' w-52 rounded-xl flex flex-row justify-between m-2'>
                         <Text className='text-xs text-center font-semibold'>
