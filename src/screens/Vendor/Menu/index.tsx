@@ -492,13 +492,15 @@ const MyMenu = () => {
                     key={vendorPackage._id}
                     className='h-28 w-full rounded-xl border border-primary flex flex-row mt-2'
                   >
-                    <Image
-                      background
-                      padding={sizes.md}
-                      src={vendorPackage.imageUrl}
-                      rounded
-                      className='rounded-xl h-20 w-20 self-center ml-1'
-                    ></Image>
+                    <View className='bg-slate-500/30 w-20 h-20 rounded-xl self-center ml-1 align-middle'>
+                      <Image
+                        background
+                        padding={sizes.md}
+                        src={vendorPackage.imageUrl}
+                        rounded
+                        className='rounded-xl h-20 w-20 self-center ml-1'
+                      ></Image>
+                    </View>
                     <Block>
                       <View className='w-52 rounded-xl flex flex-row justify-between m-2'>
                         <Text className='text-xs text-center font-semibold'>
@@ -603,7 +605,6 @@ const MyMenu = () => {
                         <Button
                           outlined
                           primary
-              
                           shadow={false}
                           onPress={() => {
                             const newInclusion = {

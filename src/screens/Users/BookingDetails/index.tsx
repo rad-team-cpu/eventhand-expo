@@ -4,7 +4,7 @@ import Block from 'Components/Ui/Block';
 import Image from 'Components/Ui/Image';
 import useTheme from 'src/core/theme';
 import Button from 'Components/Ui/Button';
-import { Text, TouchableOpacity } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { format } from 'date-fns/format';
 import axios from 'axios';
@@ -193,15 +193,17 @@ const BookingDetails = () => {
             <Text>{event.address ? event.address : ''}</Text>
           </Block>
           <Block className='flex flex-row mt-2'>
-            <Image
-              background
-              resizeMode='cover'
-              padding={sizes.md}
-              src={vendor.vendorLogo}
-              rounded
-              blurRadius={2}
-              className='h-20 w-20 rounded-xl'
-            />
+            <View className='bg-slate-500/30 h-20 w-20 rounded-xl align-middle self-center ml-1'>
+              <Image
+                background
+                resizeMode='cover'
+                padding={sizes.md}
+                src={vendor.vendorLogo}
+                rounded
+                blurRadius={2}
+                className='h-20 w-20 rounded-xl'
+              />
+            </View>
             <Block>
               <Block className='ml-3 pt-1 flex-shrink'>
                 <Text
@@ -250,13 +252,15 @@ const BookingDetails = () => {
               key={inclusion._id}
               className='h-18 w-full rounded-xl flex flex-row my-2'
             >
-              <Image
-                background
-                padding={sizes.md}
-                src={inclusion.imageUrl}
-                rounded
-                className='rounded-xl h-18 w-18'
-              ></Image>
+              <View className='bg-slate-500/30 h-18 w-18 rounded-xl align-middle self-center ml-1'>
+                <Image
+                  background
+                  padding={sizes.md}
+                  src={inclusion.imageUrl}
+                  rounded
+                  className='rounded-xl h-18 w-18'
+                ></Image>
+              </View>
               <Block>
                 <Block className='w-52 rounded-xl flex flex-row justify-between p-2'>
                   <Text className='text-xs text-center font-semibold capitalize'>
