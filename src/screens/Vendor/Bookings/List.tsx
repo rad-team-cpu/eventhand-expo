@@ -92,8 +92,8 @@ const BookingListItem = (props: BookingListItemProps) => {
   };
 
   const handleItemPress = (_id: string) => {
-    navigation.navigate("VendorBookingView", {_id});
-  }
+    navigation.navigate("VendorBookingView", { _id });
+  };
 
   return (
     <Pressable
@@ -273,96 +273,95 @@ function VendorBookingList() {
   //   }
   // };
 
-
-    return (
-      <>
-        <SafeAreaView>
-          <StatusBar />
-          <View style={styles.tabBarContainer}>
-            <Pressable
-              style={[
-                styles.tabBarButton,
-                selectedTab === "CONFIRMED" && styles.tabBarButtonSelected,
-              ]}
-              onPress={handleConfirmedTabBtn}
+  return (
+    <>
+      <SafeAreaView>
+        <StatusBar />
+        <View style={styles.tabBarContainer}>
+          <Pressable
+            style={[
+              styles.tabBarButton,
+              selectedTab === "CONFIRMED" && styles.tabBarButtonSelected,
+            ]}
+            onPress={handleConfirmedTabBtn}
+          >
+            <Text
+              style={
+                selectedTab === "CONFIRMED"
+                  ? styles.tabBarTextSelected
+                  : styles.tabBarText
+              }
             >
-              <Text
-                style={
-                  selectedTab === "CONFIRMED"
-                    ? styles.tabBarTextSelected
-                    : styles.tabBarText
-                }
-              >
-                Confirmed
-              </Text>
-            </Pressable>
-            <Pressable
-              style={[
-                styles.tabBarButton,
-                selectedTab === "COMPLETED" && styles.tabBarButtonSelected,
-              ]}
-              onPress={handleCompletedTabBtn}
+              Confirmed
+            </Text>
+          </Pressable>
+          <Pressable
+            style={[
+              styles.tabBarButton,
+              selectedTab === "COMPLETED" && styles.tabBarButtonSelected,
+            ]}
+            onPress={handleCompletedTabBtn}
+          >
+            <Text
+              style={
+                selectedTab === "COMPLETED"
+                  ? styles.tabBarTextSelected
+                  : styles.tabBarText
+              }
             >
-              <Text
-                style={
-                  selectedTab === "COMPLETED"
-                    ? styles.tabBarTextSelected
-                    : styles.tabBarText
-                }
-              >
-                Completed
-              </Text>
-            </Pressable>
-            <Pressable
-              style={[
-                styles.tabBarButton,
-                selectedTab === BookingStatus.Cancelled &&
-                  styles.tabBarButtonSelected,
-              ]}
-              onPress={handleCancelledOrDeclinedTabBtn}
+              Completed
+            </Text>
+          </Pressable>
+          <Pressable
+            style={[
+              styles.tabBarButton,
+              selectedTab === BookingStatus.Cancelled &&
+                styles.tabBarButtonSelected,
+            ]}
+            onPress={handleCancelledOrDeclinedTabBtn}
+          >
+            <Text
+              style={
+                selectedTab === BookingStatus.Cancelled
+                  ? styles.tabBarTextSelected
+                  : styles.tabBarText
+              }
             >
-              <Text
-                style={
-                  selectedTab === BookingStatus.Cancelled
-                    ? styles.tabBarTextSelected
-                    : styles.tabBarText
-                }
-              >
-                Cancel/Decline
-              </Text>
-            </Pressable>
+              Cancel/Decline
+            </Text>
+          </Pressable>
+        </View>
+      </SafeAreaView>
+      {loading && <Loading />}
+      {!loading && bookings.length > 0 && (
+        <FlatList
+          keyExtractor={(item) => item._id}
+          contentContainerStyle={styles.listContainer}
+          data={bookings}
+          renderItem={({ item }) => <BookingListItem booking={item} />}
+          // onEndReached={onEndReached}
+          ListFooterComponent={renderFooter}
+        />
+      )}
+      {!loading && bookings.length === 0 && (
+        <Block safe>
+          <View testID="test-events" style={styles.container}>
+            <Image
+              background
+              resizeMode="cover"
+              padding={sizes.md}
+              source={assets.noEvents}
+              rounded
+              className="rounded-xl h-72 w-72"
+            ></Image>
+            <Text className="font-bold">
+              You have no {selectedTab.toLocaleLowerCase()} Bookings!
+            </Text>
           </View>
-        </SafeAreaView>
-        {loading && <Loading />}
-        {!loading && bookings.length > 0 && (
-          <FlatList
-            keyExtractor={(item) => item._id}
-            contentContainerStyle={styles.listContainer}
-            data={bookings}
-            renderItem={({ item }) => <BookingListItem booking={item} />}
-            // onEndReached={onEndReached}
-            ListFooterComponent={renderFooter}
-          />
-        )}
-        {!loading && bookings.length === 0 && (
-    <Block safe>
-    <View testID="test-events" style={styles.container}>
-      <Image
-        background
-        resizeMode="cover"
-        padding={sizes.md}
-        source={assets.noEvents}
-        rounded
-        className="rounded-xl h-72 w-72"
-      ></Image>
-      <Text className="font-bold">You have no {selectedTab.toLocaleLowerCase()} Bookings!</Text>
-    </View>
-  </Block>
-        )}
-      </>
-    );
-  
-
+        </Block>
+      )}
+    </>
+  );
 }
 
 function VendorPendingBookingList() {
@@ -487,8 +486,8 @@ function VendorPendingBookingList() {
   //     fetchBookings(vendor.id, page + 1, 10, selectedTab);
   //   }
   // };
-  if(loading){
-    return <Loading/>
+  if (loading) {
+    return <Loading />;
   }
 
   if (bookings.length > 0) {
@@ -498,30 +497,20 @@ function VendorPendingBookingList() {
           <StatusBar />
           <View style={styles.tabBarContainer}>
             <Pressable
-              style={[
-                styles.tabBarButton,
-                styles.tabBarButtonSelected,
-              ]}
+              style={[styles.tabBarButton, styles.tabBarButtonSelected]}
             >
-              <Text
-                style={
-                    styles.tabBarTextSelected
-                }
-              >
-                PENDING
-              </Text>
+              <Text style={styles.tabBarTextSelected}>PENDING</Text>
             </Pressable>
-
           </View>
         </SafeAreaView>
-          <FlatList
-            keyExtractor={(item) => item._id}
-            contentContainerStyle={styles.listContainer}
-            data={bookings}
-            renderItem={({ item }) => <BookingListItem booking={item} />}
-            // onEndReached={onEndReached}
-            ListFooterComponent={renderFooter}
-          />
+        <FlatList
+          keyExtractor={(item) => item._id}
+          contentContainerStyle={styles.listContainer}
+          data={bookings}
+          renderItem={({ item }) => <BookingListItem booking={item} />}
+          // onEndReached={onEndReached}
+          ListFooterComponent={renderFooter}
+        />
       </>
     );
   }
