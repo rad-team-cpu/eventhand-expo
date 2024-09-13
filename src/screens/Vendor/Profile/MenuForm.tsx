@@ -232,8 +232,9 @@ const MenuForm = () => {
             name: ord.name,
             disabled: ord.disabled ?? false,
           })),
+          tags: pkg.tags.map((tag: Tag) => tag._id),
         };
-
+        console.log(packagePayload);
         const response = await axios.post(
           `${process.env.EXPO_PUBLIC_BACKEND_URL}/packages`,
           packagePayload,
