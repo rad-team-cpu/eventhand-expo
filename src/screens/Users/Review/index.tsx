@@ -172,25 +172,8 @@ const BookingDetails = (props: BookingDetailsProps) => {
     onTextChange,
     onRatingChange,
     onConfirmPress,
-    errorState,
   } = props;
 
-  const [confirmCancelBooking, setConfirmCancelBooking] = useState(false);
-
-  const handleCancelBooking = () => {
-    setConfirmCancelBooking(true);
-  };
-
-  if (confirmCancelBooking) {
-    return (
-      <ConfirmationDialog
-        title="Cancel Booking"
-        description={`Do you wish to cancel your booking with ${booking.vendor.name}?`}
-        onCancel={() => setConfirmCancelBooking(false)}
-        onConfirm={() => console.log(confirm)}
-      />
-    );
-  }
 
   return (
     <>
