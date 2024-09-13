@@ -261,6 +261,14 @@ interface HomeProps {
 
 interface VendorMenuProps {
   vendorId: string;
+
+}
+
+interface VendorListItem {
+  _id: string;
+  name: string;
+  logo: string;
+  averageRating: number;
 }
 
 // interface VendorListProps {
