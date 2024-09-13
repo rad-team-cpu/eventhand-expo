@@ -60,7 +60,7 @@ const chatOptions: NativeStackNavigationOptions = {
 
 const SignedInNav = () => {
   return (
-    <SignedInStack.Navigator initialRouteName='VendorHome'>
+    <SignedInStack.Navigator >
       <SignedInStack.Screen
         name='Home'
         component={Home}
