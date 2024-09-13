@@ -273,7 +273,7 @@ function VendorBookingList() {
   //   }
   // };
 
-  if (bookings.length > 0) {
+
     return (
       <>
         <SafeAreaView>
@@ -334,7 +334,7 @@ function VendorBookingList() {
           </View>
         </SafeAreaView>
         {loading && <Loading />}
-        {!loading && (
+        {!loading && bookings.length > 0 && (
           <FlatList
             keyExtractor={(item) => item._id}
             contentContainerStyle={styles.listContainer}
@@ -344,25 +344,25 @@ function VendorBookingList() {
             ListFooterComponent={renderFooter}
           />
         )}
+        {!loading && bookings.length === 0 && (
+    <Block safe>
+    <View testID="test-events" style={styles.container}>
+      <Image
+        background
+        resizeMode="cover"
+        padding={sizes.md}
+        source={assets.noEvents}
+        rounded
+        className="rounded-xl h-72 w-72"
+      ></Image>
+      <Text className="font-bold">You have no {selectedTab.toLocaleLowerCase()} Bookings!</Text>
+    </View>
+  </Block>
+        )}
       </>
     );
-  }
+  
 
-  return (
-    <Block safe>
-      <View testID="test-events" style={styles.container}>
-        <Image
-          background
-          resizeMode="cover"
-          padding={sizes.md}
-          source={assets.noEvents}
-          rounded
-          className="rounded-xl h-72 w-72"
-        ></Image>
-        <Text className="font-bold">You have no Bookings!</Text>
-      </View>
-    </Block>
-  );
 }
 
 function VendorPendingBookingList() {
@@ -478,7 +478,7 @@ function VendorPendingBookingList() {
     //   );
     // }
 
-    return null;
+    // return null;
   };
 
   // const onEndReached = () => {
@@ -487,6 +487,9 @@ function VendorPendingBookingList() {
   //     fetchBookings(vendor.id, page + 1, 10, selectedTab);
   //   }
   // };
+  if(loading){
+    return <Loading/>
+  }
 
   if (bookings.length > 0) {
     return (
@@ -511,8 +514,6 @@ function VendorPendingBookingList() {
 
           </View>
         </SafeAreaView>
-        {loading && <Loading />}
-        {!loading && (
           <FlatList
             keyExtractor={(item) => item._id}
             contentContainerStyle={styles.listContainer}
@@ -521,7 +522,6 @@ function VendorPendingBookingList() {
             // onEndReached={onEndReached}
             ListFooterComponent={renderFooter}
           />
-        )}
       </>
     );
   }
