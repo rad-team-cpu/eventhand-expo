@@ -237,13 +237,11 @@ const SortTabBar = () => {
 
 interface ToolbarProps {
   onBackPress: (event: GestureResponderEvent) => void | Boolean;
-  onDeletePress: (event: GestureResponderEvent) => void;
   onEditPress: (event: GestureResponderEvent) => void;
 }
 
 const Toolbar: React.FC<ToolbarProps> = ({
   onBackPress,
-  onDeletePress,
   onEditPress,
 }) => {
   return (
@@ -256,9 +254,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
         <Pressable onPress={onEditPress} style={styles.toolbarButton}>
           <Ionicons name='pencil' size={24} color='#CB0C9F' />
         </Pressable>
-        <Pressable onPress={onDeletePress} style={styles.toolbarButton}>
-          <Ionicons name='trash' size={24} color='#CB0C9F' />
-        </Pressable>
+
       </View>
     </View>
   );
@@ -680,7 +676,6 @@ function EventView({ route, navigation }: EventViewScreenProps) {
       <ExpoStatusBar />
       <Toolbar
         onBackPress={onBackBtnPress}
-        onDeletePress={() => {}}
         onEditPress={onEditButtonPress}
       />
       <View style={listStyles.eventContainer}>
@@ -744,8 +739,24 @@ function EventView({ route, navigation }: EventViewScreenProps) {
           </Text>
         </View>
       </View>
+      {isToday(event.date) && (
+        <TabView
+          navigationState={{ index, routes }}
+          renderScene={renderScene}
+          onIndexChange={setIndex}
+          initialLayout={{ width: 300 }}
+          renderTabBar={(props) => (
+            <TabBar
+              {...props}
+              indicatorStyle={styles.indicator}
+              style={styles.tabBar}
+              labelStyle={styles.label}
+            />
+          )}
+        />
+      )}
 
-      {(isAfter(event.date, new Date()) || isToday(event.date)) && (
+      {isAfter(event.date, new Date())  && (
         <TabView
           navigationState={{ index, routes }}
           renderScene={renderScene}

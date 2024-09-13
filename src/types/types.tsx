@@ -64,26 +64,22 @@ interface BookingType {
   }; // Reference to a Vendor
   date: Date;
   status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'DECLINED' | 'COMPLETED';
-  package: {
-    _id: string;
-    name: string;
-    imageUrl: string;
-    capacity: number;
-    tags: Tag[];
-    orderType: string;
-    description: string;
-    price: number;
-    inclusions: {
-      _id: string;
-      imageUrl: string;
-      name: string;
-      description: string;
-      quantity: number;
-    }[];
-  };
+  package: PackageBookingType;
   createdAt: Date;
   updatedAt: Date;
 }
+
+type PackageBookingType = {
+  _id: string;
+  name: string;
+  imageUrl: string;
+  capacity: number;
+  tags: Tag[];
+  orderType: string;
+  description: string;
+  price: number;
+  inclusions: Inclusion[]
+};
 
 interface BookingPackageType {
   _id: string;
@@ -126,6 +122,8 @@ enum BookingStatus {
   Pending = 'PENDING',
   Confirmed = 'CONFIRMED',
   Cancelled = 'CANCELLED',
+  Declined = "DECLINED",
+  Completed = "COMPLETED"
 }
 
 interface Vendor {
@@ -325,9 +323,8 @@ interface BookingDetailsProps {
   bookingStatus?: BookingStatus;
 }
 
-interface BookingViewProps {
+interface VendorBookingViewProps {
   _id: string;
-  fromPending: boolean;
 }
 
 type EventUpdateValueType = 'NAME' | 'ADDRESS' | 'DATE' | 'GUEST' | 'BUDGET';
@@ -343,10 +340,16 @@ type VendorReviewType = {
   clientFullName: string;
   profilePicture: string | null;
   contactNumber: string;
-  package: PackageType;
+  package: PackageBookingType;
   rating: number;
   comment: string | null;
 };
+
+interface VendorEventViewProps {
+  eventId: string
+}
+
+
 
 type ScreenProps = {
   SignUp: undefined;
@@ -357,7 +360,7 @@ type ScreenProps = {
   MyMenu: undefined;
   UpdateEventForm: UpdateEventFormProps;
   EventView: EventInfo;
-  BookingView: BookingViewProps;
+  VendorBookingView: VendorBookingViewProps;
   VendorList: undefined;
   PackageList: { event: EventInfo };
   VendorMenu: VendorMenuProps;
@@ -383,7 +386,10 @@ type ScreenProps = {
   UserReview: { booking: BookingType; event: EventInfo };
   VendorReview: VendorReviewType;
   Welcome: undefined;
+  VendorEventView: VendorEventViewProps;
 };
+
+type VendorEventViewScreenProps = NativeStackScreenProps<ScreenProps, "VendorEventView">;
 
 type WelcomeScreenProps = NativeStackScreenProps<ScreenProps, 'Welcome'>;
 
@@ -428,9 +434,9 @@ type UpdateEventFormScreenProps = NativeStackScreenProps<
 
 type EventViewScreenProps = NativeStackScreenProps<ScreenProps, 'EventView'>;
 
-type BookingViewScreenProps = NativeStackScreenProps<
+type VendorBookingViewScreenProps = NativeStackScreenProps<
   ScreenProps,
-  'BookingView'
+  'VendorBookingView'
 >;
 
 type ChatScreenProps = NativeStackScreenProps<ScreenProps, 'Chat'>;
@@ -556,7 +562,7 @@ export {
   EventListScreenProps,
   EventListNavigationProps,
   EventViewScreenProps,
-  BookingViewScreenProps,
+  VendorBookingViewScreenProps,
   ChatScreenProps,
   ChatNavigationProps,
   VendorListScreenProps,
@@ -580,5 +586,7 @@ export {
   VendorReviewScreenProps,
   WelcomeScreenProps,
   BookingPackageType,
-  OrderType
+  OrderType,
+  PackageBookingType,
+  VendorEventViewScreenProps
 };
