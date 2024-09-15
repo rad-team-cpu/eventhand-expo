@@ -120,6 +120,7 @@ const VerificationForm = ({
     let uploadPath: string | null = null;
     const vendorId = vendor?.id;
     const { idType, credentials } = input;
+    const token = getToken({ template: 'event-hand-jwt' });
 
     const navigateToSuccessError = (props: ScreenProps['SuccessError']) => {
       navigation.navigate('SuccessError', { ...props });
@@ -159,6 +160,7 @@ const VerificationForm = ({
         {
           headers: {
             'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
           },
         }
       );

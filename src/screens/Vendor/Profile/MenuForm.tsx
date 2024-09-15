@@ -184,6 +184,8 @@ const MenuForm = () => {
     setLoading(true);
     const vendorId = vendor?.id;
     const { packages } = input;
+    const token = getToken({ template: 'event-hand-jwt' });
+
     const firebaseService = FirebaseService.getInstance();
 
     try {
@@ -239,7 +241,10 @@ const MenuForm = () => {
           `${process.env.EXPO_PUBLIC_BACKEND_URL}/packages`,
           packagePayload,
           {
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
           }
         );
 

@@ -50,6 +50,8 @@ function VendorProfile() {
   const handleToggleVisibility = async () => {
     const newVisibility = !isVisible;
     setIsVisible(newVisibility);
+    const token = getToken({ template: 'event-hand-jwt' });
+
 
     try {
       const response = await axios.patch(
@@ -58,6 +60,7 @@ function VendorProfile() {
         {
           headers: {
             'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
           },
         }
       );
