@@ -153,7 +153,7 @@ function  UserBookingView({navigation, route}: UserBookingViewScreenProps) {
     setLoading(true);
     setErrorState({error: false, message: ""});
 
-    const token = await getToken({ template: "event-hand-jwt" });
+    const token = await getToken({ template: "eventhand-client" });
 
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking/${booking._id}/cancel`;
     

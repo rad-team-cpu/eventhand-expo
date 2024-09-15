@@ -167,7 +167,7 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
           : null;
       }
 
-      const token = getToken({ template: 'event-hand-jwt' });
+      const token = getToken({ template: 'eventhand-client' });
 
       const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/users`;
 

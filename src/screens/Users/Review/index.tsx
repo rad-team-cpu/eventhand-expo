@@ -19,41 +19,12 @@ import {
   PackageType,
   UserReviewScreenProps,
 } from "types/types";
-import ConfirmationDialog from "Components/ConfirmationDialog";
 import { useFocusEffect } from "@react-navigation/native";
 import Loading from "screens/Loading";
 import { useAuth } from "@clerk/clerk-expo";
 import { UserContext } from "Contexts/UserContext";
 import SuccessScreen from "Components/Success";
 import ErrorScreen from "Components/Error";
-
-interface Vendor {
-  _id: string;
-  name: string;
-  logo: string;
-  address: {
-    street: string;
-    city: string;
-    region: string;
-    postalCode: number;
-  };
-  contactNum: string;
-  email: string;
-}
-
-interface Package {
-  id: string;
-  name: string;
-  imageUrl: string;
-  capacity: number;
-  orderType: string;
-  description: string;
-  inclusions: {
-    id: string;
-    name: string;
-    description: string;
-  }[];
-}
 
 type StarRatingProps = {
   maxStars?: number;
@@ -317,7 +288,7 @@ interface ReviewInputType {
 
 function UserReview({ navigation, route }: UserReviewScreenProps) {
   const { booking, event } = route.params;
-  const { userId, isLoaded, getToken } = useAuth();
+  const {  isLoaded, getToken } = useAuth();
   const [review, setReview] = useState<Review>({ rating: 0, comment: "" });
   const [confirmReview, setConfirmReview] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -374,7 +345,7 @@ function UserReview({ navigation, route }: UserReviewScreenProps) {
     setLoading(true);
     setError({ error: false, message: "" });
 
-    const token = await getToken({ template: "event-hand-jwt" });
+    const token = await getToken({ template: "eventhand-client" });
 
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/reviews`;
 

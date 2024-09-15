@@ -41,7 +41,7 @@ interface PackageItemType {
   };
   vendorTags: [];
   name: string;
-  imageUrl: string;
+  imageUrl?: string;
   capacity: number;
   description: string;
   price: number;
@@ -105,7 +105,7 @@ interface BookingType {
 type PackageBookingType = {
   _id: string;
   name: string;
-  imageUrl: string;
+  imageUrl?: string;
   capacity: number;
   tags: Tag[];
   orderType: string;
@@ -117,7 +117,7 @@ type PackageBookingType = {
 interface BookingPackageType {
   _id: string;
   name: string;
-  imageUrl: string;
+  imageUrl?: string;
   capacity: number;
   tags: Tag[];
   orderType: string;
@@ -125,7 +125,7 @@ interface BookingPackageType {
   price: number;
   inclusions: {
     _id: string;
-    imageUrl: string;
+    imageUrl?: string;
     name: string;
     description: string;
     quantity: number;
