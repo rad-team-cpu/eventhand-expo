@@ -77,6 +77,15 @@ const defaultPaginationOptions: PaginationInfo = {
   hasMore: false
 }
 
+const sortByTimestamp =(a: Chat, b : Chat,) => {
+  if(a.timestamp && b.timestamp){
+    const dateA = new Date(a.timestamp).getTime();
+    const dateB = new Date(b.timestamp).getTime();
+    return dateB - dateA; // Sorts by ascending date (earliest date first)
+  }
+  return 0
+};
+
 
 const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
     const { getToken,  isLoaded } = useAuth();
@@ -126,7 +135,7 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
                     })
 
                     if(parsedData.outputType === "GET_MORE_CHAT_LIST"){
-                      setChatList(prevList => [...prevList, ...message.documents])
+                      setChatList(prevList => [...prevList, ...message.documents].sort(sortByTimestamp))
                     }else{
                       setChatList(message.documents)
                     }
