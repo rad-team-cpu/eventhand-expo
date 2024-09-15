@@ -1,7 +1,5 @@
-import { useAuth, useUser } from '@clerk/clerk-expo';
-import { AntDesign } from '@expo/vector-icons';
+import { useAuth } from '@clerk/clerk-expo';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { UploadResult } from 'firebase/storage';
 import React, { useState, useContext } from 'react';
 import {
@@ -92,13 +90,13 @@ const VerificationForm = ({
     mode: 'onBlur',
     reValidateMode: 'onChange',
     defaultValues: {
-      idType: '', // default empty string for idType
+      idType: '', 
       credentials: {
         fileSize: 0,
         uri: '',
         mimeType: '',
         fileExtension: '',
-      }, // initializing credentials as empty object
+      }, 
     },
     resolver: yupResolver(verificationFormValidationSchema),
   });
@@ -159,6 +157,7 @@ const VerificationForm = ({
         {
           headers: {
             'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -167,12 +166,6 @@ const VerificationForm = ({
         case 200:
           setLoading(false);
           onSubmit(input);
-          // navigateToSuccessError({
-          //   description: 'Your information was saved successfully.',
-          //   buttonText: 'Continue',
-          //   navigateTo: 'VendorHome',
-          //   status: 'success',
-          // });
           break;
         case 403:
           setSubmitErrMessage('Forbidden - Access denied.');

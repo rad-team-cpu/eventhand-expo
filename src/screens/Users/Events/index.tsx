@@ -2,7 +2,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import axios from 'axios';
 import { format } from 'date-fns/format';
 import ExpoStatusBar from 'expo-status-bar/build/ExpoStatusBar';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Image from 'Components/Ui/Image';
 import {
   Alert,
@@ -25,7 +25,7 @@ import {
   BookingType,
 } from 'types/types';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import Block from 'Components/Ui/Block';
 import { faker } from '@faker-js/faker';
 import { useAuth } from '@clerk/clerk-expo';
@@ -78,8 +78,8 @@ const categories: Category[] = [
 
 const calculateTotal = (budget: { [key: string]: number | null }): number => {
   return Object.keys(budget)
-    .filter((key) => key !== 'total') // Exclude the total key
-    .reduce((sum, key) => sum + (budget[key] ?? 0), 0); // Sum up non-null values
+    .filter((key) => key !== 'total')
+    .reduce((sum, key) => sum + (budget[key] ?? 0), 0);
 };
 
 interface BudgetScreenProps {
@@ -89,16 +89,12 @@ interface BudgetScreenProps {
 }
 
 const addCommasToNumber = (number: number) => {
-  // Convert the number to a string with exactly two decimal places
   let numberString = number.toFixed(2);
 
-  // Split the string into the integer and decimal parts
   let parts = numberString.split('.');
 
-  // Format the integer part with commas
   parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
-  // Join the parts back together
   return parts.join('.');
 };
 
@@ -191,48 +187,6 @@ const BudgetScreen = (props: BudgetScreenProps) => {
         </Block>
       </Block>
     </>
-  );
-};
-
-const SortTabBar = () => {
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-
-  const handlePress = (name: string) => {
-    setSelectedCategory((prev) => (prev === name ? null : name));
-  };
-
-  return (
-    <View style={styles.sortTabContainer}>
-      {categories.map((category) => {
-        if (category.name !== 'total') {
-          return (
-            <Pressable
-              key={category.name}
-              style={({ pressed }) => [
-                styles.sortTabButton,
-                {
-                  backgroundColor:
-                    selectedCategory === category.name
-                      ? category.color
-                      : pressed
-                        ? category.color + '80' // Adding transparency on press
-                        : '#fff',
-                  borderColor: category.color,
-                },
-              ]}
-              onPress={() => handlePress(category.name)}
-            >
-              <FontAwesome
-                size={15}
-                color={
-                  selectedCategory === category.name ? '#fff' : category.color
-                }
-              />
-            </Pressable>
-          );
-        }
-      })}
-    </View>
   );
 };
 
@@ -393,6 +347,8 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     { key: 'pending', title: 'Pending' },
     { key: 'cancelled', title: 'Cancelled/Declined' },
   ]);
+
+  const [eventBookings, setEventBookings] = useState<BookingDetailsProps[]>([]);
 
   const fetchEvent = async () => {
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/${eventId}/bookings`;
@@ -619,15 +575,6 @@ function EventView({ route, navigation }: EventViewScreenProps) {
       <View style={listStyles.eventContainer}>
         <View className='flex flex-row justify-between'>
           <Text style={listStyles.dateText}>{dateString}</Text>
-          {/* <Button
-            row
-            flex={0}
-            justify="flex-start"
-            onPress={onBackBtnPress}
-          >
-            <AntDesign name="back" size={24} color="#CB0C9F" />
-            <Text className="text-primary ml-1">Go back</Text>
-          </Button> */}
           <View style={styles.container}>
             <Pressable
               style={styles.button}
@@ -652,10 +599,6 @@ function EventView({ route, navigation }: EventViewScreenProps) {
             <Text style={listStyles.capacityText}>{address}</Text>
           </>
         )}
-        {/* <View style={listStyles.row}>
-          <Text style={listStyles.dateText}>{dateString}</Text>
-
-        </View> */}
         <View style={listStyles.separator} />
         <View style={listStyles.row}>
           <Pressable
@@ -719,8 +662,6 @@ function EventView({ route, navigation }: EventViewScreenProps) {
           }
         />
       ) : null}
-
-      {/* <HomeNav /> */}
     </>
   );
 }
@@ -789,10 +730,10 @@ const styles = StyleSheet.create({
   },
   tabBar: {
     backgroundColor: '#fff',
-    marginTop: 5, // Add margin top for TabBar
+    marginTop: 5,
     marginHorizontal: 6,
-    elevation: 4, // Optional shadow for TabBar on Android
-    shadowColor: '#000', // Optional shadow for TabBar on iOS
+    elevation: 4,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -875,8 +816,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 8,
-    // backgroundColor: '#6200EE', // Example toolbar background color
-    // position: 'absolute',
     marginTop: 10,
     top: 0,
     left: 0,
@@ -894,8 +833,7 @@ const styles = StyleSheet.create({
   },
   eventUpdateMenuContainer: {
     flex: 1,
-    // justifyContent: 'center', // Center vertically
-    alignItems: 'center', // Center horizontally
+    alignItems: 'center',
     paddingVertical: 10,
   },
   eventUpdateMenuButton: {
@@ -903,9 +841,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 10,
     marginVertical: 5,
-    backgroundColor: '#6200EE', // Example button background color
+    backgroundColor: '#6200EE',
     borderRadius: 5,
-    width: '65%', // Set a fixed width to prevent extending the whole width
+    width: '65%',
   },
   eventUpdateMenuIcon: {
     marginRight: 10,
@@ -913,7 +851,7 @@ const styles = StyleSheet.create({
   eventUpdateMenuLabel: {
     fontSize: 16,
     color: 'white',
-    fontWeight: 'bold', // Make the text bold
+    fontWeight: 'bold',
   },
   bookingListItem: {
     flexDirection: 'row',
@@ -963,7 +901,6 @@ const listStyles = StyleSheet.create({
   eventContainer: {
     paddingHorizontal: 16,
     paddingVertical: 10,
-    // marginTop: 30,
     marginHorizontal: 5,
     backgroundColor: '#fff',
     borderLeftWidth: 8,
@@ -974,7 +911,7 @@ const listStyles = StyleSheet.create({
     borderTopRightRadius: 16,
     borderBottomRightRadius: 16,
     borderRightColor: '#CB0C9F',
-    elevation: 10, // Add shadow for floating effect
+    elevation: 10,
     shadowColor: 'black',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,

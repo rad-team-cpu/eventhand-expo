@@ -11,7 +11,6 @@ import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import {
   EventInfo,
   HomeScreenNavigationProp,
-  PackageAlgoType,
   PackageItemType,
   ScreenProps,
 } from 'types/types';

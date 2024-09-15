@@ -1,4 +1,3 @@
-import { faker } from "@faker-js/faker";
 import React, { useCallback, useContext, useState } from "react";
 import {
   View,
@@ -16,7 +15,6 @@ import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import {
   BookingType,
   Inclusion,
-  PackageType,
   UserReviewScreenProps,
 } from "types/types";
 import { useFocusEffect } from "@react-navigation/native";
@@ -59,7 +57,7 @@ const StarRating: React.FC<StarRatingProps> = ({
         >
           <FontAwesome
             name={index < rating ? "star" : "star-o"}
-            size={40} // Larger size for the stars
+            size={40} 
             color={index < rating ? "#CB0C9F" : "#E875C3"} // Gold for selected, light steel blue for unselected
             style={styles.star}
           />
@@ -113,15 +111,6 @@ const Toolbar: React.FC<ToolbarProps> = ({ onBackPress }) => {
       <Pressable onPress={onBackPress} style={styles.toolbarButton}>
         <Ionicons name="arrow-back" size={24} color="#CB0C9F" />
       </Pressable>
-      {/* <View style={styles.toolbarSpacer} />
-      <View style={styles.toolbarActions}>
-        <Pressable onPress={onEditPress} style={styles.toolbarButton}>
-          <Ionicons name="pencil" size={24} color="#CB0C9F" />
-        </Pressable>
-        <Pressable onPress={onDeletePress} style={styles.toolbarButton}>
-          <Ionicons name="trash" size={24} color="#CB0C9F" />
-        </Pressable>
-      </View> */}
     </View>
   );
 };
@@ -189,7 +178,7 @@ const BookingDetails = (props: BookingDetailsProps) => {
             {
               backgroundColor:
                 review.rating < 1
-                  ? "#D3D3D3" // Gray color when disabled
+                  ? "#D3D3D3" 
                   : "#CB0C9F",
             },
           ]}
@@ -214,9 +203,6 @@ interface ReviewConfirmationProps {
   onCancel: () => void;
   onConfirm: () => void;
 }
-
-const windowWidth = Dimensions.get("window").width;
-const windowHeight = Dimensions.get("window").height;
 
 const ReviewConfirmation = (props: ReviewConfirmationProps) => {
   const { review, onCancel, onConfirm, booking } = props;
@@ -567,8 +553,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 16,
     paddingVertical: 8,
-    // backgroundColor: '#6200EE', // Example toolbar background color
-    // position: 'absolute',
     marginTop: 10,
     top: 0,
     left: 0,
@@ -591,9 +575,9 @@ const styles = StyleSheet.create({
   },
   starContainer: {
     flexDirection: "row",
-    justifyContent: "center", // Center the stars horizontally
-    alignItems: "center", // Align items vertically
-    marginVertical: 10, // Add some vertical spacing
+    justifyContent: "center", 
+    alignItems: "center", 
+    marginVertical: 10, 
   },
   star: {
     marginHorizontal: 10,
@@ -602,12 +586,12 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   textBox: {
-    height: 150, // Height of the multi-line text box
-    borderColor: "#ccc", // Light border color
+    height: 150, 
+    borderColor: "#ccc", 
     borderWidth: 1,
-    borderRadius: 8, // Rounded corners
+    borderRadius: 8, 
     padding: 10,
-    textAlignVertical: "top", // Align text at the top
+    textAlignVertical: "top", 
     fontSize: 16,
     color: "#000",
   },

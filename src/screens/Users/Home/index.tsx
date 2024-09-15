@@ -20,7 +20,6 @@ import {
 } from "Contexts/WebSocket";
 import ErrorScreen from "Components/Error";
 import ConfirmationDialog from "Components/ConfirmationDialog";
-import PackageList from "../Packages/PackageList";
 
 interface HomeNavProps {
   initialRouteName?: keyof HomeScreenBottomTabsProps;
@@ -98,8 +97,7 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
   const [error, setError] = useState(false);
   const userContext = useContext(UserContext);
   const webSocket = useContext(WebSocketContext);
-  const clerkId = userId; //clerk-auth-generated-user-id
-
+  const clerkId = userId; 
   if (!clerkId) {
     return (
       <ErrorScreen
@@ -250,7 +248,7 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
 
 const styles = StyleSheet.create({
   headerContainer: {
-    elevation: 4, // Adds shadow on Android
+    elevation: 4, 
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.8,

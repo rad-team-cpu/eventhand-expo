@@ -1,7 +1,7 @@
 import { useAuth, useUser } from '@clerk/clerk-expo';
 import { AntDesign } from '@expo/vector-icons';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import Avatar from 'Components/Avatar';
 import { UploadResult } from 'firebase/storage';
 import React, { useState, useContext, useCallback } from 'react';
@@ -15,8 +15,6 @@ import {
 import { BackHandler, TextInput, GestureResponderEvent } from 'react-native';
 import FirebaseService from 'service/firebase';
 import { object, string, number } from 'yup';
-
-// import DatePicker from "../../Components/Input/DatePicker";
 import { UserContext } from '../../../Contexts/UserContext';
 import ProfileUpload from 'Components/Input/ProfileUpload';
 import Block from 'Components/Ui/Block';
@@ -30,14 +28,13 @@ import {
   ScreenProps,
   SuccessErrorScreenProps,
 } from '../../../types/types';
-import Loading from '../../Loading';
+import Loading from 'screens/Loading';
 
 interface ProfileInput extends FieldValues {
   profileAvatar: ImageInfo | null;
   lastName: string;
   firstName: string;
   contactNumber: string;
-  // birthDate: Date;
 }
 
 const signUpValidationSchema = object().shape({
@@ -72,11 +69,6 @@ const signUpValidationSchema = object().shape({
       'Please enter a valid contact number ex. 09123456789.'
     )
     .length(11, 'contact number must only have 11 digits'),
-  // birthDate: date()
-  //   .min(sub({ years: 100 })(new Date()), "Must be at most 100 years old.")
-  //   .max(sub({ years: 18 })(new Date()), "Must be at least 18 years old.")
-  //   .typeError("Enter Valid Date")
-  //   .required("Enter date of birth."),
 });
 
 const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
@@ -121,9 +113,6 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
   }
 
   const { setUser } = userContext;
-
-  // const minDate = sub({ years: 100 })(new Date());
-  // const maxDate = sub({ years: 19 })(new Date());
 
   const onNextBtnPress = (e: GestureResponderEvent) => {
     trigger();
@@ -201,13 +190,13 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
           break;
         case 403:
           setSubmitErrMessage('Forbidden - Access denied.');
-          throw new Error('Forbidden - Access denied.'); // Forbidden
+          throw new Error('Forbidden - Access denied.'); 
         case 404:
           setSubmitErrMessage('Server is unreachable.');
-          throw new Error('Server is unreachable.'); // Not Found
+          throw new Error('Server is unreachable.'); 
         default:
           setSubmitErrMessage('Unexpected error occurred.');
-          throw new Error('Unexpected error occurred.'); // Other status codes
+          throw new Error('Unexpected error occurred.'); 
       }
     } catch (error) {
       console.error(error);

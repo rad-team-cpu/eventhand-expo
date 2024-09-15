@@ -29,21 +29,6 @@ import {
   HomeScreenNavigationProp,
 } from 'types/types';
 
-// for fake data generation for frontend use only
-// const createChatData = () => {
-//   const chat: Chat = {
-//     _id: faker.string.uuid(),
-//     senderImage: faker.image.avatar(),
-//     senderName: faker.person.fullName(),
-//     latestMessage: faker.lorem.sentences(),
-//     timestamp: faker.date.anytime(),
-//   };
-
-//   return chat;
-// };
-
-// const data: Chat[] = Array.from(Array(1), () => createChatData());
-
 interface ChatItemProps extends Chat {
   onItemPress?: (item: Chat) => void;
 }
@@ -142,7 +127,7 @@ function ChatList({ route }: ChatListScreenPropsList) {
   const getChatList = useCallback(() => {
     setPage((prevPage) => prevPage + 1);
     const getChatListInput: GetChatListInput = {
-      senderId: mode === "CLIENT"? user._id: vendor.id,
+      senderId: mode === 'CLIENT' ? user._id : vendor.id,
       senderType: mode,
       pageNumber: page,
       pageSize: 10,
@@ -243,7 +228,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     borderRadius: 5,
     backgroundColor: '#ffff',
-    elevation: 2, // Add shadow for floating effect
+    elevation: 2, 
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -286,11 +271,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f8f9fa', // Light background color
+    backgroundColor: '#f8f9fa', 
   },
   emptyText: {
     fontSize: 18,
-    color: '#6c757d', // Muted text color
+    color: '#6c757d', 
   },
 });
 

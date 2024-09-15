@@ -31,16 +31,16 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: 'white',
-    borderColor: 'blue', // Change to your preferred color
+    borderColor: 'blue', 
     borderWidth: 2,
-    borderRadius: 15, // Curvy edges
+    borderRadius: 15, 
     paddingVertical: 5,
     paddingHorizontal: 10,
     marginHorizontal: 10,
     marginVertical: 5
   },
   buttonText: {
-    color: 'blue', // Change to your preferred color
+    color: 'blue',
     fontWeight: 'bold',
   },
 });

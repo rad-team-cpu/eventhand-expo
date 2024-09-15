@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   ScrollView,
   TextInput,
@@ -6,7 +6,6 @@ import {
   View,
   Text,
 } from 'react-native';
-import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 import { UserContext } from 'Contexts/UserContext';
@@ -202,7 +201,7 @@ export default function VendorList() {
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
     if (query.trim() === '') {
-      setFilteredVendors(allVendors); // Show all vendors if search query is empty
+      setFilteredVendors(allVendors); 
     } else {
       const searchResults = allVendors.filter((vendor) =>
         vendor.name.toLowerCase().includes(query.toLowerCase())

@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable prettier/prettier */
 import { useSignIn } from '@clerk/clerk-expo';
 import { Entypo } from '@expo/vector-icons';
 import { yupResolver } from '@hookform/resolvers/yup';

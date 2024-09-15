@@ -179,7 +179,6 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
     
       useEffect(() => {
         connectWebSocket();
-        // Clean up WebSocket on unmount
         return () => {
           websocketRef.current?.close();
         };

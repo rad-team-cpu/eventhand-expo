@@ -142,7 +142,6 @@ const Rating = ({ navigation }: RatingScreenProps) => {
                 Rate the vendor and leave your comments below!
               </Text>
 
-              {/* Star Rating Field */}
               <Block marginHorizontal='10%'>
                 <Controller
                   name='rating'
@@ -164,7 +163,6 @@ const Rating = ({ navigation }: RatingScreenProps) => {
                 {errors['rating']?.message}
               </Text>
 
-              {/* Comments Field */}
               <Controller
                 name='comments'
                 control={control}
@@ -188,7 +186,6 @@ const Rating = ({ navigation }: RatingScreenProps) => {
                 {errors['comments']?.message}
               </Text>
 
-              {/* Submit Button */}
               <Button
                 testID='submit-btn'
                 onPress={onSubmitPress}
