@@ -102,7 +102,6 @@ export default function PackageList() {
     navigation.navigate('VendorMenu', vendorMenuProps);
   };
 
-
   return (
     <Block testID='package-list' safe>
       <Block flex={0}>
@@ -142,7 +141,11 @@ export default function PackageList() {
                     background
                     resizeMode='cover'
                     padding={sizes.md}
-                    src={vendor.vendorLogo}
+                    {...(vendor.vendorLogo
+                      ? { src: vendor.vendorLogo }
+                      : {
+                          source: require('../../../assets/images/card1.png'),
+                        })}
                     rounded
                     blurRadius={2}
                     className='h-24 w-24 rounded-xl'
@@ -180,56 +183,62 @@ export default function PackageList() {
                   </View>
                 </TouchableOpacity>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  {vendor.vendorPackages.map((packageItem: PackageType, index) => (
-                    <TouchableOpacity
-                      key={`${index} - package`}
-                      onPress={() =>
-                        handleBookPress(packageItem, event, vendor)
-                      }
-                      className='bg-slate-600 h-40 w-32 flex rounded-xl mr-4 relative'
-                    >
-                      <Image
-                        background
-                        resizeMode='cover'
-                        padding={sizes.md}
-                        src={packageItem.imageUrl}
-                        rounded
-                        className='h-20 w-32 rounded-xl'
-                      />
-                      <View className='relative inset-0 flex items-center justify-center'>
-                        <View className='px-2 py-1 rounded'>
-                          <Text className='text-sm items-center text-white font-bold'>
-                            {packageItem.name}
-                          </Text>
-                          <Text className='text-xs text-white items-center justify-center'>
-                            Good for: {packageItem.capacity} pax
-                          </Text>
-                          <Text className='text-xs text-white'>
-                            P{packageItem.price}
-                          </Text>
-                        </View>
-                      </View>
+                  {vendor.vendorPackages.map(
+                    (packageItem: PackageType, index) => (
                       <TouchableOpacity
+                        key={`${index} - package`}
                         onPress={() =>
                           handleBookPress(packageItem, event, vendor)
                         }
-                        style={{
-                          position: 'absolute',
-                          bottom: -1,
-                          right: -3,
-                          backgroundColor: '#cb0c9f',
-                          borderRadius: 50,
-                          width: 30,
-                          height: 30,
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          zIndex: 10,
-                        }}
+                        className='bg-slate-600 h-40 w-32 flex rounded-xl mr-4 relative'
                       >
-                        <AntDesign name='plus' size={20} color='white' />
+                        <Image
+                          background
+                          resizeMode='cover'
+                          padding={sizes.md}
+                          {...(packageItem.imageUrl
+                            ? { src: packageItem.imageUrl }
+                            : {
+                                source: require('../../../assets/images/card2.png'),
+                              })}
+                          rounded
+                          className='h-20 w-32 rounded-xl'
+                        />
+                        <View className='relative inset-0 flex items-center justify-center'>
+                          <View className='px-2 py-1 rounded'>
+                            <Text className='text-sm items-center text-white font-bold'>
+                              {packageItem.name}
+                            </Text>
+                            <Text className='text-xs text-white items-center justify-center'>
+                              Good for: {packageItem.capacity} pax
+                            </Text>
+                            <Text className='text-xs text-white'>
+                              P{packageItem.price}
+                            </Text>
+                          </View>
+                        </View>
+                        <TouchableOpacity
+                          onPress={() =>
+                            handleBookPress(packageItem, event, vendor)
+                          }
+                          style={{
+                            position: 'absolute',
+                            bottom: -1,
+                            right: -3,
+                            backgroundColor: '#cb0c9f',
+                            borderRadius: 50,
+                            width: 30,
+                            height: 30,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            zIndex: 10,
+                          }}
+                        >
+                          <AntDesign name='plus' size={20} color='white' />
+                        </TouchableOpacity>
                       </TouchableOpacity>
-                    </TouchableOpacity>
-                  ))}
+                    )
+                  )}
                 </ScrollView>
               </View>
             </View>
