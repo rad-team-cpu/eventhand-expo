@@ -121,8 +121,8 @@ const FirstSection = ({
   title: string;
   vendors: VendorListItem[];
 }) => (
-  <View className="h-auto flex items-left justify-left gap-y-3 mt-2">
-    <Text className="text-xl text-black font-bold">{title}</Text>
+  <View className='h-auto flex items-left justify-left gap-y-3 mt-2'>
+    <Text className='text-xl text-black font-bold'>{title}</Text>
     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
       {vendors.slice(0, 11).map((vendor) => <SectionItem {...vendor}/>)}
     </ScrollView>
@@ -139,20 +139,20 @@ export default function VendorList() {
   const [allVendors, setAllVendors] = useState<VendorListItem[]>([]);
 
   if (!userContext) {
-    throw new Error("UserContext must be used within a UserProvider");
+    throw new Error('UserContext must be used within a UserProvider');
   }
 
 
 
   const fetchVendors = async () => {
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors/${userId}/list`;
-    const token = getToken({ template: "event-hand-jwt" });
+    const token = getToken({ template: 'event-hand-jwt' });
 
     const request = {
-      method: "GET",
+      method: 'GET',
       headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
     };
@@ -164,33 +164,33 @@ export default function VendorList() {
         const allVendors = [
           ...data.catering.map((vendor: VendorListItem) => ({
             ...vendor,
-            category: "catering",
+            category: 'catering',
           })),
           ...data.venue.map((vendor: VendorListItem) => ({
             ...vendor,
-            category: "venue",
+            category: 'venue',
           })),
           ...data.photography.map((vendor: VendorListItem) => ({
             ...vendor,
-            category: "photography",
+            category: 'photography',
           })),
           ...data.planning.map((vendor: VendorListItem) => ({
             ...vendor,
-            category: "planning",
+            category: 'planning',
           })),
           ...data.decorations.map((vendor: VendorListItem) => ({
             ...vendor,
-            category: "decoration",
+            category: 'decoration',
           })),
           ...data.realVendors.map((vendor: VendorListItem) => ({
             ...vendor,
-            category: "real",
+            category: 'real',
           })),
         ];
         setAllVendors(allVendors);
         setFilteredVendors(allVendors);
       } else {
-        throw new Error("Error fetching vendors");
+        throw new Error('Error fetching vendors');
       }
     } catch (error) {
       console.error(error);
@@ -199,65 +199,46 @@ export default function VendorList() {
     }
   };
 
-  const fetchVendorsSearch = useCallback(async () => {
-    if (searchQuery.trim() === '') {
-      setFilteredVendors([]); // Clear vendors if search query is empty
-      return;
-    }
-
-    try {
-      const response = await axios.get(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors/search?query=${searchQuery}`
-      );
-      console.log('Search response data:', response.data);
-      setFilteredVendors(response.data);
-    } catch (error) {
-      console.error("Error fetching vendors:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [searchQuery]);
-
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
+    if (query.trim() === '') {
+      setFilteredVendors(allVendors); // Show all vendors if search query is empty
+    } else {
+      const searchResults = allVendors.filter((vendor) =>
+        vendor.name.toLowerCase().includes(query.toLowerCase())
+      );
+      setFilteredVendors(searchResults);
+    }
   };
 
   useEffect(() => {
     fetchVendors();
   }, []);
 
-  useEffect(() => {
-    if (searchQuery.trim() !== "") {
-      fetchVendorsSearch();
-    } else {
-      setFilteredVendors(allVendors); // Show all vendors if search query is empty
-    }
-  }, [searchQuery, allVendors]);
-
   if (loading) {
     return <Loading />;
   }
 
   return (
-    <Block testID="vendor-list" safe>
-      <StatusBar style="auto" />
+    <Block testID='vendor-list' safe>
+      <StatusBar style='auto' />
       <Block flex={0} style={{ zIndex: 0 }}>
         <Image
           background
-          resizeMode="cover"
+          resizeMode='cover'
           padding={sizes.md}
           source={assets.background}
-          height={110}
+          height={100}
         >
           <Block paddingHorizontal={sizes.xs}>
             <TextInput
-              id="search-text-input"
-              placeholder="Search for event suppliers"
-              autoCapitalize="none"
-              returnKeyType="search"
+              id='search-text-input'
+              placeholder='Search for event suppliers'
+              autoCapitalize='none'
+              returnKeyType='search'
               onChangeText={handleSearchChange}
               value={searchQuery}
-              className="mt-5 pl-3 rounded-full bg-white h-10"
+              className='mt-5 pl-3 rounded-full bg-white h-10'
             />
           </Block>
         </Image>

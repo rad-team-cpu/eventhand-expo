@@ -1,31 +1,39 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet,  Pressable } from 'react-native';
+import { View, Text, Image, StyleSheet, Pressable } from 'react-native';
 import { WelcomeScreenProps } from 'types/types';
 
-function WelcomeScreen({navigation}: WelcomeScreenProps) {
+function WelcomeScreen({ navigation }: WelcomeScreenProps) {
   return (
     <View style={styles.container}>
-      {/* Logo */}
       <Image source={require('images/logo.jpg')} style={styles.logo} />
 
-      {/* App Title */}
       <Text style={styles.title}>EVENT HAND</Text>
 
-      {/* Short Description */}
-      <Text style={styles.description}>Discover and book the perfect vendors for your events effortlessly. Whether it's catering, entertainment, or decor, our app connects you with trusted vendors to make your special day unforgettable.</Text>
+      <Text style={styles.description}>
+        Discover and book the perfect vendors for your events effortlessly.
+        Whether it's catering, entertainment, or decor, our app connects you
+        with trusted vendors to make your special day unforgettable.
+      </Text>
 
-      {/* Login Button */}
-      <Pressable style={styles.loginButton} onPress={() => navigation.navigate("Login")}>
-        <Text style={styles.loginButtonText}>Login</Text>
+      <Pressable
+        style={styles.loginButton}
+        onPress={() => navigation.navigate('SignUp')}
+      >
+        <Text style={styles.loginButtonText}>Sign up</Text>
       </Pressable>
 
       {/* Already have an account */}
-      <Pressable style={styles.haveAccount} onPress={() => navigation.navigate("SignUp")}>
-        <Text style={styles.haveAccountText}>Already have an account? Sign in</Text>
+      <Pressable
+        style={styles.haveAccount}
+        onPress={() => navigation.navigate('Login')}
+      >
+        <Text style={styles.haveAccountText}>
+          Already have an account? Sign in
+        </Text>
       </Pressable>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -44,7 +52,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: "#CB0C9F",
+    color: '#CB0C9F',
     marginTop: 20,
     marginBottom: 10,
   },
@@ -56,7 +64,7 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   loginButton: {
-    backgroundColor: "#CB0C9F",
+    backgroundColor: '#CB0C9F',
     paddingVertical: 15,
     paddingHorizontal: 100, // Wider login button
     borderRadius: 25,
@@ -71,7 +79,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   haveAccountText: {
-    color: "#E91E8E",
+    color: '#E91E8E',
     fontSize: 16,
     textDecorationLine: 'underline',
   },

@@ -7,6 +7,7 @@ import Image from 'Components/Ui/Image';
 import {
   Alert,
   BackHandler,
+  Dimensions,
   FlatList,
   GestureResponderEvent,
   Pressable,
@@ -240,10 +241,7 @@ interface ToolbarProps {
   onEditPress: (event: GestureResponderEvent) => void;
 }
 
-const Toolbar: React.FC<ToolbarProps> = ({
-  onBackPress,
-  onEditPress,
-}) => {
+const Toolbar: React.FC<ToolbarProps> = ({ onBackPress, onEditPress }) => {
   return (
     <View style={styles.toolbarContainer}>
       <Pressable onPress={onBackPress} style={styles.toolbarButton}>
@@ -254,7 +252,6 @@ const Toolbar: React.FC<ToolbarProps> = ({
         <Pressable onPress={onEditPress} style={styles.toolbarButton}>
           <Ionicons name='pencil' size={24} color='#CB0C9F' />
         </Pressable>
-
       </View>
     </View>
   );
@@ -376,6 +373,7 @@ const BookingList: React.FC<BookingListProps> = ({ bookings, onPress }) => {
       data={bookings}
       keyExtractor={(item) => item._id}
       renderItem={renderItem}
+      contentContainerStyle={{ flexGrow: 1 }}
     />
   );
 };
@@ -674,10 +672,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
   return (
     <>
       <ExpoStatusBar />
-      <Toolbar
-        onBackPress={onBackBtnPress}
-        onEditPress={onEditButtonPress}
-      />
+      <Toolbar onBackPress={onBackBtnPress} onEditPress={onEditButtonPress} />
       <View style={listStyles.eventContainer}>
         <View className='flex flex-row justify-between'>
           <Text style={listStyles.dateText}>{dateString}</Text>
@@ -739,7 +734,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
           </Text>
         </View>
       </View>
-      {isToday(event.date) && (
+      {isToday(event.date) ? (
         <TabView
           navigationState={{ index, routes }}
           renderScene={renderScene}
@@ -754,9 +749,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
             />
           )}
         />
-      )}
-
-      {isAfter(event.date, new Date())  && (
+      ) : isAfter(event.date, new Date()) ? (
         <TabView
           navigationState={{ index, routes }}
           renderScene={renderScene}
@@ -771,8 +764,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
             />
           )}
         />
-      )}
-      {isBefore(event.date, new Date()) && (
+      ) : isBefore(event.date, new Date()) ? (
         <BookingList
           bookings={pastBookings}
           onPress={(booking: BookingType) =>
@@ -783,11 +775,13 @@ function EventView({ route, navigation }: EventViewScreenProps) {
             })
           }
         />
-      )}
+      ) : null}
+
       {/* <HomeNav /> */}
     </>
   );
 }
+const screenHeight = Dimensions.get('window').height;
 
 const styles = StyleSheet.create({
   container: {
