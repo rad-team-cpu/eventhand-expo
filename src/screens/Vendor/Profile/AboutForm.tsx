@@ -5,7 +5,6 @@ import React, { useState, useContext, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import {
   TextInput,
-  ScrollView,
   TouchableOpacity,
   StyleSheet,
   View,
@@ -341,8 +340,8 @@ const AboutForm = ({ onSubmit, onGoBack, initialData }: AboutFormProps) => {
 const styles = StyleSheet.create({
   tagsContainer: {
     flexDirection: 'row',
-    flexWrap: 'wrap', // Allow tags to wrap to the next line
-    justifyContent: 'flex-start', // Align to the left
+    flexWrap: 'wrap', 
+    justifyContent: 'flex-start', 
     padding: 10,
   },
   tagButton: {

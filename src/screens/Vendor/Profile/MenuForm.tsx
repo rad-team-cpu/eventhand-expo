@@ -22,13 +22,8 @@ import { VendorContext } from 'Contexts/VendorContext';
 import { UploadResult } from 'firebase/storage';
 import PackageUpload from 'Components/Input/PackageUpload';
 import { Ionicons } from '@expo/vector-icons';
-import {
-  HomeScreenNavigationProp,
-  Tag,
-  VendorProfileFormScreenProps,
-} from 'types/types';
+import { HomeScreenNavigationProp, Tag } from 'types/types';
 import { useNavigation } from '@react-navigation/native';
-import { previousDay } from 'date-fns';
 import { useAuth } from '@clerk/clerk-react';
 
 interface InclusionInput {

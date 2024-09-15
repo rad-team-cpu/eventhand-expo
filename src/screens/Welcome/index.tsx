@@ -6,23 +6,18 @@ function WelcomeScreen({ navigation }: WelcomeScreenProps) {
   return (
     <View style={styles.container}>
       <Image source={require('images/logo.jpg')} style={styles.logo} />
-
       <Text style={styles.title}>EVENT HAND</Text>
-
       <Text style={styles.description}>
         Discover and book the perfect vendors for your events effortlessly.
         Whether it's catering, entertainment, or decor, our app connects you
         with trusted vendors to make your special day unforgettable.
       </Text>
-
       <Pressable
         style={styles.loginButton}
         onPress={() => navigation.navigate('SignUp')}
       >
         <Text style={styles.loginButtonText}>Sign up</Text>
       </Pressable>
-
-      {/* Already have an account */}
       <Pressable
         style={styles.haveAccount}
         onPress={() => navigation.navigate('Login')}
@@ -46,7 +41,7 @@ const styles = StyleSheet.create({
   logo: {
     width: 150,
     height: 150,
-    borderRadius: 75, // Makes the logo round
+    borderRadius: 75,
     marginBottom: 20,
   },
   title: {
@@ -66,7 +61,7 @@ const styles = StyleSheet.create({
   loginButton: {
     backgroundColor: '#CB0C9F',
     paddingVertical: 15,
-    paddingHorizontal: 100, // Wider login button
+    paddingHorizontal: 100, 
     borderRadius: 25,
     marginBottom: 20,
   },

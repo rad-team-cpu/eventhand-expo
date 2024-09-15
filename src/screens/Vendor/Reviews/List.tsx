@@ -7,13 +7,10 @@ import Loading from 'screens/Loading';
 import { HomeScreenNavigationProp, VendorReviewType } from 'types/types';
 import { useNavigation } from '@react-navigation/native';
 
-
-// Props for the component
 interface ReviewList {
   averageRating: number;
   reviews: VendorReviewType[];
 }
-
 
 const StarRating = ({ rating }: { rating: number }) => {
     return (
@@ -36,7 +33,6 @@ const StarRating = ({ rating }: { rating: number }) => {
 
 
 const ReviewList: React.FC<ReviewListProps> = ({ averageRating, reviews, onItemPress }) => {
-  // Helper function to render star ratings
   const renderReview = ({ item }: { item: any }) => (
     <View style={styles.reviewContainer}>
       <Image
@@ -48,12 +44,10 @@ const ReviewList: React.FC<ReviewListProps> = ({ averageRating, reviews, onItemP
         style={styles.profileImage}
       />
       <Pressable  onPress={() => onItemPress(item)} style={styles.reviewContent}>
-        {/* First row: Reviewer's name and their rating */}
         <View style={styles.reviewRow}>
           <Text style={styles.reviewerName}>{item.clientFullName}</Text>
           <StarRating rating={item.rating} />
         </View>
-        {/* Second row: Review text */}
         <View>
           <Text style={styles.reviewText}>{item.comment}</Text>
         </View>
@@ -63,14 +57,11 @@ const ReviewList: React.FC<ReviewListProps> = ({ averageRating, reviews, onItemP
 
   return (
     <View style={styles.container}>
-      {/* Display average rating */}
       <View style={styles.averageRatingContainer}>
         <Text style={styles.averageRatingText}>{averageRating.toFixed(1)}</Text>
         <Text style={styles.averageRatingLabel}>Average Rating</Text>
         <StarRating rating={Math.round(averageRating)} />
       </View>
-
-      {/* Display reviews list */}
       <FlatList
         data={reviews}
         keyExtractor={(item) => item._id}
@@ -135,10 +126,6 @@ function VendorReviews() {
         }
       };
     
-    //   const handleFindSupplier = () => {
-    //     navigation.navigate("Home", { initialTab: "Vendors" });
-    //   };
-    
     
       useEffect(() => {
         fetchReviews();
@@ -156,7 +143,6 @@ function VendorReviews() {
     );
   };
 
-// Styles for the component
 const styles = StyleSheet.create({
   container: {
     padding: 16,

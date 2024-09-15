@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useCallback } from "react";
@@ -12,8 +11,6 @@ import {
 
 import { IButtonProps } from "../../constants/types/components";
 import useTheme from "../../core/theme";
-
-
 
 const Button = ({
   id = "Button",
@@ -170,20 +167,9 @@ const Button = ({
     },
   ]) as ViewStyle;
 
-  /* handle onPress event */
   const handlePress = useCallback(
     (event: GestureResponderEvent) => {
       onPress?.(event);
-
-      /* vibrate onPress */
-      // if (vibrate) {
-      //   Vibration.vibrate(vibrate, vibrateRepeat);
-      // }
-
-      /* haptic feedback onPress */
-      // if (haptic) {
-      //   Haptics.selectionAsync();
-      // }
     },
     [haptic, vibrate, vibrateRepeat, onPress],
   );
@@ -211,7 +197,6 @@ const Button = ({
     },
   ]) as ViewStyle;
 
-  // generate component testID or accessibilityLabel based on Platform.OS
   const buttonID =
     Platform.OS === "android" ? { accessibilityLabel: id } : { testID: id };
 

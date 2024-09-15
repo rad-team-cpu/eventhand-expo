@@ -16,7 +16,6 @@ const Typography = (props: ITextProps) => {
     gradient,
     color,
     opacity,
-    // predefined colors
     primary,
     secondary,
     tertiary,
@@ -158,10 +157,7 @@ const Typography = (props: ITextProps) => {
     },
   ]) as TextStyle;
 
-  /*
-   * Calculate gradient height container based on text lineHeight or fontSize
-   * add an extra value from marginVertical or marginTop or marginBottom
-   */
+
   const gradientHeight =
     Number(textStyles?.lineHeight || textStyles?.fontSize || 0) +
     Number(
@@ -171,7 +167,6 @@ const Typography = (props: ITextProps) => {
         0,
     );
 
-  // generate component testID or accessibilityLabel based on Platform.OS
   const textID =
     Platform.OS === "android" ? { accessibilityLabel: id } : { testID: id };
 

@@ -1,32 +1,23 @@
-import { MaterialIcons, AntDesign } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
-import { UserContext } from "Contexts/UserContext";
-import { format } from "date-fns/format";
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import { useNavigation } from '@react-navigation/native';
+import { format } from 'date-fns/format';
+import React, { useContext, useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
   FlatList,
   Pressable,
   StatusBar,
   StyleSheet,
   Text,
   View,
-} from "react-native";
-import Image from "Components/Ui/Image";
-import useTheme from "../../../core/theme";
-import {
-  BookingStatus,
-  EventInfo,
-  HomeScreenNavigationProp,
-  PackageType,
-} from "types/types";
-import { isAfter, isBefore, isToday } from "date-fns";
-import { useAuth } from "@clerk/clerk-expo";
-import { SafeAreaView } from "react-native-safe-area-context";
-import Block from "Components/Ui/Block";
-import { faker } from "@faker-js/faker";
-import { VendorContext } from "Contexts/VendorContext";
-import Loading from "screens/Loading";
+} from 'react-native';
+import Image from 'Components/Ui/Image';
+import useTheme from '../../../core/theme';
+import { BookingStatus, HomeScreenNavigationProp } from 'types/types';
+import { useAuth } from '@clerk/clerk-expo';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Block from 'Components/Ui/Block';
+import { faker } from '@faker-js/faker';
+import { VendorContext } from 'Contexts/VendorContext';
+import Loading from 'screens/Loading';
 
 type BookingListItemType = {
   _id: string;
@@ -68,11 +59,9 @@ const generateFakeBooking = (): BookingListItemType => ({
   packageName: faker.commerce.productName(),
 });
 
-// Function to generate an array of fake bookings
 const generateFakeBookingArray = (count: number): BookingListItemType[] =>
   Array.from({ length: count }).map(() => generateFakeBooking());
 
-// Generate an array of 10 fake bookings
 const fakeBookingDataArray = generateFakeBookingArray(10);
 
 interface BookingListItemProps {
@@ -82,42 +71,35 @@ interface BookingListItemProps {
 const BookingListItem = (props: BookingListItemProps) => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const { _id, client, event, status, packageName } = props.booking;
-  const dateString = format(event.date, "MMMM dd, yyyy");
+  const dateString = format(event.date, 'MMMM dd, yyyy');
   const statusColors: { [key in BookingStatus]: string } = {
-    PENDING: "orange",
-    CONFIRMED: "green",
-    CANCELLED: "red",
-    DECLINED: "gray",
-    COMPLETED: "blue",
+    PENDING: 'orange',
+    CONFIRMED: 'green',
+    CANCELLED: 'red',
+    DECLINED: 'gray',
+    COMPLETED: 'blue',
   };
 
   const handleItemPress = (_id: string) => {
-    navigation.navigate("VendorBookingView", { _id });
+    navigation.navigate('VendorBookingView', { _id });
   };
 
   return (
     <Pressable
       key={_id}
       style={[styles.itemContainer]}
-      android_ripple={{ color: "#c0c0c0" }}
+      android_ripple={{ color: '#c0c0c0' }}
       onPress={() => handleItemPress(_id)}
     >
       <Text style={styles.dateText}>Client: {client.name}</Text>
       <View style={styles.separator} />
-      <Text style={styles.capacityText} numberOfLines={1} ellipsizeMode="tail">
+      <Text style={styles.capacityText} numberOfLines={1} ellipsizeMode='tail'>
         Package: {packageName}
       </Text>
       <View style={styles.separator} />
       <View style={styles.row}>
-        {/* <Text style={styles.budgetText}>
-          Budget:{' '}
-          {budget !== 0
-            ? `₱${budget.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-            : '∞'}
-        </Text> */}
         <Text style={styles.budgetText}>{dateString}</Text>
         <Text style={{ ...styles.capacityText, color: statusColors[status] }}>
-          {/* Capacity: {attendees !== 0 ? `${attendees} pax` : "TBD"} */}
           {status}
         </Text>
       </View>
@@ -138,7 +120,7 @@ function VendorBookingList() {
     BookingStatus.Confirmed
   );
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<ErrorState>({ error: false, message: "" });
+  const [error, setError] = useState<ErrorState>({ error: false, message: '' });
   const [bookingList, setBookingList] = useState<BookingListType>({
     bookings: [],
     currentPage: 1,
@@ -146,10 +128,8 @@ function VendorBookingList() {
     hasMore: false,
   });
 
-  const navigation = useNavigation<HomeScreenNavigationProp>();
-
   if (!vendorContext) {
-    throw new Error("VendorBookingList must be used within a UserProvider");
+    throw new Error('VendorBookingList must be used within a UserProvider');
   }
 
   const { vendor } = vendorContext;
@@ -164,13 +144,13 @@ function VendorBookingList() {
     setLoading(true);
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking/vendor/${vendorId}?page=${page}&limit=${limit}&status=${status}`;
 
-    const token = getToken({ template: "eventhand-vendor" });
+    const token = getToken({ template: 'eventhand-vendor' });
 
     const request = {
-      method: "GET",
+      method: 'GET',
       headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
     };
@@ -184,15 +164,15 @@ function VendorBookingList() {
 
         console.log(data.hasMore);
 
-        console.log("BOOKING DATA SUCCESSFULLY LOADED");
+        console.log('BOOKING DATA SUCCESSFULLY LOADED');
       } else if (res.status === 400) {
-        throw new Error("Bad request - Invalid data.");
+        throw new Error('Bad request - Invalid data.');
       } else if (res.status === 401) {
-        throw new Error("Unauthorized - Authentication failed.");
+        throw new Error('Unauthorized - Authentication failed.');
       } else if (res.status === 404) {
-        throw new Error("Bookings Not Found");
+        throw new Error('Bookings Not Found');
       } else {
-        throw new Error("Unexpected error occurred.");
+        throw new Error('Unexpected error occurred.');
       }
     } catch (error: any) {
       console.error(`Error fetching event (${error.code}): ${error} `);
@@ -207,26 +187,7 @@ function VendorBookingList() {
 
   useEffect(() => {
     fetchBookings(vendor.id, page, 50, selectedTab);
-
-    // }
   }, [selectedTab]);
-
-  // const events = useCallback(() => {
-  //   const events = eventList.events;
-  //   const upcomingEvents = events.filter(
-  //     (event) => isAfter(event.date, new Date()) || isToday(event.date)
-  //   );
-  //   const pastEvents = events.filter((event) =>
-  //     isBefore(event.date, new Date()) && !isToday(event.date)
-  //   );
-
-  //   switch (selectedTab) {
-  //     case "Past":
-  //       return pastEvents;
-  //     case "Upcoming":
-  //       return upcomingEvents;
-  //   }
-  // }, [selectedTab, eventList]);
 
   const handleConfirmedTabBtn = () => {
     setPage(1);
@@ -243,35 +204,13 @@ function VendorBookingList() {
     setSelectedTab(BookingStatus.Cancelled);
   };
 
-  // const bookings: BookingListItemType[] = fakeBookingDataArray
   const { bookings, hasMore } = bookingList;
 
   const renderFooter = () => {
-    // if (loading) {
-    //   return <ActivityIndicator size="large" color="#CB0C9F" />;
-    // }
-
     return (
-      <Text style={{ textAlign: "center", padding: 10 }}>No more events</Text>
+      <Text style={{ textAlign: 'center', padding: 10 }}>No more events</Text>
     );
-
-    // if (error.error) {
-    //   return (
-    //     <Text style={{ textAlign: "center", padding: 10 }}>
-    //       Error loading more event
-    //     </Text>
-    //   );
-    // }
-
-    return null;
   };
-
-  // const onEndReached = () => {
-  //   if (hasMore) {
-  //     setPage((page) => page + 1);
-  //     fetchBookings(vendor.id, page + 1, 10, selectedTab);
-  //   }
-  // };
 
   return (
     <>
@@ -281,13 +220,13 @@ function VendorBookingList() {
           <Pressable
             style={[
               styles.tabBarButton,
-              selectedTab === "CONFIRMED" && styles.tabBarButtonSelected,
+              selectedTab === 'CONFIRMED' && styles.tabBarButtonSelected,
             ]}
             onPress={handleConfirmedTabBtn}
           >
             <Text
               style={
-                selectedTab === "CONFIRMED"
+                selectedTab === 'CONFIRMED'
                   ? styles.tabBarTextSelected
                   : styles.tabBarText
               }
@@ -298,13 +237,13 @@ function VendorBookingList() {
           <Pressable
             style={[
               styles.tabBarButton,
-              selectedTab === "COMPLETED" && styles.tabBarButtonSelected,
+              selectedTab === 'COMPLETED' && styles.tabBarButtonSelected,
             ]}
             onPress={handleCompletedTabBtn}
           >
             <Text
               style={
-                selectedTab === "COMPLETED"
+                selectedTab === 'COMPLETED'
                   ? styles.tabBarTextSelected
                   : styles.tabBarText
               }
@@ -339,22 +278,21 @@ function VendorBookingList() {
           contentContainerStyle={styles.listContainer}
           data={bookings}
           renderItem={({ item }) => <BookingListItem booking={item} />}
-          // onEndReached={onEndReached}
           ListFooterComponent={renderFooter}
         />
       )}
       {!loading && bookings.length === 0 && (
         <Block safe>
-          <View testID="test-events" style={styles.container}>
+          <View testID='test-events' style={styles.container}>
             <Image
               background
-              resizeMode="cover"
+              resizeMode='cover'
               padding={sizes.md}
               source={assets.noEvents}
               rounded
-              className="rounded-xl h-72 w-72"
+              className='rounded-xl h-72 w-72'
             ></Image>
-            <Text className="font-bold">
+            <Text className='font-bold'>
               You have no {selectedTab.toLocaleLowerCase()} Bookings!
             </Text>
           </View>
@@ -369,7 +307,7 @@ function VendorPendingBookingList() {
   const { assets, sizes } = useTheme();
   const { getToken } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<ErrorState>({ error: false, message: "" });
+  const [error, setError] = useState<ErrorState>({ error: false, message: '' });
   const [bookingList, setBookingList] = useState<BookingListType>({
     bookings: [],
     currentPage: 1,
@@ -380,7 +318,7 @@ function VendorPendingBookingList() {
   const navigation = useNavigation<HomeScreenNavigationProp>();
 
   if (!vendorContext) {
-    throw new Error("VendorBookingList must be used within a UserProvider");
+    throw new Error('VendorBookingList must be used within a UserProvider');
   }
 
   const { vendor } = vendorContext;
@@ -394,13 +332,13 @@ function VendorPendingBookingList() {
   ) => {
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking/vendor/${vendorId}?page=${page}&limit=${limit}&status=${status}`;
 
-    const token = getToken({ template: "eventhand-vendor" });
+    const token = getToken({ template: 'eventhand-vendor' });
 
     const request = {
-      method: "GET",
+      method: 'GET',
       headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
     };
@@ -412,15 +350,15 @@ function VendorPendingBookingList() {
       if (res.status === 200) {
         setBookingList(data);
 
-        console.log("BOOKING DATA SUCCESSFULLY LOADED");
+        console.log('BOOKING DATA SUCCESSFULLY LOADED');
       } else if (res.status === 400) {
-        throw new Error("Bad request - Invalid data.");
+        throw new Error('Bad request - Invalid data.');
       } else if (res.status === 401) {
-        throw new Error("Unauthorized - Authentication failed.");
+        throw new Error('Unauthorized - Authentication failed.');
       } else if (res.status === 404) {
-        throw new Error("Bookings Not Found");
+        throw new Error('Bookings Not Found');
       } else {
-        throw new Error("Unexpected error occurred.");
+        throw new Error('Unexpected error occurred.');
       }
     } catch (error: any) {
       console.error(`Error fetching event (${error.code}): ${error} `);
@@ -435,57 +373,16 @@ function VendorPendingBookingList() {
 
   useEffect(() => {
     fetchBookings(vendor.id, page, 50, BookingStatus.Pending);
-
-    // }
   }, []);
 
-  // const events = useCallback(() => {
-  //   const events = eventList.events;
-  //   const upcomingEvents = events.filter(
-  //     (event) => isAfter(event.date, new Date()) || isToday(event.date)
-  //   );
-  //   const pastEvents = events.filter((event) =>
-  //     isBefore(event.date, new Date()) && !isToday(event.date)
-  //   );
-
-  //   switch (selectedTab) {
-  //     case "Past":
-  //       return pastEvents;
-  //     case "Upcoming":
-  //       return upcomingEvents;
-  //   }
-  // }, [selectedTab, eventList]);
-  // };
-
-  // const bookings: BookingListItemType[] = fakeBookingDataArray
   const { bookings, hasMore } = bookingList;
 
   const renderFooter = () => {
-    // if (loading) {
-    //   return <ActivityIndicator size="large" color="#CB0C9F" />;
-    // }
-
     return (
-      <Text style={{ textAlign: "center", padding: 10 }}>No more events</Text>
+      <Text style={{ textAlign: 'center', padding: 10 }}>No more events</Text>
     );
-
-    // if (error.error) {
-    //   return (
-    //     <Text style={{ textAlign: "center", padding: 10 }}>
-    //       Error loading more event
-    //     </Text>
-    //   );
-    // }
-
-    // return null;
   };
 
-  // const onEndReached = () => {
-  //   if (hasMore) {
-  //     setPage((page) => page + 1);
-  //     fetchBookings(vendor.id, page + 1, 10, selectedTab);
-  //   }
-  // };
   if (loading) {
     return <Loading />;
   }
@@ -508,7 +405,6 @@ function VendorPendingBookingList() {
           contentContainerStyle={styles.listContainer}
           data={bookings}
           renderItem={({ item }) => <BookingListItem booking={item} />}
-          // onEndReached={onEndReached}
           ListFooterComponent={renderFooter}
         />
       </>
@@ -517,16 +413,16 @@ function VendorPendingBookingList() {
 
   return (
     <Block safe>
-      <View testID="test-events" style={styles.container}>
+      <View testID='test-events' style={styles.container}>
         <Image
           background
-          resizeMode="cover"
+          resizeMode='cover'
           padding={sizes.md}
           source={assets.noEvents}
           rounded
-          className="rounded-xl h-72 w-72"
+          className='rounded-xl h-72 w-72'
         ></Image>
-        <Text className="font-bold">You have no Pending Bookings!</Text>
+        <Text className='font-bold'>You have no Pending Bookings!</Text>
       </View>
     </Block>
   );
@@ -535,13 +431,13 @@ function VendorPendingBookingList() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   button: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#6200EE",
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#6200EE',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
@@ -550,11 +446,11 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   buttonText: {
-    color: "white",
+    color: 'white',
     fontSize: 16,
   },
   floatingBtnContainer: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 10,
     right: 10,
   },
@@ -562,47 +458,46 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 15,
-    backgroundColor: "#6200EE",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: '#6200EE',
+    justifyContent: 'center',
+    alignItems: 'center',
     elevation: 5,
   },
   listContainer: {
-    // paddingVertical: 16,
     paddingHorizontal: 30,
   },
   itemContainer: {
     padding: 16,
     marginVertical: 1,
     marginLeft: 1,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     borderLeftWidth: 10,
-    borderLeftColor: "#fff",
+    borderLeftColor: '#fff',
     borderTopLeftRadius: 8,
     borderBottomLeftRadius: 8,
-    borderRightColor: "#fff",
+    borderRightColor: '#fff',
     borderRightWidth: 5,
     borderTopRightRadius: 8,
     borderBottomRightRadius: 8,
-    elevation: 2, // Add shadow for floating effect
-    shadowColor: "#000",
+    elevation: 2,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
   dateText: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginBottom: 8,
   },
   separator: {
     borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
+    borderBottomColor: '#ccc',
     marginBottom: 8,
   },
   row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   budgetText: {
     fontSize: 14,
@@ -611,30 +506,29 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   tabBarContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    // paddingTop: 20, // Adjust to be below the status bar
-    backgroundColor: "#f8f8f8",
+    flexDirection: 'row',
+    justifyContent: 'center',
+    backgroundColor: '#f8f8f8',
     borderBottomWidth: 1,
-    borderBottomColor: "#ddd",
+    borderBottomColor: '#ddd',
   },
   tabBarButton: {
     flex: 1,
-    alignItems: "center",
+    alignItems: 'center',
     paddingVertical: 15,
   },
   tabBarButtonSelected: {
     borderBottomWidth: 2,
-    borderBottomColor: "#CB0C9F", // Highlight color for selected tab
+    borderBottomColor: '#CB0C9F',
   },
   tabBarText: {
-    color: "#666",
+    color: '#666',
     fontSize: 16,
   },
   tabBarTextSelected: {
-    color: "#CB0C9F",
+    color: '#CB0C9F',
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
 });
 

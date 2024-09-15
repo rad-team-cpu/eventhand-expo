@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import React from "react";
 import {
   UseFormRegister,
@@ -64,17 +63,7 @@ const FormTextInput = ({ mode = "text", ...props }: FormTextInputProps) => {
                 placeholder,
                 ...iInputProps,
               }}
-              // label={label}
-              // onChangeText={onValueChange}
-              // placeholder={placeholder}
-              // {...iInputProps}
-              // success={Boolean(registration.name && isValid.name)}
-              // danger={Boolean(registration.name && !isValid.name)}
-              // onChangeText={(value) => handleChange({name: value})}:
             />
-            {/* <Text type="error" visible={errorState ?? !!errors[name]}>
-              {errorMessage ?? errors[name]?.message}
-            </Text> */}
           </>
         );
       }}

@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import React from "react";
 import {
   StyleSheet,
@@ -84,7 +83,6 @@ const Image = ({
     },
   ]) as ImageStyle;
 
-  // generate component testID or accessibilityLabel based on Platform.OS
   const imageID =
     Platform.OS === "android" ? { accessibilityLabel: id } : { testID: id };
 

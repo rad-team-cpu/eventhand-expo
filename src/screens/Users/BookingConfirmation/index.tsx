@@ -1,32 +1,26 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { useNavigation, useRoute } from '@react-navigation/core';
+import React, { useContext } from 'react';
+import { useNavigation } from '@react-navigation/core';
 import Block from 'Components/Ui/Block';
 import Image from 'Components/Ui/Image';
 import useTheme from 'src/core/theme';
 import Button from 'Components/Ui/Button';
 import { Text } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
-import axios from 'axios';
 import {
-  Vendor,
   PackageType,
-  Product,
   ScreenProps,
   HomeScreenNavigationProp,
   Tag,
   BookingConfirmationScreenProps,
   Inclusion,
 } from 'types/types';
-import Loading from 'screens/Loading';
 import { GetMessagesInput, WebSocketContext } from 'Contexts/WebSocket';
 import { UserContext } from 'Contexts/UserContext';
 import { ObjectId } from 'bson';
 
 const BookingConfirmation = ({ route }: BookingConfirmationScreenProps) => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
-  const { assets, colors, sizes, gradients } = useTheme();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { assets, sizes, gradients } = useTheme();
   const userContext = useContext(UserContext);
   const webSocket = useContext(WebSocketContext);
 
@@ -93,35 +87,6 @@ const BookingConfirmation = ({ route }: BookingConfirmationScreenProps) => {
     }
   };
 
-  // useEffect(() => {
-  //   const loadPackage = async () => {
-  //     setLoading(true);
-  //     setError(null);
-  //     try {
-  //       await fetchPackage();
-  //     } catch (err) {
-  //       setLoading(false);
-  //       return;
-  //     }
-  //     setLoading(false);
-  //   };
-
-  //   loadPackage();
-  // }, [fetchPackage]);
-
-  // useEffect(() => {
-  //   if (vendorPackage && vendorPackage.vendorId) {
-  //     fetchVendor(vendorPackage.vendorId);
-  //   }
-  // }, [vendorPackage, fetchVendor]);
-
-  // if (loading) {
-  //   return <Loading />;
-  // }
-
-  // if (error) {
-  //   return <Text>{error}</Text>;
-  // }
 
   return (
     <Block
@@ -131,7 +96,6 @@ const BookingConfirmation = ({ route }: BookingConfirmationScreenProps) => {
       contentContainerStyle={{ paddingBottom: sizes.xxl }}
     >
       <Block flex={0}>
-        {/* <Image src={packages?.image } height={260} /> */}
         <Image
           background
           source={assets?.card4}
@@ -166,9 +130,6 @@ const BookingConfirmation = ({ route }: BookingConfirmationScreenProps) => {
           <Text className='font-bold text-xl'>₱{vendorPackage?.price}</Text>
         </Block>
       </Block>
-
-      {/* <Text className='mb-5'>Good for {vendorPackage?.capacity} pax!</Text> */}
-
       <Block row marginBottom={sizes.m}>
         <Block row>
           <Image

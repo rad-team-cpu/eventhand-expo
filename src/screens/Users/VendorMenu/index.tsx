@@ -174,7 +174,6 @@ const VendorMenu = () => {
 
       if (res.status === 200) {
         setVendor({ ...data });
-        // setReviews({...data.reviews})
 
         console.log('VENDOR DATA SUCCESSFULLY LOADED');
       } else if (res.status === 400) {
@@ -188,8 +187,6 @@ const VendorMenu = () => {
       }
     } catch (error: any) {
       console.error(`Error fetching vendor (${error.code}): ${error} `);
-      // setErrMessage(`Error fetching event (${error.code}): ${error} `)
-      // setError(true);
     } finally {
       setLoading(false);
     }
@@ -201,21 +198,21 @@ const VendorMenu = () => {
 
   const onPressPackage = (pkg: PackageType, vendor: VendorMenuType) => {
     const transformedPackage: PackageItemType = {
-      category: 'catering', // Or dynamically based on the context
+      category: 'catering', 
       _id: pkg._id,
       vendor: {
         _id: vendor._id,
         name: vendor.name,
         logo: vendor.logo,
-        contactNumber: vendor.contactNumber || '', // Handle missing contact number
+        contactNumber: vendor.contactNumber || '',
         address: vendor.address || {
           street: '',
           city: '',
           region: '',
           postalCode: 0,
-        }, // Provide default address if missing
+        }, 
         bio: vendor.bio,
-        averageRating: vendor.averageRatings || 0, // Handle missing average rating
+        averageRating: vendor.averageRatings || 0, 
       },
       vendorTags: [],
       name: pkg.name,
@@ -284,20 +281,12 @@ const VendorMenu = () => {
 
   useEffect(() => {
     fetchVendor();
-    // fetchReviews();
   }, []);
 
   if (loading || !VendorHome) {
     return <Loading />;
   }
 
-  // if (!vendor) {
-  //   return (
-  //     <Block safe marginTop={sizes.md}>
-  //       <Loading />
-  //     </Block>
-  //   );
-  // }
 
   if (vendor) {
     return (
@@ -348,14 +337,6 @@ const VendorMenu = () => {
                   {vendor.name}
                 </Text>
                 <Block row align='center'>
-                  {/* {vendor.tags.map((tag: Tag, index) => (
-                    <Text
-                      key={`${tag._id} - ${index}`}
-                      className='items-center text-white mx-0.5 capitalize font-light text-xs'
-                    >
-                      - {tag.name} -
-                    </Text>
-                  ))}  */}
                 </Block>
               </Block>
             </Image>

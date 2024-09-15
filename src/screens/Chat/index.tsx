@@ -259,9 +259,6 @@ function Chat({ navigation, route }: ChatScreenProps) {
         GiftedChat.append(previousMessage, [ sysMessage ]),
       );
     }
-    // if(connectionTimeout){
-    //   reconnect();
-    // }
 
     return () => {
       if(wsRef){
@@ -310,7 +307,6 @@ function Chat({ navigation, route }: ChatScreenProps) {
       renderActions={(props) => {
 
         const pickImageAsync = async () => {
-          // setLoading(true);
           const permission = await requestPermission();
 
           if (!permission.granted) {

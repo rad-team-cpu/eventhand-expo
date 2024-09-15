@@ -307,14 +307,6 @@ interface VendorListItem {
   averageRating: number;
 }
 
-// interface VendorListProps {
-//   vendorId?: string;
-//   _id?: string;
-//   attendees?: number;
-//   budget?: number;
-//   date?: Date | string;
-// }
-
 interface ReviewType {
   _id: string;
   client: { _id: string; name: string };

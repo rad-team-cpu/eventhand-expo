@@ -106,8 +106,8 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   label: {
-    fontSize: 16, // Font size
-    fontWeight: "500", // Medium weight text
+    fontSize: 16,
+    fontWeight: "500", 
   },
   buttonContainer: {
     flexDirection: "row",

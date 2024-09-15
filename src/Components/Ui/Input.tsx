@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useCallback, useState } from "react";
 import {
@@ -38,7 +37,6 @@ const Input = ({ mode, iprops }: CustomInputProps) => {
     warning,
     success,
     info,
-    // search,
     disabled,
     label,
     icon,
@@ -57,7 +55,6 @@ const Input = ({ mode, iprops }: CustomInputProps) => {
   };
 
   const handleFocus = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (event: any, focus: any) => {
       setFocused(focus);
       focus && onFocus?.(event);
@@ -126,7 +123,6 @@ const Input = ({ mode, iprops }: CustomInputProps) => {
     },
   ]) as TextStyle;
 
-  // generate component testID or accessibilityLabel based on Platform.OS
   const inputID =
     Platform.OS === "android" ? { accessibilityLabel: id } : { testID: id };
 
@@ -138,12 +134,7 @@ const Input = ({ mode, iprops }: CustomInputProps) => {
         </Text>
       )}
       <Block row align="center" justify="flex-end" style={inputContainerStyles}>
-        {/* {search && assets.search && (
-          <Image
-            source={assets.search}
-            style={{ marginLeft: sizes.inputPadding, tintColor: colors.icon }}
-          />
-        )} */}
+       
         {icon && (
           <Image
             source={assets?.[icon]}
@@ -172,26 +163,7 @@ const Input = ({ mode, iprops }: CustomInputProps) => {
           />
         )}
 
-        {/* {danger && assets.warning && (
-          <Image
-            source={assets.warning}
-            style={{
-              marginRight: sizes.s,
-              tintColor: colors.danger,
-            }}
-          />
-        )}
-        {success && assets.check && (
-          <Image
-            source={assets.check}
-            style={{
-              width: 12,
-              height: 9,
-              marginRight: sizes.s,
-              tintColor: colors.success,
-            }}
-          />
-        )} */}
+        
       </Block>
     </Block>
   );

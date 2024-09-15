@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useSignUp } from '@clerk/clerk-expo';
 import { AntDesign, Entypo } from '@expo/vector-icons';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -67,7 +66,6 @@ const SignupForm = ({ navigation }: SignUpScreenProps) => {
     }
     await signUp.create({ emailAddress, password });
 
-    // send the email.
     await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
   };
 

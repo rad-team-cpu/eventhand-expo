@@ -1,56 +1,41 @@
-import { useAuth } from "@clerk/clerk-expo";
-import { Feather, AntDesign, FontAwesome } from "@expo/vector-icons";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { useFocusEffect } from "@react-navigation/native";
+import { useAuth } from '@clerk/clerk-expo';
+import { AntDesign, FontAwesome } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   DateTimePickerAndroid,
   DateTimePickerEvent,
-} from "@react-native-community/datetimepicker";
-import DatePicker from "src/Components/Input/DatePicker";
-import { UserContext } from "Contexts/UserContext";
-import { format } from "date-fns/format";
-import { sub } from "date-fns/fp";
+} from '@react-native-community/datetimepicker';
+import { UserContext } from 'Contexts/UserContext';
+import { format } from 'date-fns/format';
 import React, {
   useCallback,
   useContext,
   useEffect,
   useRef,
   useState,
-} from "react";
-import {
-  Control,
-  Controller,
-  FieldValues,
-  UseFormRegister,
-  useForm,
-  useFormState,
-} from "react-hook-form";
+} from 'react';
 import {
   BackHandler,
   StyleSheet,
   View,
   Text,
   TextInput,
-  Button,
   Pressable,
-} from "react-native";
-import Loading from "screens/Loading";
+} from 'react-native';
+import Loading from 'screens/Loading';
 import {
   EventFormScreenProps,
   EventInfo,
-  ScreenProps,
   UserProfile,
   EventBudget,
   UpdateEventFormScreenProps,
-} from "types/types";
-import { array, boolean, date, number, object, string } from "yup";
-import Block from "Components/Ui/Block";
-import useTheme from "src/core/theme";
-import SuccessScreen from "Components/Success";
-import ErrorScreen from "Components/Error";
-import ExpoStatusBar from "expo-status-bar/build/ExpoStatusBar";
-import { i } from "@clerk/clerk-react/dist/controlComponents-CzpRUsyv";
-import { compareAsc } from "date-fns";
+} from 'types/types';
+import Block from 'Components/Ui/Block';
+import useTheme from 'src/core/theme';
+import SuccessScreen from 'Components/Success';
+import ErrorScreen from 'Components/Error';
+import ExpoStatusBar from 'expo-status-bar/build/ExpoStatusBar';
+import { compareAsc } from 'date-fns';
 
 type SelectedCategories = {
   eventPlanning: boolean;
@@ -81,29 +66,28 @@ type Category = {
 interface EventInputWelcomeProps {
   onBackBtnPress: () => boolean | void;
   onBtnPress: () => void;
-
 }
 
 const EventFormWelcome = (props: EventInputWelcomeProps) => {
-  const {
-    onBackBtnPress,
-    onBtnPress,
-  } = props;
+  const { onBackBtnPress, onBtnPress } = props;
   const [isPressed, setIsPressed] = useState(false);
-  const {  sizes,  } = useTheme();
-
-
+  const { sizes } = useTheme();
 
   return (
     <Block card paddingVertical={sizes.md} paddingHorizontal={sizes.md}>
       <Pressable onPress={onBackBtnPress}>
-        <Block className="flex flex-row mb-2">
-          <AntDesign name="back" size={20} color={"#CB0C9F"} />
-          <Text className="ml-1 text-primary">Go back</Text>
+        <Block className='flex flex-row mb-2'>
+          <AntDesign name='back' size={20} color={'#CB0C9F'} />
+          <Text className='ml-1 text-primary'>Go back</Text>
         </Block>
       </Pressable>
-      <Text style={{...styles.title, textAlign: "center" }}>EVENT CREATION</Text>
-      <Text style={{...styles.description, textAlign: "center" }}>You'll be answering a series of prompts, your answers to this prompts will allow us to find the best possible event vendors</Text>
+      <Text style={{ ...styles.title, textAlign: 'center' }}>
+        EVENT CREATION
+      </Text>
+      <Text style={{ ...styles.description, textAlign: 'center' }}>
+        You'll be answering a series of prompts, your answers to this prompts
+        will allow us to find the best possible event vendors
+      </Text>
       <Pressable
         onPressIn={() => setIsPressed(true)}
         onPressOut={() => setIsPressed(false)}
@@ -111,9 +95,7 @@ const EventFormWelcome = (props: EventInputWelcomeProps) => {
         style={({ pressed }) => [
           styles.inputButton,
           {
-            backgroundColor:  pressed || isPressed
-                ? "#E91E8E"
-                : "#CB0C9F",
+            backgroundColor: pressed || isPressed ? '#E91E8E' : '#CB0C9F',
           },
         ]}
       >
@@ -121,7 +103,7 @@ const EventFormWelcome = (props: EventInputWelcomeProps) => {
       </Pressable>
     </Block>
   );
-}
+};
 
 interface EventInputProps {
   title: string;
@@ -130,7 +112,7 @@ interface EventInputProps {
   onBackBtnPress: () => boolean | void;
   onBtnPress: () => void;
   eventFormValuesRef: React.MutableRefObject<EventFormInputType>;
-  mode: "CREATE" | "UPDATE"
+  mode: 'CREATE' | 'UPDATE';
 }
 
 interface FormError {
@@ -140,7 +122,7 @@ interface FormError {
 
 interface EventNameInputProps extends EventInputProps {
   user: UserProfile;
-  oldEventName?: string // only used during update
+  oldEventName?: string;
 }
 
 const EventNameInput = (props: EventNameInputProps) => {
@@ -153,39 +135,41 @@ const EventNameInput = (props: EventNameInputProps) => {
     eventFormValuesRef,
     user,
     mode,
-    oldEventName
+    oldEventName,
   } = props;
-  const {  sizes,  } = useTheme();
+  const { sizes } = useTheme();
 
-  if(mode === "UPDATE" && !oldEventName){
-      throw new Error("oldEvent Name must not be undefined")
-    
+  if (mode === 'UPDATE' && !oldEventName) {
+    throw new Error('oldEvent Name must not be undefined');
   }
 
   const defaultName = eventFormValuesRef.current.name;
 
   const [errorState, setErrorState] = useState<FormError>({
-    error: mode === "UPDATE"? defaultName == oldEventName: defaultName === "",
-    message: "",
+    error: mode === 'UPDATE' ? defaultName == oldEventName : defaultName === '',
+    message: '',
   });
 
   const [isPressed, setIsPressed] = useState(false);
 
   const onValueChange = (text: string) => {
-    if (text === "") {
+    if (text === '') {
       setErrorState({
         error: true,
-        message: "Please enter a name for your event",
+        message: 'Please enter a name for your event',
       });
-    }else if (mode ==="UPDATE" && text.toLocaleLowerCase() === oldEventName!.toLocaleLowerCase() ){
+    } else if (
+      mode === 'UPDATE' &&
+      text.toLocaleLowerCase() === oldEventName!.toLocaleLowerCase()
+    ) {
       setErrorState({
         error: true,
-        message: "Please enter a different name ",
+        message: 'Please enter a different name ',
       });
     } else {
       setErrorState({
         error: false,
-        message: "",
+        message: '',
       });
     }
 
@@ -193,30 +177,27 @@ const EventNameInput = (props: EventNameInputProps) => {
       ...eventFormValuesRef.current,
       name: text,
     };
-
-    
-
   };
 
   return (
     <Block card paddingVertical={sizes.md} paddingHorizontal={sizes.md}>
       <Pressable onPress={onBackBtnPress}>
-        <Block className="flex flex-row mb-2">
-          <AntDesign name="back" size={20} color={"#CB0C9F"} />
-          <Text className="ml-1 text-primary">Go back</Text>
+        <Block className='flex flex-row mb-2'>
+          <AntDesign name='back' size={20} color={'#CB0C9F'} />
+          <Text className='ml-1 text-primary'>Go back</Text>
         </Block>
       </Pressable>
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.description}>{description}</Text>
       <TextInput
-        id="event-name-input"
-        testID="test-event-name-input"
+        id='event-name-input'
+        testID='test-event-name-input'
         placeholder={`ex. ${user.firstName}'s event`}
         defaultValue={defaultName}
         onChangeText={onValueChange}
-        autoCapitalize="none"
-        returnKeyType="done"
-        className="my-4 p-2 rounded-lg border-gold border-2"
+        autoCapitalize='none'
+        returnKeyType='done'
+        className='my-4 p-2 rounded-lg border-gold border-2'
       />
       <Pressable
         onPressIn={() => setIsPressed(true)}
@@ -227,16 +208,16 @@ const EventNameInput = (props: EventNameInputProps) => {
           styles.inputButton,
           {
             backgroundColor: errorState.error
-              ? "#D3D3D3" // Gray color when disabled
+              ? '#D3D3D3' 
               : pressed || isPressed
-                ? "#E91E8E"
-                : "#CB0C9F",
+                ? '#E91E8E'
+                : '#CB0C9F',
           },
         ]}
       >
         <Text style={styles.inputButtonText}>{buttonLabel}</Text>
       </Pressable>
-      <Text testID="test-first-name-err-text" style={styles.errorText}>
+      <Text testID='test-first-name-err-text' style={styles.errorText}>
         {errorState.message}
       </Text>
     </Block>
@@ -245,41 +226,41 @@ const EventNameInput = (props: EventNameInputProps) => {
 
 const categories: Category[] = [
   {
-    name: "eventPlanning",
-    label: "Event Planning",
-    icon: "calendar",
-    color: "#FF6347",
+    name: 'eventPlanning',
+    label: 'Event Planning',
+    icon: 'calendar',
+    color: '#FF6347',
   },
   {
-    name: "eventCoordination",
-    label: "Event Coordination",
-    icon: "handshake-o",
-    color: "#4682B4",
+    name: 'eventCoordination',
+    label: 'Event Coordination',
+    icon: 'handshake-o',
+    color: '#4682B4',
   },
-  { name: "venue", label: "Venue", icon: "building", color: "#32CD32" },
+  { name: 'venue', label: 'Venue', icon: 'building', color: '#32CD32' },
   {
-    name: "decorations",
-    label: "Decorations",
-    icon: "paint-brush",
-    color: "#FF4500",
+    name: 'decorations',
+    label: 'Decorations',
+    icon: 'paint-brush',
+    color: '#FF4500',
   },
-  { name: "catering", label: "Catering", icon: "cutlery", color: "#FFD700" },
+  { name: 'catering', label: 'Catering', icon: 'cutlery', color: '#FFD700' },
   {
-    name: "photography",
-    label: "Photography",
-    icon: "camera",
-    color: "#FF69B4",
+    name: 'photography',
+    label: 'Photography',
+    icon: 'camera',
+    color: '#FF69B4',
   },
   {
-    name: "videography",
-    label: "Videography",
-    icon: "video-camera",
-    color: "#8A2BE2",
+    name: 'videography',
+    label: 'Videography',
+    icon: 'video-camera',
+    color: '#8A2BE2',
   },
 ];
 
 const EventCategorySelect = (props: EventInputProps) => {
-  const { assets, colors, sizes, gradients } = useTheme();
+  const { sizes } = useTheme();
 
   const {
     title,
@@ -288,7 +269,7 @@ const EventCategorySelect = (props: EventInputProps) => {
     onBackBtnPress,
     onBtnPress,
     eventFormValuesRef,
-    mode
+    mode,
   } = props;
 
   const defaultCategories = eventFormValuesRef.current.categories;
@@ -301,7 +282,7 @@ const EventCategorySelect = (props: EventInputProps) => {
   );
   const [errorState, setErrorState] = useState<FormError>({
     error: defaultSelected.length < 1,
-    message: "",
+    message: '',
   });
 
   const handlePress = (index: number, name: keyof SelectedCategories) => {
@@ -319,11 +300,11 @@ const EventCategorySelect = (props: EventInputProps) => {
     } else {
       setErrorState({
         error: true,
-        message: "Must select at least 1 category",
+        message: 'Must select at least 1 category',
       });
     }
-    
-    if (name === "venue" && mode === "CREATE") {
+
+    if (name === 'venue' && mode === 'CREATE') {
       updatedSelection[name]
         ? (eventFormValuesRef.current = {
             ...eventFormValuesRef.current,
@@ -360,9 +341,9 @@ const EventCategorySelect = (props: EventInputProps) => {
   return (
     <Block card paddingVertical={sizes.md} paddingHorizontal={sizes.md}>
       <Pressable onPress={onBackBtnPress}>
-        <Block className="flex flex-row mb-2">
-          <AntDesign name="back" size={20} color={"#CB0C9F"} />
-          <Text className="ml-1 text-primary">Go back</Text>
+        <Block className='flex flex-row mb-2'>
+          <AntDesign name='back' size={20} color={'#CB0C9F'} />
+          <Text className='ml-1 text-primary'>Go back</Text>
         </Block>
       </Pressable>
       <Text style={styles.title}>{title}</Text>
@@ -370,7 +351,7 @@ const EventCategorySelect = (props: EventInputProps) => {
       <View style={styles.eventCategorySelectContainer}>
         {categories.map((category, index) => {
           const categoryName = categories[index][
-            "name"
+            'name'
           ] as keyof SelectedCategories;
           const isSelected = selectedCategories[categoryName];
 
@@ -381,21 +362,20 @@ const EventCategorySelect = (props: EventInputProps) => {
               style={[
                 styles.eventCategorySelectButton,
                 {
-                  backgroundColor: isSelected ? category.color : "transparent",
+                  backgroundColor: isSelected ? category.color : 'transparent',
                   borderColor: category.color,
                 },
               ]}
             >
               <FontAwesome
-                name={category.icon}
                 size={20}
-                color={isSelected ? "white" : category.color}
+                color={isSelected ? 'white' : category.color}
                 style={styles.eventCategorySelectIcon}
               />
               <Text
                 style={[
                   styles.eventCategorySelectLabel,
-                  { color: isSelected ? "white" : category.color },
+                  { color: isSelected ? 'white' : category.color },
                 ]}
               >
                 {category.label}
@@ -413,23 +393,23 @@ const EventCategorySelect = (props: EventInputProps) => {
           styles.inputButton,
           {
             backgroundColor: errorState.error
-              ? "#D3D3D3" // Gray color when disabled
+              ? '#D3D3D3' 
               : pressed || isPressed
-                ? "#E91E8E"
-                : "#CB0C9F",
+                ? '#E91E8E'
+                : '#CB0C9F',
           },
         ]}
       >
         <Text style={styles.inputButtonText}>{buttonLabel}</Text>
       </Pressable>
-      <Text testID="test-first-name-err-text" style={styles.errorText}>
+      <Text testID='test-first-name-err-text' style={styles.errorText}>
         {errorState.message}
       </Text>
     </Block>
   );
 };
 
-interface EventDateInputProps extends EventInputProps{
+interface EventDateInputProps extends EventInputProps {
   oldDate?: Date;
 }
 
@@ -442,23 +422,26 @@ const EventDateInput = (props: EventDateInputProps) => {
     onBtnPress,
     eventFormValuesRef,
     mode,
-    oldDate
+    oldDate,
   } = props;
   const currentDate = eventFormValuesRef.current.date;
   const { sizes } = useTheme();
 
-  if(mode === "UPDATE" && !oldDate){
-      throw new Error("oldDate must not be undefined")
-
+  if (mode === 'UPDATE' && !oldDate) {
+    throw new Error('oldDate must not be undefined');
   }
 
   const [errorState, setErrorState] = useState<FormError>({
-    error: mode === "UPDATE"? compareAsc(currentDate, oldDate!) === -1 || compareAsc(currentDate, oldDate!) === 0: false ,
-    message: "",
+    error:
+      mode === 'UPDATE'
+        ? compareAsc(currentDate, oldDate!) === -1 ||
+          compareAsc(currentDate, oldDate!) === 0
+        : false,
+    message: '',
   });
   const [isPressed, setIsPressed] = useState(false);
   const [selected, setSelected] = useState<string>(
-    format(currentDate, "MMMM dd, yyyy")
+    format(currentDate, 'MMMM dd, yyyy')
   );
 
   const datePickerDate = {
@@ -466,7 +449,7 @@ const EventDateInput = (props: EventDateInputProps) => {
       return date;
     },
     selectStringDate: (date: Date | undefined) =>
-      date ? format(date, "MMMM dd, yyyy") : "",
+      date ? format(date, 'MMMM dd, yyyy') : '',
   };
 
   const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
@@ -474,9 +457,9 @@ const EventDateInput = (props: EventDateInputProps) => {
     setSelected(datePickerDate.selectStringDate(currentDate));
 
     if (currentDate) {
-      if(mode === "UPDATE" && oldDate){
-        switch (compareAsc( currentDate, oldDate)) {
-          case 1 :
+      if (mode === 'UPDATE' && oldDate) {
+        switch (compareAsc(currentDate, oldDate)) {
+          case 1:
             eventFormValuesRef.current = {
               ...eventFormValuesRef.current,
               date: currentDate,
@@ -485,13 +468,13 @@ const EventDateInput = (props: EventDateInputProps) => {
           case -1:
             setErrorState({
               error: true,
-              message: "Date should be after the old date",
+              message: 'Date should be after the old date',
             });
           case 0:
             setErrorState({
               error: true,
-              message: "Date should be after the old date",
-            }); 
+              message: 'Date should be after the old date',
+            });
         }
       }
       eventFormValuesRef.current = {
@@ -505,10 +488,10 @@ const EventDateInput = (props: EventDateInputProps) => {
     DateTimePickerAndroid.open({
       value: currentDate,
       onChange: onDateChange,
-      mode: "date",
-      display: "spinner",
+      mode: 'date',
+      display: 'spinner',
       minimumDate: new Date(),
-      testID: "test-date-picker",
+      testID: 'test-date-picker',
     });
   };
 
@@ -519,16 +502,16 @@ const EventDateInput = (props: EventDateInputProps) => {
   return (
     <Block card paddingVertical={sizes.md} paddingHorizontal={sizes.md}>
       <Pressable onPress={onBackBtnPress}>
-        <Block className="flex flex-row mb-2">
-          <AntDesign name="back" size={20} color={"#CB0C9F"} />
-          <Text className="ml-1 text-primary">Go back</Text>
+        <Block className='flex flex-row mb-2'>
+          <AntDesign name='back' size={20} color={'#CB0C9F'} />
+          <Text className='ml-1 text-primary'>Go back</Text>
         </Block>
       </Pressable>
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.description}>{description}</Text>
       <Pressable style={styles.eventDateButton} onPress={showDatepicker}>
         <Text style={styles.eventDateButtonText}>
-          {selected !== "" ? selected : currentDate.toLocaleDateString()}
+          {selected !== '' ? selected : currentDate.toLocaleDateString()}
         </Text>
       </Pressable>
       <Pressable
@@ -540,16 +523,16 @@ const EventDateInput = (props: EventDateInputProps) => {
           styles.inputButton,
           {
             backgroundColor: errorState.error
-              ? "#D3D3D3" // Gray color when disabled
+              ? '#D3D3D3' 
               : pressed || isPressed
-                ? "#E91E8E"
-                : "#CB0C9F",
+                ? '#E91E8E'
+                : '#CB0C9F',
           },
         ]}
       >
         <Text style={styles.inputButtonText}>{buttonLabel}</Text>
       </Pressable>
-      <Text testID="test-first-name-err-text" style={styles.errorText}>
+      <Text testID='test-first-name-err-text' style={styles.errorText}>
         {errorState.message}
       </Text>
     </Block>
@@ -569,41 +552,45 @@ const EventAddressInput = (props: EventAddressInput) => {
     onBtnPress,
     eventFormValuesRef,
     mode,
-    oldAddress
+    oldAddress,
   } = props;
-  const {  sizes,} = useTheme();
+  const { sizes } = useTheme();
 
-
-  if(mode === "UPDATE" && !oldAddress){
-    throw new Error("oldAddress must not be undefined")
-  
-}
+  if (mode === 'UPDATE' && !oldAddress) {
+    throw new Error('oldAddress must not be undefined');
+  }
 
   const defaultAddress = eventFormValuesRef.current.address
     ? eventFormValuesRef.current.address
-    : "";
+    : '';
 
   const [errorState, setErrorState] = useState<FormError>({
-    error: mode ==="UPDATE"? oldAddress === defaultAddress: defaultAddress === undefined || defaultAddress === "",
-    message: "",
+    error:
+      mode === 'UPDATE'
+        ? oldAddress === defaultAddress
+        : defaultAddress === undefined || defaultAddress === '',
+    message: '',
   });
   const [isPressed, setIsPressed] = useState(false);
 
   const onValueChange = (text: string) => {
-    if (text === "") {
+    if (text === '') {
       setErrorState({
         error: true,
-        message: "Please enter an address for your event",
+        message: 'Please enter an address for your event',
       });
-    } else if (mode ==="UPDATE" && text.toLocaleLowerCase() === oldAddress!.toLocaleLowerCase() ){
+    } else if (
+      mode === 'UPDATE' &&
+      text.toLocaleLowerCase() === oldAddress!.toLocaleLowerCase()
+    ) {
       setErrorState({
         error: true,
-        message: "Please enter a different address ",
+        message: 'Please enter a different address ',
       });
     } else {
       setErrorState({
         error: false,
-        message: "",
+        message: '',
       });
     }
 
@@ -616,22 +603,22 @@ const EventAddressInput = (props: EventAddressInput) => {
   return (
     <Block card paddingVertical={sizes.md} paddingHorizontal={sizes.md}>
       <Pressable onPress={onBackBtnPress}>
-        <Block className="flex flex-row mb-2">
-          <AntDesign name="back" size={20} color={"#CB0C9F"} />
-          <Text className="ml-1 text-primary">Go back</Text>
+        <Block className='flex flex-row mb-2'>
+          <AntDesign name='back' size={20} color={'#CB0C9F'} />
+          <Text className='ml-1 text-primary'>Go back</Text>
         </Block>
       </Pressable>
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.description}>{description}</Text>
       <TextInput
-        id="event-name-input"
-        testID="test-event-name-input"
+        id='event-name-input'
+        testID='test-event-name-input'
         placeholder={`Event Address`}
         defaultValue={defaultAddress}
         onChangeText={onValueChange}
-        autoCapitalize="none"
-        returnKeyType="done"
-        className="my-4 p-2 rounded-lg border-gold border-2"
+        autoCapitalize='none'
+        returnKeyType='done'
+        className='my-4 p-2 rounded-lg border-gold border-2'
       />
       <Pressable
         onPressIn={() => setIsPressed(true)}
@@ -642,16 +629,16 @@ const EventAddressInput = (props: EventAddressInput) => {
           styles.inputButton,
           {
             backgroundColor: errorState.error
-              ? "#D3D3D3" // Gray color when disabled
+              ? '#D3D3D3' 
               : pressed || isPressed
-                ? "#E91E8E"
-                : "#CB0C9F",
+                ? '#E91E8E'
+                : '#CB0C9F',
           },
         ]}
       >
         <Text style={styles.inputButtonText}>{buttonLabel}</Text>
       </Pressable>
-      <Text testID="test-first-name-err-text" style={styles.errorText}>
+      <Text testID='test-first-name-err-text' style={styles.errorText}>
         {errorState.message}
       </Text>
     </Block>
@@ -664,7 +651,7 @@ const isPositiveWholeNumber = (input: string) => {
 };
 
 interface EventGuestsInputProps extends EventInputProps {
-  oldGuests?: number
+  oldGuests?: number;
 }
 
 const EventGuestsInput = (props: EventGuestsInputProps) => {
@@ -676,51 +663,54 @@ const EventGuestsInput = (props: EventGuestsInputProps) => {
     onBtnPress,
     eventFormValuesRef,
     mode,
-    oldGuests
+    oldGuests,
   } = props;
-  const { assets, colors, sizes, gradients } = useTheme();
+  const { sizes } = useTheme();
 
   const defaultGuests = eventFormValuesRef.current.guests;
 
-  if(mode === "UPDATE" && !oldGuests ){
-    throw new Error("oldGuests must not be undefined")
+  if (mode === 'UPDATE' && !oldGuests) {
+    throw new Error('oldGuests must not be undefined');
   }
 
   const [touched, setTouched] = useState(false);
   const [errorState, setErrorState] = useState<FormError>({
-    error: mode === "UPDATE"? defaultGuests <= 1 || defaultGuests === oldGuests : defaultGuests <= 1,
-    message: "",
+    error:
+      mode === 'UPDATE'
+        ? defaultGuests <= 1 || defaultGuests === oldGuests
+        : defaultGuests <= 1,
+    message: '',
   });
   const [isPressed, setIsPressed] = useState(false);
 
   const onValueChange = (text: string) => {
     const numericValue = parseInt(text);
 
-    if (text === "") {
+    if (text === '') {
       setErrorState({
         error: true,
         message:
-          "Please enter the number of guests that will be attending your event",
+          'Please enter the number of guests that will be attending your event',
       });
     } else if (numericValue <= 1) {
       setErrorState({
         error: true,
-        message: "Please enter a value above 1",
+        message: 'Please enter a value above 1',
       });
     } else if (!isPositiveWholeNumber(text)) {
       setErrorState({
         error: true,
-        message: "Please enter a valid value",
+        message: 'Please enter a valid value',
       });
-    } else if (mode === "UPDATE" && oldGuests === numericValue){
+    } else if (mode === 'UPDATE' && oldGuests === numericValue) {
       setErrorState({
         error: true,
-        message: "Please enter a different value",
+        message: 'Please enter a different value',
       });
-    }else {
+    } else {
       setErrorState({
         error: false,
-        message: "",
+        message: '',
       });
 
       eventFormValuesRef.current = {
@@ -733,23 +723,23 @@ const EventGuestsInput = (props: EventGuestsInputProps) => {
   return (
     <Block card paddingVertical={sizes.md} paddingHorizontal={sizes.md}>
       <Pressable onPress={onBackBtnPress}>
-        <Block className="flex flex-row mb-2">
-          <AntDesign name="back" size={20} color={"#CB0C9F"} />
-          <Text className="ml-1 text-primary">Go back</Text>
+        <Block className='flex flex-row mb-2'>
+          <AntDesign name='back' size={20} color={'#CB0C9F'} />
+          <Text className='ml-1 text-primary'>Go back</Text>
         </Block>
       </Pressable>
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.description}>{description}</Text>
       <TextInput
-        id="event-attendee-input"
-        testID="test-event-attendee-input"
-        defaultValue={mode === "UPDATE"? String(oldGuests): ""}
+        id='event-attendee-input'
+        testID='test-event-attendee-input'
+        defaultValue={mode === 'UPDATE' ? String(oldGuests) : ''}
         onChangeText={onValueChange}
-        autoCapitalize="none"
-        inputMode="numeric"
-        keyboardType="numeric"
-        returnKeyType="done"
-        className="my-4 p-2 rounded-lg border-gold border-2"
+        autoCapitalize='none'
+        inputMode='numeric'
+        keyboardType='numeric'
+        returnKeyType='done'
+        className='my-4 p-2 rounded-lg border-gold border-2'
       />
       <Pressable
         onPressIn={() => setIsPressed(true)}
@@ -760,16 +750,16 @@ const EventGuestsInput = (props: EventGuestsInputProps) => {
           styles.inputButton,
           {
             backgroundColor: errorState.error
-              ? "#D3D3D3" // Gray color when disabled
+              ? '#D3D3D3' 
               : pressed || isPressed
-                ? "#E91E8E"
-                : "#CB0C9F",
+                ? '#E91E8E'
+                : '#CB0C9F',
           },
         ]}
       >
         <Text style={styles.inputButtonText}>{buttonLabel}</Text>
       </Pressable>
-      <Text testID="test-first-name-err-text" style={styles.errorText}>
+      <Text testID='test-first-name-err-text' style={styles.errorText}>
         {errorState.message}
       </Text>
     </Block>
@@ -790,41 +780,35 @@ interface EventBudgetError extends FormError {
 
 const calculateTotal = (budget: { [key: string]: number | null }): number => {
   return Object.keys(budget)
-    .filter((key) => key !== "total") // Exclude the total key
-    .reduce((sum, key) => sum + (budget[key] ?? 0), 0); // Sum up non-null values
+    .filter((key) => key !== 'total') 
+    .reduce((sum, key) => sum + (budget[key] ?? 0), 0);
 };
 
 const addCommasToNumber = (number: number) => {
-  // Convert the number to a string with exactly two decimal places
   let numberString = number.toFixed(2);
 
-  // Split the string into the integer and decimal parts
-  let parts = numberString.split(".");
+  let parts = numberString.split('.');
 
-  // Format the integer part with commas
-  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
-  // Join the parts back together
-  return parts.join(".");
+  return parts.join('.');
 };
 
 function validateEventBudget(input: EventFormInputType): boolean {
   const { categories, budget } = input;
 
-  // Mapping categories and their corresponding budget fields
   const categoryBudgetMap: {
     [key in keyof SelectedCategories]: keyof EventBudget;
   } = {
-    eventPlanning: "eventPlanning",
-    eventCoordination: "eventCoordination",
-    venue: "venue",
-    decorations: "decorations",
-    catering: "catering",
-    photography: "photography",
-    videography: "videography",
+    eventPlanning: 'eventPlanning',
+    eventCoordination: 'eventCoordination',
+    venue: 'venue',
+    decorations: 'decorations',
+    catering: 'catering',
+    photography: 'photography',
+    videography: 'videography',
   };
 
-  // Iterate through each category
   for (const category in categories) {
     if (categories[category as keyof SelectedCategories]) {
       const budgetValue =
@@ -834,7 +818,7 @@ function validateEventBudget(input: EventFormInputType): boolean {
         budgetValue === null ||
         budgetValue < 1000
       ) {
-        return false; // Invalid if the budget is null or below 1000
+        return false; 
       }
     }
   }
@@ -850,29 +834,32 @@ const EventBudgetInput = (props: EventInputProps) => {
     onBackBtnPress,
     onBtnPress,
     eventFormValuesRef,
-    mode
+    mode,
   } = props;
   const { sizes } = useTheme();
   const selectedCategories = eventFormValuesRef.current.categories;
   const defaultBudget = eventFormValuesRef.current.budget;
   const [errorState, setErrorState] = useState<EventBudgetError>({
-    error: mode === "UPDATE"? true : !validateEventBudget(eventFormValuesRef.current),
-    message: "",
+    error:
+      mode === 'UPDATE'
+        ? true
+        : !validateEventBudget(eventFormValuesRef.current),
+    message: '',
     messages: {
-      eventPlanning: "",
-      eventCoordination: "",
-      venue: "",
-      decorations: "",
-      catering: "",
-      photography: "",
-      videography: "",
+      eventPlanning: '',
+      eventCoordination: '',
+      venue: '',
+      decorations: '',
+      catering: '',
+      photography: '',
+      videography: '',
     },
   });
   const [total, setTotal] = useState<number>(calculateTotal(defaultBudget));
   const [isPressed, setIsPressed] = useState(false);
 
   const handleInputChange = (
-    name: keyof EventBudgetError["messages"] | keyof EventBudget,
+    name: keyof EventBudgetError['messages'] | keyof EventBudget,
     value: string
   ) => {
     const numericValue = Number(value);
@@ -884,7 +871,7 @@ const EventBudgetInput = (props: EventInputProps) => {
           error: true,
           messages: {
             ...prevState.messages,
-            [name]: "Must be a valid number",
+            [name]: 'Must be a valid number',
           },
         };
       });
@@ -895,7 +882,7 @@ const EventBudgetInput = (props: EventInputProps) => {
           error: true,
           messages: {
             ...prevState.messages,
-            [name]: "Must be above 0",
+            [name]: 'Must be above 0',
           },
         };
       });
@@ -906,7 +893,7 @@ const EventBudgetInput = (props: EventInputProps) => {
           error: true,
           messages: {
             ...prevState.messages,
-            [name]: "Must not be less than 1000",
+            [name]: 'Must not be less than 1000',
           },
         };
       });
@@ -917,7 +904,7 @@ const EventBudgetInput = (props: EventInputProps) => {
           error: false,
           messages: {
             ...prevState.messages,
-            [name]: "",
+            [name]: '',
           },
         };
       });
@@ -944,9 +931,9 @@ const EventBudgetInput = (props: EventInputProps) => {
   return (
     <Block card paddingVertical={sizes.md} paddingHorizontal={sizes.md}>
       <Pressable onPress={onBackBtnPress}>
-        <Block className="flex flex-row mb-2">
-          <AntDesign name="back" size={20} color={"#CB0C9F"} />
-          <Text className="ml-1 text-primary">Go back</Text>
+        <Block className='flex flex-row mb-2'>
+          <AntDesign name='back' size={20} color={'#CB0C9F'} />
+          <Text className='ml-1 text-primary'>Go back</Text>
         </Block>
       </Pressable>
       <Text style={styles.title}>{title}</Text>
@@ -963,7 +950,6 @@ const EventBudgetInput = (props: EventInputProps) => {
               <View key={name} style={styles.budgetInputWrapper}>
                 <View style={styles.budgetInputLabelContainer}>
                   <FontAwesome
-                    name={icon}
                     size={20}
                     color={color}
                     style={styles.budgetInputIcon}
@@ -985,21 +971,21 @@ const EventBudgetInput = (props: EventInputProps) => {
                   onChangeText={(text) =>
                     handleInputChange(
                       name as
-                        | keyof EventBudgetError["messages"]
+                        | keyof EventBudgetError['messages']
                         | keyof EventBudget,
                       text
                     )
                   }
-                  keyboardType="numeric"
-                  placeholder="Enter amount"
+                  keyboardType='numeric'
+                  placeholder='Enter amount'
                 />
                 {errorState.messages[
-                  name as keyof EventBudgetError["messages"]
-                ] !== "" && (
+                  name as keyof EventBudgetError['messages']
+                ] !== '' && (
                   <Text style={styles.budgetInputError}>
                     {
                       errorState.messages[
-                        name as keyof EventBudgetError["messages"]
+                        name as keyof EventBudgetError['messages']
                       ]
                     }
                   </Text>
@@ -1011,16 +997,16 @@ const EventBudgetInput = (props: EventInputProps) => {
         <View style={styles.budgetInputWrapper}>
           <View style={styles.budgetInputLabelContainer}>
             <FontAwesome
-              name={"calculator"}
+              name={'calculator'}
               size={20}
-              color={"#4CAF50"}
+              color={'#4CAF50'}
               style={styles.budgetInputIcon}
             />
-            <Text style={[styles.budgetInputLabel, { color: "#4CAF50" }]}>
+            <Text style={[styles.budgetInputLabel, { color: '#4CAF50' }]}>
               Total
             </Text>
           </View>
-          <Text style={[styles.budgetInputField, { borderColor: "#4CAF50" }]}>
+          <Text style={[styles.budgetInputField, { borderColor: '#4CAF50' }]}>
             ₱{addCommasToNumber(total)}
           </Text>
         </View>
@@ -1034,16 +1020,16 @@ const EventBudgetInput = (props: EventInputProps) => {
           styles.inputButton,
           {
             backgroundColor: errorState.error
-              ? "#D3D3D3" // Gray color when disabled
+              ? '#D3D3D3' 
               : pressed || isPressed
-                ? "#E91E8E"
-                : "#CB0C9F",
+                ? '#E91E8E'
+                : '#CB0C9F',
           },
         ]}
       >
         <Text style={styles.inputButtonText}>{buttonLabel}</Text>
       </Pressable>
-      <Text testID="test-first-name-err-text" style={styles.errorText}>
+      <Text testID='test-first-name-err-text' style={styles.errorText}>
         {errorState.message}
       </Text>
     </Block>
@@ -1069,22 +1055,20 @@ const EventFormConfirmation = (props: EventInputProps) => {
   return (
     <Block card paddingVertical={sizes.md} paddingHorizontal={sizes.md}>
       <Pressable onPress={onBackBtnPress}>
-        <Block className="flex flex-row mb-2">
-          <AntDesign name="back" size={20} color={"#CB0C9F"} />
-          <Text className="ml-1 text-primary">Go back</Text>
+        <Block className='flex flex-row mb-2'>
+          <AntDesign name='back' size={20} color={'#CB0C9F'} />
+          <Text className='ml-1 text-primary'>Go back</Text>
         </Block>
       </Pressable>
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.description}>{description}</Text>
       <View style={listStyles.eventContainer}>
-        <View className="flex flex-row justify-between">
+        <View className='flex flex-row justify-between'>
           <View style={styles.container}></View>
         </View>
-
         <Text style={listStyles.nameText}>{input.name}</Text>
-
         <Text style={listStyles.dateText}>
-          Date: {format(input.date, "MMMM dd, yyyy")}
+          Date: {format(input.date, 'MMMM dd, yyyy')}
         </Text>
         {input.address && (
           <>
@@ -1093,22 +1077,7 @@ const EventFormConfirmation = (props: EventInputProps) => {
             </Text>
           </>
         )}
-        {/* <Pressable
-            style={({ pressed }) => [
-              {
-                backgroundColor: pressed ? '#9B47FF' : '#6200EE',
-                padding: 5,
-                borderRadius: 5,
-                alignItems: 'center',
-                justifyContent: 'center',
-              },
-            ]}
-            onPress={() => setOpenBudget(true)}
-          >
-            <Text style={listStyles.budgetText}>View Budget</Text>
-          </Pressable> */}
         <Text style={listStyles.capacityText}>Capacity: {input.guests}</Text>
-
         <View style={listStyles.separator} />
         <View style={styles.budgetInputContainer}>
           {categories.map((category) => {
@@ -1119,7 +1088,6 @@ const EventFormConfirmation = (props: EventInputProps) => {
                 <View key={name} style={styles.budgetInputWrapper}>
                   <View style={styles.budgetInputLabelContainer}>
                     <FontAwesome
-                      name={icon}
                       size={20}
                       color={color}
                       style={styles.budgetInputIcon}
@@ -1144,17 +1112,17 @@ const EventFormConfirmation = (props: EventInputProps) => {
             <View style={styles.budgetInputWrapper}>
               <View style={styles.budgetInputLabelContainer}>
                 <FontAwesome
-                  name={"calculator"}
+                  name={'calculator'}
                   size={20}
-                  color={"#4CAF50"}
+                  color={'#4CAF50'}
                   style={styles.budgetInputIcon}
                 />
-                <Text style={[styles.budgetInputLabel, { color: "#4CAF50" }]}>
+                <Text style={[styles.budgetInputLabel, { color: '#4CAF50' }]}>
                   Total
                 </Text>
               </View>
               <Text
-                style={[styles.budgetInputField, { borderColor: "#4CAF50" }]}
+                style={[styles.budgetInputField, { borderColor: '#4CAF50' }]}
               >
                 ₱{addCommasToNumber(budget.total)}
               </Text>
@@ -1169,7 +1137,7 @@ const EventFormConfirmation = (props: EventInputProps) => {
         style={({ pressed }) => [
           styles.inputButton,
           {
-            backgroundColor: pressed || isPressed ? "#E91E8E" : "#CB0C9F",
+            backgroundColor: pressed || isPressed ? '#E91E8E' : '#CB0C9F',
           },
         ]}
       >
@@ -1185,17 +1153,17 @@ function EventForm({ navigation }: EventFormScreenProps) {
   const { sizes } = useTheme();
 
   if (!isLoaded) {
-    throw new Error("Clerk failed to load");
+    throw new Error('Clerk failed to load');
   }
 
   if (!userContext) {
-    throw new Error("Profile must be used within a UserProvider");
+    throw new Error('Profile must be used within a UserProvider');
   }
 
   const { user, setEventList } = userContext;
 
   if (!userId) {
-    throw new Error("User does not exist! Please SignUp again");
+    throw new Error('User does not exist! Please SignUp again');
   }
 
   const eventFormInputRef = useRef<EventFormInputType>({
@@ -1227,7 +1195,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
 
   const [step, setStep] = useState(0);
   const [result, setResult] = useState<EventInfo>({
-    _id: "",
+    _id: '',
     name: ``,
     date: new Date(),
     attendees: 0,
@@ -1242,20 +1210,20 @@ function EventForm({ navigation }: EventFormScreenProps) {
     },
     pendingBookings: [],
     confirmedBookings: [],
-    cancelledOrDeclinedBookings: []
+    cancelledOrDeclinedBookings: [],
   });
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(false);
-  const [submitErrMessage, setSubmitErrMessage] = useState("");
+  const [submitErrMessage, setSubmitErrMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
   const backAction = () => {
     if (step !== 0) {
       setStep(step - 1);
     } else {
-      if(navigation.canGoBack()){
+      if (navigation.canGoBack()) {
         navigation.goBack();
-      }else{
+      } else {
         signOut();
       }
     }
@@ -1266,7 +1234,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
   useFocusEffect(
     useCallback(() => {
       const backHandler = BackHandler.addEventListener(
-        "hardwareBackPress",
+        'hardwareBackPress',
         backAction
       );
 
@@ -1287,74 +1255,74 @@ function EventForm({ navigation }: EventFormScreenProps) {
         case 1:
           return (
             <EventDateInput
-              title="When is the date of your event?"
-              description="Please select the date of your event"
-              buttonLabel="NEXT"
+              title='When is the date of your event?'
+              description='Please select the date of your event'
+              buttonLabel='NEXT'
               onBtnPress={onNextBtnPress}
               onBackBtnPress={backAction}
               eventFormValuesRef={eventFormInputRef}
-              mode="CREATE"
+              mode='CREATE'
             />
           );
         case 2:
           return (
             <EventNameInput
-              title="What is the name for your event?"
-              description="Please enter the name of your event"
-              buttonLabel="NEXT"
+              title='What is the name for your event?'
+              description='Please enter the name of your event'
+              buttonLabel='NEXT'
               onBtnPress={onNextBtnPress}
               onBackBtnPress={backAction}
               eventFormValuesRef={eventFormInputRef}
               user={user}
-              mode="CREATE"
+              mode='CREATE'
             />
           );
         case 3:
           return (
             <EventGuestsInput
-              title="How many do you think will attend?"
-              description="Please enter your estimated number of guests."
-              buttonLabel="NEXT"
+              title='How many do you think will attend?'
+              description='Please enter your estimated number of guests.'
+              buttonLabel='NEXT'
               onBtnPress={onNextBtnPress}
               onBackBtnPress={backAction}
               eventFormValuesRef={eventFormInputRef}
-              mode="CREATE"
+              mode='CREATE'
             />
           );
         case 4:
           return (
             <EventCategorySelect
-              title="What type of vendors are you looking for?"
-              description="Please select at least one"
-              buttonLabel="NEXT"
+              title='What type of vendors are you looking for?'
+              description='Please select at least one'
+              buttonLabel='NEXT'
               onBtnPress={onNextBtnPress}
               onBackBtnPress={backAction}
               eventFormValuesRef={eventFormInputRef}
-              mode="CREATE"
+              mode='CREATE'
             />
           );
         case 5:
           return (
             <EventBudgetInput
-              title="How much is your budget?"
-              description="Please enter the budget for each category."
-              buttonLabel="NEXT"
+              title='How much is your budget?'
+              description='Please enter the budget for each category.'
+              buttonLabel='NEXT'
               onBtnPress={onNextBtnPress}
               onBackBtnPress={backAction}
               eventFormValuesRef={eventFormInputRef}
-              mode="CREATE"
+              mode='CREATE'
             />
           );
         case 6:
           return (
             <EventFormConfirmation
-              title="CONFIRMATION"
-              description="Please confirm your details."
-              buttonLabel="SUBMIT"
+              title='CONFIRMATION'
+              description='Please confirm your details.'
+              buttonLabel='SUBMIT'
               onBtnPress={onSubmitPress}
               onBackBtnPress={backAction}
               eventFormValuesRef={eventFormInputRef}
-              mode="CREATE"
+              mode='CREATE'
             />
           );
         default:
@@ -1372,86 +1340,86 @@ function EventForm({ navigation }: EventFormScreenProps) {
         case 1:
           return (
             <EventDateInput
-              title="When is the date of your event?"
-              description="Please select the date of your event"
-              buttonLabel="NEXT"
+              title='When is the date of your event?'
+              description='Please select the date of your event'
+              buttonLabel='NEXT'
               onBtnPress={onNextBtnPress}
               onBackBtnPress={backAction}
               eventFormValuesRef={eventFormInputRef}
-              mode="CREATE"
+              mode='CREATE'
             />
           );
         case 2:
           return (
             <EventNameInput
-              title="What is the name for your event?"
-              description="Please enter the name of your event"
-              buttonLabel="NEXT"
+              title='What is the name for your event?'
+              description='Please enter the name of your event'
+              buttonLabel='NEXT'
               onBtnPress={onNextBtnPress}
               onBackBtnPress={backAction}
               eventFormValuesRef={eventFormInputRef}
               user={user}
-              mode="CREATE"
+              mode='CREATE'
             />
           );
         case 3:
           return (
             <EventGuestsInput
-              title="How many do you think will attend?"
-              description="Please enter your estimated number of guests."
-              buttonLabel="NEXT"
+              title='How many do you think will attend?'
+              description='Please enter your estimated number of guests.'
+              buttonLabel='NEXT'
               onBtnPress={onNextBtnPress}
               onBackBtnPress={backAction}
               eventFormValuesRef={eventFormInputRef}
-              mode="CREATE"
+              mode='CREATE'
             />
           );
         case 4:
           return (
             <EventCategorySelect
-              title="What type of vendors are you looking for?"
-              description="Please select at least one"
-              buttonLabel="NEXT"
+              title='What type of vendors are you looking for?'
+              description='Please select at least one'
+              buttonLabel='NEXT'
               onBtnPress={onNextBtnPress}
               onBackBtnPress={backAction}
               eventFormValuesRef={eventFormInputRef}
-              mode="CREATE"
+              mode='CREATE'
             />
           );
         case 5:
           return (
             <EventAddressInput
-              title="Where will your event be held?"
-              description="Please enter the address of your event venue"
-              buttonLabel="NEXT"
+              title='Where will your event be held?'
+              description='Please enter the address of your event venue'
+              buttonLabel='NEXT'
               onBtnPress={onNextBtnPress}
               onBackBtnPress={backAction}
               eventFormValuesRef={eventFormInputRef}
-              mode="CREATE"
+              mode='CREATE'
             />
           );
         case 6:
           return (
             <EventBudgetInput
-              title="How much is your budget?"
-              description="Please enter the budget for each category."
-              buttonLabel="NEXT"
+              title='How much is your budget?'
+              description='Please enter the budget for each category.'
+              buttonLabel='NEXT'
               onBtnPress={onNextBtnPress}
               onBackBtnPress={backAction}
               eventFormValuesRef={eventFormInputRef}
-              mode="CREATE"
+              mode='CREATE'
             />
           );
         case 7:
           return (
             <EventFormConfirmation
-              title="CONFIRMATION"
-              description="Please confirm your details."
-              buttonLabel="SUBMIT"
+              title='CONFIRMATION'
+              description='Please confirm your details.'
+              buttonLabel='SUBMIT'
               onBtnPress={onSubmitPress}
               onBackBtnPress={backAction}
               eventFormValuesRef={eventFormInputRef}
-              mode="CREATE"
+              mode='CREATE'
             />
           );
         default:
@@ -1492,14 +1460,14 @@ function EventForm({ navigation }: EventFormScreenProps) {
     };
 
     try {
-      const token = await getToken({ template: "event-hand-jwt" });
+      const token = await getToken({ template: 'event-hand-jwt' });
 
       const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events`;
 
       const request = {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(input),
@@ -1510,33 +1478,30 @@ function EventForm({ navigation }: EventFormScreenProps) {
       switch (response.status) {
         case 201:
           const data = await response.json();
-          const event: EventInfo ={
-          _id: data._id,
-          name: data.name,
-          date: data.date,
-          attendees: data.attendees,
-          budget: {
-            eventPlanning: data.budget.eventPlanning,
-            eventCoordination: data.budget.eventCoordination,
-            decorations: data.budget.decorations,
-            venue: data.budget.venue,
-            catering: data.budget.catering,
-            photography: data.budget.photography,
-            videography: data.budget.videography,
-            total: data.total
-          },
-          pendingBookings: [],
-          confirmedBookings: [],
-          cancelledOrDeclinedBookings: []
-          }
+          const event: EventInfo = {
+            _id: data._id,
+            name: data.name,
+            date: data.date,
+            attendees: data.attendees,
+            budget: {
+              eventPlanning: data.budget.eventPlanning,
+              eventCoordination: data.budget.eventCoordination,
+              decorations: data.budget.decorations,
+              venue: data.budget.venue,
+              catering: data.budget.catering,
+              photography: data.budget.photography,
+              videography: data.budget.videography,
+              total: data.total,
+            },
+            pendingBookings: [],
+            confirmedBookings: [],
+            cancelledOrDeclinedBookings: [],
+          };
           setResult(event);
           setEventList((prevEventList) => {
             return {
               ...prevEventList,
-              events: [
-                ...prevEventList.events,
-                { ...event },
-              ],
+              events: [...prevEventList.events, { ...event }],
             };
           });
 
@@ -1545,14 +1510,14 @@ function EventForm({ navigation }: EventFormScreenProps) {
 
           break;
         case 403:
-          setSubmitErrMessage("Forbidden - Access denied.");
-          throw new Error("Forbidden - Access denied."); // Forbidden
+          setSubmitErrMessage('Forbidden - Access denied.');
+          throw new Error('Forbidden - Access denied.'); // Forbidden
         case 404:
-          setSubmitErrMessage("Server is unreachable.");
-          throw new Error("Server is unreachable."); // Not Found
+          setSubmitErrMessage('Server is unreachable.');
+          throw new Error('Server is unreachable.'); // Not Found
         default:
-          setSubmitErrMessage("Unexpected error occurred.");
-          throw new Error("Unexpected error occurred."); // Other status codes
+          setSubmitErrMessage('Unexpected error occurred.');
+          throw new Error('Unexpected error occurred.'); // Other status codes
       }
     } catch (error) {
       console.error(error);
@@ -1568,7 +1533,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
   };
 
   const onSuccessPress = () =>
-    navigation.replace("EventView", {
+    navigation.replace('EventView', {
       ...result,
       date: result.date,
     });
@@ -1579,8 +1544,8 @@ function EventForm({ navigation }: EventFormScreenProps) {
     return (
       <SuccessScreen
         onPress={onSuccessPress}
-        description="You event has been successfully Saved"
-        buttonText="Confirm"
+        description='You event has been successfully Saved'
+        buttonText='Confirm'
       />
     );
   }
@@ -1590,7 +1555,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
       <ErrorScreen
         onPress={onErrorPress}
         description={submitErrMessage}
-        buttonText="Try Again"
+        buttonText='Try Again'
       />
     );
   }
@@ -1601,8 +1566,8 @@ function EventForm({ navigation }: EventFormScreenProps) {
 
   const Stepper = () => {
     return (
-      <Block className="m-10">
-        <View className="flex-row justify-center">
+      <Block className='m-10'>
+        <View className='flex-row justify-center'>
           {Array.from({ length: totalSteps }, (_, index) => (
             <View
               key={index}
@@ -1636,24 +1601,6 @@ function EventForm({ navigation }: EventFormScreenProps) {
       contentContainerStyle={{ paddingBottom: sizes.xxl }}
     >
       <Stepper />
-      {/* <Block card paddingVertical={sizes.md} paddingHorizontal={sizes.md}>
-        <Pressable onPress={backAction}>
-          <Block className='flex flex-row mb-2'>
-            <AntDesign name='back' size={20} color={'#CB0C9F'} />
-            <Text className='ml-1 text-primary'>Go back</Text>
-          </Block>
-        </Pressable>
-        <Text style={styles.title}>{title}</Text>
-        <Text style={styles.description}>{description}</Text>
-        <EventInput />
-        <EventButton />
-        <Text testID='test-first-name-err-text' style={styles.errorText}>
-          {step === 0 && errors['name']?.message}
-          {step === 2 && errors['date']?.message}
-          {step === 3 && errors['guests']?.message}
-          {step === 4 && errors['budget']?.message}
-        </Text>
-      </Block> */}
       <EventInput />
     </Block>
   );
@@ -1664,22 +1611,22 @@ interface UpdateBudgetInputProps {
   onBtnPress: () => void;
   eventFormValuesRef: React.MutableRefObject<EventFormInputType>;
   oldBudget: EventBudget;
-  oldAddress?: string
+  oldAddress?: string;
 }
 
 const UpdateBudgetInput = (props: UpdateBudgetInputProps) => {
-  const {onBackBtnPress, onBtnPress, eventFormValuesRef,  oldAddress} = props;
+  const { onBackBtnPress, onBtnPress, eventFormValuesRef, oldAddress } = props;
   const [step, setStep] = useState<number>(0);
 
-  const categories = eventFormValuesRef.current.categories
+  const categories = eventFormValuesRef.current.categories;
 
-  const totalSteps = !categories.venue && !oldAddress? 3 : 2;
+  const totalSteps = !categories.venue && !oldAddress ? 3 : 2;
 
   const onNextBtnPress = () => {
-    if(step < totalSteps - 1){
-      setStep(prevStep => prevStep + 1)
+    if (step < totalSteps - 1) {
+      setStep((prevStep) => prevStep + 1);
     }
-  }
+  };
   const backAction = () => {
     if (step !== 0) {
       setStep(step - 1);
@@ -1691,7 +1638,7 @@ const UpdateBudgetInput = (props: UpdateBudgetInputProps) => {
   useFocusEffect(
     useCallback(() => {
       const backHandler = BackHandler.addEventListener(
-        "hardwareBackPress",
+        'hardwareBackPress',
         backAction
       );
 
@@ -1699,119 +1646,116 @@ const UpdateBudgetInput = (props: UpdateBudgetInputProps) => {
     }, [step])
   );
 
-  if(!categories.venue && !oldAddress){
+  if (!categories.venue && !oldAddress) {
     switch (step) {
       case 0:
-        return(       
+        return (
           <EventCategorySelect
-            title="What type of vendors are you looking too add/remove?"
-            description="Please select at least one"
-            buttonLabel="NEXT"
+            title='What type of vendors are you looking too add/remove?'
+            description='Please select at least one'
+            buttonLabel='NEXT'
             onBtnPress={onNextBtnPress}
             onBackBtnPress={onBackBtnPress}
             eventFormValuesRef={eventFormValuesRef}
-            mode="UPDATE"
+            mode='UPDATE'
           />
         );
       case 1:
         return (
           <EventAddressInput
-            title="Where will your event be held?"
-            description="Please enter the address of your event venue"
-            buttonLabel="NEXT"
+            title='Where will your event be held?'
+            description='Please enter the address of your event venue'
+            buttonLabel='NEXT'
             onBtnPress={onNextBtnPress}
             onBackBtnPress={backAction}
             eventFormValuesRef={eventFormValuesRef}
-            mode="CREATE"
+            mode='CREATE'
           />
         );
       case 2:
         return (
           <EventBudgetInput
-            title="How much is your budget?"
-            description="Please enter the budget for each category."
-            buttonLabel="SUBMIT"
+            title='How much is your budget?'
+            description='Please enter the budget for each category.'
+            buttonLabel='SUBMIT'
             onBtnPress={onBtnPress}
             onBackBtnPress={backAction}
             eventFormValuesRef={eventFormValuesRef}
-            mode="UPDATE"
+            mode='UPDATE'
           />
         );
       default:
-        return(       
+        return (
           <EventCategorySelect
-            title="What type of vendors are you looking for?"
-            description="Please select at least one"
-            buttonLabel="NEXT"
+            title='What type of vendors are you looking for?'
+            description='Please select at least one'
+            buttonLabel='NEXT'
             onBtnPress={onNextBtnPress}
             onBackBtnPress={onBackBtnPress}
             eventFormValuesRef={eventFormValuesRef}
-            mode="UPDATE"
+            mode='UPDATE'
           />
         );
     }
-  }else{
+  } else {
     switch (step) {
       case 0:
-        return(       
+        return (
           <EventCategorySelect
-            title="What type of vendors are you looking too add/remove?"
-            description="Please select at least one"
-            buttonLabel="NEXT"
+            title='What type of vendors are you looking too add/remove?'
+            description='Please select at least one'
+            buttonLabel='NEXT'
             onBtnPress={onNextBtnPress}
             onBackBtnPress={onBackBtnPress}
             eventFormValuesRef={eventFormValuesRef}
-            mode="UPDATE"
+            mode='UPDATE'
           />
         );
       case 1:
         return (
           <EventBudgetInput
-            title="How much  is your budget?"
-            description="Please enter the budget for each category."
-            buttonLabel="SUBMIT"
+            title='How much  is your budget?'
+            description='Please enter the budget for each category.'
+            buttonLabel='SUBMIT'
             onBtnPress={onBtnPress}
             onBackBtnPress={backAction}
             eventFormValuesRef={eventFormValuesRef}
-            mode="UPDATE"
+            mode='UPDATE'
           />
         );
       default:
-        return(       
+        return (
           <EventCategorySelect
-            title="What type of vendors are you looking for?"
-            description="Please select at least one"
-            buttonLabel="NEXT"
+            title='What type of vendors are you looking for?'
+            description='Please select at least one'
+            buttonLabel='NEXT'
             onBtnPress={onNextBtnPress}
             onBackBtnPress={onBackBtnPress}
             eventFormValuesRef={eventFormValuesRef}
-            mode="UPDATE"
+            mode='UPDATE'
           />
         );
     }
   }
-  
+};
 
-
-}
-
-function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps){
+function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps) {
   const userContext = useContext(UserContext);
   const { userId, isLoaded, getToken } = useAuth();
   const { assets, colors, sizes, gradients } = useTheme();
-  
+
   if (!isLoaded) {
-    throw new Error("Clerk failed to load");
+    throw new Error('Clerk failed to load');
   }
 
   if (!userContext) {
-    throw new Error("Profile must be used within a UserProvider");
+    throw new Error('Profile must be used within a UserProvider');
   }
 
   const { user, eventList, setEventList } = userContext;
 
   if (!userId) {
-    throw new Error("User does not exist! Please SignUp again");
+    throw new Error('User does not exist! Please SignUp again');
   }
 
   const { eventInfo, updateValue } = route.params;
@@ -1826,14 +1770,14 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps){
     videography,
   } = budget;
 
-  const [result, setResult] = useState<EventInfo>({...eventInfo});
+  const [result, setResult] = useState<EventInfo>({ ...eventInfo });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState('');
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const eventDate = typeof date === "string" ? new Date(date) : date;
+  const eventDate = typeof date === 'string' ? new Date(date) : date;
 
   const eventFormInputRef = useRef<EventFormInputType>({
     name,
@@ -1850,16 +1794,15 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps){
     date: eventDate,
     guests: attendees,
     budget: {
-      eventPlanning: (eventPlanning)? eventPlanning: null,
-      eventCoordination: (eventCoordination)? eventCoordination: null,
-      decorations: (decorations)? decorations: null,
-      venue: (venue)? venue: null,
-      catering: (catering)? catering: null,
-      photography: (photography)? photography: null,
-      videography: (videography)? videography: null
+      eventPlanning: eventPlanning ? eventPlanning : null,
+      eventCoordination: eventCoordination ? eventCoordination : null,
+      decorations: decorations ? decorations : null,
+      venue: venue ? venue : null,
+      catering: catering ? catering : null,
+      photography: photography ? photography : null,
+      videography: videography ? videography : null,
     },
   });
-
 
   const backAction = () => navigation.goBack();
 
@@ -1867,30 +1810,30 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps){
     setLoading(true);
     setErrorMessage('');
 
-    const token = await getToken({ template: "event-hand-jwt" });
+    const token = await getToken({ template: 'event-hand-jwt' });
 
     let url = `${process.env.EXPO_PUBLIC_BACKEND_URL}`;
 
-    let body = "";
+    let body = '';
 
     switch (updateValue) {
-      case "NAME":
+      case 'NAME':
         url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/${_id}/name`;
-        body = JSON.stringify({ name: eventFormInputRef.current.name })
+        body = JSON.stringify({ name: eventFormInputRef.current.name });
         break;
-      case "DATE":
+      case 'DATE':
         url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/${_id}/date`;
-        body = JSON.stringify({ date: eventFormInputRef.current.date })
+        body = JSON.stringify({ date: eventFormInputRef.current.date });
         break;
-      case "ADDRESS":
+      case 'ADDRESS':
         url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/${_id}/address`;
-        body = JSON.stringify({ address: eventFormInputRef.current.address })
+        body = JSON.stringify({ address: eventFormInputRef.current.address });
         break;
-      case "GUEST":
+      case 'GUEST':
         url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/${_id}/attendees`;
-        body = JSON.stringify({ attendees: eventFormInputRef.current.guests })
+        body = JSON.stringify({ attendees: eventFormInputRef.current.guests });
         break;
-      case "BUDGET":
+      case 'BUDGET':
         const {
           eventPlanning,
           eventCoordination,
@@ -1901,98 +1844,135 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps){
           videography,
         } = eventFormInputRef.current.budget;
         url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/${_id}/budget`;
-        body = (eventFormInputRef.current.budget.venue === null)? JSON.stringify({           eventPlanning,
-          eventCoordination,
-          venue,
-          decorations,
-          catering,
-          photography,
-          videography, 
-          address: eventFormInputRef.current.address }) :
-          JSON.stringify({           eventPlanning,
-            eventCoordination,
-            venue,
-            decorations,
-            catering,
-            photography,
-            videography,})
+        body =
+          eventFormInputRef.current.budget.venue === null
+            ? JSON.stringify({
+                eventPlanning,
+                eventCoordination,
+                venue,
+                decorations,
+                catering,
+                photography,
+                videography,
+                address: eventFormInputRef.current.address,
+              })
+            : JSON.stringify({
+                eventPlanning,
+                eventCoordination,
+                venue,
+                decorations,
+                catering,
+                photography,
+                videography,
+              });
         break;
-    }   
+    }
 
     const request = {
       method: 'PATCH',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
       body,
     };
-
 
     try {
       const response = await fetch(url, request);
 
       if (response.ok) {
         const updatedEvent = await response.json();
-        let updatedEvents = eventList.events
+        let updatedEvents = eventList.events;
 
         switch (updateValue) {
-          case "NAME":
-            updatedEvents = eventList.events.map(event => 
+          case 'NAME':
+            updatedEvents = eventList.events.map((event) =>
               event._id === _id ? { ...event, name: updatedEvent.name } : event
             );
-            setResult({...eventInfo, name: updatedEvent.name})
+            setResult({ ...eventInfo, name: updatedEvent.name });
             break;
-          case "DATE":
-            updatedEvents = eventList.events.map(event => 
+          case 'DATE':
+            updatedEvents = eventList.events.map((event) =>
               event._id === _id ? { ...event, date: updatedEvent.date } : event
             );
-            setResult({...eventInfo, date: updatedEvent.date})
+            setResult({ ...eventInfo, date: updatedEvent.date });
             break;
-          case "ADDRESS":
-            updatedEvents = eventList.events.map(event => 
-              event._id === _id ? { ...event, address: updatedEvent.address} : event
+          case 'ADDRESS':
+            updatedEvents = eventList.events.map((event) =>
+              event._id === _id
+                ? { ...event, address: updatedEvent.address }
+                : event
             );
-            setResult({...eventInfo, address: updatedEvent.address})
+            setResult({ ...eventInfo, address: updatedEvent.address });
             break;
-            case "GUEST":
-              updatedEvents = eventList.events.map(event => 
-                event._id === _id ? { ...event, attendees: updatedEvent.attendees} : event
-              );
-              setResult({...eventInfo, attendees: updatedEvent.attendees})
-              break;
-              case "BUDGET":
-                  updatedEvents = eventList.events.map(event => 
-                    event._id === _id ?(event.budget.venue !== null)? { ...event,  budget: {...updatedEvent.budget, total: updatedEvent.total}, } :  { ...event,  budget: {...updatedEvent.budget, total: updatedEvent.total}, } : event
-                  );
-                  (updatedEvent.venue !== null)?setResult({...eventInfo, budget: {...updatedEvent.budget, total: updatedEvent.total}, address: updatedEvent.address}): setResult({...eventInfo,  budget: {...updatedEvent.budget, total: updatedEvent.total}})
-                  break;
-        }   
-    
-        setEventList(prevEventList => {
+          case 'GUEST':
+            updatedEvents = eventList.events.map((event) =>
+              event._id === _id
+                ? { ...event, attendees: updatedEvent.attendees }
+                : event
+            );
+            setResult({ ...eventInfo, attendees: updatedEvent.attendees });
+            break;
+          case 'BUDGET':
+            updatedEvents = eventList.events.map((event) =>
+              event._id === _id
+                ? event.budget.venue !== null
+                  ? {
+                      ...event,
+                      budget: {
+                        ...updatedEvent.budget,
+                        total: updatedEvent.total,
+                      },
+                    }
+                  : {
+                      ...event,
+                      budget: {
+                        ...updatedEvent.budget,
+                        total: updatedEvent.total,
+                      },
+                    }
+                : event
+            );
+            updatedEvent.venue !== null
+              ? setResult({
+                  ...eventInfo,
+                  budget: { ...updatedEvent.budget, total: updatedEvent.total },
+                  address: updatedEvent.address,
+                })
+              : setResult({
+                  ...eventInfo,
+                  budget: { ...updatedEvent.budget, total: updatedEvent.total },
+                });
+            break;
+        }
+
+        setEventList((prevEventList) => {
           return {
             ...prevEventList,
-            events: [...updatedEvents]
-          }
-        })
-        setSuccessMessage(`Your event ${updateValue.toLocaleLowerCase()}} has been successfully Updated`)
+            events: [...updatedEvents],
+          };
+        });
+        setSuccessMessage(
+          `Your event ${updateValue.toLocaleLowerCase()}} has been successfully Updated`
+        );
         setSuccess(true);
-
       } else {
         const errorData = await response.json();
         if (response.status === 404) {
-          setError(true)
+          setError(true);
           setErrorMessage('Event not found.');
         } else if (response.status === 400) {
-          setError(true)
-          setErrorMessage(`Invalid input. Please check the event ${updateValue.toLocaleLowerCase()}.`);
+          setError(true);
+          setErrorMessage(
+            `Invalid input. Please check the event ${updateValue.toLocaleLowerCase()}.`
+          );
         } else {
-          setError(true)
+          setError(true);
           setErrorMessage(errorData.message || 'Failed to update the event.');
         }
       }
     } catch (error) {
-      setError(true)
+      setError(true);
       setErrorMessage('An unexpected error occurred. Please try again later.');
     } finally {
       setLoading(false);
@@ -2001,100 +1981,99 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps){
 
   const EventInput = () => {
     switch (updateValue) {
-      case "NAME":
+      case 'NAME':
         return (
           <EventNameInput
-            title="What is your new name of your event?"
-            description="Please enter the new name of your event"
-            buttonLabel="SUBMIT"
+            title='What is your new name of your event?'
+            description='Please enter the new name of your event'
+            buttonLabel='SUBMIT'
             onBtnPress={onSubmitPress}
             onBackBtnPress={backAction}
             eventFormValuesRef={eventFormInputRef}
             user={user}
-            mode="UPDATE"
+            mode='UPDATE'
             oldEventName={name}
           />
         );
-      case "DATE":
+      case 'DATE':
         return (
           <EventDateInput
-            title="When is the new date of your event?"
-            description="Please select the new date of your event."
-            buttonLabel="SUBMIT"
+            title='When is the new date of your event?'
+            description='Please select the new date of your event.'
+            buttonLabel='SUBMIT'
             onBtnPress={onSubmitPress}
             onBackBtnPress={backAction}
             eventFormValuesRef={eventFormInputRef}
-            mode="UPDATE"
+            mode='UPDATE'
             oldDate={new Date(date)}
           />
         );
-      case "ADDRESS":
+      case 'ADDRESS':
         return (
           <EventAddressInput
-            title="Where is your new venue?"
-            description="Please enter the new address of your event venue"
-            buttonLabel="SUBMIT"
+            title='Where is your new venue?'
+            description='Please enter the new address of your event venue'
+            buttonLabel='SUBMIT'
             onBtnPress={onSubmitPress}
             onBackBtnPress={backAction}
             eventFormValuesRef={eventFormInputRef}
-            mode="UPDATE"
+            mode='UPDATE'
             oldAddress={address}
           />
-        ); 
-      case "GUEST":
+        );
+      case 'GUEST':
         return (
           <EventGuestsInput
-            title="How many do you think will attend?"
-            description="Please enter your new estimated number of guests."
-            buttonLabel="SUBMIT"
+            title='How many do you think will attend?'
+            description='Please enter your new estimated number of guests.'
+            buttonLabel='SUBMIT'
             onBtnPress={onSubmitPress}
             onBackBtnPress={backAction}
             eventFormValuesRef={eventFormInputRef}
-            mode="UPDATE"
+            mode='UPDATE'
             oldGuests={attendees}
           />
         );
-      case "BUDGET":
-        return (<UpdateBudgetInput
-          onBtnPress={onSubmitPress}
-          onBackBtnPress={backAction}
-          eventFormValuesRef={eventFormInputRef}
-          oldBudget={budget}
-          oldAddress={address}
-        />)
+      case 'BUDGET':
+        return (
+          <UpdateBudgetInput
+            onBtnPress={onSubmitPress}
+            onBackBtnPress={backAction}
+            eventFormValuesRef={eventFormInputRef}
+            oldBudget={budget}
+            oldAddress={address}
+          />
+        );
       default:
         return <></>;
     }
   };
 
-  
   const onSuccessPress = () => {
     navigation.reset({
       index: 1,
-      routes: [{name: "Home"}, {name: "EventView", params: {...result}}]
-    })
-  }
+      routes: [{ name: 'Home' }, { name: 'EventView', params: { ...result } }],
+    });
+  };
 
   if (success) {
     return (
       <SuccessScreen
         onPress={onSuccessPress}
         description={successMessage}
-        buttonText="Confirm"
+        buttonText='Confirm'
       />
     );
-    }
-
+  }
 
   const onErrorPress = () => setError(false);
-
 
   if (error) {
     return (
       <ErrorScreen
         onPress={onErrorPress}
         description={errorMessage}
-        buttonText="Try Again"
+        buttonText='Try Again'
       />
     );
   }
@@ -2117,18 +2096,17 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps){
       </Block>
     </>
   );
-
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginBottom: 10,
   },
   description: {
@@ -2136,90 +2114,90 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   input: {
-    width: "80%",
+    width: '80%',
     height: 40,
-    borderColor: "gray",
+    borderColor: 'gray',
     borderWidth: 1,
     marginBottom: 20,
     paddingHorizontal: 10,
   },
   ripple: {
-    position: "absolute",
+    position: 'absolute',
     top: 0,
     bottom: 0,
-    width: "100%",
+    width: '100%',
   },
   button: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#CB0C9F",
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#CB0C9F',
     paddingVertical: 5,
     paddingHorizontal: 30,
     borderRadius: 5,
   },
   disabledButton: {
-    backgroundColor: "gray",
+    backgroundColor: 'gray',
   },
   buttonText: {
-    color: "white",
+    color: 'white',
     fontSize: 16,
   },
   inputButton: {
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 8,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   inputButtonText: {
-    color: "white",
+    color: 'white',
     fontSize: 16,
-    fontWeight: "bold",
-    textAlign: "center",
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
   errorText: {
     fontSize: 16,
-    color: "red",
+    color: 'red',
     marginTop: 10,
   },
   stepperContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
     margin: 20,
   },
   step: {
     width: 30,
     height: 30,
     borderRadius: 15,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     marginHorizontal: 5,
   },
   activeStep: {
-    backgroundColor: "#CB0C9F",
+    backgroundColor: '#CB0C9F',
   },
   inactiveStep: {
-    backgroundColor: "gray",
+    backgroundColor: 'gray',
   },
   stepText: {
-    color: "white",
+    color: 'white',
     fontSize: 16,
   },
   activeStepText: {
-    color: "white",
+    color: 'white',
   },
   inactiveStepText: {
-    color: "white",
+    color: 'white',
   },
   eventCategorySelectContainer: {
-    flexDirection: "column",
-    justifyContent: "space-around",
+    flexDirection: 'column',
+    justifyContent: 'space-around',
     margin: 10,
   },
   eventCategorySelectButton: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 10,
     borderRadius: 5,
     marginVertical: 5,
@@ -2237,12 +2215,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderWidth: 2.5,
     borderRadius: 5,
-    borderColor: "#E8AE4C",
+    borderColor: '#E8AE4C',
   },
   eventDateButtonText: {
-    textAlign: "center",
-    color: "#6495ed",
-    fontWeight: "bold",
+    textAlign: 'center',
+    color: '#6495ed',
+    fontWeight: 'bold',
     fontSize: 16,
   },
 
@@ -2253,8 +2231,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   budgetInputLabelContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 5,
   },
   budgetInputIcon: {
@@ -2262,7 +2240,7 @@ const styles = StyleSheet.create({
   },
   budgetInputLabel: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   budgetInputField: {
     borderWidth: 1,
@@ -2271,7 +2249,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   budgetInputError: {
-    color: "red",
+    color: 'red',
     marginTop: 5,
   },
 });
@@ -2280,26 +2258,15 @@ const listStyles = StyleSheet.create({
   eventContainer: {
     paddingHorizontal: 16,
     paddingVertical: 10,
-    // marginTop: 30,
-    // marginHorizontal: 5,
-    backgroundColor: "#fff",
-    // borderLeftWidth: 8,
-    // borderTopLeftRadius: 16,
-    // borderBottomLeftRadius: 16,
-    // borderLeftColor: '#CB0C9F',
-    // borderRightWidth: 8,
-    // borderTopRightRadius: 16,
-    // borderBottomRightRadius: 16,
-    // borderRightColor: '#CB0C9F',
-    // elevation: 10, // Add shadow for floating effect
-    shadowColor: "black",
+    backgroundColor: '#fff',
+    shadowColor: 'black',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 10,
   },
   nameText: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginBottom: 8,
   },
   dateText: {
@@ -2308,22 +2275,21 @@ const listStyles = StyleSheet.create({
   },
   separator: {
     borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
+    borderBottomColor: '#ccc',
     marginBottom: 8,
   },
   row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   budgetText: {
-    color: "white",
+    color: 'white',
     fontSize: 14,
   },
   capacityText: {
     fontSize: 14,
     marginBottom: 8,
   },
-  
 });
 
 export { EventForm, UpdateEventForm };

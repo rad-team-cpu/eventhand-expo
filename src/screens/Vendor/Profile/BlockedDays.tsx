@@ -4,7 +4,6 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import React, { useState, useContext, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import {
-  TextInput,
   ScrollView,
   TouchableOpacity,
   StyleSheet,
@@ -135,7 +134,7 @@ const BlockedDaysForm = ({
 
       setLoading(false);
       if (response.status === 200 || response.status === 201) {
-        onSubmit(input); // Trigger form submission callback
+        onSubmit(input); 
       } else {
         throw new Error('Unexpected error occurred.');
       }

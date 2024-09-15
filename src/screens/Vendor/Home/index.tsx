@@ -6,7 +6,6 @@ import {
 } from "@react-navigation/bottom-tabs";
 import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
-
 import { VendorContext } from "../../../Contexts/VendorContext";
 import {
   VendorHomeScreenBottomTabsProps,
@@ -134,7 +133,7 @@ const VendorHome = ({ navigation, route }: VendorHomeScreenProps) => {
   const webSocket = useContext(WebSocketContext);
   const userContext = useContext(UserContext);
   const { initialTab, noFetch } = route.params;
-  const clerkId = userId; //clerk-auth-generated-user-id
+  const clerkId = userId; 
 
   if (!clerkId) {
     return (
@@ -307,7 +306,7 @@ const VendorHome = ({ navigation, route }: VendorHomeScreenProps) => {
 
 const styles = StyleSheet.create({
   headerContainer: {
-    elevation: 4, // Adds shadow on Android
+    elevation: 4, 
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.8,

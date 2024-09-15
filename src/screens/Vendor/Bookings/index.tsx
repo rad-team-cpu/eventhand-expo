@@ -6,12 +6,18 @@ import {
   Image,
   Pressable,
   StyleSheet,
-  Alert,
   GestureResponderEvent,
   ScrollView,
 } from 'react-native';
 import { Ionicons, AntDesign } from '@expo/vector-icons';
-import { BookingStatus, BookingType, HomeScreenNavigationProp, PackageBookingType, PackageType, VendorBookingViewScreenProps } from 'types/types';
+import {
+  BookingStatus,
+  BookingType,
+  HomeScreenNavigationProp,
+  PackageBookingType,
+  PackageType,
+  VendorBookingViewScreenProps,
+} from 'types/types';
 import ConfirmationDialog from 'Components/ConfirmationDialog';
 import { useAuth } from '@clerk/clerk-expo';
 import Loading from 'screens/Loading';
@@ -34,22 +40,11 @@ const Toolbar: React.FC<ToolbarProps> = ({ handleBackPress }) => {
       <Pressable onPress={handleBackPress} style={styles.toolbarButton}>
         <Ionicons name='arrow-back' size={24} color='#CB0C9F' />
       </Pressable>
-      {/* <View style={styles.toolbarSpacer} />
-      <View style={styles.toolbarActions}>
-        <Pressable onPress={onEditPress} style={styles.toolbarButton}>
-          <Ionicons name="pencil" size={24} color="#CB0C9F" />
-        </Pressable>
-        <Pressable onPress={onDeletePress} style={styles.toolbarButton}>
-          <Ionicons name="trash" size={24} color="#CB0C9F" />
-        </Pressable>
-      </View> */}
     </View>
   );
 };
 
-
-
-type VendorBookingType= {
+type VendorBookingType = {
   _id: string;
   event: {
     _id: string;
@@ -65,60 +60,18 @@ type VendorBookingType= {
   status: BookingStatus;
   date: Date;
   package: PackageBookingType;
-}
-
-// function generateFakeVendorBooking(): VendorBookingType {
-//   const bookingStatus = faker.helpers.arrayElement([
-//     BookingStatus.Pending,
-//     BookingStatus.Confirmed,
-//     BookingStatus.Cancelled,
-//     BookingStatus.Declined,
-//   ]);
-
-//   return {
-//     _id: new ObjectId().toString(),
-//     eventId: new ObjectId().toString(),
-//     client: {
-//       _id: new ObjectId().toString(),
-//       name: faker.person.fullName(),
-//       profilePicture: faker.image.avatar(),
-//       contactNumber: faker.phone.number(),
-//     },
-//     status: bookingStatus,
-//     date: faker.date.future(),
-//     package: {
-//       _id: new ObjectId().toString(),
-//       name: faker.commerce.productName(),
-//       imageUrl: faker.image.url(),
-//       capacity: faker.number.int({ min: 50, max: 500 }),
-//       tags: [{_id: "1", name: "fakeTag"}],
-//       orderType: faker.helpers.arrayElement(['PICKUP', 'DELIVERY', 'SERVICE']),
-//       description: faker.lorem.sentences(2),
-//       price: faker.number.float({ min: 1000, max: 100000, precision: 0.01 }),
-//       inclusions: Array.from({ length: 3 }).map(() => ({
-//         _id: new ObjectId().toString(),
-//         imageUrl: faker.image.url(),
-//         name: faker.commerce.productName(),
-//         description: faker.lorem.sentence(),
-//         quantity: faker.number.int({ min: 1, max: 10 }),
-//       })),
-//     },
-//   };
-// }
-
+};
 
 interface BookingDetailsProps {
   booking: VendorBookingType;
   handleBackPress: (event: GestureResponderEvent) => void | Boolean;
   handleAcceptPress: (event: GestureResponderEvent) => void;
   handleCancelPress: (event: GestureResponderEvent) => void;
-  // onReviewPress: (event: GestureResponderEvent) => void ;
-  // handleViewVendor: () => void;
-  // handleCancelBtn: () => void;
 }
 
 const BookingDetails = (props: BookingDetailsProps) => {
-  const { booking, handleBackPress, handleAcceptPress, handleCancelPress } = props;
+  const { booking, handleBackPress, handleAcceptPress, handleCancelPress } =
+    props;
   const [avatar, setAvatar] = useState<string | undefined>();
   const statusColors: { [key in BookingType['status']]: string } = {
     PENDING: 'orange',
@@ -133,15 +86,14 @@ const BookingDetails = (props: BookingDetailsProps) => {
   const webSocket = useContext(WebSocketContext);
   const vendorContext = useContext(VendorContext);
 
-   if(!vendorContext){
+  if (!vendorContext) {
     throw new Error('Component must be under Vendor Provider!!');
-   } 
+  }
 
   if (!webSocket) {
     throw new Error('Component must be under Websocket Provider!!');
   }
 
-  
   const downloadAvatar = async (profilePicturePath: string) => {
     const firebaseService = FirebaseService.getInstance();
 
@@ -153,34 +105,33 @@ const BookingDetails = (props: BookingDetailsProps) => {
 
   useEffect(() => {
     downloadAvatar(booking.client.profilePicture);
-  })
+  });
 
   const { sendMessage } = webSocket;
-  const {vendor} = vendorContext
-
+  const { vendor } = vendorContext;
 
   const handleChatPress = () => {
-      const getMessagesInput: GetMessagesInput = {
-        senderId: vendor.id,
-        senderType: 'VENDOR',
-        receiverId: booking.client._id,
-        pageNumber: 1,
-        pageSize: 15,
-        inputType: 'GET_MESSAGES',
-      };
-  
-      sendMessage(getMessagesInput);
-   
-        navigation.navigate('Chat', {
-          _id: new ObjectId().toString(),
-          senderId: booking.client._id,
-          senderName: booking.client.name,
-          senderImage: booking.client.profilePicture,
-        });
-      
+    const getMessagesInput: GetMessagesInput = {
+      senderId: vendor.id,
+      senderType: 'VENDOR',
+      receiverId: booking.client._id,
+      pageNumber: 1,
+      pageSize: 15,
+      inputType: 'GET_MESSAGES',
     };
 
-  const handleViewEventPress = () => navigation.navigate("VendorEventView", {eventId: booking.event._id});
+    sendMessage(getMessagesInput);
+
+    navigation.navigate('Chat', {
+      _id: new ObjectId().toString(),
+      senderId: booking.client._id,
+      senderName: booking.client.name,
+      senderImage: booking.client.profilePicture,
+    });
+  };
+
+  const handleViewEventPress = () =>
+    navigation.navigate('VendorEventView', { eventId: booking.event._id });
 
   return (
     <>
@@ -188,25 +139,31 @@ const BookingDetails = (props: BookingDetailsProps) => {
       <ScrollView style={styles.container}>
         <View style={styles.vendorContainer}>
           <Image
-            source={{uri: avatar}}
-            defaultSource={require("../../../assets/images/user.png")}
+            source={{ uri: avatar }}
+            defaultSource={require('../../../assets/images/user.png')}
             style={styles.vendorLogo}
           />
           <View style={styles.vendorDetails}>
             <Text style={styles.vendorName}>{booking.client.name}</Text>
             <Text>{booking.client.email}</Text>
             <Text>{booking.client.contactNumber}</Text>
-            <Text>Event Date: {format(booking.event.date, 'MMMM dd, yyyy')}</Text>
+            <Text>
+              Event Date: {format(booking.event.date, 'MMMM dd, yyyy')}
+            </Text>
           </View>
         </View>
-        <Pressable style={styles.viewVendorButton} onPress={handleChatPress} >
-          <Text style={{...styles.buttonText, fontWeight: "bold"}}>CHAT</Text>
+        <Pressable style={styles.viewVendorButton} onPress={handleChatPress}>
+          <Text style={{ ...styles.buttonText, fontWeight: 'bold' }}>CHAT</Text>
         </Pressable>
-        <Pressable style={styles.viewEventButton} >
-          <Text style={{...styles.buttonText, fontWeight: "bold"}} onPress={handleViewEventPress}>VIEW EVENT</Text>
+        <Pressable style={styles.viewEventButton}>
+          <Text
+            style={{ ...styles.buttonText, fontWeight: 'bold' }}
+            onPress={handleViewEventPress}
+          >
+            VIEW EVENT
+          </Text>
         </Pressable>
 
-        
         <View style={styles.statusContainer}>
           <Text style={styles.orderType}>{booking.package.orderType}</Text>
           <Text
@@ -222,33 +179,48 @@ const BookingDetails = (props: BookingDetailsProps) => {
         </View>
         <View style={styles.separator} />
         <View style={styles.packageContainer}>
-        <Image source={{ uri: booking.package.imageUrl }} style={styles.packageImage} />
-        <Text style={styles.packageName}>Package Name: {booking.package.name.toLocaleUpperCase()}</Text>
-        <Text  style={{fontWeight: "bold"}}>Inclusions:</Text>
-        {booking.package.inclusions.map(item => <Text key={item._id} style={{fontWeight: "bold"}}>- {item.name} - {item.description} </Text>)}
+          <Image
+            source={{ uri: booking.package.imageUrl }}
+            style={styles.packageImage}
+          />
+          <Text style={styles.packageName}>
+            Package Name: {booking.package.name.toLocaleUpperCase()}
+          </Text>
+          <Text style={{ fontWeight: 'bold' }}>Inclusions:</Text>
+          {booking.package.inclusions.map((item) => (
+            <Text key={item._id} style={{ fontWeight: 'bold' }}>
+              - {item.name} - {item.description}{' '}
+            </Text>
+          ))}
+          <View style={styles.separator} />
+          <Text>{booking.package.description}</Text>
+        </View>
         <View style={styles.separator} />
-        <Text>{booking.package.description}</Text>
-        {/* Additional package details can go here */}
-      </View>
-
-      {/* Cancel Booking Button */}
-      <View style={styles.separator} />
-                 {booking.status === "PENDING" && (
-              <Pressable style={[styles.cancelButton, {backgroundColor: "green",marginBottom: 5}]} onPress={handleAcceptPress}>
-              <Text style={[styles.buttonText, {fontWeight:"bold" }]}>ACCEPT REQUEST</Text>
+        {booking.status === 'PENDING' && (
+          <Pressable
+            style={[
+              styles.cancelButton,
+              { backgroundColor: 'green', marginBottom: 5 },
+            ]}
+            onPress={handleAcceptPress}
+          >
+            <Text style={[styles.buttonText, { fontWeight: 'bold' }]}>
+              ACCEPT REQUEST
+            </Text>
+          </Pressable>
+        )}
+        {booking.status !== 'DECLINED' &&
+          booking.status !== 'CANCELLED' &&
+          booking.status !== 'COMPLETED' && (
+            <Pressable style={styles.cancelButton} onPress={handleCancelPress}>
+              <Text style={[styles.buttonText, { fontWeight: 'bold' }]}>
+                {booking.status !== 'CONFIRMED'
+                  ? 'CANCEL REQUEST'
+                  : 'CANCEL BOOKING'}
+              </Text>
             </Pressable>
-      ) }
-      { booking.status !== "DECLINED" && booking.status !== "CANCELLED"  && booking.status !== "COMPLETED" && (
-              <Pressable style={styles.cancelButton} onPress={handleCancelPress} >
-              <Text style={[styles.buttonText, {fontWeight:"bold"}]}>{booking.status !== "CONFIRMED"?"CANCEL REQUEST":"CANCEL BOOKING"}</Text>
-            </Pressable>
-      ) }
-           {/* {booking.status === "COMPLETED" && (
-              <Pressable style={[styles.cancelButton, {backgroundColor: "purple"}]}>
-              <Text style={[styles.buttonText, {fontWeight:"bold" }]}>VIEW REVIEW</Text>
-            </Pressable>
-      ) } */}
-    </ScrollView>
+          )}
+      </ScrollView>
     </>
   );
 };
@@ -260,18 +232,24 @@ interface ErrorState {
 
 interface ConfirmationState {
   open: boolean;
-  event: "ACCEPT" | "CANCEL" | "CLOSED";
+  event: 'ACCEPT' | 'CANCEL' | 'CLOSED';
 }
 
-
-
-function  VendorBookingView({navigation, route}: VendorBookingViewScreenProps) {
+function VendorBookingView({
+  navigation,
+  route,
+}: VendorBookingViewScreenProps) {
   const { _id } = route.params;
   const { getToken } = useAuth();
-  const [errorState, setErrorState] = useState<ErrorState>({error: false, message: ""})
+  const [errorState, setErrorState] = useState<ErrorState>({
+    error: false,
+    message: '',
+  });
   const [loading, setLoading] = useState(true);
   const [booking, setBooking] = useState<VendorBookingType | undefined>();
-  const [confirmationState, setConfirmationState] = useState<ConfirmationState>({open: false, event: "ACCEPT"})
+  const [confirmationState, setConfirmationState] = useState<ConfirmationState>(
+    { open: false, event: 'ACCEPT' }
+  );
   const [success, setSuccess] = useState(false);
   const [reload, setReload] = useState(false);
 
@@ -294,7 +272,7 @@ function  VendorBookingView({navigation, route}: VendorBookingViewScreenProps) {
       const data = await res.json();
 
       if (res.status === 200) {
-        setBooking(data)
+        setBooking(data);
 
         setLoading(false);
         console.log('USER DATA SUCCESSFULLY LOADED');
@@ -309,146 +287,174 @@ function  VendorBookingView({navigation, route}: VendorBookingViewScreenProps) {
       }
     } catch (error: any) {
       console.error(`Error fetching user (${error.code}): ${error} `);
-      setErrorState({error: true, message: `${error}`});
+      setErrorState({ error: true, message: `${error}` });
       setLoading(false);
     } finally {
     }
   };
 
-  useEffect(() =>{
-    fetchBooking()
-  }, [reload])
+  useEffect(() => {
+    fetchBooking();
+  }, [reload]);
 
-
-  const handleBackPress = () => navigation.replace("VendorHome", {initialTab: booking?.status === "PENDING"?"Requests":"Bookings"});
-
-  // const onReviewPress = () => navigation.navigate("UserReview", { booking, event: event!  })
-  
-  // const handleViewVendor = () => navigation.navigate("VendorMenu", {vendorId: booking.client._id})
+  const handleBackPress = () =>
+    navigation.replace('VendorHome', {
+      initialTab: booking?.status === 'PENDING' ? 'Requests' : 'Bookings',
+    });
 
   const updateBooking = async (bookingId: string) => {
     setLoading(true);
-    setErrorState({error: false, message: ""});
+    setErrorState({ error: false, message: '' });
 
-    const token = await getToken({ template: "eventhand-vendor" });
+    const token = await getToken({ template: 'eventhand-vendor' });
 
-    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking/${booking?._id}/${confirmationState.event === "ACCEPT"?"confirm": "cancel"}`;
-    
+    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking/${booking?._id}/${confirmationState.event === 'ACCEPT' ? 'confirm' : 'cancel'}`;
+
     const request = {
-      method: "PATCH",
+      method: 'PATCH',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
     };
-  
 
     try {
       const response = await fetch(url, request);
 
-      // Check if the response is okay (status code in the range 200-299)
       if (!response.ok) {
-        const errorData = await response.json(); // Get the error message from the response
+        const errorData = await response.json(); 
         throw new Error(errorData.message || 'Something went wrong');
       }
 
       switch (response.status) {
         case 200:
-        case 201: // Success responses
-          setSuccess(true)
+        case 201: 
+          setSuccess(true);
           break;
-        
-        case 400: // Bad Request
+
+        case 400: 
           const badRequestData = await response.json();
-          throw new Error(badRequestData.message || 'Bad request. Please check your input.');
-        
-        case 401: // Unauthorized
+          throw new Error(
+            badRequestData.message || 'Bad request. Please check your input.'
+          );
+
+        case 401: 
           throw new Error('Unauthorized. Please log in and try again.');
-        
-        case 403: // Forbidden
-          throw new Error('Forbidden. You do not have permission to perform this action.');
-        
-        case 404: // Not Found
+
+        case 403: 
+          throw new Error(
+            'Forbidden. You do not have permission to perform this action.'
+          );
+
+        case 404:
           throw new Error('Resource not found. Please check the ID.');
-        
-        case 500: // Internal Server Error
+
+        case 500: 
           throw new Error('Server error. Please try again later.');
-        
-        default: // Other status codes
+
+        default: 
           throw new Error('Something went wrong. Please try again.');
       }
     } catch (err) {
       console.error('Error updating data:', err);
-      setErrorState({error: true, message :`Error updating data: ${err}`}); // Set error message
-      setConfirmationState({open: false, event: "CLOSED"});
+      setErrorState({ error: true, message: `Error updating data: ${err}` }); // Set error message
+      setConfirmationState({ open: false, event: 'CLOSED' });
       setSuccess(false);
     } finally {
-      setLoading(false); // Stop loading spinner
+      setLoading(false); 
     }
   };
 
   const onSuccessPress = () => {
-    setReload(!reload)
-    setConfirmationState({open: false, event: "CLOSED"});
+    setReload(!reload);
+    setConfirmationState({ open: false, event: 'CLOSED' });
     setSuccess(false);
   };
 
-
-  if(success){
-    return <SuccessScreen description={"Booking successfully cancelled"} buttonText={"Proceed"} onPress={onSuccessPress}/> 
+  if (success) {
+    return (
+      <SuccessScreen
+        description={'Booking successfully cancelled'}
+        buttonText={'Proceed'}
+        onPress={onSuccessPress}
+      />
+    );
   }
 
   const onErrorPress = () => {
-    navigation.goBack()
+    navigation.goBack();
+  };
+
+  if (errorState.error) {
+    return (
+      <ErrorScreen
+        description={errorState.message}
+        buttonText={'Try Again'}
+        onPress={onErrorPress}
+      />
+    );
   }
 
-  if(errorState.error){
-    return <ErrorScreen description={errorState.message} buttonText={'Try Again'} onPress={onErrorPress }/>  
-  }
+  const handleConfirmationCancel = () =>
+    setConfirmationState({ open: false, event: 'CLOSED' });
 
-
-  const handleConfirmationCancel = () => setConfirmationState({open: false, event: "CLOSED"})
-  
   const handleConfirmationConfirm = () => {
-    if(booking){
-      updateBooking(booking._id)
-    } else{
-      setConfirmationState({open: false, event: "CLOSED"})
-      setErrorState({error: true, message: "Booking does not exist"})
+    if (booking) {
+      updateBooking(booking._id);
+    } else {
+      setConfirmationState({ open: false, event: 'CLOSED' });
+      setErrorState({ error: true, message: 'Booking does not exist' });
     }
   };
 
-
-
-  if(confirmationState.open){
-    const title = confirmationState.event === "ACCEPT"? "Accept Request": booking?.status === "PENDING"? "Cancel Request": "Cancel Booking"
-    const description = confirmationState.event === "ACCEPT"? `Do you wish to accept your ${booking?.client.name}'s booking request?`: booking?.status === "PENDING"? `Do you wish to cancel ${booking?.client.name}'s booking request?`:  `Do you wish to cancel ${booking?.client.name}'s booking?`
-    return <ConfirmationDialog title={title} description={description} onCancel={handleConfirmationCancel} onConfirm={handleConfirmationConfirm}/>
+  if (confirmationState.open) {
+    const title =
+      confirmationState.event === 'ACCEPT'
+        ? 'Accept Request'
+        : booking?.status === 'PENDING'
+          ? 'Cancel Request'
+          : 'Cancel Booking';
+    const description =
+      confirmationState.event === 'ACCEPT'
+        ? `Do you wish to accept your ${booking?.client.name}'s booking request?`
+        : booking?.status === 'PENDING'
+          ? `Do you wish to cancel ${booking?.client.name}'s booking request?`
+          : `Do you wish to cancel ${booking?.client.name}'s booking?`;
+    return (
+      <ConfirmationDialog
+        title={title}
+        description={description}
+        onCancel={handleConfirmationCancel}
+        onConfirm={handleConfirmationConfirm}
+      />
+    );
   }
 
-
-  if(loading){
-    return  <Loading/>
+  if (loading) {
+    return <Loading />;
   }
-
 
   const handleAcceptPress = () => {
-    setConfirmationState({open: true, event: "ACCEPT"})
-  }
+    setConfirmationState({ open: true, event: 'ACCEPT' });
+  };
 
   const handleCancelPress = () => {
-    setConfirmationState({open: true, event: "CANCEL"})
+    setConfirmationState({ open: true, event: 'CANCEL' });
+  };
+
+  if (booking) {
+    return (
+      <BookingDetails
+        booking={booking}
+        handleAcceptPress={handleAcceptPress}
+        handleBackPress={handleBackPress}
+        handleCancelPress={handleCancelPress}
+      />
+    );
   }
 
-  if(booking){
-    return <BookingDetails  booking={booking} handleAcceptPress={handleAcceptPress} handleBackPress={handleBackPress} handleCancelPress={handleCancelPress}  />
-
-  } 
-
-
-  return <></>
+  return <></>;
 }
-
 
 const styles = StyleSheet.create({
   container: {
@@ -487,7 +493,7 @@ const styles = StyleSheet.create({
   statusContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom:10,
+    marginBottom: 10,
   },
   orderType: {
     fontSize: 16,
@@ -526,8 +532,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 8,
-    // backgroundColor: '#6200EE', // Example toolbar background color
-    // position: 'absolute',
     marginTop: 10,
     top: 0,
     left: 0,

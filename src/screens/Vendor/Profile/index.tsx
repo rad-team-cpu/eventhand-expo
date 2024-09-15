@@ -1,18 +1,13 @@
-import { useAuth, useUser } from '@clerk/clerk-expo';
-import { useNavigation } from '@react-navigation/native';
+import { useAuth } from '@clerk/clerk-expo';
 import { StatusBar } from 'expo-status-bar';
-import AntDesign from '@expo/vector-icons/AntDesign';
-import Entypo from '@expo/vector-icons/Entypo';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet, View, TextStyle, Pressable, Switch } from 'react-native';
+import { StyleSheet, Switch } from 'react-native';
 import Avatar from 'Components/Avatar';
 import Block from 'Components/Ui/Block';
 import Button from 'Components/Ui/Button';
 import Image from 'Components/Ui/Image';
 import Text from 'Components/Ui/Text';
 import useTheme from '../../../core/theme';
-import { HomeScreenNavigationProp, ScreenProps } from '../../../types/types';
 import Loading from '../../Loading';
 import FirebaseService from 'service/firebase';
 import { VendorContext } from 'Contexts/VendorContext';
@@ -23,12 +18,10 @@ function VendorProfile() {
   const [signOutErrMessage, setSignOutErrMessage] = useState('');
   const [avatarImage, setAvatarImage] = useState('');
   const { assets, sizes } = useTheme();
-  const [submitErrMessage, setSubmitErrMessage] = useState('');
   const { getToken } = useAuth();
   const [errorMessage, setErrorMessage] = useState('');
   const [isVisible, setIsVisible] = useState(false);
   const [loading, setLoading] = useState(false);
-  const navigation = useNavigation<HomeScreenNavigationProp>();
   const vendorContext = useContext(VendorContext);
 
   if (!vendorContext) {
@@ -51,7 +44,6 @@ function VendorProfile() {
     const newVisibility = !isVisible;
     setIsVisible(newVisibility);
     const token = getToken({ template: 'event-hand-jwt' });
-
 
     try {
       const response = await axios.patch(

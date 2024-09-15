@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   ScrollView,
   TextInput,
@@ -6,7 +6,6 @@ import {
   View,
   Text,
 } from 'react-native';
-import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 import { UserContext } from 'Contexts/UserContext';
@@ -16,7 +15,7 @@ import Image from 'Components/Ui/Image';
 import useTheme from '../../../core/theme';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Loading from 'screens/Loading';
-import { HomeScreenNavigationProp, Vendor } from 'types/types';
+import { HomeScreenNavigationProp } from 'types/types';
 
 interface VendorListItem {
   _id: string;
@@ -269,7 +268,7 @@ export default function VendorList() {
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
     if (query.trim() === '') {
-      setFilteredVendors(allVendors); // Show all vendors if search query is empty
+      setFilteredVendors(allVendors); 
     } else {
       const searchResults = allVendors.filter((vendor) =>
         vendor.name.toLowerCase().includes(query.toLowerCase())

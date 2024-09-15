@@ -7,31 +7,23 @@ import useTheme from 'src/core/theme';
 import Button from 'Components/Ui/Button';
 import {
   Modal,
-  Pressable,
   ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
-import { AntDesign, Entypo } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
 import axios from 'axios';
 import {
-  ScreenProps,
   HomeScreenNavigationProp,
   Tag,
-  Review,
 } from 'types/types';
 import Loading from 'screens/Loading';
-
-import { GetMessagesInput, WebSocketContext } from 'Contexts/WebSocket';
-import { UserContext } from 'Contexts/UserContext';
 import StarRating from 'Components/Ui/StarRating';
-import { faker } from '@faker-js/faker';
 import { useAuth } from '@clerk/clerk-react';
 import VendorHome from 'screens/Vendor/Home';
 import { VendorContext } from 'Contexts/VendorContext';
-import MenuForm from '../Profile/MenuForm';
 
 interface PackageType {
   _id: string;
@@ -157,7 +149,6 @@ const MyMenu = () => {
 
       if (res.status === 200) {
         setVendorDetails({ ...data });
-        // setReviews({...data.reviews})
 
         console.log('VENDOR DATA SUCCESSFULLY LOADED');
       } else if (res.status === 400) {
@@ -171,8 +162,6 @@ const MyMenu = () => {
       }
     } catch (error: any) {
       console.error(`Error fetching vendor (${error.code}): ${error} `);
-      // setErrMessage(`Error fetching event (${error.code}): ${error} `)
-      // setError(true);
     } finally {
       setLoading(false);
     }
@@ -257,9 +246,6 @@ const MyMenu = () => {
     );
   };
 
-  const onPressPackage = (vendorPackage: PackageType) => {
-    // navigation.navigate('BookingConfirmation', BookingConfirmationProps);
-  };
 
   useEffect(() => {
     fetchVendor();
@@ -269,13 +255,6 @@ const MyMenu = () => {
     return <Loading />;
   }
 
-  // if (!vendor) {
-  //   return (
-  //     <Block safe marginTop={sizes.md}>
-  //       <Loading />
-  //     </Block>
-  //   );
-  // }
 
   if (vendorDetails) {
     return (
@@ -316,19 +295,10 @@ const MyMenu = () => {
                   {vendorDetails.name}
                 </Text>
                 <Block row align='center'>
-                  {/* {vendor.tags.map((tag: Tag, index) => (
-                    <Text
-                      key={`${tag._id} - ${index}`}
-                      className='items-center text-white mx-0.5 capitalize font-light text-xs'
-                    >
-                      - {tag.name} -
-                    </Text>
-                  ))}  */}
+                 
                 </Block>
               </Block>
             </Image>
-
-            {/* profile: stats */}
             <Block
               flex={0}
               radius={sizes.md}
@@ -370,7 +340,6 @@ const MyMenu = () => {
                 </Block>
               </Block>
             </Block>
-            {/* profile: about me */}
             <Block
               paddingHorizontal={sizes.sm}
               marginTop={sizes.m}
@@ -391,7 +360,7 @@ const MyMenu = () => {
                           borderRadius: 12,
                           marginRight: 16,
                           position: 'relative',
-                          padding: 8, // Add padding for internal spacing
+                          padding: 8, 
                         }}
                       >
                         <View
@@ -536,7 +505,6 @@ const MyMenu = () => {
                 ))}
               </ScrollView>
             </Block>
-
             <Modal
               visible={modalVisible}
               transparent={true}
