@@ -81,13 +81,14 @@ type Category = {
 interface EventInputWelcomeProps {
   onBackBtnPress: () => boolean | void;
   onBtnPress: () => void;
-
+  canGoBack: boolean
 }
 
 const EventFormWelcome = (props: EventInputWelcomeProps) => {
   const {
     onBackBtnPress,
     onBtnPress,
+    canGoBack
   } = props;
   const [isPressed, setIsPressed] = useState(false);
   const {  sizes,  } = useTheme();
@@ -99,7 +100,7 @@ const EventFormWelcome = (props: EventInputWelcomeProps) => {
       <Pressable onPress={onBackBtnPress}>
         <Block className="flex flex-row mb-2">
           <AntDesign name="back" size={20} color={"#CB0C9F"} />
-          <Text className="ml-1 text-primary">Go back</Text>
+          <Text className="ml-1 text-primary">{canGoBack? "go back":"Sign out"}</Text>
         </Block>
       </Pressable>
       <Text style={{...styles.title, textAlign: "center" }}>EVENT CREATION</Text>

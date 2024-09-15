@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Alert,
   GestureResponderEvent,
+  ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { BookingType, UserBookingViewScreenProps } from 'types/types';
@@ -63,7 +64,7 @@ const BookingDetails = (props: BookingDetailsProps) => {
   return (
     <>
       <Toolbar onBackPress={onBackPress} />
-      <View style={styles.container}>
+      <ScrollView style={styles.container}>
         <View style={styles.vendorContainer}>
           <Image
             source={{ uri: booking.vendor.logo }}
@@ -122,7 +123,7 @@ const BookingDetails = (props: BookingDetailsProps) => {
               <Text style={[styles.buttonText, {fontWeight:"bold" }]}>REVIEW</Text>
             </Pressable>
       ) }
-    </View>
+    </ScrollView>
     </>
   );
 };

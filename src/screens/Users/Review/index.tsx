@@ -10,6 +10,7 @@ import {
   GestureResponderEvent,
   TextInput,
   BackHandler,
+  ScrollView,
 } from "react-native";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import {
@@ -178,7 +179,7 @@ const BookingDetails = (props: BookingDetailsProps) => {
   return (
     <>
       <Toolbar onBackPress={onBackPress} />
-      <View style={styles.container}>
+      <ScrollView style={styles.container}>
         {/* Vendor Information */}
         <View style={styles.vendorContainer}>
           <Image
@@ -226,7 +227,7 @@ const BookingDetails = (props: BookingDetailsProps) => {
             CONFIRM
           </Text>
         </Pressable>
-      </View>
+      </ScrollView>
     </>
   );
 };

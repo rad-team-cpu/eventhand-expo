@@ -41,10 +41,19 @@ function VendorProfile() {
   const downloadAvatarImage = async (profilePicturePath: string) => {
     const firebaseService = FirebaseService.getInstance();
 
+
     const profilePictureUrl =
       await firebaseService.getProfilePicture(profilePicturePath);
 
-    setAvatarImage(profilePictureUrl);
+      if(profilePictureUrl){
+        setAvatarImage(profilePictureUrl);
+      }
+
+      if(profilePictureUrl == null){
+        setAvatarImage(vendor.logo!)
+
+      }
+
   };
 
   const handleToggleVisibility = async () => {

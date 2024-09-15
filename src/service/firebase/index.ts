@@ -148,12 +148,14 @@ class FirebaseService {
   }
 
   async getProfilePicture(path: string) {
-    const profilePictureRef = ref(this.storage, path);
     try {
+      const profilePictureRef = ref(this.storage, path);
       const profileAvatarUrl = await getDownloadURL(profilePictureRef);
+      console.log(profileAvatarUrl)
       return profileAvatarUrl;
     } catch (error: any) {
-      throw error;
+      console.log(error);
+      return null
     }
   }
 }

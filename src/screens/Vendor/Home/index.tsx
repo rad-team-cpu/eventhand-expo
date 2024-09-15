@@ -169,7 +169,7 @@ const VendorHome = ({ navigation, route }: VendorHomeScreenProps) => {
   const fetchVendor = async () => {
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors/${userId}`;
 
-    const token = getToken({ template: "event-hand-jwt" });
+    const token = getToken({ template: "eventhand-vendor" });
 
     const request = {
       method: "GET",

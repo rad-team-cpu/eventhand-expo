@@ -7,31 +7,24 @@ import useTheme from 'src/core/theme';
 import Button from 'Components/Ui/Button';
 import {
   Modal,
-  Pressable,
   ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
-import { AntDesign, Entypo } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
 import axios from 'axios';
 import {
-  ScreenProps,
   HomeScreenNavigationProp,
   Tag,
-  Review,
 } from 'types/types';
 import Loading from 'screens/Loading';
 
-import { GetMessagesInput, WebSocketContext } from 'Contexts/WebSocket';
-import { UserContext } from 'Contexts/UserContext';
 import StarRating from 'Components/Ui/StarRating';
-import { faker } from '@faker-js/faker';
 import { useAuth } from '@clerk/clerk-react';
 import VendorHome from 'screens/Vendor/Home';
 import { VendorContext } from 'Contexts/VendorContext';
-import MenuForm from '../Profile/MenuForm';
 
 interface PackageType {
   _id: string;
