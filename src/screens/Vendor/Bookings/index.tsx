@@ -53,7 +53,7 @@ type VendorBookingType = {
   client: {
     _id: string;
     name: string;
-    profilePicture: string;
+    profilePicture?: string;
     contactNumber: string;
     email: string;
   };
@@ -94,18 +94,27 @@ const BookingDetails = (props: BookingDetailsProps) => {
     throw new Error('Component must be under Websocket Provider!!');
   }
 
-  const downloadAvatar = async (profilePicturePath: string) => {
+  
+  const downloadAvatar= async (profilePicturePath: string) => {
     const firebaseService = FirebaseService.getInstance();
+
 
     const profilePictureUrl =
       await firebaseService.getProfilePicture(profilePicturePath);
 
-    setAvatar(profilePictureUrl);
+      if(profilePictureUrl !== null){
+        setAvatar(profilePictureUrl);
+
+      }else {
+        setAvatar(profilePicturePath);
+      }
   };
 
   useEffect(() => {
-    downloadAvatar(booking.client.profilePicture);
-  });
+    if(booking.client.profilePicture){
+      downloadAvatar(booking.client.profilePicture);
+    }
+  })
 
   const { sendMessage } = webSocket;
   const { vendor } = vendorContext;

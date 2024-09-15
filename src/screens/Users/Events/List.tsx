@@ -6,6 +6,7 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import {
   FlatList,
   Pressable,
+  RefreshControl,
   StatusBar,
   StyleSheet,
   Text,
@@ -121,9 +122,10 @@ function EventList() {
 
   const { user, eventList, setEventList } = userContext;
   const [page, setPage] = useState(eventList.currentPage);
+  const [refresh, setRefresh ] = useState(false)
 
   const fetchMoreEvents = async () => {
-    setLoading(true);
+    setRefresh(true);
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/user/${user._id}?page=${page}&limit=50`;
     console.log(url);
 
@@ -165,7 +167,7 @@ function EventList() {
         message: `Error fetching event (${error.code}): ${error} `,
       });
     } finally {
-      setLoading(false);
+      setRefresh(false);
     }
   };
 
@@ -202,6 +204,10 @@ function EventList() {
   if (loading) {
     return <Loading />;
   }
+
+  const triggerReload = async () => {
+    await fetchMoreEvents()
+  };
 
   const onEndReached = () => {
     if (page < eventList.totalPages) {
@@ -267,7 +273,17 @@ function EventList() {
               confirmedBookings={item.confirmedBookings}
               cancelledOrDeclinedBookings={item.cancelledOrDeclinedBookings}
             />
+            
           )}
+          refreshControl={
+            <RefreshControl
+              refreshing={refresh}  // Controls the loading spinner
+              onRefresh={()=> triggerReload()}    // Function to call on pull-to-refresh
+              colors={['#ff0000']}     // Spinner color (for Android)
+              titleColor={'#ff0000'}   // Title color (for iOS)
+              progressBackgroundColor={'#fff'}  // Background color of the spinner
+            />
+          }
           onEndReached={onEndReached}
           ListFooterComponent={renderFooter}
         />

@@ -1,8 +1,8 @@
 module.exports = {
-  name: "eventhand-expo",
-  slug: "eventhand-expo",
-  version: "1.0.0",
   expo: {
+    name: "eventhand-expo",
+    slug: "eventhand-expo",
+    version: "1.0.0",
     owner: "rad-team-cpu",
     icon: "./src/assets/images/applogo.png",
     splash: {

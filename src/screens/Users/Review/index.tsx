@@ -24,7 +24,6 @@ import { UserContext } from "Contexts/UserContext";
 import SuccessScreen from "Components/Success";
 import ErrorScreen from "Components/Error";
 
-
 type StarRatingProps = {
   maxStars?: number;
   initialRating?: number;
@@ -275,7 +274,7 @@ interface ReviewInputType {
 
 function UserReview({ navigation, route }: UserReviewScreenProps) {
   const { booking, event } = route.params;
-  const { isLoaded, getToken } = useAuth();
+  const {  isLoaded, getToken } = useAuth();
   const [review, setReview] = useState<Review>({ rating: 0, comment: "" });
   const [confirmReview, setConfirmReview] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -332,7 +331,7 @@ function UserReview({ navigation, route }: UserReviewScreenProps) {
     setLoading(true);
     setError({ error: false, message: "" });
 
-    const token = await getToken({ template: "event-hand-jwt" });
+    const token = await getToken({ template: "eventhand-client" });
 
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/reviews`;
 

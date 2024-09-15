@@ -94,6 +94,7 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
   const { initialTab, noFetch } = route.params;
   const { getToken, userId, isLoaded, signOut } = useAuth();
   const [loading, setLoading] = useState(!noFetch);
+  const [reload, setReload] = useState(false);
   const [error, setError] = useState(false);
   const userContext = useContext(UserContext);
   const webSocket = useContext(WebSocketContext);
@@ -175,6 +176,7 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
   const onRetryPress = () => {
     console.log("RECONNECTING...");
     reconnect();
+    setReload(!reload);
     setLoading(true);
     setError(false);
   };
@@ -188,7 +190,7 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
       setError(true);
       setLoading(false);
     }
-  }, [connectionTimeout, isConnected]);
+  }, [connectionTimeout, isConnected, reload]);
 
   if (loading) {
     return <Loading />;
