@@ -21,10 +21,12 @@ import SuccessScreen from 'Components/Success';
 import { GetMessagesInput, WebSocketContext } from 'Contexts/WebSocket';
 import { ObjectId } from 'bson';
 import { UserContext } from 'Contexts/UserContext';
+import { useAuth } from '@clerk/clerk-react';
 
 const BookingDetails = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const route = useRoute();
+  const { getToken } = useAuth();
   const { assets, sizes, gradients } = useTheme();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -85,6 +87,8 @@ const BookingDetails = () => {
 
   const onPressConfirm = async () => {
     setLoading(true);
+    const token = await getToken({ template: 'event-hand-jwt' });
+
     if (!selectedOrderType) {
       setError('Please select an order type.');
       setLoading(false);
@@ -115,6 +119,7 @@ const BookingDetails = () => {
         {
           headers: {
             'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -136,16 +141,17 @@ const BookingDetails = () => {
   const onSuccessPress = () => {
     navigation.reset({
       index: 1,
-      routes: [{
-        name: "Home",
-        params: {}
-      },
-      {
-        name: "EventView",
-        params: {...event}
-      }
-    ]
-  });
+      routes: [
+        {
+          name: 'Home',
+          params: {},
+        },
+        {
+          name: 'EventView',
+          params: { ...event },
+        },
+      ],
+    });
   };
 
   if (loading) {
