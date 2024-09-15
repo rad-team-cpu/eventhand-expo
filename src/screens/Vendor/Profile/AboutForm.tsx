@@ -84,7 +84,7 @@ const AboutForm = ({ onSubmit, onGoBack, initialData }: AboutFormProps) => {
   const fetchTags = async () => {
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/tags`;
 
-    const token = getToken({ template: 'event-hand-jwt' });
+    const token = await getToken({ template: 'eventhand-vendor' });
 
     const request = {
       method: 'GET',
@@ -146,7 +146,7 @@ const AboutForm = ({ onSubmit, onGoBack, initialData }: AboutFormProps) => {
     }
 
     try {
-      const token = await getToken({ template: 'event-hand-jwt' });
+      const token = await getToken({ template: 'eventhand-vendor' });
 
       const response = await axios.patch(
         `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors/${vendorId}`,
@@ -176,7 +176,7 @@ const AboutForm = ({ onSubmit, onGoBack, initialData }: AboutFormProps) => {
     const tagIds = tags.map((tag) => tag._id);
 
     try {
-      const token = await getToken({ template: 'event-hand-jwt' });
+      const token = await getToken({ template: 'eventhand-vendor' });
 
       const response = await axios.patch(
         `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors/${vendorId}/tags`,

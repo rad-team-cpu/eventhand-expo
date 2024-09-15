@@ -144,7 +144,7 @@ function VendorBookingList() {
     setLoading(true);
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking/vendor/${vendorId}?page=${page}&limit=${limit}&status=${status}`;
 
-    const token = getToken({ template: 'eventhand-vendor' });
+    const token = await  getToken({ template: 'eventhand-vendor' });
 
     const request = {
       method: 'GET',

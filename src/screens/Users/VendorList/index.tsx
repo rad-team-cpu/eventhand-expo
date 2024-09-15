@@ -144,7 +144,7 @@ export default function VendorList() {
 
   const fetchVendors = async () => {
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors/${userId}/list`;
-    const token = getToken({ template: 'event-hand-jwt' });
+    const token = await getToken({ template: 'eventhand-client' });
 
     const request = {
       method: 'GET',

@@ -139,7 +139,7 @@ const VerificationForm = ({
           ? (uploadResult as unknown as UploadResult).metadata.fullPath
           : null;
       }
-      const token = getToken({ template: 'event-hand-jwt' });
+      const token = await getToken({ template: 'eventhand-vendor' });
 
       const response = await axios.patch(
         `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors/${vendorId}`,

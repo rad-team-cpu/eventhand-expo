@@ -110,7 +110,7 @@ const BlockedDaysForm = ({
     const vendorId = vendor?.id;
 
     try {
-      const token = await getToken({ template: 'event-hand-jwt' });
+      const token = await getToken({ template: 'eventhand-vendor' });
 
       const blockedDays = selectedDays.map(
         (dayId) => days.find((day) => day.id === dayId)?.name

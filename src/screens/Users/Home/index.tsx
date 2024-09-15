@@ -127,7 +127,8 @@ const Home = ({ navigation, route }: HomeScreenProps) => {
   const fetchUserId = async () => {
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/users/${userId}/events`;
 
-    const token = getToken({ template: "eventhand-client" });
+    const token = await getToken({ template: "eventhand-client" });
+    console.log(token)
 
     const request = {
       method: "GET",

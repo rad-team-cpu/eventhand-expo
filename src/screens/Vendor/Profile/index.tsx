@@ -49,7 +49,7 @@ function VendorProfile() {
   const handleToggleVisibility = async () => {
     const newVisibility = !isVisible;
     setIsVisible(newVisibility);
-    const token = getToken({ template: 'event-hand-jwt' });
+    const token = await getToken({ template: 'eventhand-vendor' });
 
     try {
       const response = await axios.patch(

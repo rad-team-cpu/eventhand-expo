@@ -156,7 +156,7 @@ const ProfileForm = ({ navigation }: ProfileFormScreenProps) => {
           : null;
       }
 
-      const token = getToken({ template: 'eventhand-client' });
+      const token = await getToken({ template: 'eventhand-client' });
 
       const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/users`;
 

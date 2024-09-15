@@ -179,7 +179,7 @@ const MenuForm = () => {
     setLoading(true);
     const vendorId = vendor?.id;
     const { packages } = input;
-    const token = getToken({ template: 'event-hand-jwt' });
+    const token = await getToken({ template: 'eventhand-vendor' });
 
     const firebaseService = FirebaseService.getInstance();
 
@@ -274,7 +274,7 @@ const MenuForm = () => {
   const fetchTags = async () => {
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/tags`;
 
-    const token = getToken({ template: 'event-hand-jwt' });
+    const token = await getToken({ template: 'eventhand-vendor' });
 
     const request = {
       method: 'GET',

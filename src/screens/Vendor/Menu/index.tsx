@@ -108,7 +108,7 @@ const MyMenu = () => {
   const { vendor } = vendorContext;
 
   const handleSaveBio = async () => {
-    const token = await getToken({ template: 'event-hand-jwt' });
+    const token = await getToken({ template: 'eventhand-vendor' });
     try {
       const response = await axios.patch(
         `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors/${vendor.id}`,
@@ -132,7 +132,7 @@ const MyMenu = () => {
   const fetchVendor = useCallback(async () => {
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors/${vendor.id}/packagesandtags`;
 
-    const token = getToken({ template: 'event-hand-jwt' });
+    const token = await getToken({ template: 'eventhand-vendor' });
 
     const request = {
       method: 'GET',
