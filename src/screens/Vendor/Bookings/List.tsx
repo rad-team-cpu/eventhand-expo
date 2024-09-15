@@ -266,7 +266,7 @@ function VendorBookingList() {
                   : styles.tabBarText
               }
             >
-              Cancel/Decline
+              Cancelled
             </Text>
           </Pressable>
         </View>
