@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
@@ -140,7 +139,6 @@ const Block = (props: IBlockProps) => {
     },
   ]) as ViewStyle;
 
-  // generate component testID or accessibilityLabel based on Platform.OS
   const blockID =
     Platform.OS === "android" ? { accessibilityLabel: id } : { testID: id };
 
@@ -151,14 +149,6 @@ const Block = (props: IBlockProps) => {
       </SafeAreaView>
     );
   }
-
-  // if (keyboard) {
-  //   return (
-  //     <KeyboardAwareScrollView {...blockID} {...rest} style={blockStyles}>
-  //       {children}
-  //     </KeyboardAwareScrollView>
-  //   );
-  // }
 
   if (scroll) {
     return (

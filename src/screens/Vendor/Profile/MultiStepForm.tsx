@@ -1,11 +1,9 @@
 import React, { useCallback, useState } from 'react';
-import { View, Text, Button, StyleSheet, BackHandler } from 'react-native';
-import VendorProfileForm from './Form';
+import { View, Text,  StyleSheet, BackHandler } from 'react-native';
 import { ScreenProps, VendorProfileFormScreenProps } from 'types/types';
 import VerificationForm from './VerificationForm';
 import AboutForm from './AboutForm';
 import AddressForm from './AddressForm';
-import MenuForm from './MenuForm';
 import { useFocusEffect } from '@react-navigation/native';
 import BlockedDays from './BlockedDays';
 
@@ -121,16 +119,6 @@ const MultiStepForm = ({ navigation, route }: VendorProfileFormScreenProps) => {
   return (
     <View style={{ flex: 1 }}>
       <Stepper currentStep={currentStep} totalSteps={totalSteps} />
-
-      {/* {currentStep === 1 && (
-        <VendorProfileForm
-          navigation={navigation}
-          route={route}
-          onSubmit={handleConfirm}
-          initialData={formData.vendorProfile}
-          onGoBack={handleGoBack}
-        />
-      )} */}
       {currentStep === 1 && (
         <VerificationForm
           navigation={navigation}
@@ -166,15 +154,6 @@ const MultiStepForm = ({ navigation, route }: VendorProfileFormScreenProps) => {
           initialData={formData.blockedDays}
         />
       )}
-      {/* {currentStep === 5 && (
-        <MenuForm
-          navigation={navigation}
-          route={route}
-          onConfirm={handleConfirm}
-          onGoBack={handleGoBack}
-          onSkip={handleConfirm}
-        />
-      )} */}
     </View>
   );
 };

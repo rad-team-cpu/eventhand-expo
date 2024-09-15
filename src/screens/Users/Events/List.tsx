@@ -1,31 +1,24 @@
-import { MaterialIcons, AntDesign } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
-import { UserContext } from "Contexts/UserContext";
-import { format } from "date-fns/format";
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { MaterialIcons, AntDesign } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { UserContext } from 'Contexts/UserContext';
+import { format } from 'date-fns/format';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
   FlatList,
   Pressable,
   StatusBar,
   StyleSheet,
   Text,
   View,
-} from "react-native";
-import Image from "Components/Ui/Image";
-import useTheme from "../../../core/theme";
-import { EventInfo, HomeScreenNavigationProp } from "types/types";
-import { isAfter, isBefore, isToday } from "date-fns";
-import { useAuth } from "@clerk/clerk-expo";
-import { SafeAreaView } from "react-native-safe-area-context";
-import Block from "Components/Ui/Block";
-import Loading from "screens/Loading";
+} from 'react-native';
+import Image from 'Components/Ui/Image';
+import useTheme from '../../../core/theme';
+import { EventInfo, HomeScreenNavigationProp } from 'types/types';
+import { isAfter, isBefore, isToday } from 'date-fns';
+import { useAuth } from '@clerk/clerk-expo';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Block from 'Components/Ui/Block';
+import Loading from 'screens/Loading';
 
 interface FloatingCreateButtonProps {
   onPress: () => void;
@@ -33,18 +26,17 @@ interface FloatingCreateButtonProps {
 
 const FloatingCreateButton = ({ onPress }: FloatingCreateButtonProps) => {
   return (
-    <View testID="test-events" style={styles.floatingBtnContainer}>
+    <View testID='test-events' style={styles.floatingBtnContainer}>
       <Pressable
         style={styles.floatingbutton}
         onPress={onPress}
         android_ripple={{ radius: 60 }}
       >
-        <MaterialIcons name="add" size={24} color="white" />
+        <MaterialIcons name='add' size={24} color='white' />
       </Pressable>
     </View>
   );
 };
-
 
 const EventListItem = ({
   _id,
@@ -57,11 +49,11 @@ const EventListItem = ({
   pendingBookings,
   cancelledOrDeclinedBookings,
 }: EventInfo) => {
-  const dateString = format(date, "MMMM dd, yyyy");
+  const dateString = format(date, 'MMMM dd, yyyy');
   const navigation = useNavigation<HomeScreenNavigationProp>();
 
   const onPress = () =>
-    navigation.navigate("EventView", {
+    navigation.navigate('EventView', {
       _id,
       name,
       address,
@@ -77,7 +69,7 @@ const EventListItem = ({
     <Pressable
       key={_id}
       style={[styles.itemContainer]}
-      android_ripple={{ color: "#c0c0c0" }}
+      android_ripple={{ color: '#c0c0c0' }}
       onPress={onPress}
     >
       <Text style={styles.dateText}>{name}</Text>
@@ -87,7 +79,7 @@ const EventListItem = ({
           <Text
             style={styles.capacityText}
             numberOfLines={1}
-            ellipsizeMode="tail"
+            ellipsizeMode='tail'
           >
             {address}
           </Text>
@@ -95,15 +87,9 @@ const EventListItem = ({
       )}
       <View style={styles.separator} />
       <View style={styles.row}>
-        {/* <Text style={styles.budgetText}>
-          Budget:{' '}
-          {budget !== 0
-            ? `₱${budget.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-            : '∞'}
-        </Text> */}
         <Text style={styles.budgetText}>{dateString}</Text>
         <Text style={styles.capacityText}>
-          Guests: {attendees !== 0 ? `${attendees} pax` : "TBD"}
+          Guests: {attendees !== 0 ? `${attendees} pax` : 'TBD'}
         </Text>
       </View>
     </Pressable>
@@ -119,19 +105,19 @@ function EventList() {
   const userContext = useContext(UserContext);
   const { assets, sizes } = useTheme();
   const { getToken } = useAuth();
-  const [selectedTab, setSelectedTab] = useState<"Upcoming" | "Past">(
-    "Upcoming"
+  const [selectedTab, setSelectedTab] = useState<'Upcoming' | 'Past'>(
+    'Upcoming'
   );
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<ErrorState>({ error: false, message: "" });
+  const [error, setError] = useState<ErrorState>({ error: false, message: '' });
 
   const navigation = useNavigation<HomeScreenNavigationProp>();
 
   if (!userContext) {
-    throw new Error("UserInfo must be used within a UserProvider");
+    throw new Error('UserInfo must be used within a UserProvider');
   }
 
-  const onCreatePress = () => navigation.navigate("EventForm");
+  const onCreatePress = () => navigation.navigate('EventForm');
 
   const { user, eventList, setEventList } = userContext;
   const [page, setPage] = useState(eventList.currentPage);
@@ -139,15 +125,15 @@ function EventList() {
   const fetchMoreEvents = async () => {
     setLoading(true);
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/user/${user._id}?page=${page}&limit=50`;
-    console.log(url)
+    console.log(url);
 
-    const token = getToken({ template: "eventhand-client" });
+    const token = getToken({ template: 'eventhand-client' });
 
     const request = {
-      method: "GET",
+      method: 'GET',
       headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
     };
@@ -157,20 +143,20 @@ function EventList() {
       const data = await res.json();
 
       if (res.status === 200) {
-        if(data.events.length < 1){
-          navigation.navigate("EventForm");
+        if (data.events.length < 1) {
+          navigation.navigate('EventForm');
         }
 
-        setEventList(data)
-        console.log("EVENT DATA SUCCESSFULLY LOADED");
+        setEventList(data);
+        console.log('EVENT DATA SUCCESSFULLY LOADED');
       } else if (res.status === 400) {
-        throw new Error("Bad request - Invalid data.");
+        throw new Error('Bad request - Invalid data.');
       } else if (res.status === 401) {
-        throw new Error("Unauthorized - Authentication failed.");
+        throw new Error('Unauthorized - Authentication failed.');
       } else if (res.status === 404) {
-        throw new Error("Event Not Found");
+        throw new Error('Event Not Found');
       } else {
-        throw new Error("Unexpected error occurred.");
+        throw new Error('Unexpected error occurred.');
       }
     } catch (error: any) {
       console.error(`Error fetching event (${error.code}): ${error} `);
@@ -185,7 +171,6 @@ function EventList() {
 
   useEffect(() => {
     fetchMoreEvents();
-
   }, []);
 
   const events = useCallback(() => {
@@ -193,41 +178,29 @@ function EventList() {
     const upcomingEvents = events.filter(
       (event) => isAfter(event.date, new Date()) || isToday(event.date)
     );
-    const pastEvents = events.filter((event) =>
-      isBefore(event.date, new Date()) && !isToday(event.date)
+    const pastEvents = events.filter(
+      (event) => isBefore(event.date, new Date()) && !isToday(event.date)
     );
 
     switch (selectedTab) {
-      case "Past":
+      case 'Past':
         return pastEvents;
-      case "Upcoming":
+      case 'Upcoming':
         return upcomingEvents;
     }
   }, [selectedTab, eventList]);
 
   const renderFooter = () => {
-    // if (loading) {
-    //   return <ActivityIndicator size="large" color="#CB0C9F" />;
-    // }
     if (page === eventList.totalPages) {
       return (
-        <Text style={{ textAlign: "center", padding: 10 }}>No more events</Text>
+        <Text style={{ textAlign: 'center', padding: 10 }}>No more events</Text>
       );
     }
-
-    // if (error.error) {
-    // return (
-    //     <Text style={{ textAlign: "center", padding: 10 }}>
-    //         Error loading more events
-    //     </Text>
-    //   );
-    // }
-
     return null;
   };
 
-  if(loading){
-    return <Loading/>
+  if (loading) {
+    return <Loading />;
   }
 
   const onEndReached = () => {
@@ -245,13 +218,13 @@ function EventList() {
             <Pressable
               style={[
                 styles.tabBarButton,
-                selectedTab === "Upcoming" && styles.tabBarButtonSelected,
+                selectedTab === 'Upcoming' && styles.tabBarButtonSelected,
               ]}
-              onPress={() => setSelectedTab("Upcoming")}
+              onPress={() => setSelectedTab('Upcoming')}
             >
               <Text
                 style={
-                  selectedTab === "Upcoming"
+                  selectedTab === 'Upcoming'
                     ? styles.tabBarTextSelected
                     : styles.tabBarText
                 }
@@ -262,13 +235,13 @@ function EventList() {
             <Pressable
               style={[
                 styles.tabBarButton,
-                selectedTab === "Past" && styles.tabBarButtonSelected,
+                selectedTab === 'Past' && styles.tabBarButtonSelected,
               ]}
-              onPress={() => setSelectedTab("Past")}
+              onPress={() => setSelectedTab('Past')}
             >
               <Text
                 style={
-                  selectedTab === "Past"
+                  selectedTab === 'Past'
                     ? styles.tabBarTextSelected
                     : styles.tabBarText
                 }
@@ -306,16 +279,16 @@ function EventList() {
 
   return (
     <Block safe>
-      <View testID="test-events" style={styles.container}>
+      <View testID='test-events' style={styles.container}>
         <Image
           background
-          resizeMode="cover"
+          resizeMode='cover'
           padding={sizes.md}
           source={assets.noEvents}
           rounded
-          className="rounded-xl h-72 w-72"
+          className='rounded-xl h-72 w-72'
         ></Image>
-        <Text className="font-bold">You have no events!</Text>
+        <Text className='font-bold'>You have no events!</Text>
       </View>
       <FloatingCreateButton onPress={onCreatePress} />
     </Block>
@@ -325,13 +298,13 @@ function EventList() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   button: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#6200EE",
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#6200EE',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
@@ -340,11 +313,11 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   buttonText: {
-    color: "white",
+    color: 'white',
     fontSize: 16,
   },
   floatingBtnContainer: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 10,
     right: 10,
   },
@@ -352,45 +325,44 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 15,
-    backgroundColor: "#6200EE",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: '#6200EE',
+    justifyContent: 'center',
+    alignItems: 'center',
     elevation: 5,
   },
   listContainer: {
-    // paddingVertical: 16,
     paddingHorizontal: 30,
   },
   itemContainer: {
     padding: 16,
     marginVertical: 1,
     marginLeft: 1,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     borderTopLeftRadius: 8,
     borderBottomLeftRadius: 8,
-    borderRightColor: "#fff",
+    borderRightColor: '#fff',
     borderRightWidth: 5,
     borderTopRightRadius: 8,
     borderBottomRightRadius: 8,
-    elevation: 2, // Add shadow for floating effect
-    shadowColor: "#000",
+    elevation: 2,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
   dateText: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginBottom: 8,
   },
   separator: {
     borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
+    borderBottomColor: '#ccc',
     marginBottom: 8,
   },
   row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   budgetText: {
     fontSize: 14,
@@ -399,30 +371,29 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   tabBarContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    // paddingTop: 20, // Adjust to be below the status bar
-    backgroundColor: "#f8f8f8",
+    flexDirection: 'row',
+    justifyContent: 'center',
+    backgroundColor: '#f8f8f8',
     borderBottomWidth: 1,
-    borderBottomColor: "#ddd",
+    borderBottomColor: '#ddd',
   },
   tabBarButton: {
     flex: 1,
-    alignItems: "center",
+    alignItems: 'center',
     paddingVertical: 15,
   },
   tabBarButtonSelected: {
     borderBottomWidth: 2,
-    borderBottomColor: "#CB0C9F", // Highlight color for selected tab
+    borderBottomColor: '#CB0C9F',
   },
   tabBarText: {
-    color: "#666",
+    color: '#666',
     fontSize: 16,
   },
   tabBarTextSelected: {
-    color: "#CB0C9F",
+    color: '#CB0C9F',
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
 });
 

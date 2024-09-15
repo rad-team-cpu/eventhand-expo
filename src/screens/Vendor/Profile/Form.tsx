@@ -1,17 +1,13 @@
 import { useAuth, useUser } from '@clerk/clerk-expo';
-// import { EmailAddressResource } from "@clerk/types/dist/emailAddress";
 import { AntDesign } from '@expo/vector-icons';
-import { FontAwesome, Ionicons } from '@expo/vector-icons';
+import { FontAwesome } from '@expo/vector-icons';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useFocusEffect } from '@react-navigation/native';
 import Avatar from 'Components/Avatar';
 import ErrorScreen from 'Components/Error';
-import GenderPicker from 'Components/Input/GenderPicker';
 import ProfileUpload from 'Components/Input/ProfileUpload';
-import TagButtons from 'Components/Input/TagButtons';
 import SuccessScreen from 'Components/Success';
 import Block from 'Components/Ui/Block';
-import { UserContext } from 'Contexts/UserContext';
 import { VendorContext } from 'Contexts/VendorContext';
 import { UploadResult } from 'firebase/storage';
 import Button from 'Components/Ui/Button';
@@ -32,12 +28,7 @@ import {
   TextInput,
   StyleSheet,
   GestureResponderEvent,
-  TextStyle,
-  ScrollView,
   Pressable,
-  Modal,
-  Alert,
-  Dimensions,
 } from 'react-native';
 import Loading from 'screens/Loading';
 import FirebaseService from 'service/firebase';
@@ -48,13 +39,6 @@ import {
 } from 'types/types';
 import { object, string, number, array } from 'yup';
 
-// import DatePicker from "../../Components/Input/DatePicker";
-
-interface VendorTag {
-  id: string;
-  name: string;
-}
-
 interface VendorProfileFormProps extends VendorProfileFormScreenProps {
   onSubmit: () => void;
 }
@@ -63,9 +47,7 @@ interface VendorProfileInput extends FieldValues {
   logo: ImageInfo | null;
   name: string;
   email: string;
-  // address?: string;
   contactNumber: string;
-  // tags: VendorTag[];
 }
 
 const vendorProfileValidationSchema = object().shape({
@@ -88,7 +70,6 @@ const vendorProfileValidationSchema = object().shape({
       'Please enter a valid email'
     )
     .required('Must select an email'),
-  // address: string(),
   contactNumber: string()
     .required('Enter contact number.')
     .matches(
@@ -96,9 +77,6 @@ const vendorProfileValidationSchema = object().shape({
       'Please enter a valid contact number ex. 09123456789.'
     )
     .length(11, 'contact number must only have 11 digits'),
-  // tags: array()
-  //   .of(object({ id: string().required(), name: string().required() }))
-  //   .required("Must select a tag"),
 });
 
 const VendorProfileForm = ({
@@ -141,19 +119,11 @@ const VendorProfileForm = ({
       name: '',
       email: clerkUser.primaryEmailAddress?.toString(),
       contactNumber: '',
-      // tags: [],
     },
     resolver: yupResolver(vendorProfileValidationSchema),
   });
 
   const { setVendor } = vendorContext;
-
-  // const minDate = sub({ years: 100 })(new Date());
-  // const maxDate = sub({ years: 19 })(new Date());
-
-  const navigateToSuccessError = (props: ScreenProps['SuccessError']) => {
-    navigation.replace('SuccessError', { ...props });
-  };
 
   const onNextBtnPress = async (e: GestureResponderEvent) => {
     if (isValid) {
@@ -219,10 +189,10 @@ const VendorProfileForm = ({
           break;
         case 403:
           setSubmitErrMessage('Forbidden - Access denied.');
-          throw new Error('Forbidden - Access denied.'); // Forbidden
+          throw new Error('Forbidden - Access denied.'); 
         case 404:
           setSubmitErrMessage('Server is unreachable.');
-          throw new Error('Server is unreachable.'); // Not Found
+          throw new Error('Server is unreachable.'); 
       }
     } catch (error) {
       console.error(error);
@@ -234,7 +204,7 @@ const VendorProfileForm = ({
   const onSubmitPress = handleSubmit(createProfile);
 
   const FormFields = () => {
-    const { assets, colors, sizes, gradients } = useTheme();
+    const { assets, sizes } = useTheme();
     return (
       <Block safe marginTop={sizes.md}>
         <Block
@@ -575,7 +545,6 @@ const VendorProfileForm = ({
     const onSuccessPress = () => {
       setLoading(false);
       navigation.navigate('MultiStepForm');
-      // navigation.replace('VendorHome', { initialTab: 'Profile' });
     };
 
     const onErrorPress = () => {

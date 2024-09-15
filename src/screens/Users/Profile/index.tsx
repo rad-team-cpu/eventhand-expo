@@ -1,4 +1,3 @@
-/* eslint-disable import/order */
 import { useAuth } from "@clerk/clerk-expo";
 import { StatusBar } from "expo-status-bar";
 import React, { useContext, useEffect, useState } from "react";

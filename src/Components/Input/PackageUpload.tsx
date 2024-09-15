@@ -98,7 +98,6 @@ const PackageUpload = (props: PackageUploadProps) => {
             ? errorMessages[2].message
             : '';
 
-          // Fallback to defaultImage if value is null or undefined
           const uploadedImage =
             value && value.uri ? { uri: value.uri } : defaultImage;
 

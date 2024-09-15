@@ -1,31 +1,20 @@
-import { useAuth, useUser } from '@clerk/clerk-expo';
+import { useAuth } from '@clerk/clerk-expo';
 import { AntDesign } from '@expo/vector-icons';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import Avatar from 'Components/Avatar';
-import { UploadResult } from 'firebase/storage';
-import React, { useState, useContext, useCallback } from 'react';
+import React, { useState, useContext } from 'react';
 import {
   useForm,
   FieldValues,
   Controller,
-  Control,
-  UseFormRegister,
 } from 'react-hook-form';
-import { BackHandler, TextInput, GestureResponderEvent } from 'react-native';
-import FirebaseService from 'service/firebase';
+import { TextInput } from 'react-native';
 import { object, string, number } from 'yup';
-
-// import DatePicker from "../../Components/Input/DatePicker";
-import { UserContext } from '../../../Contexts/UserContext';
-import ProfileUpload from 'Components/Input/ProfileUpload';
 import Block from 'Components/Ui/Block';
 import Button from 'Components/Ui/Button';
 import Image from 'Components/Ui/Image';
 import Text from 'Components/Ui/Text';
 import useTheme from '../../../core/theme';
 import {
-  AboutFormScreenProps,
   ScreenProps,
   VendorProfileFormScreenProps,
 } from '../../../types/types';
@@ -121,7 +110,6 @@ const AddressForm = ({
     const vendorId = vendor?.id;
 
     const navigateToSuccessError = (props: ScreenProps['SuccessError']) => {
-      //   navigation.navigate('SuccessError', { ...props });
       onSubmit(input);
     };
 
@@ -137,6 +125,7 @@ const AddressForm = ({
         {
           headers: {
             'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -144,32 +133,20 @@ const AddressForm = ({
         case 200:
           setLoading(false);
           onSubmit(input);
-          //   navigateToSuccessError({
-          //     description: 'Your information was saved successfully.',
-          //     buttonText: 'Continue',
-          //     navigateTo: 'VendorHome',
-          //     status: 'success',
-          //   });
           break;
         case 201:
           setLoading(false);
           onSubmit(input);
-          //   navigateToSuccessError({
-          //     description: 'Your information was saved successfully.',
-          //     buttonText: 'Continue',
-          //     navigateTo: 'VendorHome',
-          //     status: 'success',
-          //   });
           break;
         case 403:
           setSubmitErrMessage('Forbidden - Access denied.');
-          throw new Error('Forbidden - Access denied.'); // Forbidden
+          throw new Error('Forbidden - Access denied.'); 
         case 404:
           setSubmitErrMessage('Server is unreachable.');
-          throw new Error('Server is unreachable.'); // Not Found
+          throw new Error('Server is unreachable.'); 
         default:
           setSubmitErrMessage('Unexpected error occurred.');
-          throw new Error('Unexpected error occurred.'); // Other status codes
+          throw new Error('Unexpected error occurred.'); 
       }
     } catch (error) {
       console.error(error);
@@ -222,7 +199,6 @@ const AddressForm = ({
             <Block align='flex-start' className='m-3'>
               <Text transform='uppercase'>Set up your Address:</Text>
             </Block>
-
             <Text p className='capitalize ml-3'>
               Street
             </Text>
@@ -328,8 +304,8 @@ const AddressForm = ({
               control={control}
               render={({ field: { onChange, onBlur, value } }) => {
                 const onValueChange = (text: string) => {
-                  const numericValue = text.replace(/[^0-9]/g, ''); // Allows only numbers
-                  onChange(numericValue ? parseInt(numericValue, 10) : ''); // Convert string to number
+                  const numericValue = text.replace(/[^0-9]/g, '');
+                  onChange(numericValue ? parseInt(numericValue, 10) : ''); 
                 };
 
                 return (
@@ -338,7 +314,7 @@ const AddressForm = ({
                     testID='test-postalcode-input'
                     placeholder='Postal Code'
                     onBlur={onBlur}
-                    value={value?.toString() || ''} // Ensure value is a string
+                    value={value?.toString() || ''} 
                     onChangeText={onValueChange}
                     keyboardType='numeric'
                     autoCapitalize='none'
@@ -374,95 +350,7 @@ const AddressForm = ({
     );
   };
 
-  //   useFocusEffect(
-  //     useCallback(() => {
-  //       const backAction = () => {
-  //         setConfirmDetails(false);
-  //         return true;
-  //       };
-
-  //       const backHandler = BackHandler.addEventListener(
-  //         'hardwareBackPress',
-  //         backAction
-  //       );
-
-  //       return () => backHandler.remove();
-  //     }, [confirmDetails])
-  //   );
-
-  //   const Confirmation = () => {
-  //     return (
-  //       <Block safe marginTop={sizes.md}>
-  //         <Block
-  //           id='profile-form-field'
-  //           testID='test-profile-form-field'
-  //           scroll
-  //           paddingHorizontal={sizes.s}
-  //           showsVerticalScrollIndicator={false}
-  //           contentContainerStyle={{ paddingBottom: sizes.padding }}
-  //         >
-  //           <Block flex={0} style={{ zIndex: 0 }}>
-  //             <Image
-  //               background
-  //               resizeMode='cover'
-  //               padding={sizes.sm}
-  //               paddingBottom={sizes.l}
-  //               radius={sizes.cardRadius}
-  //               source={assets.background}
-  //             >
-  //               <Button
-  //                 row
-  //                 flex={0}
-  //                 justify='flex-start'
-  //                 onPress={() => setConfirmDetails(false)}
-  //               >
-  //                 <AntDesign name='back' size={24} color='white' />
-  //                 <Text p white marginLeft={sizes.s}>
-  //                   Go back
-  //                 </Text>
-  //               </Button>
-  //             </Image>
-  //           </Block>
-  //           <Block
-  //             flex={0}
-  //             radius={sizes.sm}
-  //             marginTop={-sizes.l}
-  //             marginHorizontal='8%'
-  //             color='rgba(255,255,255,1)'
-  //           >
-  //             <Block align='flex-start' className='pl-4 pt-4'>
-  //               <Text p>Bio:</Text>
-  //               <Text
-  //                 id='bio'
-  //                 testID='test-bio'
-  //                 className='capitalize font-bold'
-  //               >
-  //                 {getValues('bio')}
-  //               </Text>
-  //             </Block>
-  //             <Button
-  //               testID='test-save-btn'
-  //               onPress={onSubmitPress}
-  //               disabled={!isValid}
-  //               primary
-  //               outlined
-  //               marginBottom={sizes.s}
-  //               marginHorizontal={sizes.sm}
-  //               shadow={false}
-  //             >
-  //               <Text bold primary transform='uppercase'>
-  //                 Confirm
-  //               </Text>
-  //             </Button>
-  //             <Text testID='save-err-text' danger>
-  //               {submitErrMessage}
-  //             </Text>
-  //           </Block>
-  //         </Block>
-  //       </Block>
-  //     );
-  //   };
-
+  
   return (
     <Block>
       {loading && <Loading />}

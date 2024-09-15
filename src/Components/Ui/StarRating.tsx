@@ -9,10 +9,8 @@ interface StarRatingProps {
 
 const StarRating: React.FC<StarRatingProps> = ({ starColor = '#FAAA33', rating }) => {
   const stars = [];
-  // Validate Star Rating
   const validRating = Math.min(Math.max(rating, 1), 5);
 
-  // Create Stars
   for (let i = 0; i < 5; i++) {
     stars.push(
       <MaterialIcons

@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/core';
 import Block from 'Components/Ui/Block';
 import Image from 'Components/Ui/Image';
@@ -9,14 +9,11 @@ import { AntDesign } from '@expo/vector-icons';
 import { format } from 'date-fns/format';
 import axios from 'axios';
 import {
-  PackageType,
   BookingStatus,
   HomeScreenNavigationProp,
   Inclusion,
   EventInfo,
   OrderType,
-  Vendor,
-  PackageAlgoType,
   PackageItemType,
 } from 'types/types';
 import Loading from 'screens/Loading';
@@ -54,7 +51,7 @@ const BookingDetails = () => {
     event: EventInfo;
   };
 
-  const vendor = pkg.vendor
+  const vendor = pkg.vendor;
 
   const toggleOrderType = (type: OrderType) => {
     setSelectedOrderType(type);
@@ -226,9 +223,7 @@ const BookingDetails = () => {
                         </Text>
                       </Block>
                       <Block>
-                        <Text className='text-xs'>
-                          {vendor.address.city}
-                        </Text>
+                        <Text className='text-xs'>{vendor.address.city}</Text>
                       </Block>
                     </Block>
                     <Block>

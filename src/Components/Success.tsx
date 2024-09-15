@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   message: {
-    fontSize: 0.06 * Dimensions.get("window").width, // Adjust font size based on window width
+    fontSize: 0.06 * Dimensions.get("window").width,
     marginTop: 20,
     fontWeight: "bold",
     textAlign: "center",
@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
 
   },
   description: {
-    fontSize: 0.04 * Dimensions.get("window").width, // Adjust font size based on window width
+    fontSize: 0.04 * Dimensions.get("window").width, 
     marginVertical: 10,
     color: "#A7A8AE",
     textAlign: "center",
@@ -68,15 +68,15 @@ const styles = StyleSheet.create({
   button: {
     position: "absolute",
     bottom: 40,
-    backgroundColor: "#4CAF50", // Bluish color for the button
-    paddingVertical: 0.02 * Dimensions.get("window").height, // Adjust padding based on window height
-    paddingHorizontal: 0.2 * Dimensions.get("window").width, // Adjust padding based on window width
+    backgroundColor: "#4CAF50", 
+    paddingVertical: 0.02 * Dimensions.get("window").height, 
+    paddingHorizontal: 0.2 * Dimensions.get("window").width, 
     borderRadius: 20,
   },
   buttonText: {
     color: "#FFFFFF",
     fontWeight: "bold",
-    fontSize: 0.04 * Dimensions.get("window").width, // Adjust font size based on window width
+    fontSize: 0.04 * Dimensions.get("window").width,
   },
 });
 
