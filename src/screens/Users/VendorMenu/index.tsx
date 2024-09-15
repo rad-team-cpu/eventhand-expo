@@ -22,6 +22,7 @@ import {
   Review,
   EventInfo,
   PackageAlgoType,
+  PackageItemType,
 } from 'types/types';
 import Loading from 'screens/Loading';
 
@@ -65,6 +66,8 @@ interface ReviewType {
 }
 
 interface VendorMenuType {
+  address: { street: string; city: string; region: string; postalCode: number };
+  contactNumber: string;
   _id: string;
   logo: string;
   name: string;
@@ -88,6 +91,8 @@ const VendorMenu = () => {
     bio: '',
     tags: [],
     email: '',
+    address: { street: '', city: '', region: '', postalCode: 0 },
+    contactNumber: '',
     packages: [],
     averageRatings: 0,
     totalBookings: 0,
@@ -195,15 +200,51 @@ const VendorMenu = () => {
   );
 
   const onPressPackage = (pkg: PackageType, vendor: VendorMenuType) => {
-    setSelectedPackage(pkg);
+    const transformedPackage: PackageItemType = {
+      category: 'catering', // Or dynamically based on the context
+      _id: pkg._id,
+      vendor: {
+        _id: vendor._id,
+        name: vendor.name,
+        logo: vendor.logo,
+        contactNumber: vendor.contactNumber || '', // Handle missing contact number
+        address: vendor.address || {
+          street: '',
+          city: '',
+          region: '',
+          postalCode: 0,
+        }, // Provide default address if missing
+        bio: vendor.bio,
+        averageRating: vendor.averageRatings || 0, // Handle missing average rating
+      },
+      vendorTags: [],
+      name: pkg.name,
+      imageUrl: pkg.imageUrl,
+      capacity: pkg.capacity,
+      description: pkg.description,
+      price: pkg.price,
+      orderTypes: pkg.orderTypes.map((orderType) => ({
+        name: orderType.name,
+        disabled: orderType.disabled,
+      })),
+      inclusions: pkg.inclusions.map((inclusion) => ({
+        _id: inclusion._id,
+        imageUrl: inclusion.imageUrl,
+        name: inclusion.name,
+        description: inclusion.description,
+        quantity: inclusion.quantity,
+      })),
+      tags: [],
+    };
+
     if (upcomingEvents.length > 1) {
+      setSelectedPackage(transformedPackage);
       setIsModalVisible(true);
     } else if (upcomingEvents.length === 1) {
       setSelectedEvent(upcomingEvents[0]);
       navigation.navigate('BookingDetails', {
-        pkg,
+        pkg: transformedPackage,
         event: upcomingEvents[0],
-        vendor: transformVendorToPackageAlgoType(vendor),
       });
     } else {
       navigation.navigate('EventForm');
@@ -216,22 +257,9 @@ const VendorMenu = () => {
       navigation.navigate('BookingDetails', {
         pkg: selectedPackage,
         event,
-        vendor: transformVendorToPackageAlgoType(vendor),
       });
     }
   };
-  const transformVendorToPackageAlgoType = (
-    vendor: VendorMenuType
-  ): PackageAlgoType => ({
-    _id: vendor._id,
-    vendorName: vendor.name,
-    vendorLogo: vendor.logo,
-    vendorContactNum: '', // Add vendor contact number if available
-    vendorBio: vendor.bio,
-    vendorAddress: { city: '' }, // Add vendor address if available
-    vendorPackages: vendor.packages,
-    averageRating: vendor.averageRatings,
-  });
 
   const onMessagePress = () => {
     const getMessagesInput: GetMessagesInput = {
