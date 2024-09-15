@@ -394,63 +394,6 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     { key: 'cancelled', title: 'Cancelled/Declined' },
   ]);
 
-  const [eventBookings, setEventBookings] = useState<BookingDetailsProps[]>([]);
-  // console.log()
-
-  const handleRemoveBooking = (id: string) => {
-    Alert.alert(
-      'Confirm Cancellation',
-      'Are you sure you want to cancel this request to book?',
-      [
-        {
-          text: 'NO',
-          style: 'cancel',
-        },
-        {
-          text: 'YES',
-          onPress: async () => {
-            try {
-              await axios.delete(
-                `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking/${id}`,
-                {
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                }
-              );
-              fetchBookings(_id);
-            } catch (error: any) {
-              console.error('Error removing booking:', error.message);
-            }
-          },
-        },
-      ]
-    );
-  };
-
-  const fetchBookings = async (eventId: string) => {
-    try {
-      const response = await axios.get(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking?event=${eventId}`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-      setEventBookings(response.data);
-      console.log(eventBookings);
-    } catch (error: any) {
-      if (error instanceof TypeError) {
-        console.error(
-          'Network request failed. Possible causes: CORS issues, network issues, or incorrect URL.'
-        );
-      } else {
-        console.error('Error fetching bookings:', error.message);
-      }
-    }
-  };
-
   const fetchEvent = async () => {
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/${eventId}/bookings`;
 
