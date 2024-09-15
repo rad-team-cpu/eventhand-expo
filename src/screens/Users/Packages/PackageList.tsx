@@ -74,9 +74,17 @@ export default function PackageList() {
             ...packageItem,
             category: 'photography',
           })),
-          ...(data?.planning || []).map((packageItem: PackageItemType) => ({
+          ...(data?.eventPlanning || []).map((packageItem: PackageItemType) => ({
             ...packageItem,
-            category: 'planning',
+            category: 'event planning',
+          })),
+          ...(data?.eventCoordination || []).map((packageItem: PackageItemType) => ({
+            ...packageItem,
+            category: 'event coordination',
+          })),
+          ...(data?.videography || []).map((packageItem: PackageItemType) => ({
+            ...packageItem,
+            category: 'videography',
           })),
           ...(data?.decorations || []).map((packageItem: PackageItemType) => ({
             ...packageItem,
@@ -254,7 +262,7 @@ export default function PackageList() {
           <Text className='text-xl font-bold'>
             Here's what we've curated for you!
           </Text>
-          {['catering', 'venue', 'photography', 'planning', 'decoration'].map(
+          {['catering', 'venue', 'photography', 'planning', 'decoration', 'event planning', 'event coordination', 'videography'].map(
             (category) => renderPackageCategory(category)
           )}
         </View>
