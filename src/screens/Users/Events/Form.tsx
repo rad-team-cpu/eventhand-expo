@@ -1493,7 +1493,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
     };
 
     try {
-      const token = await getToken({ template: "event-hand-jwt" });
+      const token = await getToken({ template: "eventhand-client" });
 
       const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events`;
 
@@ -1868,7 +1868,7 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps){
     setLoading(true);
     setErrorMessage('');
 
-    const token = await getToken({ template: "event-hand-jwt" });
+    const token = await getToken({ template: "eventhand-client" });
 
     let url = `${process.env.EXPO_PUBLIC_BACKEND_URL}`;
 

@@ -9,8 +9,6 @@ type PaginationInput = {
   pageSize: number,
 }
 
-
-
 type SocketInputType = "REGISTER" | "SEND_MESSAGE" | "GET_MESSAGES" | "GET_CHAT_LIST" | "SWITCH" | "GET_EARLIER_MESSAGES" | "GET_MORE_CHAT_LIST"
 
 type SocketRegisterInput = {
@@ -97,7 +95,7 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
 
     const connectWebSocket = useCallback(async () => {
         try {
-            const token = await getToken({ template: "eventhand-vendor" });
+            const token = await getToken({ template: "event-hand-jwt" });
             const url = `${process.env.EXPO_PUBLIC_WEBSOCKET_URL}?token=${token}`;
             const socket = new WebSocket(url);
             console.log(`CONNECTING TO: ${process.env.EXPO_PUBLIC_WEBSOCKET_URL}`)
