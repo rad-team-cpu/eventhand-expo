@@ -809,7 +809,7 @@ const addCommasToNumber = (number: number) => {
   return parts.join(".");
 };
 
-function validateEventBudget(input: EventFormInputType): boolean {
+const validateEventBudget = (input: EventFormInputType): boolean => {
   const { categories, budget } = input;
 
   // Mapping categories and their corresponding budget fields
@@ -1180,6 +1180,12 @@ const EventFormConfirmation = (props: EventInputProps) => {
   );
 };
 
+const sortByEventDate =(a: EventInfo, b : EventInfo,) => {
+  const dateA = new Date(a.date).getTime();
+  const dateB = new Date(b.date).getTime();
+  return dateA - dateB; // Sorts by ascending date (earliest date first)
+};
+
 function EventForm({ navigation }: EventFormScreenProps) {
   const userContext = useContext(UserContext);
   const { userId, isLoaded, getToken, signOut } = useAuth();
@@ -1537,7 +1543,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
               events: [
                 ...prevEventList.events,
                 { ...event },
-              ],
+              ].sort(sortByEventDate),
             };
           });
 
@@ -1973,7 +1979,7 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps){
         setEventList(prevEventList => {
           return {
             ...prevEventList,
-            events: [...updatedEvents]
+            events: [...updatedEvents].sort(sortByEventDate)
           }
         })
         setSuccessMessage(`Your event ${updateValue.toLocaleLowerCase()}} has been successfully Updated`)
