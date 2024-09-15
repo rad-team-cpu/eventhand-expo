@@ -10,7 +10,7 @@ interface ProfileAvatarProps {
 const Avatar = (props: ProfileAvatarProps) => {
   const { label, uri, labelTextStyle } = props;
   const defaultImage = require("../assets/images/user.png");
-
+  
   return (
     <View style={defaultStyles.container}>
       <View style={defaultStyles.avatarContainer}>

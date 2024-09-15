@@ -26,13 +26,13 @@ import {
 } from 'types/types';
 import Loading from 'screens/Loading';
 
-import { GetMessagesInput, WebSocketContext } from 'Contexts/WebSocket';
-import { UserContext } from 'Contexts/UserContext';
-import StarRating from 'Components/Ui/StarRating';
-import { faker } from '@faker-js/faker';
-import { useAuth } from '@clerk/clerk-react';
-import VendorHome from 'screens/Vendor/Home';
-import { format, isAfter, isToday } from 'date-fns';
+import { GetMessagesInput, WebSocketContext } from "Contexts/WebSocket";
+import { UserContext } from "Contexts/UserContext";
+import StarRating from "Components/Ui/StarRating";
+import { useAuth } from "@clerk/clerk-react";
+import VendorHome from "screens/Vendor/Home";
+import { format, isAfter, isToday } from "date-fns";
+import FirebaseService from "service/firebase";
 
 interface PackageType {
   _id: string;
@@ -101,6 +101,7 @@ const VendorMenu = () => {
   const [selectedEvent, setSelectedEvent] = useState<EventInfo>();
   const { getToken } = useAuth();
   const [loading, setLoading] = useState(true);
+  const [logo, setLogo] = useState("");
 
   const userContext = useContext(UserContext);
   const webSocket = useContext(WebSocketContext);
@@ -154,6 +155,24 @@ const VendorMenu = () => {
   //   }
   // }, []);
 
+  const downloadLogo = async (profilePicturePath: string) => {
+    const firebaseService = FirebaseService.getInstance();
+
+
+    const profilePictureUrl =
+      await firebaseService.getProfilePicture(profilePicturePath);
+
+      if(profilePictureUrl){
+        setLogo(profilePictureUrl);
+      }
+
+      if(profilePictureUrl == null){
+        setLogo(vendor.logo!)
+
+      }
+
+  };
+
   const fetchVendor = useCallback(async () => {
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors/${vendorId}/packagesandtags`;
 
@@ -175,7 +194,15 @@ const VendorMenu = () => {
       if (res.status === 200) {
         setVendor({ ...data });
 
-        console.log('VENDOR DATA SUCCESSFULLY LOADED');
+        if(data.logo){
+          downloadLogo(data.logo)
+        }
+
+        if(data.logo){
+          downloadLogo(data.logo)
+        }
+
+        console.log("VENDOR DATA SUCCESSFULLY LOADED");
       } else if (res.status === 400) {
         throw new Error('Bad request - Invalid data.');
       } else if (res.status === 401) {
@@ -326,11 +353,7 @@ const VendorMenu = () => {
                 <Image
                   width={72}
                   height={72}
-                  {...(vendor.logo
-                    ? { src: vendor.logo }
-                    : {
-                        source: require('../../../assets/images/card1.png'),
-                      })}
+                  src={logo}
                   borderRadius={50}
                 />
                 <Text className='items-center text-center text-white font-bold text-xl'>

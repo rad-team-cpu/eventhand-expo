@@ -4,6 +4,10 @@ module.exports = {
   version: "1.0.0",
   expo: {
     owner: "rad-team-cpu",
+    icon: "./src/assets/images/applogo.png",
+    splash: {
+      image: "./src/assets/images/applogo.png"
+    },
     plugins: [
       [
         "expo-image-picker",

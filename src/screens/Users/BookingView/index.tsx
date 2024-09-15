@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Alert,
   GestureResponderEvent,
+  ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { BookingType, UserBookingViewScreenProps } from 'types/types';
@@ -60,7 +61,7 @@ const BookingDetails = (props: BookingDetailsProps) => {
   return (
     <>
       <Toolbar onBackPress={onBackPress} />
-      <View style={styles.container}>
+      <ScrollView style={styles.container}>
         <View style={styles.vendorContainer}>
           <Image
             source={{ uri: booking.vendor.logo }}
@@ -136,7 +137,7 @@ const BookingDetails = (props: BookingDetailsProps) => {
             </Text>
           </Pressable>
         )}
-      </View>
+      </ScrollView>
     </>
   );
 };
@@ -220,7 +221,7 @@ function UserBookingView({ navigation, route }: UserBookingViewScreenProps) {
       }
     } catch (err) {
       console.error('Error updating data:', err);
-      setErrorState({ error: true, message: `Error updating data: ${err}` }); // Set error message
+      setErrorState({ error: true, message: `Error updating data: ${err}` });
       setSuccess(false);
     } finally {
       setLoading(false); 
