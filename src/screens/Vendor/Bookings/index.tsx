@@ -102,15 +102,12 @@ const BookingDetails = (props: BookingDetailsProps) => {
     const profilePictureUrl =
       await firebaseService.getProfilePicture(profilePicturePath);
 
-      if(profilePictureUrl){
+      if(profilePictureUrl !== null){
         setAvatar(profilePictureUrl);
+
+      }else {
+        setAvatar(profilePicturePath);
       }
-
-      if(profilePictureUrl == null){
-        setAvatar(vendor.logo!)
-
-      }
-
   };
 
   useEffect(() => {
