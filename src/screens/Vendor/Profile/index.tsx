@@ -17,7 +17,7 @@ function VendorProfile() {
   const { isLoaded, signOut } = useAuth();
   const [signOutErrMessage, setSignOutErrMessage] = useState('');
   const [avatarImage, setAvatarImage] = useState('');
-  const { assets, sizes } = useTheme();
+  const { assets, sizes, colors } = useTheme();
   const { getToken } = useAuth();
   const [errorMessage, setErrorMessage] = useState('');
   const [isVisible, setIsVisible] = useState(false);
@@ -34,19 +34,16 @@ function VendorProfile() {
   const downloadAvatarImage = async (profilePicturePath: string) => {
     const firebaseService = FirebaseService.getInstance();
 
-
     const profilePictureUrl =
       await firebaseService.getProfilePicture(profilePicturePath);
 
-      if(profilePictureUrl){
-        setAvatarImage(profilePictureUrl);
-      }
+    if (profilePictureUrl) {
+      setAvatarImage(profilePictureUrl);
+    }
 
-      if(profilePictureUrl == null){
-        setAvatarImage(vendor.logo!)
-
-      }
-
+    if (profilePictureUrl == null) {
+      setAvatarImage(vendor.logo!);
+    }
   };
 
   const handleToggleVisibility = async () => {
@@ -134,15 +131,17 @@ function VendorProfile() {
               <Text bold h5 className='uppercase pl-4 pt-2 self-center'>
                 Contact Details:
               </Text>
-              <Block className='flex-end'>
+              <Block className='flex-end mt-1'>
+                <Text p color={colors.primary} className='self-end justify-center align-middle pr-1 text-xs text-primary'>
+                  {isVisible
+                    ? 'Shop is Open'
+                    : 'Shop is Closed'}
+                </Text>
                 <Switch
                   value={isVisible}
                   onValueChange={handleToggleVisibility}
                   disabled={loading}
                 />
-                <Text className='self-end pr-1 text-xs'>
-                  {isVisible ? 'Visible' : 'Hidden'}
-                </Text>
               </Block>
             </Block>
             <Block align='flex-start' className='pl-4 pt-4'>
