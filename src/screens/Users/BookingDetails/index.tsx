@@ -137,7 +137,18 @@ const BookingDetails = () => {
   }, [pkg.orderTypes]);
 
   const onSuccessPress = () => {
-    navigation.replace('Home', {});
+    navigation.reset({
+      index: 1,
+      routes: [{
+        name: "Home",
+        params: {}
+      },
+      {
+        name: "EventView",
+        params: {...event}
+      }
+    ]
+  });
   };
 
   if (loading) {
