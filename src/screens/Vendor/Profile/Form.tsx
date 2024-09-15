@@ -156,7 +156,7 @@ const VendorProfileForm = ({
           : null;
       }
 
-      const token = getToken({ template: 'event-hand-jwt' });
+      const token = await getToken({ template: 'eventhand-vendor' });
 
       const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors`;
 

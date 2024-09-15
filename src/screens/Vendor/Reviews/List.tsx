@@ -91,7 +91,7 @@ function VendorReviews() {
         const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/reviews/${id}/list`;
         console.log(url)
     
-        const token = getToken({ template: "event-hand-jwt" });
+        const token = await getToken({ template: "eventhand-vendor" });
     
         const request = {
           method: "GET",

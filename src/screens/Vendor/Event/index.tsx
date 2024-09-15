@@ -288,7 +288,7 @@ function VendorEventView({ route, navigation }: VendorEventViewScreenProps) {
   const fetchEvent = async () => {
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/${eventId}/bookings`;
 
-    const token = getToken({ template: 'event-hand-jwt' });
+    const token = await getToken({ template: 'eventhand-vendor' });
 
     const request = {
       method: 'GET',
