@@ -27,6 +27,7 @@ import PackageList from 'screens/Users/Packages/PackageList';
 import VendorBookingView from 'screens/Vendor/Bookings';
 import VendorEventView from 'screens/Vendor/Event';
 import MyMenu from 'screens/Vendor/Menu';
+import ViewAllPackages from 'screens/Users/Packages/ViewAllPackages';
 
 const SignedInStack = createNativeStackNavigator<ScreenProps>();
 
@@ -60,7 +61,7 @@ const chatOptions: NativeStackNavigationOptions = {
 
 const SignedInNav = () => {
   return (
-    <SignedInStack.Navigator >
+    <SignedInStack.Navigator>
       <SignedInStack.Screen
         name='Home'
         component={Home}
@@ -80,6 +81,11 @@ const SignedInNav = () => {
       <SignedInStack.Screen
         name='PackageList'
         component={PackageList}
+        options={eventFormHeaderOptions}
+      />
+      <SignedInStack.Screen
+        name='ViewAllPackages'
+        component={ViewAllPackages}
         options={eventFormHeaderOptions}
       />
       <SignedInStack.Screen

@@ -122,6 +122,13 @@ export default function PackageList() {
     navigation.navigate('VendorMenu', vendorMenuProps);
   };
 
+  const handleViewAllPress = (category: string) => {
+    const filteredPackages = allPackages.filter(
+      (pkg) => pkg.category === category
+    );
+    navigation.navigate('ViewAllPackages', { category, packages: filteredPackages, event });
+  };
+
   const renderPackageCategory = (category: string) => {
     const filteredPackages = allPackages.filter(
       (pkg) => pkg.category === category
@@ -130,7 +137,12 @@ export default function PackageList() {
 
     return (
       <View key={category} style={{ marginBottom: 5 }}>
-        <Text className='text-lg font-bold capitalize'>{category}</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+          <Text className='text-lg font-bold capitalize'>{category}</Text>
+          <TouchableOpacity onPress={() => handleViewAllPress(category)}>
+            <Text style={{ color: '#007BFF', fontSize: 14 }}>View All</Text>
+          </TouchableOpacity>
+        </View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           {filteredPackages.map((packageItem: PackageItemType) => (
             <View

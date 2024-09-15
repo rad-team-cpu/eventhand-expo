@@ -172,7 +172,7 @@ interface Vendor {
     region: string;
     postalCode: number;
   };
-  contactNumber: string;
+  contactNumber?: string;
   tags: Tag[];
   averageRating?: number;
   credibilityFactors?: CredibilityFactorsType;
@@ -352,7 +352,7 @@ interface BookingDetailsProps {
   _id?: string;
   pkg?: PackageType;
   packageId?: string;
-  vendor?: Vendor | PackageAlgoType;
+  vendor?: Vendor | PackageAlgoType | VendorMenuType;
   vendorId?: string;
   client?: UserProfile;
   clientId?: string | UserProfile;
@@ -399,6 +399,7 @@ type ScreenProps = {
   VendorBookingView: VendorBookingViewProps;
   VendorList: undefined;
   PackageList: { event: EventInfo };
+  ViewAllPackages: {category: string, packages: PackageItemType[], event: EventInfo};
   VendorMenu: VendorMenuProps;
   BookingConfirmation: BookingConfirmationProps;
   BookingDetails: BookingDetailsProps;
