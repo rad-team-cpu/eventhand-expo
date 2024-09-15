@@ -17,6 +17,7 @@ import {
   OrderType,
   Vendor,
   PackageAlgoType,
+  PackageItemType,
 } from 'types/types';
 import Loading from 'screens/Loading';
 import SuccessScreen from 'Components/Success';
@@ -48,11 +49,12 @@ const BookingDetails = () => {
   const { user } = userContext;
   const { sendMessage } = webSocket;
 
-  const { pkg, vendor, event } = route.params as {
-    pkg: PackageType;
-    vendor: PackageAlgoType;
+  const { pkg, event } = route.params as {
+    pkg: PackageItemType;
     event: EventInfo;
   };
+
+  const vendor = pkg.vendor
 
   const toggleOrderType = (type: OrderType) => {
     setSelectedOrderType(type);
@@ -78,8 +80,8 @@ const BookingDetails = () => {
       navigation.navigate('Chat', {
         _id: new ObjectId().toString(),
         senderId: vendor._id,
-        senderName: vendor.vendorName,
-        senderImage: vendor.vendorLogo,
+        senderName: vendor.name,
+        senderImage: vendor.logo,
       });
     }
   };
@@ -100,7 +102,6 @@ const BookingDetails = () => {
         price: pkg.price,
         description: pkg.description,
         orderType: selectedOrderType.name,
-        tags: pkg.tags.map((tag) => (typeof tag === 'string' ? tag : tag._id)),
         inclusions: pkg.inclusions,
       },
       vendorId: vendor._id,
@@ -198,7 +199,7 @@ const BookingDetails = () => {
                 background
                 resizeMode='cover'
                 padding={sizes.md}
-                src={vendor.vendorLogo}
+                src={vendor.logo}
                 rounded
                 blurRadius={2}
                 className='h-20 w-20 rounded-xl'
@@ -211,7 +212,7 @@ const BookingDetails = () => {
                   ellipsizeMode='tail'
                   className='text-base font-bold'
                 >
-                  {vendor.vendorName}
+                  {vendor.name}
                 </Text>
                 <Block className='flex flex-row pt-1'>
                   <Block className='flex flex-row'>
@@ -226,7 +227,7 @@ const BookingDetails = () => {
                       </Block>
                       <Block>
                         <Text className='text-xs'>
-                          {vendor.vendorAddress.city}
+                          {vendor.address.city}
                         </Text>
                       </Block>
                     </Block>

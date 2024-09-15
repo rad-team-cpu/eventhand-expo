@@ -391,7 +391,6 @@ const SignupForm = ({ navigation }: SignUpScreenProps) => {
                           onBlur={onBlur}
                           onChangeText={(code) => setCode(code)}
                           value={code}
-                          secureTextEntry={!showRetypePassword}
                           className='m-4 border p-2 rounded-lg border-purple-700'
                         />
                       );

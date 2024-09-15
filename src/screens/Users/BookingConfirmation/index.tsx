@@ -232,6 +232,7 @@ const BookingConfirmation = ({ route }: BookingConfirmationScreenProps) => {
               onPressBook(vendorPackage, vendor._id, events[0]._id)
             }
             gradient={gradients.primary}
+            disabled
           >
             <Text className='text-white uppercase'>Book now</Text>
           </Button>
