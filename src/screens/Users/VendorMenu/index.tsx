@@ -32,6 +32,7 @@ import { faker } from "@faker-js/faker";
 import { useAuth } from "@clerk/clerk-react";
 import VendorHome from "screens/Vendor/Home";
 import { format, isAfter, isToday } from "date-fns";
+import FirebaseService from "service/firebase";
 
 interface PackageType {
   _id: string;
@@ -96,6 +97,7 @@ const VendorMenu = () => {
   const [selectedEvent, setSelectedEvent] = useState<EventInfo>();
   const { getToken } = useAuth();
   const [loading, setLoading] = useState(true);
+  const [logo, setLogo] = useState("");
 
   const userContext = useContext(UserContext);
   const webSocket = useContext(WebSocketContext);
@@ -149,6 +151,24 @@ const VendorMenu = () => {
   //   }
   // }, []);
 
+  const downloadLogo = async (profilePicturePath: string) => {
+    const firebaseService = FirebaseService.getInstance();
+
+
+    const profilePictureUrl =
+      await firebaseService.getProfilePicture(profilePicturePath);
+
+      if(profilePictureUrl){
+        setLogo(profilePictureUrl);
+      }
+
+      if(profilePictureUrl == null){
+        setLogo(vendor.logo!)
+
+      }
+
+  };
+
   const fetchVendor = useCallback(async () => {
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors/${vendorId}/packagesandtags`;
 
@@ -170,6 +190,10 @@ const VendorMenu = () => {
       if (res.status === 200) {
         setVendor({ ...data });
         // setReviews({...data.reviews})
+
+        if(data.logo){
+          downloadLogo(data.logo)
+        }
 
         console.log("VENDOR DATA SUCCESSFULLY LOADED");
       } else if (res.status === 400) {
@@ -309,7 +333,7 @@ const VendorMenu = () => {
                 <Image
                   width={72}
                   height={72}
-                  src={vendor?.logo}
+                  src={logo}
                   borderRadius={50}
                 />
                 <Text className="items-center text-center text-white font-bold text-xl">
