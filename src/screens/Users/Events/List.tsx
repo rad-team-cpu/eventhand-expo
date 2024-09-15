@@ -129,7 +129,7 @@ function EventList() {
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/user/${user._id}?page=${page}&limit=50`;
     console.log(url);
 
-    const token = getToken({ template: 'eventhand-client' });
+    const token = await getToken({ template: 'eventhand-client' });
 
     const request = {
       method: 'GET',

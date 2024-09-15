@@ -120,7 +120,7 @@ const ReviewDetails = (props: ReviewDetailsProps) => {
 
 function VendorReview({ navigation, route }: VendorReviewScreenProps) {
   const review = route.params;
-  const { userId, isLoaded, getToken } = useAuth();
+  const { isLoaded } = useAuth();
   const userContext = useContext(UserContext);
 
   const onBackPress = () => navigation.goBack();
