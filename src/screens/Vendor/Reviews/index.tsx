@@ -12,35 +12,6 @@ import SuccessScreen from 'Components/Success';
 import ErrorScreen from 'Components/Error';
 
 
-
-interface Vendor {
-  _id: string;
-  name: string;
-  logo: string;
-  address: {
-    street: string;
-    city: string;
-    region: string;
-    postalCode: number;
-  };
-  contactNum: string;
-  email: string;
-}
-
-interface Package {
-  id: string;
-  name: string;
-  imageUrl: string;
-  capacity: number;
-  orderType: string;
-  description: string;
-  inclusions: {
-    id: string;
-    name: string;
-    description: string;
-  }[];
-}
-
 type StarRatingProps = {
     maxStars?: number;
     initialRating?: number;
@@ -161,7 +132,7 @@ const ReviewDetails = (props: ReviewDetailsProps) => {
        <View style={styles.container}>
       {/* Vendor Information */}
       <View style={styles.vendorContainer}>
-        <Image source={{ uri: review.profilePicture? review.profilePicture: require("images/user.png") }} style={styles.vendorLogo} />
+        <Image source={review.profilePicture?{ uri:  review.profilePicture  }: require("images/user.png")} style={styles.vendorLogo} />
         <View style={styles.vendorDetails}>
           <Text style={styles.vendorName}>{review.clientFullName}</Text>
 

@@ -17,46 +17,8 @@ import Loading from 'screens/Loading';
 import SuccessScreen from 'Components/Success';
 import ErrorScreen from 'Components/Error';
 
-
-interface Vendor {
-  _id: string;
-  name: string;
-  logo: string;
-  address: {
-    street: string;
-    city: string;
-    region: string;
-    postalCode: number;
-  };
-  contactNum: string;
-  email: string;
-}
-
-interface Package {
-  id: string;
-  name: string;
-  imageUrl: string;
-  capacity: number;
-  orderType: string;
-  description: string;
-  inclusions: {
-    id: string;
-    name: string;
-    description: string;
-  }[];
-}
-
 interface ToolbarProps {
   onBackPress: (event: GestureResponderEvent) => void | Boolean;
-}
-
-interface Booking {
-  _id: string;
-  eventId: string;
-  date: Date;
-  vendor: Vendor;
-  status: 'PENDING' | 'CONFIRMED' | 'CANCELED' | 'DECLINED' | 'COMPLETED';
-  package: Package;
 }
 
 const Toolbar: React.FC<ToolbarProps> = ({ onBackPress }) => {

@@ -40,14 +40,30 @@ const BookingConfirmation = ({ route }: BookingConfirmationScreenProps) => {
 
   const { sendMessage } = webSocket;
 
-  const { user } = userContext;
+  const { user, eventList } = userContext;
+
+  const events = eventList.events;
 
   const { vendor, vendorPackage } = route.params;
 
-  const onPressBook = (packageId: string, vendorId: string) => {
+  const onPressBook = (
+    pkg: PackageType,
+    vendorId: string,
+    eventId: string | undefined
+  ) => {
+    if (!eventId) {
+      console.error('No event available to book.');
+      <>
+        <Text>You have no events</Text>
+      </>;
+
+      return;
+    }
+
     const BookingDetailsProps: ScreenProps['BookingDetails'] = {
-      packageId,
+      pkg,
       vendorId,
+      eventId,
     };
 
     navigation.navigate('BookingDetails', BookingDetailsProps);
@@ -183,7 +199,7 @@ const BookingConfirmation = ({ route }: BookingConfirmationScreenProps) => {
       <Block card paddingVertical={sizes.s} paddingHorizontal={sizes.sm}>
         {vendorPackage.inclusions.map((inclusion: Inclusion) => (
           <Block
-            key={inclusion.id}
+            key={inclusion._id}
             className=' h-18 w-full rounded-xl flex flex-row mb-2'
           >
             <Image
@@ -210,14 +226,18 @@ const BookingConfirmation = ({ route }: BookingConfirmationScreenProps) => {
             </Block>
           </Block>
         ))}
-        {vendorPackage && (
+        {vendorPackage && events.length > 0 ? (
           <Button
-            // onPress={() => onPressBook(packageId, vendorPackage.vendorId)}
+            onPress={() =>
+              onPressBook(vendorPackage, vendor._id, events[0]._id)
+            }
             gradient={gradients.primary}
             disabled
           >
             <Text className='text-white uppercase'>Book now</Text>
           </Button>
+        ) : (
+          <Text>No events available to book.</Text>
         )}
       </Block>
     </Block>

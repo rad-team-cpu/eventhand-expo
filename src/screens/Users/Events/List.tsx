@@ -25,6 +25,7 @@ import { isAfter, isBefore, isToday } from "date-fns";
 import { useAuth } from "@clerk/clerk-expo";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Block from "Components/Ui/Block";
+import Loading from "screens/Loading";
 
 interface FloatingCreateButtonProps {
   onPress: () => void;
@@ -44,14 +45,6 @@ const FloatingCreateButton = ({ onPress }: FloatingCreateButtonProps) => {
   );
 };
 
-const getRandomColor = () => {
-  const letters = "0123456789ABCDEF";
-  let color = "#";
-  for (let i = 0; i < 6; i++) {
-    color += letters[Math.floor(Math.random() * 16)];
-  }
-  return color;
-};
 
 const EventListItem = ({
   _id,
@@ -64,7 +57,6 @@ const EventListItem = ({
   pendingBookings,
   cancelledOrDeclinedBookings,
 }: EventInfo) => {
-  const borderColor = useMemo(() => getRandomColor(), []);
   const dateString = format(date, "MMMM dd, yyyy");
   const navigation = useNavigation<HomeScreenNavigationProp>();
 
@@ -84,7 +76,7 @@ const EventListItem = ({
   return (
     <Pressable
       key={_id}
-      style={[styles.itemContainer, { borderLeftColor: borderColor }]}
+      style={[styles.itemContainer]}
       android_ripple={{ color: "#c0c0c0" }}
       onPress={onPress}
     >
@@ -111,7 +103,7 @@ const EventListItem = ({
         </Text> */}
         <Text style={styles.budgetText}>{dateString}</Text>
         <Text style={styles.capacityText}>
-          Capacity: {attendees !== 0 ? `${attendees} pax` : "TBD"}
+          Guests: {attendees !== 0 ? `${attendees} pax` : "TBD"}
         </Text>
       </View>
     </Pressable>
@@ -145,10 +137,11 @@ function EventList() {
   const [page, setPage] = useState(eventList.currentPage);
 
   const fetchMoreEvents = async () => {
-    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/${user._id}?page=${page}&pageSize=10`;
+    setLoading(true);
+    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/user/${user._id}?page=${page}&limit=50`;
     console.log(url)
 
-    const token = getToken({ template: "event-hand-jwt" });
+    const token = getToken({ template: "eventhand-client" });
 
     const request = {
       method: "GET",
@@ -164,13 +157,11 @@ function EventList() {
       const data = await res.json();
 
       if (res.status === 200) {
-        setEventList((prevstate) => {
-          return {
-            ...data,
-            events: [...prevstate.events, ...data.events],
-          };
-        });
+        if(data.events.length < 1){
+          navigation.navigate("EventForm");
+        }
 
+        setEventList(data)
         console.log("EVENT DATA SUCCESSFULLY LOADED");
       } else if (res.status === 400) {
         throw new Error("Bad request - Invalid data.");
@@ -193,16 +184,9 @@ function EventList() {
   };
 
   useEffect(() => {
-    // console.log(eventList.totalPages)
-    // console.log(eventList.events.length)
-    if (page > 1 &&  page < eventList.totalPages) {
-      fetchMoreEvents();
-    }
+    fetchMoreEvents();
 
-    if (eventList.events.length <= 0) {
-      navigation.replace("EventForm");
-    }
-  }, [page]);
+  }, []);
 
   const events = useCallback(() => {
     const events = eventList.events;
@@ -222,25 +206,29 @@ function EventList() {
   }, [selectedTab, eventList]);
 
   const renderFooter = () => {
-    if (loading) {
-      return <ActivityIndicator size="large" color="#CB0C9F" />;
-    }
+    // if (loading) {
+    //   return <ActivityIndicator size="large" color="#CB0C9F" />;
+    // }
     if (page === eventList.totalPages) {
       return (
         <Text style={{ textAlign: "center", padding: 10 }}>No more events</Text>
       );
     }
 
-    if (error.error) {
-      return (
-        <Text style={{ textAlign: "center", padding: 10 }}>
-          Error loading more events
-        </Text>
-      );
-    }
+    // if (error.error) {
+    // return (
+    //     <Text style={{ textAlign: "center", padding: 10 }}>
+    //         Error loading more events
+    //     </Text>
+    //   );
+    // }
 
     return null;
   };
+
+  if(loading){
+    return <Loading/>
+  }
 
   const onEndReached = () => {
     if (page < eventList.totalPages) {
@@ -378,7 +366,6 @@ const styles = StyleSheet.create({
     marginVertical: 1,
     marginLeft: 1,
     backgroundColor: "#fff",
-    borderLeftWidth: 10,
     borderTopLeftRadius: 8,
     borderBottomLeftRadius: 8,
     borderRightColor: "#fff",

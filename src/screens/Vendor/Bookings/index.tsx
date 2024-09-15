@@ -1,449 +1,553 @@
-import { FontAwesome } from '@expo/vector-icons';
-import axios from 'axios';
-import { format } from 'date-fns/format';
-import Entypo from '@expo/vector-icons/Entypo';
-import ExpoStatusBar from 'expo-status-bar/build/ExpoStatusBar';
+import { faker } from '@faker-js/faker';
 import React, { useContext, useEffect, useState } from 'react';
-import Image from 'Components/Ui/Image';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
-import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
-import useTheme from 'src/core/theme';
 import {
-  BookingViewScreenProps,
-  ScreenProps,
-  BookingStatus,
-  BookingDetailsProps,
-  PackageType,
-  Product,
-  HomeScreenBottomTabsProps,
-  VendorHomeScreenProps,
-  EventInfo,
-  HomeScreenNavigationProp,
-  Vendor,
-  UserProfile,
-} from 'types/types';
-import Button from 'Components/Ui/Button';
-import { AntDesign } from '@expo/vector-icons';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import { UserContext } from 'Contexts/UserContext';
-import { GetMessagesInput, WebSocketContext } from 'Contexts/WebSocket';
+  View,
+  Text,
+  Image,
+  Pressable,
+  StyleSheet,
+  Alert,
+  GestureResponderEvent,
+  ScrollView,
+} from 'react-native';
+import { Ionicons, AntDesign } from '@expo/vector-icons';
+import { BookingStatus, BookingType, HomeScreenNavigationProp, PackageBookingType, PackageType, VendorBookingViewScreenProps } from 'types/types';
+import ConfirmationDialog from 'Components/ConfirmationDialog';
+import { useAuth } from '@clerk/clerk-expo';
+import Loading from 'screens/Loading';
+import SuccessScreen from 'Components/Success';
+import ErrorScreen from 'Components/Error';
 import { ObjectId } from 'bson';
+import { format } from 'date-fns';
+import FirebaseService from 'service/firebase';
+import { GetMessagesInput, WebSocketContext } from 'Contexts/WebSocket';
 import { VendorContext } from 'Contexts/VendorContext';
+import { useNavigation } from '@react-navigation/native';
 
-function BookingView() {
-  const route = useRoute();
+interface ToolbarProps {
+  handleBackPress: (event: GestureResponderEvent) => void | Boolean;
+}
+
+const Toolbar: React.FC<ToolbarProps> = ({ handleBackPress }) => {
+  return (
+    <View style={styles.toolbarContainer}>
+      <Pressable onPress={handleBackPress} style={styles.toolbarButton}>
+        <Ionicons name='arrow-back' size={24} color='#CB0C9F' />
+      </Pressable>
+      {/* <View style={styles.toolbarSpacer} />
+      <View style={styles.toolbarActions}>
+        <Pressable onPress={onEditPress} style={styles.toolbarButton}>
+          <Ionicons name="pencil" size={24} color="#CB0C9F" />
+        </Pressable>
+        <Pressable onPress={onDeletePress} style={styles.toolbarButton}>
+          <Ionicons name="trash" size={24} color="#CB0C9F" />
+        </Pressable>
+      </View> */}
+    </View>
+  );
+};
+
+
+
+type VendorBookingType= {
+  _id: string;
+  event: {
+    _id: string;
+    date: Date;
+  };
+  client: {
+    _id: string;
+    name: string;
+    profilePicture: string;
+    contactNumber: string;
+    email: string;
+  };
+  status: BookingStatus;
+  date: Date;
+  package: PackageBookingType;
+}
+
+// function generateFakeVendorBooking(): VendorBookingType {
+//   const bookingStatus = faker.helpers.arrayElement([
+//     BookingStatus.Pending,
+//     BookingStatus.Confirmed,
+//     BookingStatus.Cancelled,
+//     BookingStatus.Declined,
+//   ]);
+
+//   return {
+//     _id: new ObjectId().toString(),
+//     eventId: new ObjectId().toString(),
+//     client: {
+//       _id: new ObjectId().toString(),
+//       name: faker.person.fullName(),
+//       profilePicture: faker.image.avatar(),
+//       contactNumber: faker.phone.number(),
+//     },
+//     status: bookingStatus,
+//     date: faker.date.future(),
+//     package: {
+//       _id: new ObjectId().toString(),
+//       name: faker.commerce.productName(),
+//       imageUrl: faker.image.url(),
+//       capacity: faker.number.int({ min: 50, max: 500 }),
+//       tags: [{_id: "1", name: "fakeTag"}],
+//       orderType: faker.helpers.arrayElement(['PICKUP', 'DELIVERY', 'SERVICE']),
+//       description: faker.lorem.sentences(2),
+//       price: faker.number.float({ min: 1000, max: 100000, precision: 0.01 }),
+//       inclusions: Array.from({ length: 3 }).map(() => ({
+//         _id: new ObjectId().toString(),
+//         imageUrl: faker.image.url(),
+//         name: faker.commerce.productName(),
+//         description: faker.lorem.sentence(),
+//         quantity: faker.number.int({ min: 1, max: 10 }),
+//       })),
+//     },
+//   };
+// }
+
+
+interface BookingDetailsProps {
+  booking: VendorBookingType;
+  handleBackPress: (event: GestureResponderEvent) => void | Boolean;
+  handleAcceptPress: (event: GestureResponderEvent) => void;
+  handleCancelPress: (event: GestureResponderEvent) => void;
+  // onReviewPress: (event: GestureResponderEvent) => void ;
+  // handleViewVendor: () => void;
+  // handleCancelBtn: () => void;
+}
+
+const BookingDetails = (props: BookingDetailsProps) => {
+  const { booking, handleBackPress, handleAcceptPress, handleCancelPress } = props;
+  const [avatar, setAvatar] = useState<string | undefined>();
+  const statusColors: { [key in BookingType['status']]: string } = {
+    PENDING: 'orange',
+    CONFIRMED: 'green',
+    CANCELLED: 'red',
+    DECLINED: 'gray',
+    COMPLETED: 'blue',
+  };
+
   const navigation = useNavigation<HomeScreenNavigationProp>();
-  const { assets, colors, sizes, gradients } = useTheme();
-  const userContext = useContext(UserContext);
-  const vendorContext = useContext(VendorContext);
-  const webSocket = useContext(WebSocketContext);
-  const [success, setSuccess] = useState(false);
 
-  if (!userContext) {
-    throw new Error('Component must be under User Provider!!!');
-  }
-  if (!vendorContext) {
-    throw new Error('Component must be under User Provider!!!');
-  }
+  const webSocket = useContext(WebSocketContext);
+  const vendorContext = useContext(VendorContext);
+
+   if(!vendorContext){
+    throw new Error('Component must be under Vendor Provider!!');
+   } 
 
   if (!webSocket) {
     throw new Error('Component must be under Websocket Provider!!');
   }
 
-  const { sendMessage } = webSocket;
+  
+  const downloadAvatar = async (profilePicturePath: string) => {
+    const firebaseService = FirebaseService.getInstance();
 
-  const { user } = userContext;
-  const { vendor } = vendorContext;
+    const profilePictureUrl =
+      await firebaseService.getProfilePicture(profilePicturePath);
 
-  const { _id, fromPending } = route.params as {
-    _id: string;
-    fromPending: boolean;
-  };
-
-  const [booking, setBooking] = useState<BookingDetailsProps>();
-  const dateString = booking?.event?.date
-    ? format(booking?.event?.date, 'MMMM dd, yyyy')
-    : '';
-
-  const fetchBooking = async (_id: string) => {
-    try {
-      const response = await axios.get(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking/${_id}`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-      setBooking(response.data);
-    } catch (error: any) {
-      if (error instanceof TypeError) {
-        console.error(
-          'Network request failed. Possible causes: CORS issues, network issues, or incorrect URL.'
-        );
-      } else {
-        console.error('Error fetching booking:', error.message);
-      }
-    }
-  };
-
-  const handleDeclineBooking = (id: string | undefined) => {
-    Alert.alert(
-      'Confirm Decline',
-      'Are you sure you want to decline this request to book?',
-      [
-        {
-          text: 'NO',
-          style: 'cancel',
-        },
-        {
-          text: 'YES',
-          onPress: async () => {
-            try {
-              await axios.patch(
-                `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking/${id}`,
-                {
-                  bookingStatus: 'CANCELLED',
-                },
-                {
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                }
-              );
-              fetchBooking(_id);
-              navigation.navigate({
-                name: 'VendorHome',
-                params: { initialTab: 'BookingList' },
-              });
-            } catch (error: any) {
-              console.error('Error declining booking:', error.message);
-            }
-          },
-        },
-      ]
-    );
-  };
-
-  const handleAcceptBooking = (id: string | undefined) => {
-    Alert.alert(
-      'Accept Booking',
-      'Are you sure you want to accept this request to book?',
-      [
-        {
-          text: 'NO',
-          style: 'cancel',
-        },
-        {
-          text: 'YES',
-          onPress: async () => {
-            try {
-              await axios.patch(
-                `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking/${id}`,
-                {
-                  bookingStatus: 'CONFIRMED',
-                },
-                {
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                }
-              );
-              fetchBooking(_id);
-
-              navigation.navigate('UpcomingBookingList');
-            } catch (error: any) {
-              console.error('Error accepting booking:', error.message);
-            }
-          },
-        },
-      ]
-    );
-  };
-
-  const onMessagePress = () => {
-    if (!user) {
-      throw new Error('Choose a recipient');
-    }
-    if (!vendor) {
-      throw new Error('Vendor information is missing');
-    }
-    const getMessagesInput: GetMessagesInput = {
-      senderId: vendor.id,
-      senderType: 'VENDOR',
-      receiverId: user._id,
-      pageNumber: 1,
-      pageSize: 15,
-      inputType: 'GET_MESSAGES',
-    };
-
-    sendMessage(getMessagesInput);
-    if (user) {
-      navigation.navigate('Chat', {
-        _id: new ObjectId().toString(),
-        senderId: user._id,
-        senderName: user.firstName,
-        senderImage: user.profilePicture,
-      });
-    }
+    setAvatar(profilePictureUrl);
   };
 
   useEffect(() => {
-    fetchBooking(_id);
-  }, []);
+    downloadAvatar(booking.client.profilePicture);
+  })
+
+  const { sendMessage } = webSocket;
+  const {vendor} = vendorContext
+
+
+  const handleChatPress = () => {
+      const getMessagesInput: GetMessagesInput = {
+        senderId: vendor.id,
+        senderType: 'VENDOR',
+        receiverId: booking.client._id,
+        pageNumber: 1,
+        pageSize: 15,
+        inputType: 'GET_MESSAGES',
+      };
+  
+      sendMessage(getMessagesInput);
+   
+        navigation.navigate('Chat', {
+          _id: new ObjectId().toString(),
+          senderId: booking.client._id,
+          senderName: booking.client.name,
+          senderImage: booking.client.profilePicture,
+        });
+      
+    };
+
+  const handleViewEventPress = () => navigation.navigate("VendorEventView", {eventId: booking.event._id});
 
   return (
     <>
-      <ExpoStatusBar />
-      <View style={listStyles.eventContainer}>
-        <View className='flex flex-row justify-between'>
-          <Button
-            row
-            flex={0}
-            justify='flex-start'
-            onPress={() => navigation.goBack()}
+      <Toolbar handleBackPress={handleBackPress} />
+      <ScrollView style={styles.container}>
+        <View style={styles.vendorContainer}>
+          <Image
+            source={{uri: avatar}}
+            defaultSource={require("../../../assets/images/user.png")}
+            style={styles.vendorLogo}
+          />
+          <View style={styles.vendorDetails}>
+            <Text style={styles.vendorName}>{booking.client.name}</Text>
+            <Text>{booking.client.email}</Text>
+            <Text>{booking.client.contactNumber}</Text>
+            <Text>Event Date: {format(booking.event.date, 'MMMM dd, yyyy')}</Text>
+          </View>
+        </View>
+        <Pressable style={styles.viewVendorButton} onPress={handleChatPress} >
+          <Text style={{...styles.buttonText, fontWeight: "bold"}}>CHAT</Text>
+        </Pressable>
+        <Pressable style={styles.viewEventButton} >
+          <Text style={{...styles.buttonText, fontWeight: "bold"}} onPress={handleViewEventPress}>VIEW EVENT</Text>
+        </Pressable>
+
+        
+        <View style={styles.statusContainer}>
+          <Text style={styles.orderType}>{booking.package.orderType}</Text>
+          <Text
+            style={[
+              styles.status,
+              {
+                color: statusColors[booking.status],
+              },
+            ]}
           >
-            <AntDesign name='back' size={24} color='#CB0C9F' />
-            <Text className='text-primary ml-1'>Go back</Text>
-          </Button>
-        </View>
-
-        <Text style={listStyles.dateText}>{dateString}</Text>
-        <View className='mb-2'>
-          <Text>{booking?.event?.name ?? 'No event name'}</Text>
-        </View>
-        <View style={listStyles.separator} />
-        <View className='flex flex-row justify-between'>
-          <View className='flex flex-row'>
-            {/* {(booking?.clientId as UserProfile)?.profilePicture ? (
-              <Image
-                background
-                padding={sizes.md}
-                rounded
-                className='rounded-xl h-18 w-18 mr-2'
-                src={(booking?.clientId as UserProfile).profilePicture}
-              />
-            ) : ( */}
-              <View className='bg-slate-500/30 w-10 h-10 rounded-xl align-middle '></View>
-            {/* )} */}
-            <View className='justify-center ml-2'>
-              <Text className='justify-center'>
-                {(booking?.clientId as UserProfile)?.firstName}{' '}
-                {(booking?.clientId as UserProfile)?.lastName}
-              </Text>
-            </View>
-          </View>
-          <View className='justify-center'>
-            <Button
-              round
-              height={18}
-              gradient={gradients.dark}
-              onPress={onMessagePress}
-            >
-              <AntDesign name='message1' color='white' size={20} />
-            </Button>
-          </View>
-        </View>
-        {fromPending ? (
-          <Text className='text-primary mt-3 text-lg font-bold'>
-            Booking Request Details:
-          </Text>
-        ) : (
-          <Text className='text-primary mt-3 text-lg font-bold'>
-            Booking Details:
-          </Text>
-        )}
-        <View className='ml-2 mt-2'>
-          <View className='h-18 w-full rounded-xl flex flex-row mb-2'>
-            <View className='justify-center'>
-              <Text className='font-semibold'>{booking?.package?.name}:</Text>
-            </View>
-          </View>
-          {booking?.package?.inclusions.map((inclusion, index) => (
-            <View
-              key={index}
-              className=' h-18 w-full rounded-xl flex flex-row mb-2'
-            >
-              <Image
-                background
-                padding={sizes.md}
-                src={inclusion.imageURL}
-                rounded
-                className='rounded-xl h-18 w-18 mr-2'
-              ></Image>
-              <View className='justify-center'>
-                <Text className='font-semibold'>
-                  {inclusion.name} x {inclusion.quantity}
-                </Text>
-              </View>
-            </View>
-          ))}
-          <View style={listStyles.separator} className='mt-3' />
-          <Text className='font-bold text-lg text-primary self-end p-2'>
-            Total: ₱{booking?.package?.price.toFixed(2)}
+            {booking.status}
           </Text>
         </View>
-        {fromPending && (
-          <View className='flex flex-row space-x-1'>
-            <Button
-              onPress={() => handleDeclineBooking(booking?._id)}
-              gradient={gradients.danger}
-              className='flex-1'
-            >
-              <Text className='text-white uppercase'>Decline</Text>
-            </Button>
-
-            <Button
-              onPress={() => handleAcceptBooking(booking?._id)}
-              gradient={gradients.primary}
-              className='flex-1'
-            >
-              <Text className='text-white uppercase'>Accept</Text>
-            </Button>
-          </View>
-        )}
+        <View style={styles.separator} />
+        <View style={styles.packageContainer}>
+        <Image source={{ uri: booking.package.imageUrl }} style={styles.packageImage} />
+        <Text style={styles.packageName}>Package Name: {booking.package.name.toLocaleUpperCase()}</Text>
+        <Text  style={{fontWeight: "bold"}}>Inclusions:</Text>
+        {booking.package.inclusions.map(item => <Text key={item._id} style={{fontWeight: "bold"}}>- {item.name} - {item.description} </Text>)}
+        <View style={styles.separator} />
+        <Text>{booking.package.description}</Text>
+        {/* Additional package details can go here */}
       </View>
+
+      {/* Cancel Booking Button */}
+      <View style={styles.separator} />
+                 {booking.status === "PENDING" && (
+              <Pressable style={[styles.cancelButton, {backgroundColor: "green",marginBottom: 5}]} onPress={handleAcceptPress}>
+              <Text style={[styles.buttonText, {fontWeight:"bold" }]}>ACCEPT REQUEST</Text>
+            </Pressable>
+      ) }
+      { booking.status !== "DECLINED" && booking.status !== "CANCELLED"  && booking.status !== "COMPLETED" && (
+              <Pressable style={styles.cancelButton} onPress={handleCancelPress} >
+              <Text style={[styles.buttonText, {fontWeight:"bold"}]}>{booking.status !== "CONFIRMED"?"CANCEL REQUEST":"CANCEL BOOKING"}</Text>
+            </Pressable>
+      ) }
+           {/* {booking.status === "COMPLETED" && (
+              <Pressable style={[styles.cancelButton, {backgroundColor: "purple"}]}>
+              <Text style={[styles.buttonText, {fontWeight:"bold" }]}>VIEW REVIEW</Text>
+            </Pressable>
+      ) } */}
+    </ScrollView>
     </>
   );
+};
+
+interface ErrorState {
+  error: boolean;
+  message: string;
 }
+
+interface ConfirmationState {
+  open: boolean;
+  event: "ACCEPT" | "CANCEL" | "CLOSED";
+}
+
+
+
+function  VendorBookingView({navigation, route}: VendorBookingViewScreenProps) {
+  const { _id } = route.params;
+  const { getToken } = useAuth();
+  const [errorState, setErrorState] = useState<ErrorState>({error: false, message: ""})
+  const [loading, setLoading] = useState(true);
+  const [booking, setBooking] = useState<VendorBookingType | undefined>();
+  const [confirmationState, setConfirmationState] = useState<ConfirmationState>({open: false, event: "ACCEPT"})
+  const [success, setSuccess] = useState(false);
+  const [reload, setReload] = useState(false);
+
+  const fetchBooking = async () => {
+    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking/vendor/${_id}/view`;
+
+    const token = getToken({ template: 'eventhand-client' });
+
+    const request = {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    try {
+      const res = await fetch(url, request);
+      const data = await res.json();
+
+      if (res.status === 200) {
+        setBooking(data)
+
+        setLoading(false);
+        console.log('USER DATA SUCCESSFULLY LOADED');
+      } else if (res.status === 400) {
+        throw new Error('Bad request - Invalid data.');
+      } else if (res.status === 401) {
+        throw new Error('Unauthorized - Authentication failed.');
+      } else if (res.status === 404) {
+        throw new Error('Not Found- Cannot find booking.');
+      } else {
+        throw new Error('Unexpected error occurred.');
+      }
+    } catch (error: any) {
+      console.error(`Error fetching user (${error.code}): ${error} `);
+      setErrorState({error: true, message: `${error}`});
+      setLoading(false);
+    } finally {
+    }
+  };
+
+  useEffect(() =>{
+    fetchBooking()
+  }, [reload])
+
+
+  const handleBackPress = () => navigation.replace("VendorHome", {initialTab: booking?.status === "PENDING"?"Requests":"Bookings"});
+
+  // const onReviewPress = () => navigation.navigate("UserReview", { booking, event: event!  })
+  
+  // const handleViewVendor = () => navigation.navigate("VendorMenu", {vendorId: booking.client._id})
+
+  const updateBooking = async (bookingId: string) => {
+    setLoading(true);
+    setErrorState({error: false, message: ""});
+
+    const token = await getToken({ template: "eventhand-vendor" });
+
+    const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking/${booking?._id}/${confirmationState.event === "ACCEPT"?"confirm": "cancel"}`;
+    
+    const request = {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+  
+
+    try {
+      const response = await fetch(url, request);
+
+      // Check if the response is okay (status code in the range 200-299)
+      if (!response.ok) {
+        const errorData = await response.json(); // Get the error message from the response
+        throw new Error(errorData.message || 'Something went wrong');
+      }
+
+      switch (response.status) {
+        case 200:
+        case 201: // Success responses
+          setSuccess(true)
+          break;
+        
+        case 400: // Bad Request
+          const badRequestData = await response.json();
+          throw new Error(badRequestData.message || 'Bad request. Please check your input.');
+        
+        case 401: // Unauthorized
+          throw new Error('Unauthorized. Please log in and try again.');
+        
+        case 403: // Forbidden
+          throw new Error('Forbidden. You do not have permission to perform this action.');
+        
+        case 404: // Not Found
+          throw new Error('Resource not found. Please check the ID.');
+        
+        case 500: // Internal Server Error
+          throw new Error('Server error. Please try again later.');
+        
+        default: // Other status codes
+          throw new Error('Something went wrong. Please try again.');
+      }
+    } catch (err) {
+      console.error('Error updating data:', err);
+      setErrorState({error: true, message :`Error updating data: ${err}`}); // Set error message
+      setConfirmationState({open: false, event: "CLOSED"});
+      setSuccess(false);
+    } finally {
+      setLoading(false); // Stop loading spinner
+    }
+  };
+
+  const onSuccessPress = () => {
+    setReload(!reload)
+    setConfirmationState({open: false, event: "CLOSED"});
+    setSuccess(false);
+  };
+
+
+  if(success){
+    return <SuccessScreen description={"Booking successfully cancelled"} buttonText={"Proceed"} onPress={onSuccessPress}/> 
+  }
+
+  const onErrorPress = () => {
+    navigation.goBack()
+  }
+
+  if(errorState.error){
+    return <ErrorScreen description={errorState.message} buttonText={'Try Again'} onPress={onErrorPress }/>  
+  }
+
+
+  const handleConfirmationCancel = () => setConfirmationState({open: false, event: "CLOSED"})
+  
+  const handleConfirmationConfirm = () => {
+    if(booking){
+      updateBooking(booking._id)
+    } else{
+      setConfirmationState({open: false, event: "CLOSED"})
+      setErrorState({error: true, message: "Booking does not exist"})
+    }
+  };
+
+
+
+  if(confirmationState.open){
+    const title = confirmationState.event === "ACCEPT"? "Accept Request": booking?.status === "PENDING"? "Cancel Request": "Cancel Booking"
+    const description = confirmationState.event === "ACCEPT"? `Do you wish to accept your ${booking?.client.name}'s booking request?`: booking?.status === "PENDING"? `Do you wish to cancel ${booking?.client.name}'s booking request?`:  `Do you wish to cancel ${booking?.client.name}'s booking?`
+    return <ConfirmationDialog title={title} description={description} onCancel={handleConfirmationCancel} onConfirm={handleConfirmationConfirm}/>
+  }
+
+
+  if(loading){
+    return  <Loading/>
+  }
+
+
+  const handleAcceptPress = () => {
+    setConfirmationState({open: true, event: "ACCEPT"})
+  }
+
+  const handleCancelPress = () => {
+    setConfirmationState({open: true, event: "CANCEL"})
+  }
+
+  if(booking){
+    return <BookingDetails  booking={booking} handleAcceptPress={handleAcceptPress} handleBackPress={handleBackPress} handleCancelPress={handleCancelPress}  />
+
+  } 
+
+
+  return <></>
+}
+
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 1,
-  },
-  button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#6200EE',
-    paddingVertical: 10,
     paddingHorizontal: 10,
-    borderRadius: 5,
-  },
-  icon: {
-    marginRight: 5,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 12,
-  },
-  listContainer: {
-    padding: 16,
-    marginTop: 5,
-  },
-  roundedContainer: {
-    borderRadius: 10,
-    backgroundColor: '#fff',
-    overflow: 'hidden',
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
   },
   vendorContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-    padding: 10,
-    position: 'relative',
-  },
-  floatingRemoveButton: {
-    position: 'absolute',
-    top: -10,
-    right: -10,
-    backgroundColor: 'white',
-    borderRadius: 50,
-    padding: 1,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
+    marginBottom: 20,
   },
   vendorLogo: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginRight: 16,
+    width: 60,
+    height: 60,
+    marginRight: 15,
+  },
+  vendorDetails: {
+    flex: 1,
   },
   vendorName: {
-    fontSize: 15,
-  },
-  tabBar: {
-    backgroundColor: '#fff',
-    marginTop: 5, // Add margin top for TabBar
-    marginHorizontal: 6,
-    elevation: 4, // Optional shadow for TabBar on Android
-    shadowColor: '#000', // Optional shadow for TabBar on iOS
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  indicator: {
-    backgroundColor: '#CB0C9F',
-  },
-  label: {
-    color: '#CB0C9F',
-  },
-});
-
-const listStyles = StyleSheet.create({
-  eventContainer: {
-    paddingHorizontal: 16,
-    paddingVertical: 30,
-    marginTop: 80,
-    marginHorizontal: 5,
-    backgroundColor: '#fff',
-    borderLeftWidth: 8,
-    borderTopLeftRadius: 16,
-    borderBottomLeftRadius: 16,
-    borderLeftColor: '#CB0C9F',
-    borderRightWidth: 8,
-    borderTopRightRadius: 16,
-    borderBottomRightRadius: 16,
-    borderRightColor: '#CB0C9F',
-    elevation: 10, // Add shadow for floating effect
-    shadowColor: 'black',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-  },
-  dateText: {
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 8,
+  },
+  viewVendorButton: {
+    backgroundColor: '#007bff',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginBottom: 5,
+  },
+  viewEventButton: {
+    backgroundColor: '#007bff',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  statusContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom:10,
+  },
+  orderType: {
+    fontSize: 16,
+  },
+  status: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  packageContainer: {
+    marginBottom: 20,
+  },
+  packageName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    margin: 5,
+  },
+  packageImage: {
+    width: '100%',
+    height: 100,
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  cancelButton: {
+    backgroundColor: 'red',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  toolbarContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    // backgroundColor: '#6200EE', // Example toolbar background color
+    // position: 'absolute',
+    marginTop: 10,
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1,
+  },
+  toolbarButton: {
+    padding: 8,
+  },
+  toolbarSpacer: {
+    flex: 1,
+  },
+  toolbarActions: {
+    flexDirection: 'row',
   },
   separator: {
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
-    marginBottom: 8,
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  budgetText: {
-    fontSize: 16,
-  },
-  capacityText: {
-    fontSize: 16,
-  },
-  inclusionContainer: {
-    marginTop: 10,
-  },
-  inclusionItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 5,
-  },
-  inclusionText: {
-    fontSize: 16,
-  },
-  noInclusionsText: {
-    fontSize: 16,
-    fontStyle: 'italic',
-    color: 'gray',
+    marginVertical: 10,
   },
 });
 
-export default BookingView;
+export default VendorBookingView;

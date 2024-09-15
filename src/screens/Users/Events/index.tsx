@@ -30,7 +30,7 @@ import { faker } from '@faker-js/faker';
 import { useAuth } from '@clerk/clerk-expo';
 import Loading from 'screens/Loading';
 import ErrorScreen from 'Components/Error';
-import { isAfter, isBefore } from 'date-fns';
+import { isAfter, isBefore, isToday } from 'date-fns';
 
 type Category = {
   name: string;
@@ -117,7 +117,7 @@ const BudgetScreen = (props: BudgetScreenProps) => {
   useFocusEffect(
     useCallback(() => {
       const backHandler = BackHandler.addEventListener(
-        "hardwareBackPress",
+        'hardwareBackPress',
         backAction
       );
 
@@ -237,13 +237,11 @@ const SortTabBar = () => {
 
 interface ToolbarProps {
   onBackPress: (event: GestureResponderEvent) => void | Boolean;
-  onDeletePress: (event: GestureResponderEvent) => void;
   onEditPress: (event: GestureResponderEvent) => void;
 }
 
 const Toolbar: React.FC<ToolbarProps> = ({
   onBackPress,
-  onDeletePress,
   onEditPress,
 }) => {
   return (
@@ -256,9 +254,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
         <Pressable onPress={onEditPress} style={styles.toolbarButton}>
           <Ionicons name='pencil' size={24} color='#CB0C9F' />
         </Pressable>
-        <Pressable onPress={onDeletePress} style={styles.toolbarButton}>
-          <Ionicons name='trash' size={24} color='#CB0C9F' />
-        </Pressable>
+
       </View>
     </View>
   );
@@ -367,7 +363,9 @@ const BookingList: React.FC<BookingListProps> = ({ bookings, onPress }) => {
           <Text style={styles.bookingListDate}>
             {format(item.date, 'MMMM dd, yyyy')}
           </Text>
-          <Text style={styles.bookingListPrice}>₱{addCommasToNumber(item.package.price)}</Text>
+          <Text style={styles.bookingListPrice}>
+            ₱{addCommasToNumber(item.package.price)}
+          </Text>
         </View>
       </View>
     </Pressable>
@@ -497,8 +495,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
   };
 
   const handleFindSupplier = () => {
-    const eventID = eventId;
-    navigation.navigate('PackageList', { eventID });
+    navigation.navigate('PackageList', { event });
   };
 
   useEffect(() => {
@@ -542,7 +539,10 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     <BookingList
       bookings={confirmedBookings}
       onPress={(booking: BookingType) =>
-        navigation.navigate("UserBookingView", { booking: { ...booking }, event })
+        navigation.navigate('UserBookingView', {
+          booking: { ...booking },
+          event,
+        })
       }
     />
   );
@@ -550,7 +550,10 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     <BookingList
       bookings={pendingBookings}
       onPress={(booking: BookingType) =>
-        navigation.navigate("UserBookingView", { booking: { ...booking }, event })
+        navigation.navigate('UserBookingView', {
+          booking: { ...booking },
+          event,
+        })
       }
     />
   );
@@ -558,7 +561,10 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     <BookingList
       bookings={cancelledOrDeclinedBookings}
       onPress={(booking: BookingType) =>
-        navigation.navigate("UserBookingView", { booking: { ...booking, }, event})
+        navigation.navigate('UserBookingView', {
+          booking: { ...booking },
+          event,
+        })
       }
     />
   );
@@ -580,7 +586,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     budget,
     pendingBookings: [],
     confirmedBookings: [],
-    cancelledOrDeclinedBookings: []
+    cancelledOrDeclinedBookings: [],
   };
 
   const onUpdateBtnPress = () => {
@@ -659,7 +665,10 @@ function EventView({ route, navigation }: EventViewScreenProps) {
     );
   }
 
-  const onBackBtnPress = () => (navigation.canGoBack())? navigation.goBack(): navigation.replace("Home", {});
+  const onBackBtnPress = () =>
+    navigation.canGoBack()
+      ? navigation.goBack()
+      : navigation.replace('Home', {});
   const onEditButtonPress = () => setOpenEdit(true);
 
   return (
@@ -667,7 +676,6 @@ function EventView({ route, navigation }: EventViewScreenProps) {
       <ExpoStatusBar />
       <Toolbar
         onBackPress={onBackBtnPress}
-        onDeletePress={() => {}}
         onEditPress={onEditButtonPress}
       />
       <View style={listStyles.eventContainer}>
@@ -731,8 +739,24 @@ function EventView({ route, navigation }: EventViewScreenProps) {
           </Text>
         </View>
       </View>
+      {isToday(event.date) && (
+        <TabView
+          navigationState={{ index, routes }}
+          renderScene={renderScene}
+          onIndexChange={setIndex}
+          initialLayout={{ width: 300 }}
+          renderTabBar={(props) => (
+            <TabBar
+              {...props}
+              indicatorStyle={styles.indicator}
+              style={styles.tabBar}
+              labelStyle={styles.label}
+            />
+          )}
+        />
+      )}
 
-      {!isBefore(event.date, new Date()) && (
+      {isAfter(event.date, new Date())  && (
         <TabView
           navigationState={{ index, routes }}
           renderScene={renderScene}
@@ -755,7 +779,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
             navigation.navigate('UserBookingView', {
               booking: { ...booking },
               isPastEventDate: isAfter(new Date(), event.date),
-              event
+              event,
             })
           }
         />

@@ -15,9 +15,6 @@ import VendorProfileForm from 'screens/Vendor/Profile/Form';
 import { ScreenProps } from 'types/types';
 import BookingConfirmation from 'screens/Users/BookingConfirmation';
 import BookingDetails from 'screens/Users/BookingDetails';
-import BookingView from 'screens/Vendor/Bookings';
-import UpcomingBookingList from 'screens/Vendor/Bookings/UpcomingBookings';
-import BookingList from 'screens/Vendor/Bookings/List';
 import AboutForm from 'screens/Vendor/Profile/AboutForm';
 import MenuForm from 'screens/Vendor/Profile/MenuForm';
 import VerificationForm from 'screens/Vendor/Profile/VerificationForm';
@@ -25,9 +22,11 @@ import Rating from 'Components/Ratings/Rating';
 import UserBookingView from 'screens/Users/BookingView';
 import MultiStepForm from 'screens/Vendor/Profile/MultiStepForm';
 import UserReview from 'screens/Users/Review';
-import VendorReviews from 'screens/Vendor/Reviews/List';
 import VendorReview from 'screens/Vendor/Reviews';
 import PackageList from 'screens/Users/Packages/PackageList';
+import VendorBookingView from 'screens/Vendor/Bookings';
+import VendorEventView from 'screens/Vendor/Event';
+import MyMenu from 'screens/Vendor/Menu';
 
 const SignedInStack = createNativeStackNavigator<ScreenProps>();
 
@@ -61,7 +60,7 @@ const chatOptions: NativeStackNavigationOptions = {
 
 const SignedInNav = () => {
   return (
-    <SignedInStack.Navigator>
+    <SignedInStack.Navigator >
       <SignedInStack.Screen
         name='Home'
         component={Home}
@@ -140,8 +139,8 @@ const SignedInNav = () => {
         initialParams={vendorHomeInitialParams}
       />
       <SignedInStack.Screen
-        name='BookingView'
-        component={BookingView}
+        name='VendorBookingView'
+        component={VendorBookingView}
         options={{ headerShown: false }}
       />
       <SignedInStack.Screen
@@ -152,16 +151,6 @@ const SignedInNav = () => {
       <SignedInStack.Screen
         name='MultiStepForm'
         component={MultiStepForm}
-        options={{ headerShown: false }}
-      />
-      <SignedInStack.Screen
-        name='UpcomingBookingList'
-        component={UpcomingBookingList}
-        options={{ headerShown: false }}
-      />
-      <SignedInStack.Screen
-        name='BookingList'
-        component={BookingList}
         options={{ headerShown: false }}
       />
       <SignedInStack.Screen
@@ -185,8 +174,18 @@ const SignedInNav = () => {
         options={{ headerShown: false }}
       />
       <SignedInStack.Screen
+        name='MyMenu'
+        component={MyMenu}
+        options={{ headerShown: false }}
+      />
+      <SignedInStack.Screen
         name='VendorReview'
         component={VendorReview}
+        options={{ headerShown: false }}
+      />
+      <SignedInStack.Screen
+        name='VendorEventView'
+        component={VendorEventView}
         options={{ headerShown: false }}
       />
     </SignedInStack.Navigator>

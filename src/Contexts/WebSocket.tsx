@@ -97,7 +97,7 @@ const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
 
     const connectWebSocket = useCallback(async () => {
         try {
-            const token = await getToken({ template: "event-hand-jwt" });
+            const token = await getToken({ template: "eventhand-vendor" });
             const url = `${process.env.EXPO_PUBLIC_WEBSOCKET_URL}?token=${token}`;
             const socket = new WebSocket(url);
             console.log(`CONNECTING TO: ${process.env.EXPO_PUBLIC_WEBSOCKET_URL}`)
