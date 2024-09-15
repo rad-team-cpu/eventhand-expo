@@ -799,7 +799,7 @@ const addCommasToNumber = (number: number) => {
   return parts.join('.');
 };
 
-function validateEventBudget(input: EventFormInputType): boolean {
+const validateEventBudget = (input: EventFormInputType): boolean => {
   const { categories, budget } = input;
 
   const categoryBudgetMap: {
@@ -1152,6 +1152,12 @@ const EventFormConfirmation = (props: EventInputProps) => {
   );
 };
 
+const sortByEventDate =(a: EventInfo, b : EventInfo,) => {
+  const dateA = new Date(a.date).getTime();
+  const dateB = new Date(b.date).getTime();
+  return dateA - dateB; // Sorts by ascending date (earliest date first)
+};
+
 function EventForm({ navigation }: EventFormScreenProps) {
   const userContext = useContext(UserContext);
   const { userId, isLoaded, getToken, signOut } = useAuth();
@@ -1463,7 +1469,7 @@ function EventForm({ navigation }: EventFormScreenProps) {
     };
 
     try {
-      const token = await getToken({ template: 'event-hand-jwt' });
+      const token = await getToken({ template: "eventhand-client" });
 
       const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events`;
 
@@ -1504,7 +1510,10 @@ function EventForm({ navigation }: EventFormScreenProps) {
           setEventList((prevEventList) => {
             return {
               ...prevEventList,
-              events: [...prevEventList.events, { ...event }],
+              events: [
+                ...prevEventList.events,
+                { ...event },
+              ].sort(sortByEventDate),
             };
           });
 
@@ -1813,7 +1822,7 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps) {
     setLoading(true);
     setErrorMessage('');
 
-    const token = await getToken({ template: 'event-hand-jwt' });
+    const token = await getToken({ template: "eventhand-client" });
 
     let url = `${process.env.EXPO_PUBLIC_BACKEND_URL}`;
 
@@ -1952,12 +1961,10 @@ function UpdateEventForm({ navigation, route }: UpdateEventFormScreenProps) {
         setEventList((prevEventList) => {
           return {
             ...prevEventList,
-            events: [...updatedEvents],
-          };
-        });
-        setSuccessMessage(
-          `Your event ${updateValue.toLocaleLowerCase()}} has been successfully Updated`
-        );
+            events: [...updatedEvents].sort(sortByEventDate)
+          }
+        })
+        setSuccessMessage(`Your event ${updateValue.toLocaleLowerCase()}} has been successfully Updated`)
         setSuccess(true);
       } else {
         const errorData = await response.json();
