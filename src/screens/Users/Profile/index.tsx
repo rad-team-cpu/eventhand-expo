@@ -33,7 +33,15 @@ export default function Profile() {
     const profilePictureUrl =
       await firebaseService.getProfilePicture(profilePicturePath);
 
-    setAvatarImage(profilePictureUrl);
+    
+      if(profilePictureUrl){
+        setAvatarImage(profilePictureUrl);
+      }
+
+      if(profilePictureUrl == null){
+        return null
+      }
+
   };
 
   useEffect(() => {

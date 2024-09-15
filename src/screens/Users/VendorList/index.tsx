@@ -43,7 +43,6 @@ const SectionItem = (vendor :VendorListItem) => {
 
       if(profilePictureUrl == null){
         setLogo(vendor.logo)
-
       }
 
   };
