@@ -35,7 +35,7 @@ import useTheme from 'src/core/theme';
 import SuccessScreen from 'Components/Success';
 import ErrorScreen from 'Components/Error';
 import ExpoStatusBar from 'expo-status-bar/build/ExpoStatusBar';
-import { compareAsc } from 'date-fns';
+import { compareAsc, isEqual } from 'date-fns';
 
 type SelectedCategories = {
   eventPlanning: boolean;
@@ -439,8 +439,7 @@ const EventDateInput = (props: EventDateInputProps) => {
   const [errorState, setErrorState] = useState<FormError>({
     error:
       mode === 'UPDATE'
-        ? compareAsc(currentDate, oldDate!) === -1 ||
-          compareAsc(currentDate, oldDate!) === 0
+        ? isEqual(currentDate, oldDate!)
         : false,
     message: '',
   });
@@ -458,28 +457,17 @@ const EventDateInput = (props: EventDateInputProps) => {
   };
 
   const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
-    const currentDate = selectedDate;
+    const currentDate = selectedDate? new Date(selectedDate.setHours(0, 0, 0, 0)): selectedDate;
     setSelected(datePickerDate.selectStringDate(currentDate));
 
     if (currentDate) {
       if (mode === 'UPDATE' && oldDate) {
-        switch (compareAsc(currentDate, oldDate)) {
-          case 1:
-            eventFormValuesRef.current = {
-              ...eventFormValuesRef.current,
-              date: currentDate,
-            };
-            break;
-          case -1:
-            setErrorState({
-              error: true,
-              message: 'Date should be after the old date',
-            });
-          case 0:
-            setErrorState({
-              error: true,
-              message: 'Date should be after the old date',
-            });
+        const startOfOldDate = new Date(oldDate.setHours(0, 0, 0, 0))
+        if(isEqual(currentDate, startOfOldDate)){
+          setErrorState({error: true, message: "Date must not be equal to old date"})
+        } else{
+          setErrorState({error: false, message: ""})
+
         }
       }
       eventFormValuesRef.current = {
