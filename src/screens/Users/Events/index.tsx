@@ -193,7 +193,6 @@ const BudgetScreen = (props: BudgetScreenProps) => {
 interface ToolbarProps {
   onBackPress: (event: GestureResponderEvent) => void | Boolean;
   onEditPress: (event: GestureResponderEvent) => void;
-  disableEdit: boolean;
 }
 
 const Toolbar: React.FC<ToolbarProps> = ({ onBackPress, onEditPress, disableEdit }) => {
@@ -329,6 +328,14 @@ const BookingList: React.FC<BookingListProps> = ({ bookings, onPress }) => {
     />
   );
 };
+
+const isDateAfter = (date1: Date, date2: Date): boolean =>  {
+  if (date1.getTime() > date2.getTime()) {
+      return true;
+  } else {
+      return false;
+  }
+}
 
 function EventView({ route, navigation }: EventViewScreenProps) {
   const eventId = route.params._id;
@@ -571,7 +578,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
   return (
     <>
       <ExpoStatusBar />
-      <Toolbar onBackPress={onBackBtnPress} onEditPress={onEditButtonPress} disableEdit={isAfter(new Date(eventDate.setHours(0, 0, 0, 0)), new Date())} />
+      <Toolbar onBackPress={onBackBtnPress} onEditPress={onEditButtonPress}  />
       <View style={listStyles.eventContainer}>
         <View className='flex flex-row justify-between'>
           <Text style={listStyles.dateText}>{dateString}</Text>
