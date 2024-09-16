@@ -227,7 +227,7 @@ function IdList() {
             </View>
           ))
         ) : (
-          <Text>No credentials available</Text>
+          <Text>No vendors are looking for verification.</Text>
         )}
       </View>
     );
