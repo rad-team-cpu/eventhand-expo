@@ -90,13 +90,13 @@ const VerificationForm = ({
     mode: 'onBlur',
     reValidateMode: 'onChange',
     defaultValues: {
-      idType: '', 
+      idType: '',
       credentials: {
         fileSize: 0,
         uri: '',
         mimeType: '',
         fileExtension: '',
-      }, 
+      },
     },
     resolver: yupResolver(verificationFormValidationSchema),
   });
@@ -144,7 +144,7 @@ const VerificationForm = ({
       const response = await axios.patch(
         `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors/${vendorId}`,
         {
-          credentials: [
+          credential: [
             {
               type: idType,
               url: `${uploadPath}`,

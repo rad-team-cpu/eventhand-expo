@@ -30,7 +30,7 @@ interface Vendor {
   address: {
     city: string;
   };
-  credentials: Credential[];
+  credential: Credential[];
 }
 
 interface ErrorState {
@@ -79,13 +79,13 @@ function IdList() {
           const filteredVendors = data
             .map((vendor: Vendor) => ({
               ...vendor,
-              credentials: Array.isArray(vendor?.credentials)
-                ? vendor.credentials.filter(
+              credential: Array.isArray(vendor?.credential)
+                ? vendor.credential.filter(
                     (cred: Credential) => cred?.verified === false
                   )
                 : [],
             }))
-            .filter((vendor: Vendor) => vendor.credentials.length > 0);
+            .filter((vendor: Vendor) => vendor.credential.length > 0);
 
           setVendors(filteredVendors);
           console.log(
@@ -127,7 +127,7 @@ function IdList() {
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
-        credentials: [
+        credential: [
           {
             type: credential.type,
             url: `${credential.url}`,
@@ -145,7 +145,6 @@ function IdList() {
         console.log('Credential status updated successfully');
         fetchVendors();
       } else {
-        console.log(res);
         throw new Error('Failed to update credential');
       }
     } catch (error) {
@@ -176,7 +175,7 @@ function IdList() {
 
     useEffect(() => {
       try {
-        vendor.credentials.forEach((cred) => {
+        vendor.credential.forEach((cred) => {
           if (cred.url) {
             downloadIdPic(cred.url, cred._id);
           }
@@ -184,7 +183,7 @@ function IdList() {
       } catch (error) {
         console.error(error);
       }
-    }, [vendor.credentials]);
+    }, [vendor.credential]);
 
     return (
       <View key={vendor._id} style={styles.itemContainer}>
@@ -192,13 +191,14 @@ function IdList() {
         <Text style={styles.dateText}>Location: {vendor.address.city}</Text>
         <View style={styles.separator} />
 
-        {vendor.credentials && vendor.credentials.length > 0 ? (
-          vendor.credentials.map((cred: Credential, index: number) => (
+        {vendor.credential && vendor.credential.length > 0 ? (
+          vendor.credential.map((cred: Credential, index: number) => (
             <View key={index}>
               <Text style={styles.budgetText}>
                 {cred.type}: {cred.value}
               </Text>
               <Pressable onPress={() => setSelectedImage(idPic[cred._id])}>
+                {/* Show image or fallback */}
                 {idPic[cred._id] ? (
                   <Image
                     source={{ uri: idPic[cred._id] }}
@@ -251,6 +251,7 @@ function IdList() {
         }
       />
 
+      {/* Fullscreen Modal for displaying the image */}
       <Modal visible={!!selectedImage} transparent={true} animationType='fade'>
         <View style={styles.modalBackground}>
           <Pressable
