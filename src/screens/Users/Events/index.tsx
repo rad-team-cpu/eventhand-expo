@@ -258,10 +258,7 @@ const EventUpdateMenu: React.FC<EventUpdateMenuProps> = ({
         <Text style={styles.budgetTitle}>EDIT EVENT</Text>
         <Text style={styles.budgetDescription}>
           Cannot edit event date and name with confirmed or pending bookings and
-          cannot edit address, if you have booked venue.
-        </Text>
-        <Text style={styles.budgetDescription}>
-          Cannot edit address, if you have booked venue.
+          cannot edit address, if you have selected venue in budget.
         </Text>
         {options.map((option) => (
           <Pressable
