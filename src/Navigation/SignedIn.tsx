@@ -28,6 +28,7 @@ import VendorBookingView from 'screens/Vendor/Bookings';
 import VendorEventView from 'screens/Vendor/Event';
 import MyMenu from 'screens/Vendor/Menu';
 import ViewAllPackages from 'screens/Users/Packages/ViewAllPackages';
+import Admin from 'screens/Admin';
 
 const SignedInStack = createNativeStackNavigator<ScreenProps>();
 
@@ -72,6 +73,11 @@ const SignedInNav = () => {
         name='EventForm'
         component={EventForm}
         options={eventFormHeaderOptions}
+      />
+      <SignedInStack.Screen
+        name='Admin'
+        component={Admin}
+        options={{ headerShown: false }}
       />
       <SignedInStack.Screen
         name='UserBookingView'

@@ -144,7 +144,7 @@ const VerificationForm = ({
       const response = await axios.patch(
         `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors/${vendorId}`,
         {
-          credential: [
+          credentials: [
             {
               type: idType,
               url: `${uploadPath}`,

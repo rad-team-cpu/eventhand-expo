@@ -391,7 +391,12 @@ type ScreenProps = {
   VendorBookingView: VendorBookingViewProps;
   VendorList: undefined;
   PackageList: { event: EventInfo };
-  ViewAllPackages: {category: string, packages: PackageItemType[], event: EventInfo};
+  Admin: undefined;
+  ViewAllPackages: {
+    category: string;
+    packages: PackageItemType[];
+    event: EventInfo;
+  };
   VendorMenu: VendorMenuProps;
   BookingConfirmation: BookingConfirmationProps;
   BookingDetails: BookingDetailsProps;
@@ -424,6 +429,7 @@ type VendorEventViewScreenProps = NativeStackScreenProps<
 >;
 
 type WelcomeScreenProps = NativeStackScreenProps<ScreenProps, 'Welcome'>;
+type AdminScreenProps = NativeStackScreenProps<ScreenProps, 'Admin'>;
 
 type VendorReviewScreenProps = NativeStackScreenProps<
   ScreenProps,
@@ -608,6 +614,7 @@ export {
   MultiStepFormScreenProps,
   VendorHomeScreenBottomTabsProps,
   ChatListScreenPropsList,
+  AdminScreenProps,
   UserMode,
   PaginationInfo,
   BookingType,
