@@ -185,7 +185,7 @@ const VendorHome = ({ navigation, route }: VendorHomeScreenProps) => {
       if (res.status === 200) {
         console.log("FETCHING VENDOR DATA...");
         const data = await res.json();
-        const hasCredentials = data.credential && data.credential.length > 0;
+        const hasCredentials = data.credentials && data.credentials.length > 0;
         const vendor = {
           id: data._id,
           logo: data.logo,
@@ -194,7 +194,7 @@ const VendorHome = ({ navigation, route }: VendorHomeScreenProps) => {
           email: data.email,
           contactNumber: data.contactNumber,
           bookings: data.bookings,
-          credential: data.credential,
+          credentials: data.credentials,
         };
         setVendor({ ...vendor });
         const getChatListInput: GetChatListInput = {

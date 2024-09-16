@@ -1,6 +1,13 @@
 import React, { createContext, useState, ReactNode } from "react";
 import { BookingDetailsProps, Vendor } from "types/types";
 
+ type Credentials = {
+  type: string;
+  url: string;
+  verified: boolean;
+  expiry?: Date | string;
+ }
+
 interface VendorProfile {
   id: string;
   logo?: string | undefined;
@@ -9,6 +16,7 @@ interface VendorProfile {
   address?: string;
   contactNumber: string;
   bookings?: BookingDetailsProps[]
+  credentials?: Credentials[]
 }
 
 interface VendorContextType {
