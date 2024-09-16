@@ -193,7 +193,6 @@ const BudgetScreen = (props: BudgetScreenProps) => {
 interface ToolbarProps {
   onBackPress: (event: GestureResponderEvent) => void | Boolean;
   onEditPress: (event: GestureResponderEvent) => void;
-  disableEdit: boolean;
 }
 
 const Toolbar: React.FC<ToolbarProps> = ({ onBackPress, onEditPress, disableEdit }) => {
@@ -258,10 +257,7 @@ const EventUpdateMenu: React.FC<EventUpdateMenuProps> = ({
         <Text style={styles.budgetTitle}>EDIT EVENT</Text>
         <Text style={styles.budgetDescription}>
           Cannot edit event date and name with confirmed or pending bookings and
-          cannot edit address, if you have booked venue.
-        </Text>
-        <Text style={styles.budgetDescription}>
-          Cannot edit address, if you have booked venue.
+          cannot edit address, if you have selected venue in budget.
         </Text>
         {options.map((option) => (
           <Pressable
@@ -333,6 +329,14 @@ const BookingList: React.FC<BookingListProps> = ({ bookings, onPress }) => {
   );
 };
 
+const isDateAfter = (date1: Date, date2: Date): boolean =>  {
+  if (date1.getTime() > date2.getTime()) {
+      return true;
+  } else {
+      return false;
+  }
+}
+
 function EventView({ route, navigation }: EventViewScreenProps) {
   const eventId = route.params._id;
   const { getToken } = useAuth();
@@ -354,7 +358,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
   const fetchEvent = async () => {
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/${eventId}/bookings`;
 
-    const token = await getToken({ template: 'event-hand-jwt' });
+    const token = await getToken({ template: 'eventhand-client' });
 
     const request = {
       method: 'GET',
@@ -569,10 +573,12 @@ function EventView({ route, navigation }: EventViewScreenProps) {
       : navigation.replace('Home', {});
   const onEditButtonPress = () => setOpenEdit(true);
 
+  const eventDate = typeof date === "string"? new Date(date): date
+
   return (
     <>
       <ExpoStatusBar />
-      <Toolbar onBackPress={onBackBtnPress} onEditPress={onEditButtonPress} disableEdit={isAfter(date, new Date())} />
+      <Toolbar onBackPress={onBackBtnPress} onEditPress={onEditButtonPress}  />
       <View style={listStyles.eventContainer}>
         <View className='flex flex-row justify-between'>
           <Text style={listStyles.dateText}>{dateString}</Text>

@@ -13,6 +13,17 @@ import FirebaseService from 'service/firebase';
 import { VendorContext } from 'Contexts/VendorContext';
 import axios from 'axios';
 
+type Credentials = {
+  type: string;
+  url: string;
+  verified: boolean;
+  expiry?: Date | string;
+};
+
+function hasVerifiedCredential(credentials: Credentials[]): boolean {
+  return credentials.some(credential => credential.verified);
+}
+
 function VendorProfile() {
   const { isLoaded, signOut } = useAuth();
   const [signOutErrMessage, setSignOutErrMessage] = useState('');
@@ -29,7 +40,9 @@ function VendorProfile() {
   }
 
   const { vendor, setSwitching } = vendorContext;
-  const { logo, name, email, contactNumber } = vendor;
+  const { logo, name, email, contactNumber, credential } = vendor;
+
+  
 
   const downloadAvatarImage = async (profilePicturePath: string) => {
     const firebaseService = FirebaseService.getInstance();
@@ -50,7 +63,7 @@ function VendorProfile() {
     const newVisibility = !isVisible;
     setIsVisible(newVisibility);
     const token = await getToken({ template: 'eventhand-vendor' });
-
+    console.log(credential)
     try {
       const response = await axios.patch(
         `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors/${vendor.id}`,
@@ -128,9 +141,11 @@ function VendorProfile() {
             color='rgba(255,255,255,1)'
           >
             <Block className='flex flex-row'>
+
               <Text bold h5 className='uppercase pl-4 pt-2 self-center'>
                 Contact Details:
               </Text>
+              
               <Block className='flex-end mt-1'>
                 <Text p color={colors.primary} className='self-end justify-center align-middle pr-1 text-xs text-primary'>
                   {isVisible
@@ -154,6 +169,8 @@ function VendorProfile() {
               <Text id='profile-contact-num' testID='test-profile-contact-num'>
                 {contactNumber}
               </Text>
+
+
             </Block>
 
             <Block align='flex-start' className='pl-4 pt-5'>
@@ -165,6 +182,15 @@ function VendorProfile() {
               </Text>
               <Text id='profile-email' testID='test-profile-email'>
                 {email}
+              </Text>
+              <Text
+                p
+                className='capitalize border border-t-white border-r-white border-l-white border-b-pink-400'
+              >
+                Verification Status:
+              </Text>
+              <Text id='profile-contact-num' testID='test-profile-contact-num'>
+                {credential? hasVerifiedCredential(credential)? "Verified": "Not Verified": "Not Verified"}
               </Text>
             </Block>
 

@@ -265,7 +265,7 @@ function VendorBookingView({
   const fetchBooking = async () => {
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/booking/vendor/${_id}/view`;
 
-    const token = await getToken({ template: 'eventhand-client' });
+    const token = await getToken({ template: 'eventhand-vendor' });
 
     const request = {
       method: 'GET',

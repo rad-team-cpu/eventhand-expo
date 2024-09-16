@@ -43,7 +43,7 @@ export default function PackageList() {
 
   const fetchPackages = async () => {
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/matchmaker/${event._id}`;
-    const token = await getToken({ template: 'event-hand-jwt' });
+    const token = await getToken({ template: 'eventhand-client' });
 
     const request = {
       method: 'GET',
