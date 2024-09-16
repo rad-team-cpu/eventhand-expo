@@ -4,6 +4,4 @@ export default function formatDate(date: any) {
            dateObj.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
   }
 
-  const forPull = () => {
-    
-  }
+  

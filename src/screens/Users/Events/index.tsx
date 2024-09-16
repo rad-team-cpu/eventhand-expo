@@ -193,9 +193,10 @@ const BudgetScreen = (props: BudgetScreenProps) => {
 interface ToolbarProps {
   onBackPress: (event: GestureResponderEvent) => void | Boolean;
   onEditPress: (event: GestureResponderEvent) => void;
+  disableEdit: boolean;
 }
 
-const Toolbar: React.FC<ToolbarProps> = ({ onBackPress, onEditPress }) => {
+const Toolbar: React.FC<ToolbarProps> = ({ onBackPress, onEditPress, disableEdit }) => {
   return (
     <View style={styles.toolbarContainer}>
       <Pressable onPress={onBackPress} style={styles.toolbarButton}>
@@ -203,9 +204,9 @@ const Toolbar: React.FC<ToolbarProps> = ({ onBackPress, onEditPress }) => {
       </Pressable>
       <View style={styles.toolbarSpacer} />
       <View style={styles.toolbarActions}>
-        <Pressable onPress={onEditPress} style={styles.toolbarButton}>
+       {disableEdit && ( <Pressable onPress={onEditPress} style={styles.toolbarButton}>
           <Ionicons name='pencil' size={24} color='#CB0C9F' />
-        </Pressable>
+        </Pressable>)}
       </View>
     </View>
   );
@@ -571,7 +572,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
   return (
     <>
       <ExpoStatusBar />
-      <Toolbar onBackPress={onBackBtnPress} onEditPress={onEditButtonPress} />
+      <Toolbar onBackPress={onBackBtnPress} onEditPress={onEditButtonPress} disableEdit={isAfter(date, new Date())} />
       <View style={listStyles.eventContainer}>
         <View className='flex flex-row justify-between'>
           <Text style={listStyles.dateText}>{dateString}</Text>
