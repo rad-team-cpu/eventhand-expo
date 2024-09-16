@@ -87,7 +87,7 @@ const BookingDetails = () => {
 
   const onPressConfirm = async () => {
     setLoading(true);
-    const token = await getToken({ template: 'eventhand-vendor' });
+    const token = await getToken({ template: 'eventhand-client' });
 
     if (!selectedOrderType) {
       setError('Please select an order type.');

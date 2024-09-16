@@ -351,7 +351,7 @@ function EventView({ route, navigation }: EventViewScreenProps) {
   const fetchEvent = async () => {
     const url = `${process.env.EXPO_PUBLIC_BACKEND_URL}/events/${eventId}/bookings`;
 
-    const token = await getToken({ template: 'event-hand-jwt' });
+    const token = await getToken({ template: 'eventhand-client' });
 
     const request = {
       method: 'GET',
@@ -566,10 +566,12 @@ function EventView({ route, navigation }: EventViewScreenProps) {
       : navigation.replace('Home', {});
   const onEditButtonPress = () => setOpenEdit(true);
 
+  const eventDate = typeof date === "string"? new Date(date): date
+
   return (
     <>
       <ExpoStatusBar />
-      <Toolbar onBackPress={onBackBtnPress} onEditPress={onEditButtonPress} disableEdit={isAfter(date, new Date())} />
+      <Toolbar onBackPress={onBackBtnPress} onEditPress={onEditButtonPress} disableEdit={isAfter(new Date(eventDate.setHours(0, 0, 0, 0)), new Date())} />
       <View style={listStyles.eventContainer}>
         <View className='flex flex-row justify-between'>
           <Text style={listStyles.dateText}>{dateString}</Text>

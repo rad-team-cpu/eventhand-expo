@@ -63,7 +63,7 @@ function VendorProfile() {
     const newVisibility = !isVisible;
     setIsVisible(newVisibility);
     const token = await getToken({ template: 'eventhand-vendor' });
-
+    console.log(credential)
     try {
       const response = await axios.patch(
         `${process.env.EXPO_PUBLIC_BACKEND_URL}/vendors/${vendor.id}`,
