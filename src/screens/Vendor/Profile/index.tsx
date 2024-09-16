@@ -40,7 +40,7 @@ function VendorProfile() {
   }
 
   const { vendor, setSwitching } = vendorContext;
-  const { logo, name, email, contactNumber, credentials } = vendor;
+  const { logo, name, email, contactNumber, credential } = vendor;
 
   
 
@@ -190,7 +190,7 @@ function VendorProfile() {
                 Verification Status:
               </Text>
               <Text id='profile-contact-num' testID='test-profile-contact-num'>
-                {credentials? hasVerifiedCredential(credentials)? "Verified": "Not Verified": "Not Verified"}
+                {credential? hasVerifiedCredential(credential)? "Verified": "Not Verified": "Not Verified"}
               </Text>
             </Block>
 

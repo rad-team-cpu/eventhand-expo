@@ -16,7 +16,7 @@ interface VendorProfile {
   address?: string;
   contactNumber: string;
   bookings?: BookingDetailsProps[]
-  credentials?: Credentials[]
+  credential?: Credentials[]
 }
 
 interface VendorContextType {

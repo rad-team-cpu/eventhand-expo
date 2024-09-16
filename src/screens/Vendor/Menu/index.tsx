@@ -202,7 +202,7 @@ const MyMenu = () => {
         })) || [],
       vendorId: vendor.id,
     };
-    const token = await getToken({ template: 'event-hand-jwt' });
+    const token = await getToken({ template: 'eventhand-vendor' });
     console.log(formattedPackage);
     try {
       const response = await axios.patch(
